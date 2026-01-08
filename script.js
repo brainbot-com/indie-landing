@@ -273,9 +273,76 @@ document.addEventListener('DOMContentLoaded', () => {
 // Export for testing (if needed)
 // ========================================
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        isValidEmail,
-        trackEvent
+
+
+// ========================================
+// Polish: Animation & Parallax
+// ========================================
+
+function setupAnimations() {
+    // Fade Up Observer
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target); // Only animate once
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Parallax Effect
+    const parallaxItems = document.querySelectorAll('.parallax-bg');
+
+    if (parallaxItems.length > 0) {
+        // Initial set
+        const updateParallax = () => {
+            parallaxItems.forEach(item => {
+                const speed = parseFloat(item.dataset.speed) || 0.2; // Reduced default speed
+                const parent = item.closest('.parallax-container');
+
+                if (parent) {
+                    const rect = parent.getBoundingClientRect();
+                    const viewHeight = window.innerHeight;
+
+                    // Check if in view
+                    if (rect.bottom > 0 && rect.top < viewHeight) {
+                        // Calculate relative position (0 at center of screen)
+                        const centerOffset = (rect.top + rect.height / 2) - (viewHeight / 2);
+
+                        // Move the image based on scroll position
+                        // rect.top is high positive when section is below, becomes negative when above
+                        const translateY = centerOffset * speed;
+
+                        item.style.transform = `translateY(${translateY}px) translateZ(0)`;
+                    }
+                }
+            });
+        };
+
+        window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), { passive: true });
+        // Run once on load
+        updateParallax();
+    }
 }
+
+// ========================================
+// Initialize Everything
+// ========================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupEmailForms();
+    setupAnalytics();
+    setupAnimations(); // Add animations init
+    trackUTMParameters();
+    trackPagePerformance();
+
+    console.log('🚀 INDIE PLATFORM: SYSTEM_ONLINE');
+    console.log('✨ VISUAL_CORE: PRELOADED');
+});
