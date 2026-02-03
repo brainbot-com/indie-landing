@@ -128,7 +128,15 @@ function setupV4ScrollStory() {
             panel2.style.setProperty('--v4-p2-follow', `${(-extraScroll).toFixed(2)}px`);
 
             // Panel 3 (inline) should start joining once Panel 2 is already connected.
-            const p3 = clamp01((enterFromP1 - 0.86) / 0.14);
+            let p3 = 0;
+            if (panel1Text && viewHeight > 0) {
+                const p1RectNow = panel1Text.getBoundingClientRect();
+                // Start when Panel 1 text reaches the "connected" band near the top,
+                // then finish as it scrolls further upward.
+                const p3StartTop = viewHeight * 0.12;
+                const p3EndTop = -viewHeight * 0.30;
+                p3 = clamp01((p3StartTop - p1RectNow.top) / (p3StartTop - p3EndTop));
+            }
             const p3Enter = (1 - p3) * Math.min(260, viewHeight * 0.42);
             panel2.style.setProperty('--v4-p3-enter-y', `${p3Enter.toFixed(2)}px`);
 

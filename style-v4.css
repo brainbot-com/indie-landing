@@ -431,7 +431,6 @@
 }
 
 .v4-panel1 {
-    z-index: 60;
     height: 170vh;
     background: var(--bg-white);
     border-bottom: 1px solid rgba(10, 37, 64, 0.08);
@@ -442,8 +441,6 @@
     top: 0;
     height: 100vh;
     align-items: center;
-    background: var(--bg-white);
-    z-index: 60;
 }
 
 .v4-panel1 .v4-content {
