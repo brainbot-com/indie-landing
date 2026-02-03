@@ -1,286 +1,23 @@
 // ========================================
 // INDIE LANDING PAGE - JavaScript
-// Form handling, analytics, tracking
+// Hero variant toggle + animations
 // ========================================
 
-// Configuration
-const CONFIG = {
-    formEndpoint: 'https://formspree.io/f/YOUR_FORM_ID', // TODO: Replace with actual Formspree ID
-    matomoUrl: 'https://analytics.example.com/', // TODO: Replace with Matomo instance
-    matomoSiteId: 1,
-};
-
-
-
-// ========================================
-// Email Form Handling
-// ========================================
-
-function setupEmailForms() {
-    const forms = document.querySelectorAll('.email-form');
-
-    forms.forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const emailInput = form.querySelector('.email-input');
-            const submitButton = form.querySelector('.cta-button');
-            const email = emailInput.value.trim();
-
-            if (!isValidEmail(email)) {
-                showMessage(form, 'Please enter a valid email address.', 'error');
-                return;
-            }
-
-            // Disable form while submitting
-            submitButton.disabled = true;
-            submitButton.textContent = 'Submitting...';
-
-            try {
-                await submitEmail(email, form.id);
-
-                // Track conversion
-                trackEvent('Email Signup', 'Submit', form.id);
-
-                // Success
-                showMessage(form, '✓ You\'re on the list! Check your email for confirmation.', 'success');
-                emailInput.value = '';
-
-                // Redirect to thank you page after 2 seconds
-                setTimeout(() => {
-                    window.location.href = 'thank-you.html';
-                }, 2000);
-
-            } catch (error) {
-                console.error('Form submission error:', error);
-                showMessage(form, 'Something went wrong. Please try again.', 'error');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = form.id === 'heroForm' ? 'INITIATE_ACCESS' : 'SECURE_ALLOCATION';
-            }
-        });
-    });
-}
-
-function isValidEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-}
-
-async function submitEmail(email, formId) {
-    // TODO: Replace with actual form submission endpoint (Formspree, Mailchimp, custom API)
-
-    // For now, log to console (development)
-    console.log('Email submitted:', { email, formId, timestamp: new Date().toISOString() });
-
-    // Simulate API call
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Store in localStorage as backup
-            const submissions = JSON.parse(localStorage.getItem('emailSubmissions') || '[]');
-            submissions.push({ email, formId, timestamp: new Date().toISOString() });
-            localStorage.setItem('emailSubmissions', JSON.stringify(submissions));
-
-            resolve({ success: true });
-        }, 500);
-    });
-
-    /* Uncomment when using Formspree:
-    const response = await fetch(CONFIG.formEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            email, 
-            formId,
-            timestamp: new Date().toISOString(),
-            source: window.location.href
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error('Form submission failed');
-    }
-    
-    return await response.json();
-    */
-}
-
-function showMessage(form, message, type) {
-    // Remove existing message
-    const existingMsg = form.querySelector('.form-message');
-    if (existingMsg) {
-        existingMsg.remove();
-    }
-
-    // Create new message
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `form-message ${type}`;
-    msgDiv.textContent = message;
-    msgDiv.style.cssText = `
-        margin-top: 1rem;
-        padding: 0.75rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        text-align: center;
-        background: ${type === 'success' ? '#00CC66' : '#FF6B6B'};
-        color: white;
-    `;
-
-    form.appendChild(msgDiv);
-
-    // Auto-remove after 5 seconds (if not success)
-    if (type !== 'success') {
-        setTimeout(() => msgDiv.remove(), 5000);
-    }
-}
-
-// ========================================
-// Analytics & Tracking
-// ========================================
-
-function setupAnalytics() {
-    // Matomo Analytics (privacy-friendly)
-    if (CONFIG.matomoUrl && CONFIG.matomoSiteId) {
-        var _paq = window._paq = window._paq || [];
-        _paq.push(['trackPageView']);
-        _paq.push(['enableLinkTracking']);
-
-        (function () {
-            var u = CONFIG.matomoUrl;
-            _paq.push(['setTrackerUrl', u + 'matomo.php']);
-            _paq.push(['setSiteId', CONFIG.matomoSiteId]);
-            var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
-            g.async = true; g.src = u + 'matomo.js';
-            s.parentNode.insertBefore(g, s);
-        })();
-    }
-
-    // Track scroll depth
-    setupScrollTracking();
-
-    // Track CTA clicks
-    setupCTATracking();
-
-    // Track FAQ interactions
-    setupFAQTracking();
-}
-
-function trackEvent(category, action, name) {
-    console.log('Event tracked:', { category, action, name });
-
-    // Matomo
-    if (window._paq) {
-        window._paq.push(['trackEvent', category, action, name]);
-    }
-}
-
-function setupScrollTracking() {
-    const thresholds = [25, 50, 75, 100];
-    const tracked = new Set();
-
-    window.addEventListener('scroll', () => {
-        const scrollPercent = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-
-        thresholds.forEach(threshold => {
-            if (scrollPercent >= threshold && !tracked.has(threshold)) {
-                tracked.add(threshold);
-                trackEvent('Scroll Depth', `${threshold}%`, window.location.pathname);
-            }
-        });
-    });
-}
-
-function setupCTATracking() {
-    document.querySelectorAll('.cta-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const formId = button.closest('form')?.id || 'unknown';
-            trackEvent('CTA Click', 'Button Click', formId);
-        });
-    });
-}
-
-function setupFAQTracking() {
-    document.querySelectorAll('.faq-item').forEach((item, index) => {
-        item.addEventListener('toggle', () => {
-            if (item.open) {
-                const question = item.querySelector('.faq-question').textContent;
-                trackEvent('FAQ', 'Question Opened', `Q${index + 1}: ${question.substring(0, 50)}`);
-            }
-        });
-    });
-}
-
-// ========================================
-// UTM Parameter Tracking
-// ========================================
-
-function trackUTMParameters() {
+function resolveHeroVariant() {
     const params = new URLSearchParams(window.location.search);
-    const utmParams = {};
+    const hero = (params.get('hero') || '').trim().toLowerCase();
 
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'].forEach(param => {
-        if (params.has(param)) {
-            utmParams[param] = params.get(param);
-        }
-    });
-
-    if (Object.keys(utmParams).length > 0) {
-        console.log('UTM Parameters:', utmParams);
-        localStorage.setItem('utm_params', JSON.stringify(utmParams));
-
-        // Track campaign visit
-        trackEvent('Campaign', 'Visit', utmParams.utm_campaign || 'unknown');
-    }
+    if (hero === 'alt2' || hero === 'alternative2' || hero === '2') return 'alt2';
+    return 'a';
 }
 
-// ========================================
-// Page Load Performance
-// ========================================
-
-function trackPagePerformance() {
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            if (perfData) {
-                const loadTime = perfData.loadEventEnd - perfData.fetchStart;
-                console.log('Page load time:', Math.round(loadTime), 'ms');
-
-                // Track if load time is slow
-                if (loadTime > 3000) {
-                    trackEvent('Performance', 'Slow Load', `${Math.round(loadTime)}ms`);
-                }
-            }
-        }, 0);
+function applyHeroVariant(variant) {
+    document.querySelectorAll('[data-hero-variant]').forEach((el) => {
+        el.hidden = (el.getAttribute('data-hero-variant') !== variant);
     });
 }
-
-// ========================================
-// Initialize Everything
-// ========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    setupEmailForms();
-    setupAnalytics();
-    trackUTMParameters();
-    trackPagePerformance();
-
-    console.log('🚀 INDIE PLATFORM: SYSTEM_ONLINE');
-    console.log('📧 STORAGE_MODE: LOCAL');
-    console.log('📊 TELEMETRY: ACTIVE');
-});
-
-// ========================================
-// Export for testing (if needed)
-// ========================================
-
-
-
-// ========================================
-// Polish: Animation & Parallax
-// ========================================
 
 function setupAnimations() {
-    // Fade Up Observer
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -290,59 +27,242 @@ function setupAnimations() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                observer.unobserve(entry.target); // Only animate once
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-    // Parallax Effect
     const parallaxItems = document.querySelectorAll('.parallax-bg');
+    if (parallaxItems.length === 0) return;
 
-    if (parallaxItems.length > 0) {
-        // Initial set
-        const updateParallax = () => {
-            parallaxItems.forEach(item => {
-                const speed = parseFloat(item.dataset.speed) || 0.2; // Reduced default speed
-                const parent = item.closest('.parallax-container');
+    const updateParallax = () => {
+        parallaxItems.forEach(item => {
+            const speed = parseFloat(item.dataset.speed) || 0.2;
+            const parent = item.closest('.parallax-container');
+            if (!parent) return;
 
-                if (parent) {
-                    const rect = parent.getBoundingClientRect();
-                    const viewHeight = window.innerHeight;
+            const rect = parent.getBoundingClientRect();
+            const viewHeight = window.innerHeight;
+            if (rect.bottom <= 0 || rect.top >= viewHeight) return;
 
-                    // Check if in view
-                    if (rect.bottom > 0 && rect.top < viewHeight) {
-                        // Calculate relative position (0 at center of screen)
-                        const centerOffset = (rect.top + rect.height / 2) - (viewHeight / 2);
+            const centerOffset = (rect.top + rect.height / 2) - (viewHeight / 2);
+            const translateY = centerOffset * speed;
+            item.style.transform = `translateY(${translateY}px) translateZ(0)`;
+        });
+    };
 
-                        // Move the image based on scroll position
-                        // rect.top is high positive when section is below, becomes negative when above
-                        const translateY = centerOffset * speed;
-
-                        item.style.transform = `translateY(${translateY}px) translateZ(0)`;
-                    }
-                }
-            });
-        };
-
-        window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), { passive: true });
-        // Run once on load
-        updateParallax();
-    }
+    window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), { passive: true });
+    updateParallax();
 }
 
-// ========================================
-// Initialize Everything
-// ========================================
+function clamp01(value) {
+    if (value < 0) return 0;
+    if (value > 1) return 1;
+    return value;
+}
+
+function setupScrollStory() {
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    const panel1 = document.querySelector('[data-scroll-panel="panel1"]');
+    const panel2 = document.querySelector('[data-scroll-panel="panel2"]');
+    const panel2Wrap = document.querySelector('[data-scroll-panel="panel2-wrap"]');
+    if (!panel1 && !panel2) return;
+
+    let raf = 0;
+    let panel2Fixed = false;
+
+    const update = () => {
+        raf = 0;
+
+        if (panel2) {
+            const viewHeight = window.innerHeight || 0;
+            const panel1Text = panel1 ? panel1.querySelector('.scroll-panel-text') : null;
+
+            const computeProgress = (sectionEl) => {
+                const rect = sectionEl.getBoundingClientRect();
+                const start = window.scrollY + rect.top;
+                const end = start + sectionEl.offsetHeight - window.innerHeight;
+                if (end <= start) return { progress: 1, start, end };
+                return { progress: clamp01((window.scrollY - start) / (end - start)), start, end };
+            };
+
+            // Panel 2 should begin to enter when Panel 1 reaches the middle of the viewport
+            // and be fully "connected" below Panel 1 when Panel 1 sits near the top.
+            const p1Info = panel1 ? computeProgress(panel1) : { progress: 0, start: 0, end: 0 };
+            let enterFromP1 = 0;
+
+            let panel2TopPx = 0;
+            if (panel1Text && viewHeight > 0) {
+                const p1Rect = panel1Text.getBoundingClientRect();
+
+                const startTop = viewHeight * 0.55; // start when Panel 1 is around the middle
+                const endTop = viewHeight * 0.12;   // end when Panel 1 is close to the top
+                enterFromP1 = clamp01((startTop - p1Rect.top) / (startTop - endTop));
+
+                const gapPx = Math.round(Math.max(18, Math.min(34, viewHeight * 0.03)));
+                const unclampedTop = p1Rect.bottom + gapPx;
+                const minTop = viewHeight * 0.25;
+                const maxTop = viewHeight * 0.72;
+                panel2TopPx = Math.round(Math.max(minTop, Math.min(maxTop, unclampedTop)));
+            }
+
+            const panel2HeightPx = Math.max(0, viewHeight - panel2TopPx);
+            const enterY = (1 - enterFromP1) * (panel2HeightPx + 40);
+            const extraScroll = Math.max(0, window.scrollY - p1Info.end);
+
+            const headMove = clamp01((enterFromP1 - 0.2) / 0.8);
+            const headY = (1 - headMove) * 22;
+
+            panel2.style.setProperty('--panel2-top', `${panel2TopPx}px`);
+            panel2.style.setProperty('--panel2-enter-y', `${enterY.toFixed(2)}px`);
+            panel2.style.setProperty('--panel-head-y', `${headY.toFixed(2)}vh`);
+            panel2.style.setProperty('--panel2-follow', `${(-extraScroll).toFixed(2)}px`);
+
+            // Panel 3 (inline) should start joining once Panel 2 is already connected.
+            let p3 = 0;
+            if (panel1Text && viewHeight > 0) {
+                const p1RectNow = panel1Text.getBoundingClientRect();
+                // Start when Panel 1 text reaches the "connected" band near the top,
+                // then finish as it scrolls further upward.
+                const p3StartTop = viewHeight * 0.12;
+                const p3EndTop = -viewHeight * 0.30;
+                p3 = clamp01((p3StartTop - p1RectNow.top) / (p3StartTop - p3EndTop));
+            }
+            const p3Enter = (1 - p3) * Math.min(260, viewHeight * 0.42);
+            panel2.style.setProperty('--panel3-enter-y', `${p3Enter.toFixed(2)}px`);
+
+            const wrapTop = panel2Wrap ? panel2Wrap.getBoundingClientRect().top : 0;
+            const shouldFix = enterFromP1 > 0 && panel2Wrap && wrapTop > panel2TopPx;
+            if (shouldFix && !panel2Fixed) {
+                panel2.classList.add('is-fixed');
+                panel2Fixed = true;
+            }
+            if (!shouldFix && panel2Fixed) {
+                panel2.classList.remove('is-fixed');
+                panel2Fixed = false;
+            }
+        }
+    };
+
+    const requestUpdate = () => {
+        if (raf) return;
+        raf = requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    update();
+}
+
+function setupHeroCinematicSequence() {
+    const heroSection = document.querySelector('.hero-overlay[data-hero-seq="cinematic"]');
+    if (!heroSection) return;
+
+    const activeVariant = heroSection.querySelector('.hero-content-overlay[data-hero-seq-enabled="true"]:not([hidden])');
+    if (!activeVariant) {
+        heroSection.classList.remove(
+            'hero-seq-on',
+            'hero-seq-bg',
+            'hero-seq-content',
+            'hero-seq-stageout',
+            'hero-seq-line1',
+            'hero-seq-line2',
+            'hero-seq-cloud',
+            'hero-seq-cloud-active',
+            'hero-seq-cloud-move',
+            'hero-seq-cloud-done',
+            'hero-seq-subtitle-in',
+            'hero-seq-subtitle-settle',
+            'hero-seq-cta'
+        );
+        return;
+    }
+
+    heroSection.classList.add('hero-seq-on');
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+        heroSection.classList.add(
+            'hero-seq-bg',
+            'hero-seq-content',
+            'hero-seq-stageout',
+            'hero-seq-line1',
+            'hero-seq-line2',
+            'hero-seq-subtitle-settle',
+            'hero-seq-cta'
+        );
+        return;
+    }
+
+    const at = (ms, fn) => window.setTimeout(fn, ms);
+
+    const startCloudFlip = () => {
+        const flyWrap = heroSection.querySelector('.hero-fly');
+        const flyText = heroSection.querySelector('.hero-fly-cloud');
+        const target = heroSection.querySelector('.hero-line-2');
+
+        if (!flyWrap || !flyText || !target) {
+            heroSection.classList.add('hero-seq-line2');
+            return;
+        }
+
+        heroSection.classList.remove('hero-seq-cloud-done', 'hero-seq-cloud-move');
+        flyWrap.style.removeProperty('--cloud-dx');
+        flyWrap.style.removeProperty('--cloud-dy');
+
+        heroSection.classList.add('hero-seq-cloud', 'hero-seq-cloud-active');
+        // Ensure the target has its *final* layout (no translateY from base .hero-line)
+        // while staying invisible due to hero-seq-cloud-active.
+        heroSection.classList.add('hero-seq-line2');
+
+        let finished = false;
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            heroSection.classList.add('hero-seq-cloud-done');
+            heroSection.classList.remove('hero-seq-cloud-active');
+        };
+
+        // Show big instantly, then move+shrink to the final slot.
+        window.setTimeout(() => {
+            requestAnimationFrame(() => {
+                const from = flyText.getBoundingClientRect();
+                const to = target.getBoundingClientRect();
+
+                const dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+                const dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+                flyWrap.style.setProperty('--cloud-dx', `${dx.toFixed(2)}px`);
+                flyWrap.style.setProperty('--cloud-dy', `${dy.toFixed(2)}px`);
+
+                const onEnd = (ev) => {
+                    if (ev.propertyName !== 'transform') return;
+                    flyWrap.removeEventListener('transitionend', onEnd);
+                    finish();
+                };
+
+                flyWrap.addEventListener('transitionend', onEnd);
+                heroSection.classList.add('hero-seq-cloud-move');
+                window.setTimeout(finish, 980);
+            });
+        }, 0);
+    };
+
+    // Timings tuned for: readable, but not sluggish
+    at(1100, () => heroSection.classList.add('hero-seq-bg', 'hero-seq-content', 'hero-seq-stageout'));
+    at(2100, () => heroSection.classList.add('hero-seq-line1'));
+    at(2450, startCloudFlip); // appear big, brief pause, then move to final slot
+    at(4200, () => heroSection.classList.add('hero-seq-subtitle-in')); // subtitle fades in already at 200% size
+    at(4750, () => heroSection.classList.add('hero-seq-subtitle-settle')); // settles to final size/position
+    at(5200, () => heroSection.classList.add('hero-seq-cta')); // CTA last
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    setupEmailForms();
-    setupAnalytics();
-    setupAnimations(); // Add animations init
-    trackUTMParameters();
-    trackPagePerformance();
-
-    console.log('🚀 INDIE PLATFORM: SYSTEM_ONLINE');
-    console.log('✨ VISUAL_CORE: PRELOADED');
+    applyHeroVariant(resolveHeroVariant());
+    setupHeroCinematicSequence();
+    setupAnimations();
+    setupScrollStory();
 });
