@@ -450,6 +450,122 @@ ul {
     background: var(--bg-neutral);
 }
 
+.capability-story .container {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(3rem, 8vw, 6.5rem);
+}
+
+.feature-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(2rem, 6vw, 4.5rem);
+    align-items: center;
+}
+
+.feature-panel--reverse .feature-visual {
+    order: 2;
+}
+
+.feature-panel--reverse .feature-copy {
+    order: 1;
+}
+
+.feature-visual {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg-neutral);
+    border: 1px solid rgba(10, 37, 64, 0.08);
+    box-shadow: 0 24px 60px rgba(11, 34, 52, 0.12);
+}
+
+.feature-visual__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.9) contrast(1.05);
+}
+
+.feature-visual__img--agent {
+    transform: scale(1.05);
+    transform-origin: center;
+}
+
+.feature-visual--placeholder {
+    background:
+        linear-gradient(135deg, rgba(11, 34, 52, 0.06), rgba(11, 34, 52, 0.02)),
+        var(--bg-neutral);
+}
+
+.feature-copy {
+    max-width: 520px;
+}
+
+.feature-kicker {
+    font-size: var(--t-small);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: rgba(11, 34, 52, 0.55);
+    margin-bottom: 0.9rem;
+}
+
+.feature-title {
+    font-size: var(--t-title);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.feature-lead {
+    font-size: var(--t-body-lg);
+    line-height: 1.6;
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.feature-points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.55rem;
+}
+
+.feature-points li {
+    position: relative;
+    padding-left: 1.1rem;
+    color: var(--text-light);
+    font-size: var(--t-body);
+}
+
+.feature-points li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: rgba(11, 34, 52, 0.55);
+}
+
+@media (max-width: 980px) {
+    .feature-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-panel--reverse .feature-visual,
+    .feature-panel--reverse .feature-copy {
+        order: initial;
+    }
+
+    .feature-copy {
+        max-width: 100%;
+    }
+}
+
 /* ========================================
    VISUAL SHOWCASE SECTION
    ======================================== */
