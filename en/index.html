@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indie.Box</title>
+    <title>Indiebox</title>
 
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 
@@ -19,7 +19,7 @@
 <body>
     <nav class="nav-bar nav-bar--floating" aria-label="Hauptmenü">
         <div class="container nav-container">
-            <a class="nav-logo" href="#top" aria-label="Indie.Box Home">Indie.Box</a>
+            <a class="nav-logo" href="#top" aria-label="Indiebox Home">Indiebox</a>
             <div class="nav-links">
                 <a href="#einsatz" data-i18n="nav.einsatz">Use cases</a>
                 <a href="#spezifikation" data-i18n="nav.spec">Specifications</a>
@@ -29,7 +29,7 @@
     </nav>
     <!-- Hero -->
     <section class="hero-overlay parallax-container" id="top" data-hero-seq="cinematic">
-        <img src="../image2.png" alt="Indie.Box" class="hero-bg-image parallax-bg" data-speed="0.5">
+        <img src="../image2.png" alt="Indiebox" class="hero-bg-image parallax-bg" data-speed="0.5">
 
         <div class="hero-stage" aria-hidden="true">
             <div class="hero-stage-brand">Indiebox</div>
@@ -55,12 +55,12 @@
             </div>
 
             <div class="hero-rest">
-                <p class="hero-subtitle hero-subtitle-anim" data-i18n="hero.subtitle" data-i18n-html="true">Indie.Box is an AI server for powerful models.<br>Private, fast, and subscription-free.</p>
+                <p class="hero-subtitle hero-subtitle-anim" data-i18n="hero.subtitle" data-i18n-html="true">Indiebox is an AI server for powerful models.<br>Private, fast, and subscription-free.</p>
             </div>
         </div>
 
         <div class="container hero-content-overlay" data-hero-variant="alt2" data-animate="fade-up" hidden>
-            <h1 class="hero-title" data-i18n="hero.alt.title">indie.box</h1>
+            <h1 class="hero-title" data-i18n="hero.alt.title">Indiebox</h1>
             <p class="hero-subtitle" data-i18n="hero.alt.subtitle" data-i18n-html="true">Real intelligence. Available instantly.<br>Performance. Under your control. Super simple.</p>
             <div class="hero-actions">
                 <a href="#demo" class="button button--solid button--pill button--lg" data-i18n="hero.alt.cta">Get started</a>
@@ -73,7 +73,7 @@
         <div class="story-panel-sticky">
             <div class="story-content">
                 <div class="story-content-inner">
-                    <p class="story-text" data-animate="fade-up" data-i18n="story.intro.main">Indie.Box is the new reference for local AI for good reason.</p>
+                    <p class="story-text" data-animate="fade-up" data-i18n="story.intro.main">Indiebox is the new reference for local AI for good reason.</p>
                     <p class="story-subline" data-animate="fade-up" data-stagger="1" data-i18n="story.intro.subline">More power, more headroom: 128 GB of memory for modern reasoning models.</p>
                 </div>
             </div>
@@ -120,7 +120,7 @@
                     <div class="box-kicker" data-i18n="boxes.usage.kicker">USAGE</div>
                     <div class="box-display" data-animate="fade-up" data-i18n="boxes.usage.title">READY TO USE</div>
                 </div>
-                <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">Unbox, connect, and go. Indie.Box is preconfigured, updates run automatically, and your teams start without technical hurdles.</p>
+                <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">Unbox, connect, and go. Indiebox is preconfigured, updates run automatically, and your teams start without technical hurdles.</p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.usage.tag">For product teams</span>
                     <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta" data-i18n="boxes.usage.cta">Learn more about usage</a>
@@ -141,26 +141,19 @@
         </div>
     </section>
 
-    <!-- Construction -->
-    <section class="section">
-        <div class="container">
-            <div class="info-card" data-animate="fade-up">
-                <img src="../construction.svg" alt="Under construction" style="width: min(420px, 100%); display: block; margin: 0 auto 1.5rem;">
-                <h2 class="info-title" data-i18n="construction.title">We're building here.</h2>
-                <p class="info-text" data-i18n="construction.text">We're working on the next modules. More to see soon.</p>
-            </div>
-        </div>
-    </section>
 
     <!-- Vergleich + Warum -->
-    <section class="section">
+    <section class="section comparison-section">
         <div class="container">
-            <h2 class="section-heading" data-animate="fade-up" data-i18n="comparison.title">Built for productive on-site AI</h2>
+            <div class="compare-headline" data-animate="fade-up">
+                <h2 class="compare-title gradient-light" data-i18n="comparison.title">Why Indiebox?</h2>
+                <p class="compare-subline" data-i18n="comparison.subline">Compare your options and see why Indiebox is the best choice for private AI.</p>
+            </div>
             <div class="grid-3 comparison-grid">
-                <div class="card comparison-card" data-animate="fade-up">
+                <div class="card comparison-card comparison-card--negative" data-animate="fade-up">
                     <div class="comparison-head">
                         <h3 data-i18n="comparison.cloud.title">Cloud AI</h3>
-                        <div class="comparison-badge muted" data-i18n="comparison.cloud.badge">Not private</div>
+                        <span class="comparison-label" data-i18n="comparison.cloud.badge">Not private</span>
                     </div>
                     <ul class="symbol-list">
                         <li data-i18n="comparison.cloud.items.0">✕ Monthly fees</li>
@@ -170,10 +163,10 @@
                     </ul>
                 </div>
 
-                <div class="card comparison-card best" data-animate="fade-up">
+                <div class="card comparison-card best comparison-card--positive comparison-card--glow" data-animate="fade-up">
                     <div class="comparison-head">
-                        <h3 data-i18n="comparison.indie.title">Indie.Box</h3>
-                        <div class="comparison-badge best" data-i18n="comparison.indie.badge">Best choice</div>
+                        <h3 data-i18n="comparison.indie.title">Indiebox</h3>
+                        <span class="comparison-label comparison-label--best" data-i18n="comparison.indie.badge">Best choice</span>
                     </div>
                     <ul class="symbol-list">
                         <li data-i18n="comparison.indie.items.0">✓ Buy once, no subscriptions</li>
@@ -184,10 +177,10 @@
                     </ul>
                 </div>
 
-                <div class="card comparison-card" data-animate="fade-up">
+                <div class="card comparison-card comparison-card--negative" data-animate="fade-up">
                     <div class="comparison-head">
                         <h3 data-i18n="comparison.self.title">Self-hosting</h3>
-                        <div class="comparison-badge muted" data-i18n="comparison.self.badge">Too complex</div>
+                        <span class="comparison-label" data-i18n="comparison.self.badge">Too complex</span>
                     </div>
                     <ul class="symbol-list">
                         <li data-i18n="comparison.self.items.0">✕ Days or weeks of setup</li>
@@ -198,18 +191,27 @@
                     </ul>
                 </div>
             </div>
-
-            <p class="center-note" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">Indie.Box combines the privacy of self-hosting with the simplicity of cloud AI.<br>No ongoing costs. No tinkering.</p>
+            <p class="center-note" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">Indiebox combines the privacy of self-hosting with the simplicity of cloud AI.<br>No ongoing costs. No tinkering.</p>
         </div>
     </section>
-
+    <!-- Private AI Ecosystem -->
+    <section class="showcase-section parallax-container" id="demo">
+        <div class="showcase-container">
+            <img src="../image.png" alt="Indiebox" class="showcase-image parallax-bg" data-speed="0.3">
+            <div class="showcase-content">
+                <h2 class="showcase-title" data-animate="fade-up" data-i18n="showcase.title">Your private AI ecosystem</h2>
+                <p class="showcase-text" data-animate="fade-up" data-i18n="showcase.text" data-i18n-html="true">Use a curated ecosystem of professional AI applications.<br>One click to install, automatic updates, and no data leakage.</p>
+            </div>
+        </div>
+    </section>
+    
     <!-- Wie es funktioniert -->
     <section class="section" style="background-color: var(--bg-light);">
         <div class="container">
             <div class="grid-3">
                 <div class="card" data-animate="fade-up">
                     <h3 data-i18n="howto.items.0.title">1. Unbox &amp;amp; Connect</h3>
-                    <p class="card-lead" data-i18n="howto.items.0.body" data-i18n-html="true">Connect Indie.Box to power and network.<br>Wi-Fi or Ethernet, done.</p>
+                    <p class="card-lead" data-i18n="howto.items.0.body" data-i18n-html="true">Connect Indiebox to power and network.<br>Wi-Fi or Ethernet, done.</p>
                 </div>
                 <div class="card" data-animate="fade-up">
                     <h3 data-i18n="howto.items.1.title">2. Open the browser</h3>
@@ -223,16 +225,6 @@
         </div>
     </section>
 
-    <!-- Private AI Ecosystem -->
-    <section class="showcase-section parallax-container" id="demo">
-        <div class="showcase-container">
-            <img src="../image.png" alt="Indie.Box" class="showcase-image parallax-bg" data-speed="0.3">
-            <div class="showcase-content">
-                <h2 class="showcase-title" data-animate="fade-up" data-i18n="showcase.title">Your private AI ecosystem</h2>
-                <p class="showcase-text" data-animate="fade-up" data-i18n="showcase.text" data-i18n-html="true">Use a curated ecosystem of professional AI applications.<br>One click to install, automatic updates, and no data leakage.</p>
-            </div>
-        </div>
-    </section>
     <!-- Einsatz -->
     <section class="section capability-story" id="einsatz">
         <div class="container">
@@ -278,7 +270,7 @@
                     <div class="feature-kicker">Einsatz</div>
                     <h3 class="feature-title" data-i18n="capabilities.models.title">3. Run all models</h3>
                     <p class="feature-lead" data-i18n="capabilities.models.lead">All common AI models, locally.</p>
-                    <p class="feature-lead" data-i18n="capabilities.models.body" data-i18n-html="true">Indie.Box comes with powerful models preinstalled.<br>Add more models as needed and switch instantly.</p>
+                    <p class="feature-lead" data-i18n="capabilities.models.body" data-i18n-html="true">Indiebox comes with powerful models preinstalled.<br>Add more models as needed and switch instantly.</p>
                     <ul class="feature-points">
                         <li data-i18n="capabilities.models.items.0">Strong reasoning models</li>
                         <li data-i18n="capabilities.models.items.1">Vision and audio tasks</li>
@@ -307,7 +299,7 @@
         <div class="container">
             <div class="info-card" data-animate="fade-up">
                 <h2 class="info-title" data-i18n="operations.title">A system that just works</h2>
-                <p class="info-text" data-i18n="operations.lead" data-i18n-html="true">Indie.Box runs on a hardened Linux system with clearly separated user and data areas.<br>Updates and support happen only with your approval.</p>
+                <p class="info-text" data-i18n="operations.lead" data-i18n-html="true">Indiebox runs on a hardened Linux system with clearly separated user and data areas.<br>Updates and support happen only with your approval.</p>
                 <p class="info-text" data-i18n="operations.body" data-i18n-html="true">No hidden access.<br>No surprises in operation.</p>
                 <a href="#betrieb" class="text-link" data-i18n="operations.link">How operations work</a>
             </div>
@@ -317,9 +309,28 @@
     <!-- Spezifikation -->
     <section class="section" id="spezifikation">
         <div class="container">
-            <div class="info-card" data-animate="fade-up">
-                <h2 class="info-title" data-i18n="spec.title">Specifications</h2>
-                <p class="info-text" data-i18n="spec.body">Technical specifications and details for Indie.Box will appear here.</p>
+            <div class="spec-card" data-animate="fade-up">
+                <div class="spec-visual" aria-hidden="true"></div>
+                <div class="spec-content">
+                    <p class="spec-kicker" data-i18n="spec.kicker">Workstation Grade Power</p>
+                    <h2 class="spec-title" data-i18n="spec.title">Indiebox</h2>
+                    <p class="spec-price" data-i18n="spec.price">from €2,999</p>
+                    <p class="spec-tagline" data-i18n="spec.tagline">One-time purchase. Lifetime ownership.</p>
+                    <ul class="spec-list">
+                        <li><span data-i18n="spec.items.0">Processor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Cores)</strong></li>
+                        <li><span data-i18n="spec.items.1">AI Capability</span><strong data-i18n="spec.values.1">High-Performance NPU (50 TOPS)</strong></li>
+                        <li><span data-i18n="spec.items.2">Memory</span><strong data-i18n="spec.values.2">128GB High-Speed RAM</strong></li>
+                        <li><span data-i18n="spec.items.3">Storage</span><strong data-i18n="spec.values.3">4TB Professional NVMe SSD</strong></li>
+                    </ul>
+                    <ul class="spec-checks">
+                        <li data-i18n="spec.checks.0">Fully Pre-configured System</li>
+                        <li data-i18n="spec.checks.1">Priority Support for Business</li>
+                        <li data-i18n="spec.checks.2">Agent Automation Platform, Chat Platform, and models included</li>
+                    </ul>
+                    <div>
+                        <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy" data-i18n="hero.cta.buy">Buy</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -330,7 +341,7 @@
             <div class="final-cta-card" data-animate="fade-up">
                 <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-i18n="finalCta.title">Ready for local AI without compromise?</h2>
                 <div class="hero-actions">
-                    <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--lg" data-i18n="finalCta.primary">Buy now</a>
+                    <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy" data-i18n="finalCta.primary">Buy now</a>
                     <a href="#demo" class="button button--plain-light button--pill button--lg" data-i18n="finalCta.secondary">See the demo</a>
                 </div>
             </div>
@@ -341,7 +352,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h4>Indie.Box</h4>
+                    <h4>Indiebox</h4>
                     <p data-i18n="footer.tagline">Private AI. No cloud.</p>
                 </div>
                 <div class="footer-contact">
@@ -349,7 +360,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <div data-i18n="footer.copyright">© 2026 Indie.Box</div>
+                <div data-i18n="footer.copyright">© 2026 Indiebox</div>
                 <div class="legal-links">
                     <a href="../terms.html" data-i18n="footer.terms">Terms</a>
                     <a href="../impressum.html" data-i18n="footer.impressum">Legal notice</a>
