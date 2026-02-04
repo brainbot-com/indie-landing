@@ -228,10 +228,42 @@ function setupNavReveal() {
     observer.observe(hero);
 }
 
+function setupMobileNav() {
+    const nav = document.querySelector('.nav-bar');
+    const toggle = document.querySelector('.nav-toggle');
+    const links = document.querySelector('.nav-links');
+    if (!nav || !toggle || !links) return;
+
+    const setOpen = (open) => {
+        nav.classList.toggle('nav-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+
+    toggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        setOpen(!nav.classList.contains('nav-open'));
+    });
+
+    links.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => setOpen(false));
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!nav.contains(event.target)) setOpen(false);
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.matchMedia('(min-width: 769px)').matches) {
+            setOpen(false);
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
     setupAnimations();
     setupStoryScroll();
     setupNavReveal();
+    setupMobileNav();
 });
