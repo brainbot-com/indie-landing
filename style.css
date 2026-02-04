@@ -389,50 +389,23 @@ ul {
 
 .comparison-head {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-    position: relative;
-    padding-top: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    margin-bottom: 1.35rem;
 }
 
 .comparison-label {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(11, 34, 52, 0.55);
-    position: absolute;
-    left: 50%;
-    top: -0.8rem;
-    transform: translateX(-50%);
-    padding: 0.2rem 0.8rem;
-    border-radius: 999px;
-    background: var(--bg-neutral);
-    border: 1px solid rgba(11, 34, 52, 0.08);
-    box-shadow: 0 8px 20px rgba(11, 34, 52, 0.06);
+    color: rgba(11, 34, 52, 0.5);
     white-space: nowrap;
 }
 
-.comparison-label::before {
-    content: "";
-    position: absolute;
-    left: 0.45rem;
-    top: 0.55rem;
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: rgba(11, 34, 52, 0.4);
-}
-
 .comparison-label--best {
-    color: rgba(10, 37, 64, 0.9);
-}
-
-.comparison-label--best::before {
-    background: rgba(10, 37, 64, 0.85);
-    box-shadow: 0 0 0 4px rgba(11, 34, 52, 0.08);
+    color: rgba(10, 37, 64, 0.85);
 }
 
 .symbol-list {
