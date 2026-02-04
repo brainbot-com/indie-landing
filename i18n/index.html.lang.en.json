@@ -93,5 +93,10 @@
   "footer.tagline": "Private AI. No cloud.",
   "footer.copyright": "© 2026 Indie.Box",
   "footer.terms": "Terms",
-  "footer.impressum": "Legal notice"
+  "footer.impressum": "Legal notice",
+  "nav.einsatz": "Use cases",
+  "nav.spec": "Specifications",
+  "nav.buy": "Buy",
+  "spec.title": "Specifications",
+  "spec.body": "Technical specifications and details for Indie.Box will appear here."
 }

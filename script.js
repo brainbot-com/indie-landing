@@ -193,9 +193,28 @@ function setupHeroCinematicSequence() {
     at(5100, () => heroSection.classList.add('hero-seq-subtitle-settle')); // settles to final size/position
 }
 
+function setupNavReveal() {
+    const nav = document.querySelector('.nav-bar--floating');
+    const hero = document.querySelector('.hero-overlay');
+    if (!nav || !hero) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                nav.classList.remove('nav-bar--visible');
+            } else {
+                nav.classList.add('nav-bar--visible');
+            }
+        });
+    }, { threshold: 0.05 });
+
+    observer.observe(hero);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
     setupAnimations();
     setupStoryScroll();
+    setupNavReveal();
 });

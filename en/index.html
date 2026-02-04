@@ -17,6 +17,16 @@
 </head>
 
 <body>
+    <nav class="nav-bar nav-bar--floating" aria-label="Hauptmenü">
+        <div class="container nav-container">
+            <a class="nav-logo" href="#top" aria-label="Indie.Box Home">Indie.Box</a>
+            <div class="nav-links">
+                <a href="#einsatz" data-i18n="nav.einsatz">Use cases</a>
+                <a href="#spezifikation" data-i18n="nav.spec">Specifications</a>
+                <a href="mailto:contact@brainbot.com" class="button button--pill button--sm nav-buy" data-i18n="nav.buy">Buy</a>
+            </div>
+        </div>
+    </nav>
     <!-- Hero -->
     <section class="hero-overlay parallax-container" id="top" data-hero-seq="cinematic">
         <img src="../image2.png" alt="Indie.Box" class="hero-bg-image parallax-bg" data-speed="0.5">
@@ -224,7 +234,7 @@
         </div>
     </section>
     <!-- Einsatz -->
-    <section class="section capability-story">
+    <section class="section capability-story" id="einsatz">
         <div class="container">
             <div class="feature-panel" data-animate="fade-up">
                 <div class="feature-visual">
@@ -300,6 +310,16 @@
                 <p class="info-text" data-i18n="operations.lead" data-i18n-html="true">Indie.Box runs on a hardened Linux system with clearly separated user and data areas.<br>Updates and support happen only with your approval.</p>
                 <p class="info-text" data-i18n="operations.body" data-i18n-html="true">No hidden access.<br>No surprises in operation.</p>
                 <a href="#betrieb" class="text-link" data-i18n="operations.link">How operations work</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spezifikation -->
+    <section class="section" id="spezifikation">
+        <div class="container">
+            <div class="info-card" data-animate="fade-up">
+                <h2 class="info-title" data-i18n="spec.title">Specifications</h2>
+                <p class="info-text" data-i18n="spec.body">Technical specifications and details for Indie.Box will appear here.</p>
             </div>
         </div>
     </section>

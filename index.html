@@ -17,6 +17,16 @@
 </head>
 
 <body>
+    <nav class="nav-bar nav-bar--floating" aria-label="Hauptmenü">
+        <div class="container nav-container">
+            <a class="nav-logo" href="#top" aria-label="Indie.Box Home">Indie.Box</a>
+            <div class="nav-links">
+                <a href="#einsatz" data-i18n="nav.einsatz">Einsatz</a>
+                <a href="#spezifikation" data-i18n="nav.spec">Spezifikation</a>
+                <a href="mailto:contact@brainbot.com" class="button button--pill button--sm nav-buy" data-i18n="nav.buy">Kaufen</a>
+            </div>
+        </div>
+    </nav>
     <!-- Hero -->
     <section class="hero-overlay parallax-container" id="top" data-hero-seq="cinematic">
         <img src="image2.png" alt="Indie.Box" class="hero-bg-image parallax-bg" data-speed="0.5">
@@ -264,7 +274,7 @@
         </div>
     </section>
     <!-- Einsatz -->
-    <section class="section capability-story">
+    <section class="section capability-story" id="einsatz">
         <div class="container">
             <div class="feature-panel" data-animate="fade-up">
                 <div class="feature-visual">
@@ -363,6 +373,18 @@
                     Keine Überraschungen im Betrieb.
                 </p>
                 <a href="#betrieb" class="text-link" data-i18n="operations.link">So funktioniert der Betrieb</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spezifikation -->
+    <section class="section" id="spezifikation">
+        <div class="container">
+            <div class="info-card" data-animate="fade-up">
+                <h2 class="info-title" data-i18n="spec.title">Spezifikation</h2>
+                <p class="info-text" data-i18n="spec.body">
+                    Hier folgen Spezifikationen und technische Details zur Indie.Box.
+                </p>
             </div>
         </div>
     </section>
