@@ -518,10 +518,10 @@ ul {
 }
 
 .spec-visual-image {
-    width: 115%;
-    height: 115%;
+    width: 130%;
+    height: 130%;
     object-fit: contain;
-    filter: drop-shadow(0 28px 44px rgba(11, 34, 52, 0.22));
+    filter: contrast(1.08) saturate(1.05);
 }
 
 .spec-content {
