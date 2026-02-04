@@ -5,16 +5,17 @@
 
 function redirectToEnglishIfNeeded() {
     const path = window.location.pathname || '';
-    if (path === '/en' || path.startsWith('/en/')) return;
+    if (/\/en(\/|$)/.test(path)) return;
 
     const preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
     if (!preferred.toLowerCase().startsWith('en')) return;
 
-    const target = '/en/';
-    if (path === '/' || path === '/index.html' || path === '') {
-        window.location.replace(target);
-        return;
-    }
+    const isRoot = path === '' || path === '/' || path.endsWith('/index.html') || path.endsWith('/');
+    if (!isRoot) return;
+
+    const targetPath = window.location.protocol === 'file:' ? 'en/index.html' : 'en/';
+    const target = new URL(targetPath, window.location.href).toString();
+    window.location.replace(target);
 }
 
 redirectToEnglishIfNeeded();
