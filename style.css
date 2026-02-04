@@ -26,6 +26,11 @@
     --font-main: 'Inter', system-ui, -apple-system, sans-serif;
     --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
     /* Setup for potential future font change */
+
+    /* Type tokens (Indie.Box) */
+    --t-display-1: clamp(3.3rem, 7.9vw, 7rem);
+    --t-display-2: clamp(2.35rem, 5.4vw, 4.4rem);
+    --t-subhead: clamp(1.1rem, 2.1vw, 1.6rem);
 }
 
 /* Smooth Scrolling */
@@ -278,7 +283,7 @@ ul {
 }
 
 .hero-title {
-    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-size: var(--t-display-1);
     margin-bottom: 2rem;
     line-height: 1.1;
     color: white;
@@ -286,7 +291,7 @@ ul {
 }
 
 .hero-subtitle {
-    font-size: 1.3rem;
+    font-size: var(--t-subhead);
     line-height: 1.6;
     margin-bottom: 3rem;
     color: rgba(255, 255, 255, 0.95);
