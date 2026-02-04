@@ -3,6 +3,22 @@
 // Hero variant toggle + animations
 // ========================================
 
+function redirectToEnglishIfNeeded() {
+    const path = window.location.pathname || '';
+    if (path === '/en' || path.startsWith('/en/')) return;
+
+    const preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    if (!preferred.toLowerCase().startsWith('en')) return;
+
+    const target = '/en/';
+    if (path === '/' || path === '/index.html' || path === '') {
+        window.location.replace(target);
+        return;
+    }
+}
+
+redirectToEnglishIfNeeded();
+
 function resolveHeroVariant() {
     const params = new URLSearchParams(window.location.search);
     const hero = (params.get('hero') || '').trim().toLowerCase();
@@ -125,6 +141,9 @@ function setupStoryScroll() {
             panelFocus.style.setProperty('--story-p2-enter-y', `${enterY.toFixed(2)}px`);
             panelFocus.style.setProperty('--story-head-y', `${headY.toFixed(2)}vh`);
             panelFocus.style.setProperty('--story-p2-follow', `${(-extraScroll).toFixed(2)}px`);
+            if (panelWrap) {
+                panelWrap.style.setProperty('--story-p2-top', `${panelTopPx}px`);
+            }
 
             let p3 = 0;
             if (introText && viewHeight > 0) {

@@ -1007,6 +1007,8 @@ ul {
 .story-panel-wrap {
     position: relative;
     height: 100vh;
+    margin-top: calc(-1 * var(--story-p2-top, 0px));
+    background: #081a2b;
 }
 
 .story-panel--focus.is-fixed {
@@ -1038,7 +1040,6 @@ ul {
     transform: none;
     background: #081a2b;
     border-top: 1px solid rgba(255, 255, 255, 0.10);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
     will-change: transform;
 }
 
