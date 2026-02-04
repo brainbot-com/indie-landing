@@ -1,7 +1,8 @@
 :root {
     --font-main: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-    --bg-dark: #05070c;
+    --bg-dark: #0b1118;
+    --bg-dark-metal: radial-gradient(1200px 700px at 20% 30%, rgba(91, 153, 182, 0.18), transparent 60%), #0b1118;
     --bg-light: #f5f6f8;
     --bg-neutral: #f0f2f5;
     --text-dark: #0b2234;
@@ -14,8 +15,10 @@
     --t-display-2: clamp(2.35rem, 5.4vw, 4.4rem);
     --t-title: clamp(1.7rem, 3.4vw, 2.5rem);
     --t-subhead: clamp(1.1rem, 2.1vw, 1.6rem);
+    --t-body-lg: 1.1rem;
     --t-body: 1rem;
-    --t-small: 0.9rem;
+    --t-body-sm: 0.9rem;
+    --t-small: 0.85rem;
     --t-ui: 0.95rem;
 
     /* Core gradients (Indie.Box palette) */
@@ -51,7 +54,7 @@ body {
 }
 
 .panel.is-dark {
-    background: radial-gradient(1200px 700px at 20% 30%, rgba(91, 153, 182, 0.18), transparent 60%), var(--bg-dark);
+    background: var(--bg-dark-metal);
     color: var(--text-light);
 }
 
@@ -118,6 +121,20 @@ body {
     margin: 0;
 }
 
+.body-lg {
+    font-size: var(--t-body-lg);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+}
+
+.body-sm {
+    font-size: var(--t-body-sm);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
 .subhead {
     font-size: var(--t-subhead);
     line-height: 1.55;
@@ -131,6 +148,14 @@ body {
 
 .body.is-light {
     color: rgba(11, 34, 52, 0.78);
+}
+
+.body-lg.is-light {
+    color: rgba(11, 34, 52, 0.82);
+}
+
+.body-sm.is-light {
+    color: rgba(11, 34, 52, 0.65);
 }
 
 .small {
@@ -174,14 +199,6 @@ body {
     background-image: var(--gradient-prism);
     -webkit-text-fill-color: transparent;
 }
-
-.gradient-prism {
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-}
-
-.gradient-prism { background-image: var(--gradient-prism); }
 
 .token-row {
     margin-top: 1.5rem;
@@ -329,7 +346,7 @@ body {
     gap: 0.5rem;
     background: #1e1f22;
     border-radius: 999px;
-    padding: 6px;
+    padding: 7px;
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: white;
 }
@@ -342,8 +359,97 @@ body {
 }
 
 .pill-buy {
-    padding: 0.45rem 1.3rem;
-    min-height: 36px;
+    padding: 0.28rem 1rem;
+    min-height: 28px;
+}
+
+.bg-guide {
+    width: 100%;
+}
+
+.bg-row {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    padding: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.bg-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    gap: 0.9rem;
+}
+
+.bg-row.dark-solid {
+    background: var(--bg-dark);
+    color: var(--text-light);
+}
+
+.bg-row.dark-metal {
+    background: var(--bg-dark-metal);
+    color: var(--text-light);
+}
+
+.bg-row.light-solid {
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+
+.bg-row.neutral-solid {
+    background: var(--bg-neutral);
+    color: var(--text-dark);
+}
+
+
+.bg-showcase {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bg-section {
+    border-radius: 22px;
+    padding: clamp(2.5rem, 6vw, 4rem);
+    display: grid;
+    gap: 0.9rem;
+}
+
+.bg-section h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+}
+
+.bg-section p {
+    margin: 0;
+}
+
+.bg-section.dark-solid {
+    background: var(--bg-dark);
+    color: var(--text-light);
+}
+
+.bg-section.dark-metal {
+    background: var(--bg-dark-metal);
+    color: var(--text-light);
+}
+
+.bg-section.light-solid {
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+.bg-section.light-metal {
+    background: var(--bg-light-metal);
+    color: var(--text-dark);
+}
+
+.bg-section.neutral-solid {
+    background: var(--bg-neutral);
+    color: var(--text-dark);
 }
 
  .mono {
