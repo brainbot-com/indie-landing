@@ -30,7 +30,24 @@
     /* Type tokens (Indie.Box) */
     --t-display-1: clamp(3.3rem, 7.9vw, 7rem);
     --t-display-2: clamp(2.35rem, 5.4vw, 4.4rem);
+    --t-title: clamp(1.7rem, 3.4vw, 2.5rem);
     --t-subhead: clamp(1.1rem, 2.1vw, 1.6rem);
+    --t-body-lg: 1.1rem;
+    --t-body: 1rem;
+    --t-body-sm: 0.9rem;
+    --t-small: 0.85rem;
+    --t-ui: 0.95rem;
+
+    /* Background tokens */
+    --bg-dark: #0b1118;
+    --bg-dark-metal: radial-gradient(1200px 700px at 20% 30%, rgba(91, 153, 182, 0.18), transparent 60%), #0b1118;
+    --bg-neutral: #f0f2f5;
+
+    /* Gradient tokens */
+    --gradient-prism: linear-gradient(95deg, #c2410c 0%, #f97316 35%, #fb923c 68%, #fdba74 100%);
+    --gradient-hero-dark: linear-gradient(95deg, #f2f5f7 0%, #c7d4dc 35%, #7b93a7 70%, #415b6f 100%);
+    --gradient-hero-light: linear-gradient(95deg, #0e2436 0%, #243b4f 40%, #3c576b 70%, #516c81 100%);
+    --gradient-signature: var(--gradient-prism);
 }
 
 /* Smooth Scrolling */
@@ -124,7 +141,7 @@ ul {
     padding: 0.8rem 1.5rem;
     border-radius: 999px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: var(--t-ui);
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(255, 77, 0, 0.2);
 }
@@ -151,7 +168,7 @@ ul {
     padding: 0.8rem 1.5rem;
     border-radius: 6px;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: var(--t-ui);
     border: 2px solid var(--primary-color);
     transition: all 0.2s ease;
 }
@@ -174,7 +191,7 @@ ul {
 
 .section-heading {
     text-align: center;
-    font-size: 2.2rem;
+    font-size: var(--t-title);
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: var(--spacing-lg);
@@ -1305,14 +1322,14 @@ ul {
 .v4-kicker {
     font-weight: 700;
     letter-spacing: 0.14em;
-    font-size: 0.8rem;
+    font-size: var(--t-small);
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.78);
     margin-bottom: 1rem;
 }
 
 .v4-display {
-    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-size: var(--t-display-2);
     line-height: 1.06;
     font-weight: 700;
     letter-spacing: -0.035em;
