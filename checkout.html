@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indiebox Checkout</title>
+
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Indiebox Checkout mit Bestelluebersicht, Hardware-Details und Bestellformular.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="checkout-page">
+    <nav class="nav-bar" aria-label="Hauptmenue">
+        <div class="container nav-container">
+            <a class="nav-logo" href="index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html#spezifikation">Spezifikation</a>
+                <a href="terms.html">AGB</a>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menue</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="checkout-hero checkout-hero--light">
+            <div class="container checkout-hero-inner">
+                <div class="checkout-hero-copy">
+                    <p class="checkout-kicker">Checkout</p>
+                    <h1 class="checkout-title">Indiebox kaufen</h1>
+                    <p class="checkout-price-subline checkout-price-subline--sm">fuer nur 2.999 €</p>
+                    <p class="checkout-subtitle checkout-subtitle--sm">
+                        Die Indiebox wurde als abgestimmtes und sofort einsatzfaehiges System entwickelt, so dass
+                        Agenten, Automationen und Generative KI mit den aktuellsten Open Source Modellen direkt verfuegbar sind.
+                    </p>
+                    <p class="checkout-hero-note">Rueckgabe in 14 Tagen. Support fuer die Inbetriebnahme inklusive.</p>
+                    <p class="checkout-hero-note checkout-hero-note--strong">Ratenzahlung moeglich: 12 Raten ueber Santander Bank.*</p>
+                </div>
+                <div class="checkout-hero-media">
+                    <img src="indiebox-free-clean.png" alt="Indiebox" class="checkout-hero-image">
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-section checkout-specs">
+            <div class="container">
+                <div class="checkout-section-head" data-animate="fade-up">
+                    <span class="checkout-tag">Hardware</span>
+                    <h2 class="checkout-section-title">Hardware im Detail</h2>
+                    <p class="checkout-section-subtitle">
+                        Gebaut fuer moderne Modelle, schnelle Iterationen und stabile Laufzeiten.
+                    </p>
+                </div>
+                <div class="checkout-specs-list" data-animate="fade-up" data-stagger="1">
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Prozessor</span>
+                        <span class="checkout-spec-value">AMD Ryzen AI Max+ 395</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">CPU</span>
+                        <span class="checkout-spec-value">16 Kerne, 32 Threads</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Architektur / Takt</span>
+                        <span class="checkout-spec-value">Zen 5, bis zu 5,1 GHz Boost</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Cache</span>
+                        <span class="checkout-spec-value">L2 16 MB, L3 64 MB</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Grafik</span>
+                        <span class="checkout-spec-value">Radeon 8060S, 40 RDNA 3.5 Compute-Einheiten</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">KI-Beschleunigung</span>
+                        <span class="checkout-spec-value">XDNA 2 NPU ~50 TOPS, bis ~126 TOPS gesamt</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Arbeitsspeicher</span>
+                        <span class="checkout-spec-value">128 GB LPDDR5X-8000 (on-board, nicht tauschbar)</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Speicher</span>
+                        <span class="checkout-spec-value">2 TB PCIe 4.0 M.2 2280 NVMe SSD</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Anschluesse</span>
+                        <span class="checkout-spec-value">USB4, USB-A, HDMI 2.1, DisplayPort, 2,5 GbE LAN</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Netzwerk</span>
+                        <span class="checkout-spec-value">2,5 GbE LAN, meist auch Wi-Fi (modellabhaengig)</span>
+                    </div>
+                    <div class="checkout-spec-row">
+                        <span class="checkout-spec-label">Formfaktor</span>
+                        <span class="checkout-spec-value">Kompakter Mini-PC / AI-PC</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <div class="checkout-section-head" data-animate="fade-up">
+                    <span class="checkout-tag">Software</span>
+                    <h2 class="checkout-section-title">Vorinstallierte Systeme</h2>
+                    <p class="checkout-section-subtitle">
+                        Sofort startklar fuer Chat, Agenten, Automatisierung und Modell-Experimente.
+                    </p>
+                </div>
+
+                <div class="checkout-soft-list" data-animate="fade-up" data-stagger="1">
+                    <div class="checkout-soft-item">
+                        <span class="checkout-soft-name">OpenWebUI</span>
+                        <span class="checkout-soft-desc">Chat-Oberflaeche fuer lokale Modelle, Teams und Workflows.</span>
+                    </div>
+                    <div class="checkout-soft-item">
+                        <span class="checkout-soft-name">Letta</span>
+                        <span class="checkout-soft-desc">Agenten-Framework fuer langfristige Workflows und Persistenz.</span>
+                    </div>
+                    <div class="checkout-soft-item">
+                        <span class="checkout-soft-name">n8n</span>
+                        <span class="checkout-soft-desc">Automatisierung von Datenpipelines, Triggern und Integrationen.</span>
+                    </div>
+                    <div class="checkout-soft-item">
+                        <span class="checkout-soft-name">Frontier-Modelle</span>
+                        <span class="checkout-soft-desc">4 Open-Source Modelle bis 120B Parameter, lokal lauffaehig.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-cta">
+            <div class="container" data-animate="fade-up">
+                <div class="checkout-cta-frame glow-frame glow-frame--outer">
+                    <div>
+                        <h2 class="checkout-cta-title gradient-signature">Deine neue Indiebox wartet.</h2>
+                        <p class="checkout-cta-subtitle">Mach sie zu deiner.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-section checkout-form-section" id="checkout-form">
+            <div class="container">
+                <div class="checkout-form-card" data-animate="fade-up">
+                    <div class="checkout-section-head">
+                        <span class="checkout-tag">Bestellung</span>
+                        <h2 class="checkout-section-title">Bestellformular</h2>
+                        <p class="checkout-section-subtitle">
+                            Gib deine Daten fuer die Rechnungsadresse an. Nach dem Absenden
+                            uebermitteln wir deine Angaben an unser Backend und melden uns zur Bestaetigung.
+                        </p>
+                    </div>
+
+                    <form class="checkout-form" action="__BACKEND_URL__" method="post">
+                        <input type="hidden" name="product" value="Indiebox AI-Workstation">
+
+                        <div class="form-section">
+                            <div class="form-section-title">Kontaktdaten</div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label class="form-label" for="first-name">Vorname<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="first-name" name="firstName" autocomplete="given-name" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="last-name">Nachname<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="last-name" name="lastName" autocomplete="family-name" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="company">Firma</label>
+                                    <input class="form-input" type="text" id="company" name="company" autocomplete="organization">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="vat-id">USt-IdNr.</label>
+                                    <input class="form-input" type="text" id="vat-id" name="vatId" autocomplete="off">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="email">E-Mail<span class="field-required">*</span></label>
+                                    <input class="form-input" type="email" id="email" name="email" autocomplete="email" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="phone">Telefon</label>
+                                    <input class="form-input" type="tel" id="phone" name="phone" autocomplete="tel">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">Rechnungsadresse</div>
+                            <div class="form-grid">
+                                <div class="form-row form-row--full">
+                                    <label class="form-label" for="billing-street">Strasse und Hausnummer<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="billing-street" name="billingStreet" autocomplete="address-line1" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="billing-zip">PLZ<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="billing-zip" name="billingZip" autocomplete="postal-code" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="billing-city">Stadt<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="billing-city" name="billingCity" autocomplete="address-level2" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="billing-country">Land<span class="field-required">*</span></label>
+                                    <input class="form-input" type="text" id="billing-country" name="billingCountry" autocomplete="country-name" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <details class="form-details">
+                                <summary>Lieferadresse weicht von der Rechnungsadresse ab</summary>
+                                <div class="form-grid">
+                                    <div class="form-row form-row--full">
+                                        <label class="form-label" for="shipping-street">Strasse und Hausnummer</label>
+                                        <input class="form-input" type="text" id="shipping-street" name="shippingStreet" autocomplete="shipping address-line1">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label" for="shipping-zip">PLZ</label>
+                                        <input class="form-input" type="text" id="shipping-zip" name="shippingZip" autocomplete="shipping postal-code">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label" for="shipping-city">Stadt</label>
+                                        <input class="form-input" type="text" id="shipping-city" name="shippingCity" autocomplete="shipping address-level2">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label" for="shipping-country">Land</label>
+                                        <input class="form-input" type="text" id="shipping-country" name="shippingCountry" autocomplete="shipping country-name">
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">Hinweise</div>
+                            <div class="form-grid">
+                                <div class="form-row form-row--full">
+                                    <label class="form-label" for="notes">Anmerkungen zur Lieferung oder Konfiguration</label>
+                                    <textarea class="form-textarea" id="notes" name="notes" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="button button--solid button--pill button--md" type="submit">Jetzt kaufen</button>
+                            <p class="form-note">
+                                Mit Klick auf Kaufen sendest du die Angaben an unser Backend.
+                                Wir bestaetigen deine Bestellung per E-Mail.
+                            </p>
+                        </div>
+                        <p class="form-footnote">* Pflichtfelder</p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <p class="checkout-footnote">
+            * Finanzierung ueber Santander Bank, vorbehaltlich Verfuegbarkeit und Bonitaetspruefung.
+        </p>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h4>Indiebox</h4>
+                    <p>Private KI. Ohne Cloud.</p>
+                </div>
+                <div class="footer-contact">
+                    <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Indiebox</div>
+                <div class="legal-links">
+                    <a href="terms.html">AGB</a>
+                    <a href="impressum.html">Impressum</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

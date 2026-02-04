@@ -63,6 +63,17 @@ Use only these backgrounds.
 - Content/reading sections: `--bg-light`
 - Cards / transitions: `--bg-neutral`
 
+## Glow Frame (Approved)
+Use the `.glow-frame` component to emphasize a box on light backgrounds.
+
+- Gradient stroke via `--gradient-prism` (orange only).
+- White surface with soft outer glow and rounded corners.
+- Use for “best choice” or premium callouts.
+- Do not introduce new gradient colors or multi-hue variants.
+
+Optional emphasis:
+- Add `.glow-frame--outer` for the outer glow layer.
+
 ## Buttons
 **Naming principle:** button names describe **design function**, not usage.
 

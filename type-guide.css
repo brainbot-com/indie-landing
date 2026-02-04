@@ -225,6 +225,37 @@ body {
     color: rgba(11, 34, 52, 0.75);
 }
 
+/* Glow frame demo */
+.glow-frame {
+    position: relative;
+    overflow: visible;
+    --glow-radius: 28px;
+    border-radius: var(--glow-radius);
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    border: 2px solid transparent;
+    background-color: #ffffff;
+    background-image:
+        linear-gradient(#ffffff, #ffffff),
+        var(--gradient-prism);
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
+    box-shadow:
+        0 22px 50px rgba(255, 77, 0, 0.14),
+        0 10px 26px rgba(10, 37, 64, 0.08);
+}
+
+.glow-frame--outer::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: calc(var(--glow-radius) + 12px);
+    background: var(--gradient-prism);
+    filter: blur(24px);
+    opacity: 0.25;
+    z-index: -1;
+    pointer-events: none;
+}
+
 .scale {
     display: grid;
     gap: 1.5rem;
