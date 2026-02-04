@@ -111,11 +111,13 @@ ul {
    ======================================== */
 
 .primary-button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--accent-color);
     color: white;
     padding: 0.8rem 1.5rem;
-    border-radius: 6px;
+    border-radius: 999px;
     font-weight: 600;
     font-size: 1rem;
     transition: all 0.3s ease;
@@ -129,12 +131,16 @@ ul {
 }
 
 .primary-button.large {
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
+    padding: 0.65rem 1.4rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    min-height: 40px;
 }
 
 .secondary-button {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: transparent;
     color: var(--primary-color);
     padding: 0.8rem 1.5rem;
@@ -147,6 +153,14 @@ ul {
 
 .secondary-button:hover {
     background-color: var(--bg-light);
+}
+
+@media (max-width: 768px) {
+    .primary-button.large {
+        min-height: 44px;
+        padding: 0.7rem 1.5rem;
+        font-size: 1rem;
+    }
 }
 
 .section {
@@ -671,8 +685,8 @@ ul {
 .hero-overlay {
     align-items: flex-start;
     padding-top: clamp(1.5rem, 5vh, 3rem);
-    height: 78vh;
-    min-height: 620px;
+    height: 100vh;
+    min-height: 100vh;
 }
 
 .hero-bg-image {
@@ -697,7 +711,7 @@ ul {
     background: radial-gradient(1100px 620px at 50% 45%, rgba(255, 77, 0, 0.08), rgba(0, 0, 0, 0) 60%), #05070c;
     opacity: 1;
     transition: opacity 1200ms ease;
-    display: none;
+    display: grid;
 }
 
 .hero-stage-brand {
@@ -808,10 +822,10 @@ ul {
     flex-wrap: wrap;
 }
 
-.hero-actions-top {
+.hero-actions-pill {
     position: absolute;
-    top: 0.75rem;
-    right: 1.5rem;
+    right: clamp(1rem, 4vw, 3rem);
+    bottom: clamp(1rem, 5vh, 3rem);
     justify-content: flex-end;
     z-index: 5;
 }
@@ -819,6 +833,45 @@ ul {
 .hero-actions-top-anim {
     opacity: 0;
     transition: opacity 420ms ease;
+}
+
+.hero-overlay.hero-seq-on[data-hero-seq="cinematic"] .hero-actions-top-anim {
+    opacity: 0;
+    will-change: opacity;
+}
+
+.hero-overlay.hero-seq-on[data-hero-seq="cinematic"].hero-seq-cta .hero-actions-top-anim {
+    opacity: 1;
+}
+.hero-price-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgba(24, 24, 26, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+}
+
+.hero-price-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0 0.9rem 0 1.05rem;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.hero-buy {
+    border-radius: 999px;
+    padding: 0.45rem 1.35rem;
+    font-size: 0.95rem;
+    min-height: 36px;
+    line-height: 1;
+    box-shadow: none;
+    background-clip: padding-box;
 }
 
 .hero-subtitle-anim {
@@ -832,9 +885,24 @@ ul {
     will-change: transform, opacity;
 }
 
-.hero-overlay.hero-seq-on[data-hero-seq="cinematic"] .hero-actions-top-anim {
-    opacity: 0;
-    will-change: opacity;
+
+@media (max-width: 768px) {
+    .hero-actions-pill {
+        position: static;
+        margin-top: 1.5rem;
+        justify-content: center;
+    }
+
+    .hero-price-pill {
+        width: auto;
+        max-width: 90vw;
+    }
+
+    .hero-buy {
+        min-height: 44px;
+        padding: 0.55rem 1.2rem;
+        font-size: 1rem;
+    }
 }
 
 
@@ -1129,16 +1197,17 @@ ul {
 }
 
 .v4-panel1 {
-    height: 170vh;
+    height: auto;
+    min-height: 100vh;
     background: var(--bg-white);
     border-bottom: 1px solid rgba(10, 37, 64, 0.08);
 }
 
 .v4-panel1 .v4-panel-sticky {
-    position: sticky;
-    top: 0;
-    height: 100vh;
+    position: static;
+    height: auto;
     align-items: center;
+    padding: clamp(4rem, 12vh, 8rem) 0;
 }
 
 .v4-panel1 .v4-content {

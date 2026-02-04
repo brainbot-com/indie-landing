@@ -258,12 +258,12 @@ function setupHeroCinematicSequence() {
     };
 
     // Timings tuned for: readable, but not sluggish
-    at(1100, () => heroSection.classList.add('hero-seq-bg', 'hero-seq-content', 'hero-seq-stageout'));
-    at(2100, () => heroSection.classList.add('hero-seq-line1'));
-    at(2450, startCloudFlip); // appear big, brief pause, then move to final slot
-    at(4200, () => heroSection.classList.add('hero-seq-subtitle-in')); // subtitle fades in already at 200% size
-    at(4750, () => heroSection.classList.add('hero-seq-subtitle-settle')); // settles to final size/position
-    at(5200, () => heroSection.classList.add('hero-seq-cta')); // CTA last
+    at(1500, () => heroSection.classList.add('hero-seq-bg', 'hero-seq-stageout', 'hero-seq-cta'));
+    at(2200, () => heroSection.classList.add('hero-seq-content'));
+    at(3100, () => heroSection.classList.add('hero-seq-line1'));
+    at(3350, startCloudFlip); // appear big, brief pause, then move to final slot
+    at(4550, () => heroSection.classList.add('hero-seq-subtitle-in')); // subtitle fades in already at 200% size
+    at(5100, () => heroSection.classList.add('hero-seq-subtitle-settle')); // settles to final size/position
 }
 
 document.addEventListener('DOMContentLoaded', () => {
