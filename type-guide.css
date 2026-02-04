@@ -328,6 +328,12 @@ body {
     cursor: pointer;
 }
 
+.btn-small {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    min-height: 32px;
+}
+
 .btn-primary {
     background: #ff4d00;
     color: white;
