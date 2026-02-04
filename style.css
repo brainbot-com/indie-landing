@@ -1006,7 +1006,7 @@ ul {
 
 .story-panel-wrap {
     position: relative;
-    height: 100vh;
+    height: calc(100vh + var(--story-p2-top, 0px));
     margin-top: calc(-1 * var(--story-p2-top, 0px));
     background: #081a2b;
 }
