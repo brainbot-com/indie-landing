@@ -249,6 +249,48 @@ ul {
     background: var(--bg-dark-metal);
 }
 
+.info-section--light {
+    background: var(--bg-light);
+}
+
+.info-section--light .info-card {
+    background: var(--bg-neutral);
+    border: 1px solid rgba(11, 34, 52, 0.08);
+    box-shadow: 0 18px 40px rgba(11, 34, 52, 0.12);
+}
+
+.info-section--light .info-title {
+    color: #0b2234;
+}
+
+@supports (-webkit-text-fill-color: transparent) {
+    .info-section--light .info-title {
+        background: var(--gradient-hero-light);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+}
+
+.info-section--light .info-text {
+    color: rgba(11, 34, 52, 0.72);
+}
+
+.info-section--light .info-text--lead {
+    color: rgba(11, 34, 52, 0.9);
+}
+
+.info-section--light .text-link {
+    color: rgba(11, 34, 52, 0.8);
+    border-bottom: 1px solid rgba(11, 34, 52, 0.3);
+}
+
+.info-section--light .text-link:hover {
+    color: rgba(11, 34, 52, 1);
+    border-color: rgba(11, 34, 52, 0.6);
+}
+
 .info-card {
     max-width: 880px;
     margin: 0 auto;
@@ -267,6 +309,10 @@ ul {
     letter-spacing: -0.03em;
     color: #f3f7fb;
     margin: 0;
+}
+
+.info-title--display-2 {
+    font-size: var(--t-display-2);
 }
 
 @supports (-webkit-text-fill-color: transparent) {
@@ -467,6 +513,13 @@ ul {
     color: rgba(11, 34, 52, 0.75);
 }
 
+.center-note--prism {
+    font-size: var(--t-subhead);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: transparent;
+}
+
 /* ========================================
    NAVIGATION
    ======================================== */
@@ -566,6 +619,37 @@ ul {
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     gap: clamp(2rem, 5vw, 3.5rem);
     align-items: center;
+}
+
+.spec-section .container {
+    max-width: none;
+    padding: 0;
+}
+
+.spec-card--full {
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.spec-card--full .spec-visual {
+    min-height: clamp(320px, 40vw, 540px);
+    height: 100%;
+    background: #ffffff;
+}
+
+.spec-card--full .spec-visual-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.spec-card--full .spec-content {
+    padding: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .spec-visual {
@@ -674,6 +758,10 @@ ul {
 @media (max-width: 980px) {
     .spec-card {
         grid-template-columns: 1fr;
+    }
+
+    .spec-card--full .spec-content {
+        padding: clamp(2rem, 7vw, 3rem);
     }
 
     .spec-list li {
@@ -1760,6 +1848,16 @@ ul {
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
+}
+
+@supports (-webkit-text-fill-color: transparent) {
+    .info-title.gradient-signature {
+        background-image: var(--gradient-prism);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
 }
 
 .gradient-light {
