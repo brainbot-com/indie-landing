@@ -40,9 +40,9 @@
         </div>
 
         <div class="hero-actions hero-actions-pill">
-            <div class="hero-price-pill">
-                <span class="hero-price-text" data-i18n="hero.price">from €2,999</span>
-                <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy" data-i18n="hero.cta.buy">Buy</a>
+            <div class="price-pill">
+                <span class="price-text" data-i18n="hero.price">from €2,999</span>
+                <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm price-cta" data-i18n="hero.cta.buy">Buy</a>
             </div>
         </div>
 
@@ -183,7 +183,7 @@
                         <span class="comparison-label" data-i18n="comparison.self.badge">Too complex</span>
                     </div>
                     <ul class="symbol-list">
-                        <li data-i18n="comparison.self.items.0">✕ Days or weeks of setup</li>
+                        <li data-i18n="comparison.self.items.0">✕ Days or weeks of setup time</li>
                         <li data-i18n="comparison.self.items.1">✕ Expert knowledge required</li>
                         <li data-i18n="comparison.self.items.2">✕ Hardware and driver issues</li>
                         <li data-i18n="comparison.self.items.3">✕ Constant maintenance effort</li>
@@ -310,11 +310,12 @@
     <section class="section" id="spezifikation">
         <div class="container">
             <div class="spec-card" data-animate="fade-up">
-                <div class="spec-visual" aria-hidden="true"></div>
+                <div class="spec-visual" aria-hidden="true">
+                    <img src="../indiebox-cutout-crop.png" alt="Indiebox" class="spec-visual-image">
+                </div>
                 <div class="spec-content">
                     <p class="spec-kicker" data-i18n="spec.kicker">Workstation Grade Power</p>
                     <h2 class="spec-title" data-i18n="spec.title">Indiebox</h2>
-                    <p class="spec-price" data-i18n="spec.price">from €2,999</p>
                     <p class="spec-tagline" data-i18n="spec.tagline">One-time purchase. Lifetime ownership.</p>
                     <ul class="spec-list">
                         <li><span data-i18n="spec.items.0">Processor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Cores)</strong></li>
@@ -328,7 +329,7 @@
                         <li data-i18n="spec.checks.2">Agent Automation Platform, Chat Platform, and models included</li>
                     </ul>
                     <div>
-                        <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy" data-i18n="hero.cta.buy">Buy</a>
+                        <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm" data-i18n="finalCta.primary">Buy now</a>
                     </div>
                 </div>
             </div>
@@ -338,11 +339,13 @@
     <!-- Final CTA -->
     <section class="section final-cta" id="final-cta">
         <div class="container">
-            <div class="final-cta-card" data-animate="fade-up">
-                <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-i18n="finalCta.title">Ready for local AI without compromise?</h2>
-                <div class="hero-actions">
-                    <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy" data-i18n="finalCta.primary">Buy now</a>
-                    <a href="#demo" class="button button--plain-light button--pill button--lg" data-i18n="finalCta.secondary">See the demo</a>
+            <div class="final-cta-card">
+                <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-animate="fade-up" data-i18n="finalCta.title">Ready for local AI without compromise?</h2>
+                <div class="hero-actions" data-animate="fade-up" data-stagger="1">
+                    <div class="price-pill">
+                        <span class="price-text" data-i18n="hero.price">from €2,999</span>
+                        <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm price-cta" data-i18n="finalCta.primary">Buy now</a>
+                    </div>
                 </div>
             </div>
         </div>
