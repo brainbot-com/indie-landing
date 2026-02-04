@@ -1,5 +1,5 @@
 // ========================================
-// INDIE LANDING PAGE V4 - JavaScript
+// INDIE LANDING PAGE - JavaScript
 // Hero variant toggle + animations
 // ========================================
 
@@ -55,113 +55,6 @@ function setupAnimations() {
 
     window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), { passive: true });
     updateParallax();
-}
-
-function clamp01(value) {
-    if (value < 0) return 0;
-    if (value > 1) return 1;
-    return value;
-}
-
-function easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
-}
-
-function setupV4ScrollStory() {
-    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) return;
-
-    const panel1 = document.querySelector('[data-scroll-panel="panel1"]');
-    const panel2 = document.querySelector('[data-scroll-panel="panel2"]');
-    const panel2Wrap = document.querySelector('[data-scroll-panel="panel2-wrap"]');
-    if (!panel1 && !panel2) return;
-
-    let raf = 0;
-    let panel2Fixed = false;
-
-    const update = () => {
-        raf = 0;
-
-        if (panel2) {
-            const viewHeight = window.innerHeight || 0;
-            const panel1Text = panel1 ? panel1.querySelector('.v4-apple-text') : null;
-
-            const computeProgress = (sectionEl) => {
-                const rect = sectionEl.getBoundingClientRect();
-                const start = window.scrollY + rect.top;
-                const end = start + sectionEl.offsetHeight - window.innerHeight;
-                if (end <= start) return { progress: 1, start, end };
-                return { progress: clamp01((window.scrollY - start) / (end - start)), start, end };
-            };
-
-            // Panel 2 should begin to enter when Panel 1 reaches the middle of the viewport
-            // and be fully "connected" below Panel 1 when Panel 1 sits near the top.
-            const p1Info = panel1 ? computeProgress(panel1) : { progress: 0, start: 0, end: 0 };
-            const p1 = p1Info.progress;
-            let enterFromP1 = 0;
-
-            let panel2TopPx = 0;
-            if (panel1Text && viewHeight > 0) {
-                const p1Rect = panel1Text.getBoundingClientRect();
-
-                const startTop = viewHeight * 0.55; // start when Panel 1 is around the middle
-                const endTop = viewHeight * 0.12;   // end when Panel 1 is close to the top
-                enterFromP1 = clamp01((startTop - p1Rect.top) / (startTop - endTop));
-
-                const gapPx = Math.round(Math.max(18, Math.min(34, viewHeight * 0.03)));
-                const unclampedTop = p1Rect.bottom + gapPx;
-                const minTop = viewHeight * 0.25;
-                const maxTop = viewHeight * 0.72;
-                panel2TopPx = Math.round(Math.max(minTop, Math.min(maxTop, unclampedTop)));
-            }
-
-            const panel2HeightPx = Math.max(0, viewHeight - panel2TopPx);
-            const enterY = (1 - enterFromP1) * (panel2HeightPx + 40);
-            const extraScroll = Math.max(0, window.scrollY - p1Info.end);
-
-            const headMove = clamp01((enterFromP1 - 0.2) / 0.8);
-            const headY = (1 - headMove) * 22;
-
-            panel2.style.setProperty('--v4-p2-top', `${panel2TopPx}px`);
-            panel2.style.setProperty('--v4-p2-enter-y', `${enterY.toFixed(2)}px`);
-            panel2.style.setProperty('--v4-head-y', `${headY.toFixed(2)}vh`);
-            panel2.style.setProperty('--v4-p2-follow', `${(-extraScroll).toFixed(2)}px`);
-
-            // Panel 3 (inline) should start joining once Panel 2 is already connected.
-            let p3 = 0;
-            if (panel1Text && viewHeight > 0) {
-                const p1RectNow = panel1Text.getBoundingClientRect();
-                // Start when Panel 1 text reaches the "connected" band near the top,
-                // then finish as it scrolls further upward.
-                const p3StartTop = viewHeight * 0.12;
-                const p3EndTop = -viewHeight * 0.30;
-                p3 = clamp01((p3StartTop - p1RectNow.top) / (p3StartTop - p3EndTop));
-            }
-            const p3Enter = (1 - p3) * Math.min(260, viewHeight * 0.42);
-            panel2.style.setProperty('--v4-p3-enter-y', `${p3Enter.toFixed(2)}px`);
-
-            const wrapRect = panel2Wrap ? panel2Wrap.getBoundingClientRect() : null;
-            const wrapBottom = wrapRect ? wrapRect.bottom : 0;
-            const shouldFix = enterFromP1 > 0 && panel2Wrap && wrapBottom > panel2TopPx;
-            if (shouldFix && !panel2Fixed) {
-                panel2.classList.add('is-fixed');
-                panel2Fixed = true;
-            }
-            if (!shouldFix && panel2Fixed) {
-                panel2.classList.remove('is-fixed');
-                panel2Fixed = false;
-            }
-        }
-    };
-
-    const requestUpdate = () => {
-        if (raf) return;
-        raf = requestAnimationFrame(update);
-    };
-
-    window.addEventListener('scroll', requestUpdate, { passive: true });
-    window.addEventListener('resize', requestUpdate);
-    update();
 }
 
 function setupHeroCinematicSequence() {
@@ -258,7 +151,8 @@ function setupHeroCinematicSequence() {
     };
 
     // Timings tuned for: readable, but not sluggish
-    at(1500, () => heroSection.classList.add('hero-seq-bg', 'hero-seq-stageout', 'hero-seq-cta'));
+    at(900, () => heroSection.classList.add('hero-seq-cta'));
+    at(1500, () => heroSection.classList.add('hero-seq-bg', 'hero-seq-stageout'));
     at(2200, () => heroSection.classList.add('hero-seq-content'));
     at(3100, () => heroSection.classList.add('hero-seq-line1'));
     at(3350, startCloudFlip); // appear big, brief pause, then move to final slot
@@ -270,5 +164,4 @@ document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
     setupAnimations();
-    setupV4ScrollStory();
 });

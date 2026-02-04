@@ -1,6 +1,9 @@
 :root {
     --font-main: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
+    --primary-color: #0a2540;
+    --accent-color: #ff4d00;
+
     --bg-dark: #0b1118;
     --bg-dark-metal: radial-gradient(1200px 700px at 20% 30%, rgba(91, 153, 182, 0.18), transparent 60%), #0b1118;
     --bg-light: #f5f6f8;
@@ -319,31 +322,64 @@ body {
     font-weight: 600;
 }
 
-.btn {
-    font-size: var(--t-ui);
-    font-weight: 600;
-    padding: 0.7rem 1.5rem;
+.primary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
     border-radius: 999px;
+    font-weight: 600;
+    font-size: var(--t-ui);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(255, 77, 0, 0.2);
     border: none;
     cursor: pointer;
 }
 
-.btn-small {
+.primary-button:hover {
+    background-color: #e64600;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(255, 77, 0, 0.3);
+}
+
+.primary-button.large {
+    padding: 0.65rem 1.4rem;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    min-height: 40px;
+}
+
+.primary-button.small {
     padding: 0.45rem 1rem;
     font-size: 0.85rem;
     min-height: 32px;
 }
 
-.btn-primary {
-    background: #ff4d00;
-    color: white;
-    box-shadow: 0 8px 18px rgba(255, 77, 0, 0.3);
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: var(--primary-color);
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: var(--t-ui);
+    border: 2px solid var(--primary-color);
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.btn-secondary {
-    background: white;
-    color: #0a2540;
-    border: 2px solid rgba(10, 37, 64, 0.18);
+.secondary-button.small {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    min-height: 32px;
+}
+
+.secondary-button:hover {
+    background-color: var(--bg-light);
 }
 
 .pill-preview {

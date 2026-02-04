@@ -2,6 +2,12 @@
 
 This is the **single source of truth** for styling. Use these tokens and rules in all new work.
 
+## Style Intent (from `type-guide.html`)
+- Premium, calm, and technical. Dark metallic hero backgrounds with soft gradients.
+- Prism/orange is a **signature accent** for key words only, not for UI chrome.
+- Typography is confident and tight: large display lines, uppercase kicker style, generous spacing.
+- Light sections are clean and quiet; dark sections feel deep and dimensional.
+
 ## Typography Tokens (use these)
 Defined in `style.css` and `type-guide.css`.
 
@@ -15,13 +21,16 @@ Defined in `style.css` and `type-guide.css`.
 - `--t-small` : Kicker/overline labels
 - `--t-ui` : Buttons, nav, UI labels
 
-### Usage Mapping
+### Usage Mapping (Site)
 - `.hero-title` → `--t-display-1`
-- `.v4-display` → `--t-display-2`
 - `.section-heading` → `--t-title`
 - `.hero-subtitle` → `--t-subhead`
-- `.v4-kicker`/kicker labels → `--t-small`
-- Buttons and nav → `--t-ui`
+- Body text (e.g. `.card p`, `.use-case-item p`) → `--t-body`
+- Buttons + nav → `--t-ui`
+
+### Usage Mapping (Reference-only in `type-guide.css`)
+- `.display-1`, `.display-2`, `.title`, `.subhead`, `.body`, `.body-lg`, `.body-sm`, `.ui`, `.kicker`
+- These are visual reference classes for the type guide. If we need them on the actual site, propose adding them to `style.css` first.
 
 ## Gradients (Approved)
 Use only these tokens.
@@ -53,9 +62,9 @@ Use only these backgrounds.
 - Cards / transitions: `--bg-neutral`
 
 ## Buttons
-- **Primary CTA**: pill shape, `--accent-color`
-- **Secondary CTA**: outline
-- **Small Button**: compact pill for tight UI (see `.primary-button.small`)
+- **Primary CTA**: `.primary-button` (pill shape, `--accent-color`)
+- **Secondary CTA**: `.secondary-button` (outline)
+- **Small buttons**: `.primary-button.small` and `.secondary-button.small`
 - Prism is for text/gradients, **not** for buttons
 
 ## Do / Don’t
@@ -75,3 +84,6 @@ Use only these backgrounds.
 - `type-guide.html` (visual reference)
 
 If you change tokens, update **both** CSS files and this `STYLE_GUIDE.md`.
+
+## Legacy Cleanup
+- Do not reintroduce `v4-` classes or legacy references.
