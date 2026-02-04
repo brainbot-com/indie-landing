@@ -140,8 +140,9 @@ function setupV4ScrollStory() {
             const p3Enter = (1 - p3) * Math.min(260, viewHeight * 0.42);
             panel2.style.setProperty('--v4-p3-enter-y', `${p3Enter.toFixed(2)}px`);
 
-            const wrapTop = panel2Wrap ? panel2Wrap.getBoundingClientRect().top : 0;
-            const shouldFix = enterFromP1 > 0 && panel2Wrap && wrapTop > panel2TopPx;
+            const wrapRect = panel2Wrap ? panel2Wrap.getBoundingClientRect() : null;
+            const wrapBottom = wrapRect ? wrapRect.bottom : 0;
+            const shouldFix = enterFromP1 > 0 && panel2Wrap && wrapBottom > panel2TopPx;
             if (shouldFix && !panel2Fixed) {
                 panel2.classList.add('is-fixed');
                 panel2Fixed = true;
