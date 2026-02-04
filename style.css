@@ -2001,7 +2001,13 @@ ul {
     }
 
     .hero-bg-image {
-        object-position: center 48%;
+        top: 0;
+        height: 100%;
+        object-position: center 50%;
+    }
+
+    .hero-content-overlay {
+        padding: 0 1.25rem;
     }
 
     .hero-stage-brand {

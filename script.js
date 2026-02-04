@@ -50,6 +50,9 @@ function setupAnimations() {
 
     document.querySelectorAll('[data-animate="fade-up"]').forEach(el => observer.observe(el));
 
+    const disableParallax = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    if (disableParallax) return;
+
     const parallaxItems = document.querySelectorAll('.parallax-bg');
     if (parallaxItems.length === 0) return;
 
@@ -115,6 +118,20 @@ function setupHeroCinematicSequence() {
     }
 
     heroSection.classList.add('hero-seq-on');
+
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+        heroSection.classList.add(
+            'hero-seq-bg',
+            'hero-seq-content',
+            'hero-seq-stageout',
+            'hero-seq-line1',
+            'hero-seq-line2',
+            'hero-seq-subtitle-settle',
+            'hero-seq-cta'
+        );
+        return;
+    }
 
     const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) {

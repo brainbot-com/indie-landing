@@ -39,13 +39,6 @@
             <div class="hero-fly-cloud" data-i18n="hero.fly.cloud">No cloud.</div>
         </div>
 
-        <div class="hero-actions hero-actions-pill">
-            <div class="price-pill">
-                <span class="price-text" data-i18n="hero.price">from €2,999</span>
-                <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm price-cta" data-i18n="hero.cta.buy">Buy</a>
-            </div>
-        </div>
-
         <div class="container hero-content-overlay" data-hero-variant="a" data-hero-seq-enabled="true">
             <div class="hero-headline">
                 <h1 class="hero-title">
@@ -56,6 +49,13 @@
 
             <div class="hero-rest">
                 <p class="hero-subtitle hero-subtitle-anim" data-i18n="hero.subtitle" data-i18n-html="true">Indiebox is an AI server for powerful models.<br>Private, fast, and subscription-free.</p>
+            </div>
+        </div>
+
+        <div class="hero-actions hero-actions-pill">
+            <div class="price-pill">
+                <span class="price-text" data-i18n="hero.price">from €2,999</span>
+                <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm price-cta" data-i18n="hero.cta.buy">Buy</a>
             </div>
         </div>
 
@@ -144,7 +144,7 @@
 
     <!-- Vergleich + Warum -->
     <section class="section comparison-section">
-        <div class="container">
+        <div class="container" data-animate="fade-up">
             <div class="compare-headline" data-animate="fade-up">
                 <h2 class="compare-title gradient-light" data-i18n="comparison.title">Why Indiebox?</h2>
                 <p class="compare-subline" data-i18n="comparison.subline">Compare your options and see why Indiebox is the best choice for private AI.</p>
@@ -191,7 +191,7 @@
                     </ul>
                 </div>
             </div>
-            <p class="center-note" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">Indiebox combines the privacy of self-hosting with the simplicity of cloud AI.<br>No ongoing costs. No tinkering.</p>
+            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">Indiebox combines the privacy of self-hosting with the simplicity of cloud AI.<br>No ongoing costs. No tinkering.</p>
         </div>
     </section>
     <!-- Private AI Ecosystem -->
@@ -286,7 +286,7 @@
     <section class="section info-section info-section--dark" id="data-safety">
         <div class="container">
             <div class="info-card" data-animate="fade-up">
-                <h2 class="info-title" data-i18n="dataSafety.title">Your data stays with you</h2>
+                <h2 class="info-title info-title--display-2" data-i18n="dataSafety.title">Your data stays with you</h2>
                 <p class="info-text info-text--lead" data-i18n="dataSafety.lead" data-i18n-html="true">By default, not a single byte leaves your network.<br>No cloud. No telemetry.</p>
                 <p class="info-text" data-i18n="dataSafety.body">External services, model downloads, or support access are always disabled and can only be explicitly enabled.</p>
                 <a href="#data-safety" class="text-link" data-i18n="dataSafety.link">How everything stays local</a>
@@ -295,10 +295,10 @@
     </section>
 
     <!-- Betrieb -->
-    <section class="section info-section info-section--dark" id="betrieb">
+    <section class="section info-section info-section--light" id="betrieb">
         <div class="container">
             <div class="info-card" data-animate="fade-up">
-                <h2 class="info-title" data-i18n="operations.title">A system that just works</h2>
+                <h2 class="info-title info-title--display-2 gradient-signature" data-i18n="operations.title">A system that just works</h2>
                 <p class="info-text info-text--lead" data-i18n="operations.lead" data-i18n-html="true">Indiebox runs on a hardened Linux system with clearly separated user and data areas.<br>Updates, model switching, and support happen only with your approval.</p>
                 <p class="info-text" data-i18n="operations.body" data-i18n-html="true">No hidden access.<br>No surprises in operation.</p>
                 <a href="#betrieb" class="text-link" data-i18n="operations.link">How operations work</a>
@@ -307,11 +307,11 @@
     </section>
 
     <!-- Spezifikation -->
-    <section class="section" id="spezifikation">
+    <section class="section spec-section" id="spezifikation">
         <div class="container">
-            <div class="spec-card" data-animate="fade-up">
+            <div class="spec-card spec-card--full" data-animate="fade-up">
                 <div class="spec-visual" aria-hidden="true">
-                    <img src="../indiebox-cutout-crop.png" alt="Indiebox" class="spec-visual-image">
+                    <img src="../indiebox free.png" alt="Indiebox" class="spec-visual-image">
                 </div>
                 <div class="spec-content">
                     <p class="spec-kicker" data-i18n="spec.kicker">Workstation Grade Power</p>
