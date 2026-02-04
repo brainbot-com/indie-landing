@@ -1169,6 +1169,33 @@ ul {
     background-color: var(--bg-neutral);
         grid-template-columns: 1fr;
         justify-items: flex-start;
+    background: var(--bg-neutral);
+    padding: clamp(3.5rem, 7vw, 6.5rem) 0;
+}
+
+.v4-essenz-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm);
+}
+
+.v4-essenz-item {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 5vw, 4rem);
+    background: var(--bg-light);
+    border-radius: 28px;
+    border: 1px solid rgba(10, 37, 64, 0.08);
+    box-shadow: 0 18px 40px rgba(10, 37, 64, 0.08);
+}
+
+.v4-essenz-item + .v4-essenz-item {
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.v4-essenz-item:nth-child(2) {
+    background: var(--bg-neutral);
+    border-color: rgba(10, 37, 64, 0.12);
 }
 
 .v4-essenz-head {
@@ -1183,6 +1210,16 @@ ul {
 .v4-essenz-display {
     color: var(--text-dark);
     text-transform: none;
+}
+
+@supports (-webkit-text-fill-color: transparent) {
+    .v4-essenz-display {
+        background: var(--gradient-hero-light);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
 }
 
 .v4-essenz-body {
@@ -1203,6 +1240,27 @@ ul {
     color: rgba(10, 37, 64, 0.7);
 }
 
+.v4-essenz-audience {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(10, 37, 64, 0.12);
+    font-size: var(--t-small);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    background: var(--gradient-prism);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 10px rgba(249, 115, 22, 0.15);
+}
+
+.v4-essenz-cta {
+    box-shadow: 0 10px 20px rgba(255, 77, 0, 0.18);
+}
+
 .v4-essenz-meta-link {
     color: var(--primary-color);
     text-decoration: none;
@@ -1214,6 +1272,11 @@ ul {
 }
 
 @media (max-width: 768px) {
+    .v4-essenz-item {
+        padding: clamp(2rem, 6vw, 2.75rem);
+        border-radius: 22px;
+    }
+
     .v4-essenz-body {
         font-size: 1rem;
         line-height: 1.6;
