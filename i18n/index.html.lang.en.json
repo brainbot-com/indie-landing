@@ -89,5 +89,9 @@
   "operations.link": "How operations work",
   "finalCta.title": "Ready for local AI without compromise?",
   "finalCta.primary": "Buy now",
-  "finalCta.secondary": "See the demo"
+  "finalCta.secondary": "See the demo",
+  "footer.tagline": "Private AI. No cloud.",
+  "footer.copyright": "© 2026 Indie.Box",
+  "footer.terms": "Terms",
+  "footer.impressum": "Legal notice"
 }
