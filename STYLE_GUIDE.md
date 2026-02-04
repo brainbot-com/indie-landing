@@ -25,7 +25,9 @@ Defined in `style.css` and `type-guide.css`.
 - `.hero-title` → `--t-display-1`
 - `.section-heading` → `--t-title`
 - `.hero-subtitle` → `--t-subhead`
-- Body text (e.g. `.card p`, `.use-case-item p`) → `--t-body`
+- `.story-display`, `.box-display` → `--t-display-2`
+- `.story-kicker`, `.box-kicker`, `.box-tag` → `--t-small`
+- Body text (e.g. `.card p`, `.use-case-item p`, `.box-body`) → `--t-body`
 - Buttons + nav → `--t-ui`
 
 ### Usage Mapping (Reference-only in `type-guide.css`)
@@ -62,10 +64,37 @@ Use only these backgrounds.
 - Cards / transitions: `--bg-neutral`
 
 ## Buttons
-- **Primary CTA**: `.primary-button` (pill shape, `--accent-color`)
-- **Secondary CTA**: `.secondary-button` (outline)
-- **Small buttons**: `.primary-button.small` and `.secondary-button.small`
-- Prism is for text/gradients, **not** for buttons
+**Naming principle:** button names describe **design function**, not usage.
+
+**Base**
+- `.button`
+
+**Shape**
+- `.button--pill` (only shape used)
+
+**Size**
+- `.button--sm`
+- `.button--md`
+- `.button--lg`
+
+**Visual treatment**
+- `.button--solid` (accent fill)
+- `.button--plain-light` (borderless fill for light surfaces)
+- `.button--plain-dark` (borderless fill for dark surfaces)
+
+**Notes**
+- Prism is for text/gradients, **not** for buttons.
+- Always combine base + shape + size + treatment.
+
+## Layout Naming (Design Meaning)
+- Scroll story: `.story-*` (panels, surfaces, headlines, text)
+- Box stack: `.box-*` (stack, box, head, body, meta, tag)
+- Names describe layout/visual role, not content meaning.
+
+## Animation Hooks (No Styling)
+- Use `data-animate="fade-up"` and optional `data-stagger="1|2|3"`.
+- Scroll story is wired via `data-scroll-panel="intro|focus|focus-wrap"`.
+- Animation triggers should not be implemented with semantic layout classes.
 
 ## Do / Don’t
 **Do**

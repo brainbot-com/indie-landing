@@ -32,7 +32,7 @@
         <div class="hero-actions hero-actions-pill">
             <div class="hero-price-pill">
                 <span class="hero-price-text">ab 2.999 €</span>
-                <a href="mailto:contact@brainbot.com" class="primary-button hero-buy">Kaufen</a>
+                <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--sm hero-buy">Kaufen</a>
             </div>
         </div>
 
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="container hero-content-overlay fade-up" data-hero-variant="alt2" hidden>
+        <div class="container hero-content-overlay" data-hero-variant="alt2" data-animate="fade-up" hidden>
             <h1 class="hero-title">
                 indie.box
             </h1>
@@ -61,7 +61,95 @@
                 Leistung. Unter deiner Kontrolle. Super einfach.
             </p>
             <div class="hero-actions">
-                <a href="#demo" class="primary-button large">Jetzt starten</a>
+                <a href="#demo" class="button button--solid button--pill button--lg">Jetzt starten</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scroll Story (Panels) -->
+    <section class="story-panel story-panel--intro" data-scroll-panel="intro">
+        <div class="story-panel-sticky">
+            <div class="story-content">
+                <div class="story-content-inner">
+                    <p class="story-text" data-animate="fade-up">
+                        Die Indie.Box ist aus gutem Grund die neue Referenz für lokale KI.<br>
+                        Mehr Leistung, mehr Spielraum: 128 GB Speicher für moderne Reasoning-Modelle.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="story-panel-wrap" data-scroll-panel="focus-wrap">
+        <section class="story-panel story-panel--focus" data-scroll-panel="focus">
+            <div class="story-panel-sticky">
+                <div class="story-surface">
+                    <div class="story-content">
+                        <div class="story-content-inner">
+                            <div class="story-headline" data-animate="fade-up" data-stagger="1">
+                                <div class="story-kicker">Einsatzbereit</div>
+                                <div class="story-display gradient-text">Gemacht für produktive KI vor Ort</div>
+                            </div>
+                            <div class="story-text-inline">
+                                <p class="story-text story-text-inline-copy" data-animate="fade-up" data-stagger="2">
+                                    Chat, Automatisierung und Agenten laufen auf deiner Plattform.<br>
+                                    Alles ist eingerichtet, optimiert und sofort einsatzbereit.<br>
+                                    Ausgelegt, um mit dir zu wachsen.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Box Stack -->
+    <section class="box-stack">
+        <div class="box-stack-container">
+            <div class="box">
+                <div class="box-head">
+                    <div class="box-kicker">PRIVATSPHÄRE</div>
+                    <div class="box-display" data-animate="fade-up">ALLES BLEIBT BEI DIR</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Deine KI arbeitet lokal und unabhängig. Daten, Modelle und Ergebnisse bleiben dort, wo sie entstehen.
+                    Ohne Weitergabe, ohne Mitlesen, ohne externe Abhängigkeiten.
+                </p>
+                <div class="box-meta" data-animate="fade-up">
+                    <span class="box-tag">Für Privacy-Enthusiasten</span>
+                    <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta">Privacy-Prinzipien erkunden</a>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="box-head">
+                    <div class="box-kicker">NUTZUNG</div>
+                    <div class="box-display" data-animate="fade-up">SOFORT EINSATZBEREIT</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Auspacken, verbinden, loslegen. Die Indie.Box ist vorkonfiguriert, Updates laufen automatisch,
+                    und deine Teams starten ohne technische Hürden.
+                </p>
+                <div class="box-meta" data-animate="fade-up">
+                    <span class="box-tag">Für Produktteams</span>
+                    <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta">Mehr über die Nutzung erfahren</a>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="box-head">
+                    <div class="box-kicker">ZUKUNFTSFÄHIG</div>
+                    <div class="box-display" data-animate="fade-up">GEMACHT ZUM WACHSEN</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Eine stabile Umgebung mit Perspektive. Funktionen lassen sich erweitern, ohne bestehendes zu verändern.
+                    Partner und Teams bauen eigene Lösungen darauf auf. Alles läuft in einer sicheren, funktionierenden Basis.
+                </p>
+                <div class="box-meta" data-animate="fade-up">
+                    <span class="box-tag">Für Partner und Produktteams</span>
+                    <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta">Partner werden</a>
+                </div>
             </div>
         </div>
     </section>
@@ -69,9 +157,9 @@
     <!-- Vergleich + Warum -->
     <section class="section">
         <div class="container">
-            <h2 class="section-heading fade-up">Gemacht für produktive KI vor Ort</h2>
+            <h2 class="section-heading" data-animate="fade-up">Gemacht für produktive KI vor Ort</h2>
             <div class="grid-3 comparison-grid">
-                <div class="card comparison-card fade-up">
+                <div class="card comparison-card" data-animate="fade-up">
                     <div class="comparison-head">
                         <h3>Cloud KI</h3>
                         <div class="comparison-badge muted">Nicht privat</div>
@@ -84,7 +172,7 @@
                     </ul>
                 </div>
 
-                <div class="card comparison-card best fade-up">
+                <div class="card comparison-card best" data-animate="fade-up">
                     <div class="comparison-head">
                         <h3>Indie.Box</h3>
                         <div class="comparison-badge best">Beste Wahl</div>
@@ -98,7 +186,7 @@
                     </ul>
                 </div>
 
-                <div class="card comparison-card fade-up">
+                <div class="card comparison-card" data-animate="fade-up">
                     <div class="comparison-head">
                         <h3>Self-Hosting</h3>
                         <div class="comparison-badge muted">Zu komplex</div>
@@ -113,7 +201,7 @@
                 </div>
             </div>
 
-            <p class="center-note fade-up">
+            <p class="center-note" data-animate="fade-up">
                 Indie.Box kombiniert die Privatsphäre von Self-Hosting mit der Einfachheit von Cloud-KI.<br>
                 Ohne laufende Kosten. Ohne Basteln.
             </p>
@@ -124,21 +212,21 @@
     <section class="section" style="background-color: var(--bg-light);">
         <div class="container">
             <div class="grid-3">
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>1. Auspacken &amp; Verbinden</h3>
                     <p class="card-lead">
                         Schließe die Indie.Box an Strom und Netzwerk an.<br>
                         WLAN oder Ethernet, fertig.
                     </p>
                 </div>
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>2. Browser öffnen</h3>
                     <p class="card-lead">
                         Öffne die lokale Adresse im Browser.<br>
                         Keine App. Kein Cloud-Login.
                     </p>
                 </div>
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>3. Loslegen</h3>
                     <p class="card-lead">
                         Alle Modelle sind vorbereitet.<br>
@@ -154,8 +242,8 @@
         <div class="showcase-container">
             <img src="image.png" alt="Indie.Box" class="showcase-image parallax-bg" data-speed="0.3">
             <div class="showcase-content">
-                <h2 class="showcase-title fade-up">Dein privates KI-Ökosystem</h2>
-                <p class="showcase-text fade-up">
+                <h2 class="showcase-title" data-animate="fade-up">Dein privates KI-Ökosystem</h2>
+                <p class="showcase-text" data-animate="fade-up">
                     Nutze ein kuratiertes Ökosystem professioneller KI-Anwendungen.<br>
                     Ein Klick zur Installation, automatische Updates und kein Datenabfluss.
                 </p>
@@ -166,7 +254,7 @@
     <section class="section">
         <div class="container">
             <div class="grid-3">
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>1. Mit Dokumenten chatten</h3>
                     <p class="card-lead">
                         Lade PDFs, Verträge und Berichte hoch, um Inhalte zu analysieren, zusammenzufassen und gezielt
@@ -181,7 +269,7 @@
                     </ul>
                 </div>
 
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>2. Agenten</h3>
                     <p class="card-lead">
                         Erstelle Agenten, die KI, Daten und Tools direkt in deinen Workflows verbinden.<br>
@@ -195,7 +283,7 @@
                     </ul>
                 </div>
 
-                <div class="card fade-up">
+                <div class="card" data-animate="fade-up">
                     <h3>3. Alle Modelle ausführen</h3>
                     <p class="card-lead">Alle gängigen KI-Modelle, lokal.</p>
                     <p class="card-lead">
@@ -216,7 +304,7 @@
     <!-- Data Safety -->
     <section class="section" style="background-color: var(--bg-light);" id="data-safety">
         <div class="container">
-            <div class="info-card fade-up">
+            <div class="info-card" data-animate="fade-up">
                 <h2 class="info-title">Deine Daten bleiben bei dir</h2>
                 <p class="info-text">
                     Standardmäßig verlässt kein Byte dein Netzwerk.<br>
@@ -234,7 +322,7 @@
     <!-- Betrieb -->
     <section class="section" id="betrieb">
         <div class="container">
-            <div class="info-card fade-up">
+            <div class="info-card" data-animate="fade-up">
                 <h2 class="info-title">Ein System, das einfach läuft</h2>
                 <p class="info-text">
                     Die Indie.Box basiert auf einem gehärteten Linux-System mit klar getrennten Benutzer- und
@@ -253,11 +341,11 @@
     <!-- Final CTA -->
     <section class="section final-cta" id="final-cta">
         <div class="container">
-            <div class="final-cta-card fade-up">
+            <div class="final-cta-card" data-animate="fade-up">
                 <h2 class="section-heading" style="margin-bottom: 1.5rem;">Bereit für lokale KI ohne Kompromisse?</h2>
                 <div class="hero-actions">
-                    <a href="mailto:contact@brainbot.com" class="primary-button large">Jetzt kaufen</a>
-                    <a href="#demo" class="secondary-button large">Demo ansehen</a>
+                    <a href="mailto:contact@brainbot.com" class="button button--solid button--pill button--lg">Jetzt kaufen</a>
+                    <a href="#demo" class="button button--plain-light button--pill button--lg">Demo ansehen</a>
                 </div>
             </div>
         </div>

@@ -314,6 +314,16 @@ body {
     gap: 0.9rem;
 }
 
+.ui-card.is-dark {
+    background: #0f141b;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ui-card.is-dark .ui-label {
+    color: rgba(255, 255, 255, 0.55);
+}
+
 .ui-label {
     font-size: 0.82rem;
     letter-spacing: 0.16em;
@@ -322,64 +332,71 @@ body {
     font-weight: 600;
 }
 
-.primary-button {
+.button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--accent-color);
-    color: white;
-    padding: 0.8rem 1.5rem;
-    border-radius: 999px;
     font-weight: 600;
     font-size: var(--t-ui);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(255, 77, 0, 0.2);
-    border: none;
+    border: 2px solid transparent;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    line-height: 1;
 }
 
-.primary-button:hover {
+.button--pill {
+    border-radius: 999px;
+}
+
+
+.button--sm {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    min-height: 32px;
+}
+
+.button--md {
+    padding: 0.8rem 1.5rem;
+    min-height: 40px;
+}
+
+.button--lg {
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    min-height: 44px;
+}
+
+.button--solid {
+    background-color: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px 6px rgba(255, 77, 0, 0.2);
+}
+
+.button--solid:hover {
     background-color: #e64600;
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(255, 77, 0, 0.3);
 }
 
-.primary-button.large {
-    padding: 0.65rem 1.4rem;
-    font-size: 0.95rem;
-    border-radius: 8px;
-    min-height: 40px;
-}
-
-.primary-button.small {
-    padding: 0.45rem 1rem;
-    font-size: 0.85rem;
-    min-height: 32px;
-}
-
-.secondary-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
+.button--plain-light {
+    background-color: rgba(10, 37, 64, 0.08);
     color: var(--primary-color);
-    padding: 0.8rem 1.5rem;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: var(--t-ui);
-    border: 2px solid var(--primary-color);
-    transition: all 0.2s ease;
-    cursor: pointer;
+    border-color: transparent;
 }
 
-.secondary-button.small {
-    padding: 0.45rem 1rem;
-    font-size: 0.85rem;
-    min-height: 32px;
+.button--plain-light:hover {
+    background-color: rgba(10, 37, 64, 0.14);
 }
 
-.secondary-button:hover {
-    background-color: var(--bg-light);
+.button--plain-dark {
+    background-color: rgba(255, 255, 255, 0.14);
+    color: rgba(247, 250, 252, 0.95);
+    border-color: transparent;
+}
+
+.button--plain-dark:hover {
+    background-color: rgba(255, 255, 255, 0.22);
 }
 
 .pill-preview {

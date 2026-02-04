@@ -32,7 +32,7 @@ function setupAnimations() {
         });
     }, observerOptions);
 
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    document.querySelectorAll('[data-animate="fade-up"]').forEach(el => observer.observe(el));
 
     const parallaxItems = document.querySelectorAll('.parallax-bg');
     if (parallaxItems.length === 0) return;
@@ -48,13 +48,116 @@ function setupAnimations() {
             if (rect.bottom <= 0 || rect.top >= viewHeight) return;
 
             const centerOffset = (rect.top + rect.height / 2) - (viewHeight / 2);
-            const translateY = centerOffset * speed;
+            const rawTranslate = centerOffset * speed;
+
+            const parentHeight = parent.offsetHeight || rect.height;
+            const itemHeight = item.offsetHeight || parentHeight;
+            const overflow = Math.max(0, itemHeight - parentHeight);
+            const maxShift = overflow / 2;
+            const translateY = Math.max(-maxShift, Math.min(maxShift, rawTranslate));
+
             item.style.transform = `translateY(${translateY}px) translateZ(0)`;
         });
     };
 
     window.addEventListener('scroll', () => requestAnimationFrame(updateParallax), { passive: true });
     updateParallax();
+}
+
+function clamp01(value) {
+    if (value < 0) return 0;
+    if (value > 1) return 1;
+    return value;
+}
+
+function setupStoryScroll() {
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+
+    const panelIntro = document.querySelector('[data-scroll-panel="intro"]');
+    const panelFocus = document.querySelector('[data-scroll-panel="focus"]');
+    const panelWrap = document.querySelector('[data-scroll-panel="focus-wrap"]');
+    if (!panelIntro && !panelFocus) return;
+
+    let raf = 0;
+    let panelFixed = false;
+
+    const update = () => {
+        raf = 0;
+
+        if (panelFocus) {
+            const viewHeight = window.innerHeight || 0;
+            const introText = panelIntro ? panelIntro.querySelector('.story-text') : null;
+
+            const computeProgress = (sectionEl) => {
+                const rect = sectionEl.getBoundingClientRect();
+                const start = window.scrollY + rect.top;
+                const end = start + sectionEl.offsetHeight - window.innerHeight;
+                if (end <= start) return { progress: 1, start, end };
+                return { progress: clamp01((window.scrollY - start) / (end - start)), start, end };
+            };
+
+            const introInfo = panelIntro ? computeProgress(panelIntro) : { progress: 0, start: 0, end: 0 };
+            let enterFromIntro = 0;
+            let panelTopPx = 0;
+
+            if (introText && viewHeight > 0) {
+                const introRect = introText.getBoundingClientRect();
+                const startTop = viewHeight * 0.55;
+                const endTop = viewHeight * 0.12;
+                enterFromIntro = clamp01((startTop - introRect.top) / (startTop - endTop));
+
+                const gapPx = Math.round(Math.max(18, Math.min(34, viewHeight * 0.03)));
+                const unclampedTop = introRect.bottom + gapPx;
+                const minTop = viewHeight * 0.25;
+                const maxTop = viewHeight * 0.72;
+                panelTopPx = Math.round(Math.max(minTop, Math.min(maxTop, unclampedTop)));
+            }
+
+            const panelHeightPx = Math.max(0, viewHeight - panelTopPx);
+            const enterY = (1 - enterFromIntro) * (panelHeightPx + 40);
+            const extraScroll = Math.max(0, window.scrollY - introInfo.end);
+
+            const headMove = clamp01((enterFromIntro - 0.2) / 0.8);
+            const headY = (1 - headMove) * 22;
+
+            panelFocus.style.setProperty('--story-p2-top', `${panelTopPx}px`);
+            panelFocus.style.setProperty('--story-p2-enter-y', `${enterY.toFixed(2)}px`);
+            panelFocus.style.setProperty('--story-head-y', `${headY.toFixed(2)}vh`);
+            panelFocus.style.setProperty('--story-p2-follow', `${(-extraScroll).toFixed(2)}px`);
+
+            let p3 = 0;
+            if (introText && viewHeight > 0) {
+                const introRectNow = introText.getBoundingClientRect();
+                const p3StartTop = viewHeight * 0.12;
+                const p3EndTop = -viewHeight * 0.30;
+                p3 = clamp01((p3StartTop - introRectNow.top) / (p3StartTop - p3EndTop));
+            }
+            const p3Enter = (1 - p3) * Math.min(260, viewHeight * 0.42);
+            panelFocus.style.setProperty('--story-p3-enter-y', `${p3Enter.toFixed(2)}px`);
+
+            const wrapRect = panelWrap ? panelWrap.getBoundingClientRect() : null;
+            const wrapBottom = wrapRect ? wrapRect.bottom : 0;
+            const shouldFix = enterFromIntro > 0 && panelWrap && wrapBottom > panelTopPx;
+            if (shouldFix && !panelFixed) {
+                panelFocus.classList.add('is-fixed');
+                panelFixed = true;
+            }
+            if (!shouldFix && panelFixed) {
+                panelFocus.classList.remove('is-fixed');
+                panelFixed = false;
+            }
+        }
+    };
+
+    const requestUpdate = () => {
+        if (raf) return;
+        raf = requestAnimationFrame(update);
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    update();
 }
 
 function setupHeroCinematicSequence() {
@@ -164,4 +267,5 @@ document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
     setupAnimations();
+    setupStoryScroll();
 });
