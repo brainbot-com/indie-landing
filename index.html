@@ -65,7 +65,7 @@
 
         <div class="hero-actions hero-actions-pill">
             <div class="price-pill">
-                <span class="price-text" data-i18n="hero.price">ab 2.999 €</span>
+                <span class="price-text" data-i18n="hero.price">ab 3.999 €</span>
                 <a href="checkout.html" class="button button--solid button--pill button--sm price-cta" data-i18n="hero.cta.buy">Kaufen</a>
             </div>
         </div>
@@ -182,8 +182,9 @@
                 <h2 class="compare-title gradient-light" data-i18n="comparison.title">Warum Indiebox?</h2>
                 <p class="compare-subline" data-i18n="comparison.subline">Vergleiche deine Optionen und sieh, warum Indiebox die beste Wahl für private KI ist.</p>
             </div>
-            <div class="grid-3 comparison-grid">
-                <div class="card comparison-card comparison-card--negative" data-animate="fade-up">
+            <div class="comparison-grid">
+                <div class="comparison-item" data-animate="fade-up">
+                    <div class="comparison-card comparison-card--negative">
                     <div class="comparison-head">
                         <h3 data-i18n="comparison.cloud.title">Cloud-KI</h3>
                         <span class="comparison-label" data-i18n="comparison.cloud.badge">Nicht privat</span>
@@ -194,23 +195,27 @@
                         <li data-i18n="comparison.cloud.items.2">Nutzungs- und Rate-Limits</li>
                         <li data-i18n="comparison.cloud.items.3">Internet zwingend erforderlich</li>
                     </ul>
-                </div>
-
-                <div class="card comparison-card best comparison-card--positive glow-frame glow-frame--outer" data-animate="fade-up">
-                    <div class="comparison-head">
-                        <h3 data-i18n="comparison.indie.title">Indiebox</h3>
-                        <span class="comparison-label comparison-label--best" data-i18n="comparison.indie.badge">Beste Wahl</span>
                     </div>
-                    <ul class="symbol-list">
-                        <li data-i18n="comparison.indie.items.0">Einmal kaufen, keine Abos</li>
-                        <li data-i18n="comparison.indie.items.1">Deine Daten bleiben lokal</li>
-                        <li data-i18n="comparison.indie.items.2">Volle Leistung ohne Limits</li>
-                        <li data-i18n="comparison.indie.items.3">In Minuten startklar</li>
-                        <li data-i18n="comparison.indie.items.4">Ausgelegt für große Modelle</li>
-                    </ul>
                 </div>
 
-                <div class="card comparison-card comparison-card--negative" data-animate="fade-up">
+                <div class="comparison-item comparison-item--highlight" data-animate="fade-up">
+                    <div class="comparison-card comparison-card--positive">
+                        <div class="comparison-head">
+                            <h3 data-i18n="comparison.indie.title">Indiebox</h3>
+                            <span class="comparison-label comparison-label--best" data-i18n="comparison.indie.badge">Beste Wahl</span>
+                        </div>
+                        <ul class="symbol-list">
+                            <li data-i18n="comparison.indie.items.0">Einmal kaufen, keine Abos</li>
+                            <li data-i18n="comparison.indie.items.1">Deine Daten bleiben lokal</li>
+                            <li data-i18n="comparison.indie.items.2">Volle Leistung ohne Limits</li>
+                            <li data-i18n="comparison.indie.items.3">In Minuten startklar</li>
+                            <li data-i18n="comparison.indie.items.4">Ausgelegt für große Modelle</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="comparison-item" data-animate="fade-up">
+                    <div class="comparison-card comparison-card--negative">
                     <div class="comparison-head">
                         <h3 data-i18n="comparison.self.title">Self-Hosting</h3>
                         <span class="comparison-label" data-i18n="comparison.self.badge">Komplex</span>
@@ -222,6 +227,7 @@
                         <li data-i18n="comparison.self.items.3">Permanenter Wartungsaufwand</li>
                         <li data-i18n="comparison.self.items.4">Kein verlässlicher Support</li>
                     </ul>
+                    </div>
                 </div>
             </div>
             <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">
@@ -414,7 +420,7 @@
                 <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-animate="fade-up" data-i18n="finalCta.title">Bereit für lokale KI ohne Kompromisse?</h2>
                 <div class="hero-actions" data-animate="fade-up" data-stagger="1">
                     <div class="price-pill">
-                        <span class="price-text" data-i18n="hero.price">ab 2.999 €</span>
+                        <span class="price-text" data-i18n="hero.price">ab 3.999 €</span>
                         <a href="checkout.html" class="button button--solid button--pill button--sm price-cta" data-i18n="finalCta.primary">Jetzt kaufen</a>
                     </div>
                 </div>
