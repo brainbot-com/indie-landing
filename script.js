@@ -260,6 +260,123 @@ function setupMobileNav() {
     });
 }
 
+function setupSpecExplorer() {
+    const explorers = document.querySelectorAll('[data-spec-explorer]');
+    if (!explorers.length) return;
+
+    explorers.forEach((explorer) => {
+        const tabs = Array.from(explorer.querySelectorAll('[data-spec-tab]'));
+        const panels = Array.from(explorer.querySelectorAll('[data-spec-panel]'));
+        const panelsWrap = explorer.querySelector('.spec-explorer__panels');
+        if (!tabs.length || !panels.length) return;
+
+        const setActive = (name, { focus = false } = {}) => {
+            let activeTab = null;
+
+            tabs.forEach((tab) => {
+                const isActive = tab.dataset.specTab === name;
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                tab.tabIndex = isActive ? 0 : -1;
+                if (isActive) activeTab = tab;
+            });
+
+            panels.forEach((panel) => {
+                panel.hidden = panel.dataset.specPanel !== name;
+            });
+
+            if (focus && activeTab) activeTab.focus();
+        };
+
+        const updatePanelsMinHeight = () => {
+            if (!panelsWrap) return;
+
+            const activePanel = panels.find((panel) => !panel.hidden) || panels[0];
+            let maxHeight = activePanel ? activePanel.getBoundingClientRect().height : 0;
+
+            panels.forEach((panel) => {
+                if (panel === activePanel) return;
+
+                const wasHidden = panel.hidden;
+                panel.hidden = false;
+
+                const previousStyle = {
+                    position: panel.style.position,
+                    left: panel.style.left,
+                    right: panel.style.right,
+                    top: panel.style.top,
+                    width: panel.style.width,
+                    visibility: panel.style.visibility,
+                    pointerEvents: panel.style.pointerEvents
+                };
+
+                panel.style.position = 'absolute';
+                panel.style.left = '0';
+                panel.style.right = '0';
+                panel.style.top = '0';
+                panel.style.width = '100%';
+                panel.style.visibility = 'hidden';
+                panel.style.pointerEvents = 'none';
+
+                const height = panel.getBoundingClientRect().height;
+                if (height > maxHeight) maxHeight = height;
+
+                panel.style.position = previousStyle.position;
+                panel.style.left = previousStyle.left;
+                panel.style.right = previousStyle.right;
+                panel.style.top = previousStyle.top;
+                panel.style.width = previousStyle.width;
+                panel.style.visibility = previousStyle.visibility;
+                panel.style.pointerEvents = previousStyle.pointerEvents;
+                panel.hidden = wasHidden;
+            });
+
+            panelsWrap.style.minHeight = `${Math.ceil(maxHeight)}px`;
+        };
+
+        let resizeFrame = 0;
+        const requestMinHeightUpdate = () => {
+            if (resizeFrame) cancelAnimationFrame(resizeFrame);
+            resizeFrame = requestAnimationFrame(() => {
+                resizeFrame = 0;
+                updatePanelsMinHeight();
+            });
+        };
+
+        const initial = tabs.find((tab) => tab.getAttribute('aria-selected') === 'true') || tabs[0];
+        setActive(initial.dataset.specTab || 'hardware');
+        requestMinHeightUpdate();
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(requestMinHeightUpdate).catch(() => {
+                /* Ignore font loading errors */
+            });
+        }
+
+        window.addEventListener('resize', requestMinHeightUpdate, { passive: true });
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => setActive(tab.dataset.specTab));
+
+            tab.addEventListener('keydown', (event) => {
+                const key = event.key;
+                if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'Home' && key !== 'End') return;
+
+                event.preventDefault();
+
+                let nextIndex = index;
+                if (key === 'Home') nextIndex = 0;
+                if (key === 'End') nextIndex = tabs.length - 1;
+                if (key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+                if (key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+
+                const next = tabs[nextIndex];
+                if (!next) return;
+                setActive(next.dataset.specTab, { focus: true });
+            });
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -267,4 +384,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStoryScroll();
     setupNavReveal();
     setupMobileNav();
+    setupSpecExplorer();
 });

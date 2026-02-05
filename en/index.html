@@ -82,7 +82,7 @@
         <div class="story-panel-sticky">
             <div class="story-content">
                 <div class="story-content-inner">
-                    <p class="story-text" data-animate="fade-up" data-i18n="story.intro.main">Indiebox is the new reference for local AI for good reason.</p>
+                    <p class="story-text" data-animate="fade-up" data-i18n="story.intro.main" data-i18n-html="true">Indiebox is the new reference for local AI for a reason.<br><br>Private AI without cloud, without telemetry, 100% local.</p>                    
                     <p class="story-subline" data-animate="fade-up" data-stagger="1" data-i18n="story.intro.subline">More power, more headroom: 128 GB of memory for modern reasoning models.</p>
                 </div>
             </div>
@@ -332,17 +332,120 @@
                     <p class="spec-kicker" data-i18n="spec.kicker">Workstation Grade Power</p>
                     <h2 class="spec-title" data-i18n="spec.title">Indiebox</h2>
                     <p class="spec-tagline" data-i18n="spec.tagline">One-time purchase. Lifetime ownership.</p>
-                    <ul class="spec-list">
-                        <li><span data-i18n="spec.items.0">Processor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Cores)</strong></li>
-                        <li><span data-i18n="spec.items.1">AI Capability</span><strong data-i18n="spec.values.1">High-Performance NPU (50 TOPS)</strong></li>
-                        <li><span data-i18n="spec.items.2">Memory</span><strong data-i18n="spec.values.2">128GB High-Speed RAM</strong></li>
-                        <li><span data-i18n="spec.items.3">Storage</span><strong data-i18n="spec.values.3">4TB Professional NVMe SSD</strong></li>
-                    </ul>
-                    <ul class="spec-checks">
-                        <li data-i18n="spec.checks.0">Fully Pre-configured System</li>
-                        <li data-i18n="spec.checks.1">Priority Support for Business</li>
-                        <li data-i18n="spec.checks.2">Agent Automation Platform, Chat Platform, and models included</li>
-                    </ul>
+                    <div class="spec-explorer" data-spec-explorer>
+                        <div class="spec-explorer__tabs" role="tablist" aria-label="Spezifikation">
+                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-hardware" aria-controls="spec-panel-hardware" aria-selected="true" tabindex="0" data-spec-tab="hardware" data-i18n="spec.explorer.tabs.hardware">Hardware</button>
+                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-benchmarks" aria-controls="spec-panel-benchmarks" aria-selected="false" tabindex="-1" data-spec-tab="benchmarks" data-i18n="spec.explorer.tabs.benchmarks">Benchmarks</button>
+                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-agents" aria-controls="spec-panel-agents" aria-selected="false" tabindex="-1" data-spec-tab="agents" data-i18n="spec.explorer.tabs.agents">Agents</button>
+                        </div>
+
+                        <div class="spec-explorer__panels">
+                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-hardware" aria-labelledby="spec-tab-hardware" data-spec-panel="hardware">
+                                <ul class="spec-list">
+                                    <li><span data-i18n="spec.items.0">Processor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Cores)</strong></li>
+                                    <li><span data-i18n="spec.items.1">AI Capability</span><strong data-i18n="spec.values.1">High-Performance NPU (50 TOPS)</strong></li>
+                                    <li><span data-i18n="spec.items.2">Memory</span><strong data-i18n="spec.values.2">128GB High-Speed RAM</strong></li>
+                                    <li><span data-i18n="spec.items.3">Storage</span><strong data-i18n="spec.values.3">4TB Professional NVMe SSD</strong></li>
+                                </ul>
+                                <ul class="spec-checks">
+                                    <li data-i18n="spec.checks.0">Fully Pre-configured System</li>
+                                    <li data-i18n="spec.checks.1">Priority Support for Business</li>
+                                    <li data-i18n="spec.checks.2">Agent automation platform, chat platform, and models included</li>
+                                </ul>
+                            </div>
+
+                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-benchmarks" aria-labelledby="spec-tab-benchmarks" data-spec-panel="benchmarks" hidden>
+                                <div class="bench-head">
+                                    <div class="bench-highlight">
+                                        <div class="bench-highlight__value gradient-signature" data-i18n="spec.bench.highlight.value">235B</div>
+                                        <div class="bench-highlight__label" data-i18n="spec.bench.highlight.label">parameters, runs locally</div>
+                                    </div>
+                                    <p class="bench-sub" data-i18n="spec.bench.sub">Parameter size and inference speed (tokens/s) on Indiebox.</p>
+                                </div>
+
+                                <div class="bench-chart" role="group" aria-label="Benchmarks">
+                                    <div class="bench-chart__header" aria-hidden="true">
+                                        <span class="bench-chart__h bench-chart__h--model" data-i18n="spec.bench.cols.model">Model</span>
+                                        <span class="bench-chart__h bench-chart__h--params" data-i18n="spec.bench.cols.params">Parameters (up to 235B)</span>
+                                        <span class="bench-chart__h bench-chart__h--tps" data-i18n="spec.bench.cols.tps">Tokens/s (up to 40)</span>
+                                    </div>
+
+                                    <div class="bench-row" style="--param-pct: 13%; --tps-pct: 95%;">
+                                        <div class="bench-model">Qwen3 30B</div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">30B</div>
+                                        </div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">35-40 tok/s</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bench-row" style="--param-pct: 51%; --tps-pct: 75%;">
+                                        <div class="bench-model">ChatGPT-OSS 120B</div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">120B</div>
+                                        </div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">~30 tok/s</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bench-row" style="--param-pct: 100%; --tps-pct: 28%;">
+                                        <div class="bench-model">Qwen3 235B</div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">235B</div>
+                                        </div>
+                                        <div class="bench-metric">
+                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
+                                                <div class="bench-bar__fill"></div>
+                                            </div>
+                                            <div class="bench-value">~11 tok/s</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="bench-footnote" data-i18n="spec.bench.note">* Benchmarks run on Indiebox (Ryzen AI Max 395) using 4-bit quantized GGUF models.</p>
+                            </div>
+
+                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-agents" aria-labelledby="spec-tab-agents" data-spec-panel="agents" hidden>
+                                <p class="agents-lead" data-i18n="spec.agents.lead">Preinstalled tools for chat, automation, and long-running agents.</p>
+                                <div class="agents-grid">
+                                    <div class="agents-item">
+                                        <div class="agents-item__title">OpenWebUI</div>
+                                        <div class="agents-item__desc" data-i18n="spec.agents.items.0.desc">Chat UI for local models, with user management and document chat.</div>
+                                    </div>
+                                    <div class="agents-item">
+                                        <div class="agents-item__title">Letta</div>
+                                        <div class="agents-item__desc" data-i18n="spec.agents.items.1.desc">Agent runtime for long-running tasks: memory, tools, and persistence.</div>
+                                    </div>
+                                    <div class="agents-item">
+                                        <div class="agents-item__title">n8n</div>
+                                        <div class="agents-item__desc" data-i18n="spec.agents.items.2.desc">Workflow automation for integrations, triggers, and data pipelines.</div>
+                                    </div>
+                                    <div class="agents-item">
+                                        <div class="agents-item__title" data-i18n="spec.agents.items.3.title">Model library</div>
+                                        <div class="agents-item__desc" data-i18n="spec.agents.items.3.desc">Curated, runs locally, and fast to switch between models.</div>
+                                    </div>
+                                </div>
+                                <p class="agents-footnote" data-i18n="spec.agents.note">Everything runs locally and is configured so external access stays disabled until you explicitly enable it.</p>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <a href="checkout.html" class="button button--solid button--pill button--sm" data-i18n="finalCta.primary">Buy now</a>
                     </div>
@@ -381,6 +484,7 @@
                 <div data-i18n="footer.copyright">© 2026 Indiebox</div>
                 <div class="legal-links">
                     <a href="terms.html" data-i18n="footer.terms">Terms</a>
+                    <a href="datenschutz.html" data-i18n="footer.privacy">Privacy policy</a>
                     <a href="impressum.html" data-i18n="footer.impressum">Legal notice</a>
                 </div>
             </div>
