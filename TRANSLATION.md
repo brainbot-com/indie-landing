@@ -40,6 +40,7 @@ node scripts/generate-lang.js
 - Keep English concise; avoid expanding copy length by more than ~10-15%.
 - Use the same punctuation style as German unless it reads unnatural.
 - If unsure, mark with a clear TODO note in the English JSON.
+- Do not use HTML entities like `&amp;` in JSON strings unless the target element is `data-i18n-html="true"`. For normal text, use literal characters (e.g. `&`) to avoid double-escaping.
 
 ## Lists, bold, links
 
