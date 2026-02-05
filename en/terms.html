@@ -15,103 +15,171 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <main class="legal-page">
+    <nav class="nav-bar" aria-label="Main menu">
+        <div class="container nav-container">
+            <a class="nav-logo" href="index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html#einsatz">Use cases</a>
+                <a href="index.html#spezifikation">Specifications</a>
+                <a href="terms.html" aria-current="page">Terms</a>
+            </div>
+            <div class="nav-actions">
+                <a href="checkout.html" class="button button--pill button--sm nav-buy">Buy</a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menu</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="legal-page legal-page--with-nav">
         <header class="legal-header">
-            <a class="text-link" href="../index.html">Back to home</a>
+            <a class="text-link" href="index.html">Back to home</a>
             <h1 class="legal-title">Terms and Conditions</h1>
-            <p class="legal-subtitle">Status: February 4, 2026</p>
-            <p class="legal-meta">
-                Note: This is a draft and does not replace legal advice.
-                Please review and finalize.
-            </p>
+            <p class="legal-subtitle">brainbot gmbh</p>
+            <p class="legal-subtitle">Status: 02/2026</p>
         </header>
 
         <div class="legal-content">
             <section class="legal-section">
-                <h2>1. Scope</h2>
+                <h2>Provider identification</h2>
                 <p>
-                    These Terms and Conditions apply to all contracts between
-                    <strong>[Company name]</strong> ("Provider") and customers ("Customer")
-                    for the purchase of Indiebox and related services.
+                    <strong>brainbot gmbh</strong><br>
+                    Taunusstr. 61<br>
+                    55120 Mainz<br>
+                    Germany
+                </p>
+                <p>
+                    <strong>Represented by:</strong> Heiko Franssen (Managing Director)<br>
+                    <strong>Commercial register:</strong> Amtsgericht Mainz<br>
+                    <strong>Register number:</strong> HRB 52070<br>
+                    <strong>Contact:</strong> <a href="mailto:info@brainbot.com">info@brainbot.com</a> |
+                    Website: <a href="https://brainbot.com">https://brainbot.com</a>
                 </p>
             </section>
 
             <section class="legal-section">
-                <h2>2. Contract formation</h2>
-                <p>
-                    The contract is concluded when the Provider confirms the Customer's order
-                    in writing or provides the service. Offers are non-binding.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>3. Prices and payment</h2>
-                <p>
-                    All prices are in euros plus statutory VAT, unless stated otherwise.
-                    Payments are due immediately unless otherwise agreed.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>4. Delivery and availability</h2>
-                <p>
-                    Delivery times are non-binding unless expressly agreed as binding.
-                    Partial deliveries are permitted insofar as they are reasonable for the Customer.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>5. Right of withdrawal</h2>
-                <p>
-                    Consumers have statutory withdrawal rights. Conditions, deadlines,
-                    and the sample form are described in the withdrawal notice.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>6. Warranty</h2>
-                <p>
-                    Statutory warranty rights apply. In B2B transactions, differing terms
-                    may be agreed.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>7. Liability</h2>
-                <p>
-                    The Provider is liable for intent and gross negligence. In cases of slight
-                    negligence, the Provider is liable only for breach of essential contractual
-                    duties and limited to the typical, foreseeable damage.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>8. Data protection</h2>
-                <p>
-                    Information on the processing of personal data can be found in the
-                    Provider's privacy policy.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>9. Final provisions</h2>
-                <p>
-                    The law of the Federal Republic of Germany applies, excluding the UN Convention
-                    on Contracts for the International Sale of Goods (CISG).
-                    Place of jurisdiction is <strong>[Place of jurisdiction]</strong>, where legally permissible.
-                </p>
-            </section>
-
-            <section class="legal-section">
-                <h2>10. Provider</h2>
+                <h2>§ 1 Scope</h2>
+                <p>(1) These Terms and Conditions apply to all contracts for the delivery of goods and the provision of services concluded between <strong>brainbot gmbh</strong> (hereinafter “Provider”) and the customer.</p>
+                <p>(2) The offer is addressed to both consumers (§ 13 BGB) and entrepreneurs (§ 14 BGB).</p>
                 <ul class="legal-list">
-                    <li><strong>[Company name]</strong></li>
-                    <li><strong>[Legal form]</strong></li>
-                    <li><strong>[Address]</strong></li>
-                    <li><strong>[Email]</strong></li>
-                    <li><strong>[Phone]</strong></li>
+                    <li><strong>Consumer</strong> means any natural person who enters into a legal transaction for purposes that predominantly are outside their trade, business, or profession.</li>
+                    <li><strong>Entrepreneur</strong> means a natural or legal person or a legally capable partnership who, when concluding a legal transaction, acts in the exercise of their trade, business, or profession.</li>
                 </ul>
+                <p>(3) These Terms and Conditions apply exclusively. Deviating, conflicting, or supplementary terms of the customer become part of the contract only if we have expressly agreed to their validity.</p>
             </section>
+
+            <section class="legal-section">
+                <h2>§ 2 Subject of contract and scope of services</h2>
+                <p>(1) The Provider sells IT hardware including a preinstalled software environment for the local use of artificial intelligence models (“Local AI").</p>
+                <p>(2) <strong>Nature of the AI software:</strong> The customer acknowledges that the provided AI software is based on probabilistic models. The Provider owes the provision of the technical infrastructure, <strong>but not the factual correctness, completeness, or error-free nature</strong> of the generated results. The generation of incorrect or illogical content (“hallucinations") corresponds to the current state of the art and does not constitute a defect.</p>
+                <p>(3) <strong>Open-source components:</strong> The software environment contains open-source components. The respective license terms of the rights holders apply additionally and are referenced in the system.</p>
+                <p>(4) <strong>No high-risk system:</strong> The system is designed as a standard application and is not certified as a high-risk AI system within the meaning of the EU AI Act for critical areas (e.g., credit scoring, asylum decisions, critical infrastructure).</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 3 Contract formation</h2>
+                <p>(1) The presentation of products in the online shop or in offers does not constitute a legally binding offer, but an invitation to place an order.</p>
+                <p>(2) By clicking the “Order with obligation to pay” button (or similar), the customer places a binding order for the goods contained in the cart.</p>
+                <p>(3) The contract is concluded when we accept the order by sending an order confirmation by email or by delivering the goods.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 4 Prices and payment terms</h2>
+                <p>(1) The prices stated at the time of order apply. All prices are inclusive of statutory VAT (for consumers) or net prices plus VAT (if separately stated for B2B), plus shipping costs.</p>
+                <p>(2) Payment is due immediately upon conclusion of the contract unless another payment method (e.g., purchase on account with a payment term) has been agreed.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 5 Delivery and transfer of risk</h2>
+                <p>(1) Delivery dates are non-binding unless expressly agreed as binding.</p>
+                <p>(2) <strong>For consumers (B2C):</strong> The risk of accidental loss and accidental deterioration of the sold item passes to the customer only upon delivery to the customer.</p>
+                <p>(3) <strong>For entrepreneurs (B2B):</strong> The risk passes to the customer as soon as the shipment is handed over to the person carrying out the transport.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 6 Cooperation duties and data backup</h2>
+                <p>(1) <strong>Operating environment:</strong> The customer must ensure a suitable operating environment (power, network, ventilation). Damage due to improper handling (e.g., overheating in a closed cabinet) is at the customer’s expense.</p>
+                <p>(2) <strong>Data backup:</strong> Since hardware defects can never be completely excluded, the customer is obligated to create <strong>regular external backups</strong> of their data and prompts.</p>
+                <p>(3) <strong>IT security:</strong> The customer is solely responsible for securing their local network against unauthorized access.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 7 Technical support</h2>
+                <p>(1) The Provider grants technical support for commissioning and hardware defects for <strong>12 months from the purchase date</strong>.</p>
+                <p>(2) <strong>Exclusion for modifications:</strong> If the customer independently makes changes to the hardware or system configuration (e.g., installation of third-party AI models, code changes, rooting), warranty and support claims for defects caused by this are excluded.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 8 Retention of title</h2>
+                <p>The goods remain our property until full payment of the purchase price.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 9 Warranty (liability for defects)</h2>
+                <p>(1) Statutory warranty rights apply.</p>
+                <p>(2) <strong>For consumers (B2C):</strong> The limitation period for defect claims for new items is two years from delivery of the goods.</p>
+                <p>(3) <strong>For entrepreneurs (B2B):</strong></p>
+                <ul class="legal-list">
+                    <li>The warranty period is one year from delivery.</li>
+                    <li>The customer acknowledges that we act as a reseller. In the case of hardware defects, we are entitled to initially assign our warranty claims against the manufacturer to the customer. If this fails, we are liable on a subsidiary basis.</li>
+                </ul>
+                <p>(4) <strong>No defect for AI errors:</strong> Factually incorrect or illogical answers of the AI (“hallucinations") do not constitute a defect of the software (see § 2 para. 2).</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 10 Liability and limitation of liability</h2>
+                <p>(1) We are liable without limitation in cases of intent, gross negligence, and for injury to life, body, or health.</p>
+                <p>(2) In cases of slight negligence, we are liable only for breach of essential contractual obligations (cardinal obligations), limited to the typical, foreseeable damage.</p>
+                <p>(3) <strong>Liability for data loss:</strong> Liability is limited to the restoration effort that would have arisen with proper data backup (see § 6). Without backups, liability is excluded (except in cases of intent/gross negligence).</p>
+                <p>(4) <strong>Exclusion for AI content:</strong> The Provider is not liable for damages resulting from the customer adopting AI results (e.g., code, text, calculations) without verification. Verifying correctness is solely the customer’s responsibility.</p>
+                <p>(5) <strong>Exclusion for misuse:</strong> We are not liable for damages resulting from abusive use (e.g., creation of illegal content).</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 11 Special prohibitions of use (medicine, law, misuse)</h2>
+                <p>(1) <strong>No medical product:</strong> The Brainbot Box must not be used for medical diagnosis, therapy decisions, or patient-related assessments.</p>
+                <p>(2) <strong>No legal advice:</strong> The AI does not replace legal or tax advice.</p>
+                <p>(3) <strong>Prohibited use:</strong> It is prohibited to use the system to generate unlawful content (e.g., instructions for crimes, weapons construction, hacking, hate speech, pornography).</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 12 Indemnification</h2>
+                <p>The customer indemnifies the Provider against all third-party claims arising from unlawful or contractual misuse of the Brainbot Box by the customer.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 13 Right of withdrawal (consumers only)</h2>
+                <p>Consumers have a statutory right of withdrawal for distance contracts.</p>
+                <p><strong>Withdrawal notice</strong></p>
+                <p><strong>Right of withdrawal</strong><br>
+                    You have the right to withdraw from this contract within fourteen days without giving any reason. The withdrawal period is fourteen days from the day on which you or a third party named by you who is not the carrier has taken possession of the goods.
+                </p>
+                <p>
+                    To exercise your right of withdrawal, you must inform us (<strong>brainbot gmbh</strong>, Taunusstr. 61, 55120 Mainz, Email: <a href="mailto:info@brainbot.com">info@brainbot.com</a>) by means of a clear statement (e.g., a letter sent by post or an email) of your decision to withdraw from this contract.
+                </p>
+                <p><strong>Consequences of withdrawal</strong><br>
+                    If you withdraw from this contract, we shall reimburse all payments received from you, including delivery costs (except for the additional costs resulting from your choice of a type of delivery other than the least expensive standard delivery offered by us), without undue delay and at the latest within fourteen days from the day on which we receive notice of your withdrawal from this contract. For this repayment, we will use the same means of payment that you used for the original transaction, unless expressly agreed otherwise.
+                </p>
+                <p>
+                    We may withhold reimbursement until we have received the goods back or you have supplied evidence of having sent back the goods, whichever is the earliest. You must send back or hand over the goods to us without undue delay and in any event no later than fourteen days from the day on which you notify us of your withdrawal. The deadline is met if you send the goods before the period of fourteen days has expired. You bear the direct cost of returning the goods. You are only liable for any diminished value of the goods resulting from the handling other than what is necessary to establish the nature, characteristics, and functioning of the goods.
+                </p>
+            </section>
+
+            <section class="legal-section">
+                <h2>§ 14 Final provisions</h2>
+                <p>(1) The law of the Federal Republic of Germany applies, excluding the UN Convention on Contracts for the International Sale of Goods (CISG). For consumers, this choice of law applies only insofar as the protection afforded by mandatory provisions of the law of the state in which the consumer has their habitual residence is not withdrawn.</p>
+                <p>(2) If the customer is a merchant, a legal entity under public law, or a special fund under public law, the exclusive place of jurisdiction is <strong>Mainz</strong>.</p>
+                <p>(3) The European Commission provides a platform for online dispute resolution (ODR): <a href="https://ec.europa.eu/consumers/odr/">https://ec.europa.eu/consumers/odr/</a>. We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.</p>
+                <p>(4) Should any provision of these Terms and Conditions be or become invalid, the remainder of the contract remains effective.</p>
+            </section>
+        </div>
+
+        <div class="legal-back">
+            <a class="legal-back-link" href="index.html" onclick="history.back(); return false;">Back</a>
         </div>
     </main>
 
@@ -129,8 +197,8 @@
             <div class="footer-bottom">
                 <div>© 2026 Indiebox</div>
                 <div class="legal-links">
-                    <a href="../terms.html">Terms</a>
-                    <a href="../impressum.html">Legal notice</a>
+                    <a href="terms.html">Terms</a>
+                    <a href="impressum.html">Legal notice</a>
                 </div>
             </div>
         </div>

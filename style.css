@@ -60,6 +60,18 @@ html {
     scroll-behavior: smooth;
 }
 
+html,
+body {
+    overflow-x: hidden;
+}
+
+@supports (overflow: clip) {
+    html,
+    body {
+        overflow-x: clip;
+    }
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -1685,6 +1697,36 @@ ul {
     min-height: 120px;
 }
 
+.form-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: var(--t-body);
+    color: var(--text-dark);
+}
+
+.form-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 0.2rem;
+    accent-color: var(--accent-color);
+    flex: 0 0 auto;
+}
+
+.form-checkbox span {
+    line-height: 1.5;
+}
+
+.form-checkbox a {
+    color: var(--primary-color);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.form-checkbox a:hover {
+    color: var(--accent-color);
+}
+
 .form-input:focus,
 .form-textarea:focus {
     outline: none;
@@ -1776,10 +1818,32 @@ ul {
     padding: clamp(3rem, 8vw, 6rem) 0;
 }
 
+.legal-page--with-nav {
+    padding-top: clamp(5.5rem, 10vw, 7rem);
+}
+
 .legal-header {
     max-width: 860px;
     margin: 0 auto 2.5rem;
     padding: 0 var(--spacing-sm);
+}
+
+.legal-header .text-link {
+    width: fit-content;
+    font-size: var(--t-ui);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(11, 34, 52, 0.8);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(11, 34, 52, 0.3);
+    padding-bottom: 0.2rem;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    display: inline-block;
+}
+
+.legal-header .text-link:hover {
+    color: rgba(11, 34, 52, 1);
+    border-color: rgba(11, 34, 52, 0.6);
 }
 
 .legal-title {
@@ -1837,6 +1901,38 @@ ul {
 .legal-meta {
     font-size: var(--t-body-sm);
     color: rgba(11, 34, 52, 0.6);
+}
+
+.legal-note {
+    margin-top: 1.2rem;
+    margin-bottom: 2.25rem;
+    font-size: var(--t-body);
+    color: rgba(11, 34, 52, 0.78);
+    line-height: 1.65;
+}
+
+.legal-back {
+    max-width: 860px;
+    margin: 2rem auto 0;
+    padding: 0 var(--spacing-sm);
+}
+
+.legal-back-link {
+    width: fit-content;
+    font-size: var(--t-ui);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(11, 34, 52, 0.8);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(11, 34, 52, 0.3);
+    padding-bottom: 0.2rem;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    display: inline-block;
+}
+
+.legal-back-link:hover {
+    color: rgba(11, 34, 52, 1);
+    border-color: rgba(11, 34, 52, 0.6);
 }
 
 /* ========================================

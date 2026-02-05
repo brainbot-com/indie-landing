@@ -60,7 +60,12 @@ if (unused.length) {
 output = output.replace(/<html\b([^>]*?)\blang=\"[^\"]*\"/i, '<html$1lang="' + lang + '"');
 
 // Ensure asset references work from /en/ by making relative src/href point to parent.
+// Keep HTML page links relative so they resolve to `/en/...` (e.g. `terms.html` -> `/en/terms.html`).
 output = output.replace(/\b(href|src)=\"(?!https?:|mailto:|#|\/)([^\"]+)\"/g, (match, attr, value) => {
+  if (attr === "href" && /\.html(?:[?#]|$)/i.test(value)) {
+    return match;
+  }
+
   return `${attr}=\"../${value}\"`;
 });
 

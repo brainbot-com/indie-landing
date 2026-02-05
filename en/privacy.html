@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Principles – Indiebox</title>
+
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav class="nav-bar" aria-label="Main menu">
+        <div class="container nav-container">
+            <a class="nav-logo" href="index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html#einsatz">Use cases</a>
+                <a href="index.html#spezifikation">Specifications</a>
+                <a href="privacy.html" aria-current="page">Data security</a>
+            </div>
+            <div class="nav-actions">
+                <a href="checkout.html" class="button button--pill button--sm nav-buy">Buy</a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menu</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="legal-page legal-page--with-nav">
+        <header class="legal-header">
+            <h1 class="legal-title"><span class="gradient-signature">Privacy.</span> Local by design.</h1>
+            <p class="legal-subtitle">
+                Indiebox is not a cloud service. It is a standalone system that works where your data is created:
+                locally, controllable — without eavesdropping, without classification, without sharing.
+            </p>
+            <p class="legal-note">Privacy is not a feature of Indiebox. It’s the foundation of the architecture.</p>
+        </header>
+
+        <div class="legal-content">
+            <section class="legal-section">
+                <h2>Your content stays your content</h2>
+                <p>
+                    Everything you do with Indiebox stays on the box. Texts, files, prompts, answers, and intermediate results
+                    are processed exclusively locally.
+                </p>
+                <p>There is no:</p>
+                <ul class="feature-points">
+                    <li>Listening in</li>
+                    <li>Reading along</li>
+                    <li>Classifying</li>
+                    <li>Scoring</li>
+                    <li>Processing beyond your use</li>
+                </ul>
+                <p>
+                    Indiebox does not observe content or draw conclusions from it. What you input serves one purpose only:
+                    your request.
+                </p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Local instead of cloud</h2>
+                <p>
+                    By default, Indiebox runs entirely without external AI services. The models run directly on the system and
+                    do not require an internet connection.
+                </p>
+                <p>That means:</p>
+                <ul class="feature-points">
+                    <li>No automatic transfer to third parties</li>
+                    <li>No hidden cloud dependencies</li>
+                    <li>No external privacy promises</li>
+                </ul>
+                <p>Privacy is achieved here through physical and technical separation — not contracts.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Optional external services. Deliberate and controlled.</h2>
+                <p>
+                    If you want, Indiebox can integrate external AI services. Data sources or tools can also be connected
+                    selectively via MCP or API.
+                </p>
+                <p>The principle is:</p>
+                <ul class="feature-points">
+                    <li>External services are optional, not required</li>
+                    <li>Connections are explicit and controlled</li>
+                    <li>No silent background connections</li>
+                </ul>
+                <p>
+                    You decide if and which data leaves the system. Indiebox does not enforce external usage.
+                </p>
+            </section>
+
+            <section class="legal-section">
+                <h2>No analysis. No profiles.</h2>
+                <p>Indiebox does not create usage profiles. It does not analyze topics, frequency, or sentiment.</p>
+                <p>There is no:</p>
+                <ul class="feature-points">
+                    <li>Content classification</li>
+                    <li>Topic assignment</li>
+                    <li>User statistics</li>
+                    <li>Behavior analysis</li>
+                </ul>
+                <p>The box doesn’t know what you’re talking about — and it doesn’t need to.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Open models. No black box.</h2>
+                <p>
+                    Indiebox can run open, auditable AI models, as long as their use is legally permitted. These models run
+                    locally and independently.
+                </p>
+                <p>That means:</p>
+                <ul class="feature-points">
+                    <li>No training on your data</li>
+                    <li>No hidden functions</li>
+                    <li>No external access</li>
+                </ul>
+                <p>Which models are used is decided by the operator — not the platform provider.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>A system you can verify</h2>
+                <p>
+                    Indiebox is built so its behavior remains traceable. Network connections, processes, and data storage can
+                    be verified locally.
+                </p>
+                <p>Privacy is not a promise here, but a verifiable reality.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Secure system foundation</h2>
+                <p>
+                    Indiebox runs on an access-protected operating system (Ubuntu, latest version). This foundation is
+                    established in enterprise environments and provides clear separation between users, services, and
+                    permissions.
+                </p>
+                <p>Security is created through:</p>
+                <ul class="feature-points">
+                    <li>Controlled access</li>
+                    <li>Clear roles</li>
+                    <li>Local data storage</li>
+                    <li>Regular updates</li>
+                </ul>
+            </section>
+
+            <section class="legal-section">
+                <h2>Updates under your control</h2>
+                <p>
+                    System and software updates follow the privacy principle as well. Updates are not rolled out or enforced
+                    automatically.
+                </p>
+                <p>That means:</p>
+                <ul class="feature-points">
+                    <li>Updates are triggered locally</li>
+                    <li>Timing and scope are controllable</li>
+                    <li>No unobserved background updates</li>
+                </ul>
+                <p>You stay in control of when the system changes.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Separate user spaces</h2>
+                <p>
+                    Multiple users can use Indiebox in parallel. Content is separated and not visible to each other.
+                </p>
+                <p>
+                    Chats, documents, and configurations belong to the user who created them. Sharing is deliberate — not
+                    automatic.
+                </p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Admin access with responsibility</h2>
+                <p>
+                    As with any local IT system, an administrator can technically access stored content. However, there is no
+                    automatic reading along and no hidden inspection features.
+                </p>
+                <p>
+                    The difference to cloud systems: the administrator belongs to your own organization. Control stays
+                    internal.
+                </p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Agent system and licenses</h2>
+                <p>Indiebox clearly distinguishes between models and functions.</p>
+                <p>The AI models themselves do not require ongoing licenses. They run locally and independently.</p>
+                <p>
+                    An optional agent system extends Indiebox functionality and is subject to licensing. This license governs
+                    only the use of software functions.
+                </p>
+                <p>Important:</p>
+                <ul class="feature-points">
+                    <li>No content is transferred for license checks</li>
+                    <li>No analysis of tasks or data</li>
+                    <li>No connection to external systems</li>
+                </ul>
+                <p>The license concerns function. Not content.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>Privacy by architecture</h2>
+                <p>
+                    Indiebox is not a product that adds privacy later. It is a system designed without external dependencies.
+                </p>
+                <p>
+                    No cloud.<br>
+                    No classification.<br>
+                    No observation.
+                </p>
+                <p><strong>Your data. On your system.</strong></p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h4>Indiebox</h4>
+                    <p>Private AI. No cloud.</p>
+                </div>
+                <div class="footer-contact">
+                    <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2026 Indiebox</div>
+                <div class="legal-links">
+                    <a href="terms.html">Terms</a>
+                    <a href="impressum.html">Legal notice</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>
