@@ -769,6 +769,12 @@ ul {
     gap: 0.9rem;
 }
 
+.spec-actions {
+    justify-content: flex-start;
+    position: static;
+    margin-top: 0.4rem;
+}
+
 .spec-kicker {
     font-size: var(--t-small);
     letter-spacing: 0.14em;
@@ -1946,6 +1952,20 @@ ul {
 .form-textarea {
     resize: vertical;
     min-height: 120px;
+}
+
+.form-list {
+    list-style: disc;
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.55rem;
+    color: var(--text-light);
+}
+
+.form-list .form-checkbox {
+    align-items: center;
+    gap: 0.6rem;
 }
 
 .form-checkbox {

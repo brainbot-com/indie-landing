@@ -48,6 +48,7 @@
                         automations, and generative AI with the latest open-source models are available immediately.
                     </p>
                     <p class="checkout-hero-note">14-day returns. Setup support included.</p>
+                    <p class="checkout-hero-note">Payment methods: PayPal, credit card (Visa, Mastercard).</p>
                     <p class="checkout-hero-note checkout-hero-note--strong">Installment plans available: 12 payments via Santander Bank.*</p>
                 </div>
                 <div class="checkout-hero-media">
@@ -228,6 +229,10 @@
                                 <summary>Shipping address differs from billing address</summary>
                                 <div class="form-grid">
                                     <div class="form-row form-row--full">
+                                        <label class="form-label" for="shipping-careof">c/o</label>
+                                        <input class="form-input" type="text" id="shipping-careof" name="shippingCareOf" autocomplete="shipping organization">
+                                    </div>
+                                    <div class="form-row form-row--full">
                                         <label class="form-label" for="shipping-street">Street and number</label>
                                         <input class="form-input" type="text" id="shipping-street" name="shippingStreet" autocomplete="shipping address-line1">
                                     </div>
@@ -258,6 +263,34 @@
                         </div>
 
                         <div class="form-section">
+                            <div class="form-section-title">Payment method</div>
+                            <div class="form-grid">
+                                <div class="form-row form-row--full">
+                                    <ul class="form-list">
+                                        <li>
+                                            <label class="form-checkbox" for="pay-method-paypal">
+                                                <input type="radio" id="pay-method-paypal" name="paymentMethod" value="paypal" required>
+                                                <span>PayPal</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="form-checkbox" for="pay-method-visa">
+                                                <input type="radio" id="pay-method-visa" name="paymentMethod" value="visa" required>
+                                                <span>Visa</span>
+                                            </label>
+                                        </li>
+                                        <li>
+                                            <label class="form-checkbox" for="pay-method-mastercard">
+                                                <input type="radio" id="pay-method-mastercard" name="paymentMethod" value="mastercard" required>
+                                                <span>Mastercard</span>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
                             <label class="form-checkbox" for="terms-accept">
                                 <input type="checkbox" id="terms-accept" name="termsAccepted" required>
                                 <span>I have read and accept the <a href="terms.html">Terms and Conditions</a>.<span class="field-required">*</span></span>
@@ -265,10 +298,10 @@
                         </div>
 
                         <div class="form-actions">
-                            <button class="button button--solid button--pill button--md" type="submit">Buy now</button>
+                            <button class="button button--solid button--pill button--md" type="submit">Proceed to payment</button>
                             <p class="form-note">
-                                By clicking Buy, you send your details to our backend.
-                                We confirm your order by email.
+                                By clicking proceed to payment, you send your details to our backend.
+                                We then redirect you to payment and confirm your order by email.
                             </p>
                         </div>
                         <p class="form-footnote">* Required fields</p>
@@ -287,7 +320,7 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <h4>Indiebox</h4>
-                    <p>Private AI. No cloud.</p>
+                    <p>Private AI. Fully local. No cloud.</p>
                 </div>
                 <div class="footer-contact">
                     <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
