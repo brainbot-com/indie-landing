@@ -382,15 +382,20 @@ function setupCtaOverlays() {
     if (!overlays.length) return;
 
     const closeOverlay = (overlay) => {
+        if (!overlay.classList.contains('is-open')) return;
         overlay.classList.remove('is-open');
         overlay.setAttribute('aria-hidden', 'true');
     };
 
     const openOverlay = (overlay) => {
+        if (overlay.classList.contains('is-open')) return;
+        overlays.forEach((item) => {
+            if (item !== overlay) closeOverlay(item);
+        });
         const openTop = Math.max(window.scrollY || 0, window.pageYOffset || 0);
         overlay.style.setProperty('--overlay-offset-top', `${openTop}px`);
-        overlay.classList.add('is-open');
         overlay.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(() => overlay.classList.add('is-open'));
     };
 
     document.querySelectorAll('[data-overlay-open]').forEach((trigger) => {
