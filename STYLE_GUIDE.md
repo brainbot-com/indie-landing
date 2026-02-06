@@ -74,6 +74,30 @@ Use the `.glow-frame` component to emphasize a box on light backgrounds.
 Optional emphasis:
 - Add `.glow-frame--outer` for the outer glow layer.
 
+## CTA Overlay (Approved)
+Use the CTA overlay when a click on a primary action should open focused content above the page.
+
+### Structure
+- Trigger: `.overlay-demo-trigger` (or any CTA with `data-overlay-open="id"`)
+- Layer: `.overlay`
+- Dialog: `.overlay__dialog`
+- Close button: `.overlay__close`
+- Close hook: `data-overlay-close`
+
+### Behavior Rules
+- Overlay covers the full page area with dim + blur background.
+- Overlay opens relative to the current viewport top (not always at document start).
+- Dialog has a visible frame (border + subtle glow) and rounded corners.
+- Close on `X` click, outside click (on overlay area), and `Escape`.
+- Long dialog content grows downward in the page flow.
+- Use the normal page scrollbar; do not add an internal scrollbar on the dialog.
+
+### Visual Rules
+- Overlay background must be dark and calm (no colorful gradients in the scrim).
+- Dialog border stays subtle and premium, never high-contrast neon.
+- Dialog background remains configurable through `--overlay-panel-bg`
+  (default: `--bg-dark-metal`).
+
 ## Buttons
 **Naming principle:** button names describe **design function**, not usage.
 

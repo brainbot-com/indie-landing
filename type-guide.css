@@ -39,6 +39,7 @@
 
 body {
     margin: 0;
+    position: relative;
     font-family: var(--font-main);
     background: #0b0d12;
     color: var(--text-light);
@@ -256,6 +257,154 @@ body {
     pointer-events: none;
 }
 
+/* CTA overlay demo */
+.overlay-demo-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.overlay-demo-note {
+    margin-top: 1rem;
+    font-size: var(--t-body-sm);
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.overlay {
+    position: absolute;
+    top: var(--overlay-offset-top, 0px);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(2.5rem, 5vw, 4rem);
+    background: rgba(5, 11, 19, 0.7);
+    backdrop-filter: blur(14px) saturate(115%);
+    -webkit-backdrop-filter: blur(14px) saturate(115%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 180ms ease, visibility 180ms ease;
+    z-index: 1000;
+}
+
+.overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.overlay__dialog {
+    --overlay-panel-bg: var(--bg-dark-metal);
+    --overlay-radius: clamp(20px, 2.6vw, 32px);
+    position: relative;
+    width: min(980px, 100%);
+    margin-top: clamp(0.4rem, 2vh, 1.2rem);
+    border-radius: var(--overlay-radius);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    background: var(--overlay-panel-bg);
+    color: var(--text-light);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.62),
+        0 0 0 1px rgba(185, 218, 236, 0.2) inset;
+}
+
+.overlay__inner {
+    padding: clamp(1.5rem, 4vw, 3rem);
+    display: grid;
+    gap: 1.35rem;
+}
+
+.overlay__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 0;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.94);
+    color: #0b1118;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay__close:hover {
+    background: #ffffff;
+}
+
+.overlay__kicker {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.17em;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.76);
+    font-weight: 600;
+}
+
+.overlay__title {
+    margin: 0;
+}
+
+.overlay__subtitle {
+    margin: 0;
+    font-size: clamp(1.5rem, 3.2vw, 2.3rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+}
+
+.overlay__text {
+    margin: 0;
+    font-size: var(--t-body-lg);
+    line-height: 1.58;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 72ch;
+}
+
+.overlay__media {
+    margin-top: 0.4rem;
+    border-radius: clamp(14px, 2vw, 18px);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.overlay__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.overlay__meta {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.overlay__stat {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 0.8rem;
+    font-size: var(--t-body-sm);
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.overlay__stat strong {
+    display: block;
+    font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.25rem;
+}
+
 .scale {
     display: grid;
     gap: 1.5rem;
@@ -430,27 +579,124 @@ body {
     background-color: rgba(255, 255, 255, 0.22);
 }
 
-.pill-preview {
+.combi-pill-preview {
     display: inline-flex;
+    width: fit-content;
+    align-self: flex-start;
     align-items: center;
     gap: 0.5rem;
-    background: #1e1f22;
+    background: #42464b;
     border-radius: 999px;
-    padding: 7px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
     color: white;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.24);
 }
 
-.pill-price {
-    padding: 0 0.9rem 0 1rem;
+.combi-pill-text {
+    padding: 0 0.85rem 0 1rem;
     font-size: 0.95rem;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
 }
 
-.pill-buy {
-    padding: 0.28rem 1rem;
-    min-height: 28px;
+.combi-pill-action {
+    padding: 0.45rem 1rem;
+    min-height: 32px;
+}
+
+.combi-pill-action--icon {
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0.45rem 0.6rem;
+    line-height: 1;
+}
+
+.combi-pill-icon {
+    width: 15px;
+    height: 15px;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    fill: none;
+    stroke-linecap: round;
+}
+
+.combi-pill-preview--animated {
+    display: flex;
+    width: fit-content;
+    margin-left: auto;
+    justify-content: flex-end;
+    overflow: hidden;
+    clip-path: inset(0 0 0 calc(100% - 44px) round 999px);
+    animation: combi-pill-shell-reveal 920ms cubic-bezier(0.22, 0.61, 0.36, 1) 80ms forwards;
+}
+
+.combi-pill-text--animated {
+    opacity: 0;
+    transform: scale(0.5);
+    transform-origin: left center;
+    animation: combi-pill-text-reveal 380ms ease-in-out 620ms forwards;
+}
+
+.combi-pill-preview--animated .combi-pill-action--icon {
+    opacity: 0;
+    transform: translateY(-18px) scale(0);
+    transform-origin: center;
+    animation: combi-pill-icon-reveal 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 240ms forwards;
+}
+
+@keyframes combi-pill-shell-reveal {
+    0% {
+        clip-path: inset(0 0 0 calc(100% - 44px) round 999px);
+    }
+
+    100% {
+        clip-path: inset(0 0 0 0 round 999px);
+    }
+}
+
+@keyframes combi-pill-text-reveal {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes combi-pill-icon-reveal {
+    0% {
+        opacity: 0;
+        transform: translateY(-18px) scale(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .combi-pill-preview--animated {
+        animation: none;
+        clip-path: inset(0 0 0 0 round 999px);
+    }
+
+    .combi-pill-text--animated {
+        animation: none;
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .combi-pill-preview--animated .combi-pill-action--icon {
+        animation: none;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .bg-guide {
@@ -562,5 +808,18 @@ body {
     .kicker {
         font-size: 0.78rem;
         letter-spacing: 0.22em;
+    }
+
+    .overlay {
+        padding: 0.6rem 0.6rem 1.5rem;
+    }
+
+    .overlay__close {
+        top: 0.7rem;
+        right: 0.7rem;
+    }
+
+    .overlay__meta {
+        grid-template-columns: 1fr;
     }
 }
