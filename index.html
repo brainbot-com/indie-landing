@@ -135,20 +135,19 @@
                     <div class="box-display" data-animate="fade-up" data-i18n="boxes.privacy.title">ALLES BLEIBT BEI DIR</div>
                 </div>
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.privacy.body">
-                    Deine KI arbeitet lokal und unabhängig. Daten, Modelle und Ergebnisse bleiben dort, wo sie entstehen.
-                    Ohne Weitergabe, ohne Mitlesen, ohne externe Abhängigkeiten.
+                    Indiebox verarbeitet Prompts, Dateien und Antworten komplett lokal auf der Box. Standardmäßig geht nichts in die Cloud, keine Telemetrie, keine versteckten Hintergrundverbindungen. Externe Dienste, Modell-Downloads oder Support-Zugriff gibt es nur, wenn du es bewusst einschaltest, und du kannst es in deinem Netzwerk nachvollziehen.
                 </p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.privacy.tag">Für Privacy-Enthusiasten</span>
-                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
-                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.privacy.cta">Mehr zu Privacy</span>
-                        <a href="#overlay-privacy" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-privacy" aria-controls="overlay-privacy" aria-haspopup="dialog">
+                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-privacy" aria-controls="overlay-privacy" aria-haspopup="dialog">
+                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.privacy.cta">Mehr Datensicherheit</span>
+                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
                             <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                                 <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span class="sr-only" data-i18n="boxes.privacy.cta">Mehr zu Privacy</span>
-                        </a>
-                    </div>
+                        </span>
+                        <span class="sr-only" data-i18n="boxes.privacy.cta">Details zu Privatsphäre und Datensicherheit</span>
+                    </button>
                 </div>
             </div>
 
@@ -158,20 +157,20 @@
                     <div class="box-display" data-animate="fade-up" data-i18n="boxes.usage.title">SOFORT EINSATZBEREIT</div>
                 </div>
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">
-                    Auspacken, verbinden, loslegen. Die Indiebox ist vorkonfiguriert, Updates laufen automatisch,
-                    und deine Teams starten ohne technische Hürden.
+                    Auspacken, verbinden, loslegen. Die Indiebox ist vorkonfiguriert, Updates sind standardmäßig manuell
+                    (auf Knopfdruck), und deine Teams starten ohne technische Hürden.
                 </p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.usage.tag">Für Produktteams</span>
-                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
+                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-usage" aria-controls="overlay-usage" aria-haspopup="dialog">
                         <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.usage.cta">Mehr zur Nutzung</span>
-                        <a href="#overlay-usage" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-usage" aria-controls="overlay-usage" aria-haspopup="dialog">
+                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
                             <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                                 <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span class="sr-only" data-i18n="boxes.usage.cta">Mehr zur Nutzung</span>
-                        </a>
-                    </div>
+                        </span>
+                        <span class="sr-only" data-i18n="boxes.usage.cta">Mehr zur Nutzung</span>
+                    </button>
                 </div>
             </div>
 
@@ -186,46 +185,141 @@
                 </p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.future.tag">Für Partner und Produktteams</span>
-                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
+                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-partner" aria-controls="overlay-partner" aria-haspopup="dialog">
                         <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.future.cta">Partner werden</span>
-                        <a href="#overlay-partner" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-partner" aria-controls="overlay-partner" aria-haspopup="dialog">
+                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
                             <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                                 <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span class="sr-only" data-i18n="boxes.future.cta">Partner werden</span>
-                        </a>
-                    </div>
+                        </span>
+                        <span class="sr-only" data-i18n="boxes.future.cta">Partner werden</span>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="cta-overlay" id="overlay-privacy" aria-hidden="true">
+    <div class="cta-overlay cta-overlay--dark" id="overlay-privacy" aria-hidden="true">
         <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-privacy-title">
             <button class="cta-overlay__close" type="button" data-overlay-close>
                 <span aria-hidden="true">&times;</span>
                 <span class="sr-only" data-i18n="overlay.common.close">Overlay schließen</span>
             </button>
             <div class="cta-overlay__inner">
-                <p class="cta-overlay__kicker" data-i18n="overlay.privacy.kicker">PRIVATSPHÄRE</p>
-                <h3 class="cta-overlay__title gradient-light" id="overlay-privacy-title" data-i18n="overlay.privacy.title">Private KI ohne Datenabfluss.</h3>
-                <p class="cta-overlay__body" data-i18n="overlay.privacy.body">
-                    Indiebox verarbeitet Daten, Modelle und Ergebnisse lokal. Externe Verbindungen bleiben standardmäßig aus, bis du sie bewusst freigibst.
+                <p class="cta-overlay__kicker">PRIVATSPHÄRE</p>
+                <h3 class="cta-overlay__title" id="overlay-privacy-title">Privatsphäre und Datensicherheit</h3>
+                <p class="cta-overlay__body">
+                    Indiebox läuft <strong>vollständig in deinem Netzwerk</strong>. Das gilt nicht nur für das Modell, sondern für den gesamten Stack: LLM-Runtime und Modellverwaltung, Chat-Oberfläche (OpenWebUI), Agents (Letta) und Automationen (n8n). Der Anbieter hat <strong>keinen Zugriff</strong> auf deine Inhalte, weil Verarbeitung und Speicherung bei dir stattfinden.
                 </p>
-                <ul class="cta-overlay__list">
-                    <li data-i18n="overlay.privacy.items.0">Keine Telemetrie, keine unbemerkte Weitergabe.</li>
-                    <li data-i18n="overlay.privacy.items.1">Lokaler Zugriff für Team und Infrastruktur.</li>
-                    <li data-i18n="overlay.privacy.items.2">Volle Kontrolle über Backups, Rollen und Freigaben.</li>
-                </ul>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Wie die Indiebox arbeitet</h4>
+                    <p class="cta-overlay__copy">
+                        Prompts, Dokumente und Antworten werden lokal verarbeitet. Es gibt <strong>keine Inhalts-Telemetrie</strong>, kein Training mit deinen Daten und keine Profilbildung über deine Arbeit. Nutzerverhalten, Fragen, Klicks oder Nutzungsmuster werden nicht überwacht, nicht analysiert und nicht an Dritte übertragen. Genau deshalb nutzen viele Indiebox, um offene Modelle lokal zu betreiben, ohne dass ihr Verhalten zu einem Produkt wird.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Gibt es Kontakt ins Netz?</h4>
+                    <p class="cta-overlay__copy">
+                        Standardmäßig bleiben Inhaltsdaten lokal. Wenn du willst, kann Indiebox gezielt mit der Außenwelt interagieren, zum Beispiel um externe Dienste zu nutzen oder Workflows über Systemgrenzen hinweg umzusetzen. Dafür gibt es optionale Integrationen, die du oder dein Admin aktivierst und konfigurierst, zum Beispiel:
+                    </p>
+                    <ul class="cta-overlay__list">
+                        <li><span>externe KI-Dienste oder externe Tools</span></li>
+                        <li><span>Tools wie Suche oder MCP-Services</span></li>
+                        <li><span>Connectoren zu deiner Umgebung, etwa Netzwerk-Drives, Mail-Systeme, Datenbanken oder interne APIs</span></li>
+                    </ul>
+                    <p class="cta-overlay__copy">
+                        Diese Anbindungen sind keine Voraussetzung. Sie funktionieren nur, wenn du sie bewusst einrichtest (Ziele, Zugangsdaten, Rechte, Datenquellen). Damit bleibt steuerbar, welche Systeme angebunden sind und welche Daten genutzt werden.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Updates</h4>
+                    <p class="cta-overlay__copy">
+                        Updates werden vom lokalen System als Download ausgelöst. Es gibt <strong>keine Remote-Pushes</strong> durch den Anbieter. Du entscheidest, wann ein Update gestartet wird.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Administrator und Benutzer</h4>
+                    <p class="cta-overlay__copy">
+                        Nutzerbereiche sind getrennt; Inhalte sind nicht automatisch für andere sichtbar. Wie bei jedem lokalen System kann ein Administrator technisch auf gespeicherte Daten zugreifen (Systemrechte, Wartung, Backups). Der Unterschied zu Cloud-Angeboten ist, dass diese Kontrolle in deiner Organisation liegt.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Datenhaltung, Aufbewahrung, Löschung</h4>
+                    <p class="cta-overlay__copy">
+                        Indiebox speichert Arbeitsstände lokal, je nach Nutzung zum Beispiel Chats, Uploads und Daten, die für Suche/Wissensbasen entstehen können (z. B. Indizes). Aufbewahrung und Löschung steuerst du im Betrieb: was gespeichert wird, wie lange und wann es entfernt wird.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">DSGVO in der Praxis</h4>
+                    <p class="cta-overlay__copy">
+                        Wenn du personenbezogene Daten verarbeitest, gilt die DSGVO unabhängig davon, ob lokal oder Cloud. Rein lokal bleibt der Empfängerkreis typischerweise intern, ähnlich wie bei Mailserver, Fileserver oder DMS. Sobald externe Dienste angebunden werden und Inhalte dorthin übertragen werden, ist das eine zusätzliche Übermittlung an Dritte und muss entsprechend abgesichert werden.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">FAQ</h4>
+                    <details class="cta-overlay__details">
+                        <summary>Kann ich prüfen, was bei mir läuft?</summary>
+                        <div class="cta-overlay__details-body">
+                            <p>
+                                Ja. Du kannst jederzeit selbst prüfen, welche Modelle installiert sind und welche Software-Komponenten laufen. Modellstände sind in diesem Setup über eindeutige Digests/Hashes referenzierbar: wenn du einen erwarteten Digest hast, kannst du verifizieren, dass genau dieser Modellstand lokal vorhanden ist und verwendet wird. Gleiches gilt für die Komponenten im Stack: sie laufen bei dir im Netzwerk und sind für dein Team beobachtbar.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="cta-overlay__details">
+                        <summary>Wie weiß ich als privater Nutzer, dass mein Verhalten nicht analysiert wird?</summary>
+                        <div class="cta-overlay__details-body">
+                            <p>
+                                Indiebox ist so ausgelegt, dass es <strong>keine Verhaltensanalyse</strong> und <strong>keine Telemetrie</strong> über Nutzungsmuster gibt. Wenn du maximale Sicherheit willst, betreibst du das System <strong>offline</strong> oder blockierst ausgehende Verbindungen in Router/Firewall. Dann kann das System keine Nutzungsdaten übertragen, selbst wenn es irgendwo einen Fehler gäbe.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="cta-overlay__details">
+                        <summary>Gehen meine Inhalte jemals nach außen?</summary>
+                        <div class="cta-overlay__details-body">
+                            <p>
+                                Standardmäßig nicht. Inhalte verlassen das System nur, wenn du externe Funktionen aktivierst, etwa externe KI-Dienste, Tools oder Connectoren. Du oder dein Admin entscheidet, ob solche Anbindungen existieren und welche Datenquellen sie nutzen.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="cta-overlay__details">
+                        <summary>Was passiert, wenn ich Tools, Suche, MCP-Services oder Connectoren aktiviere?</summary>
+                        <div class="cta-overlay__details-body">
+                            <p>
+                                Dann kann Indiebox gezielt mit deiner Umgebung oder externen Diensten interagieren, genau dafür sind diese Integrationen da. Anbindungen funktionieren nur, wenn sie konfiguriert sind (Ziele, Credentials, Rechte). Damit bestimmst du, welche Systeme erreichbar sind und welche Daten in Workflows überhaupt auftauchen dürfen.
+                            </p>
+                        </div>
+                    </details>
+                    <details class="cta-overlay__details">
+                        <summary>Wo liegen meine Daten, und wie bekomme ich sie wieder weg?</summary>
+                        <div class="cta-overlay__details-body">
+                            <p>
+                                Die Daten liegen lokal auf der Box, inklusive abgeleiteter Daten wie Indizes. Löschen ist damit eine lokale Betriebsfrage: du steuerst, was gespeichert wird, wie lange es bleibt und wann es entfernt wird.
+                            </p>
+                        </div>
+                    </details>
+                </section>
+
+                <section class="cta-overlay__section cta-overlay__footnote">
+                    <h4 class="cta-overlay__section-title">Fußnote</h4>
+                    <p class="cta-overlay__copy">
+                        Wie bei jedem System kann es technischen Basisverkehr geben (z. B. DNS, Zeitabgleich, ein von dir gestarteter Update-Download). Das sind keine Inhaltsübertragungen und lässt sich über den normalen Netzwerkbetrieb steuern.
+                    </p>
+                </section>
                 <div class="cta-overlay__actions">
-                    <a href="privacy.html" class="button button--solid button--pill button--sm" data-i18n="overlay.privacy.primary">Datensicherheit ansehen</a>
-                    <a href="mailto:contact@brainbot.com?subject=Indiebox%20Privacy%20Frage" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.common.contact">Frage stellen</a>
+                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
                 </div>
             </div>
         </article>
     </div>
 
-    <div class="cta-overlay" id="overlay-usage" aria-hidden="true">
+    <div class="cta-overlay cta-overlay--metal" id="overlay-usage" aria-hidden="true">
         <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-usage-title">
             <button class="cta-overlay__close" type="button" data-overlay-close>
                 <span aria-hidden="true">&times;</span>
@@ -233,24 +327,52 @@
             </button>
             <div class="cta-overlay__inner">
                 <p class="cta-overlay__kicker" data-i18n="overlay.usage.kicker">NUTZUNG</p>
-                <h3 class="cta-overlay__title gradient-light" id="overlay-usage-title" data-i18n="overlay.usage.title">In Minuten einsatzbereit.</h3>
+                <h3 class="cta-overlay__title" id="overlay-usage-title" data-i18n="overlay.usage.title">Warum Teams schnell produktiv werden.</h3>
                 <p class="cta-overlay__body" data-i18n="overlay.usage.body">
-                    Auspacken, einschalten, lokal starten. Indiebox kommt so vorbereitet, dass Teams sofort in produktive Workflows gehen können.
+                    Business Owner brauchen Ergebnisse ohne langes Integrationsprojekt. Indiebox reduziert Reibung im Alltag und gibt Teams einen klaren Startpunkt.
                 </p>
-                <ul class="cta-overlay__list">
-                    <li data-i18n="overlay.usage.items.0">Modelle und Kern-Workflows sind vorkonfiguriert.</li>
-                    <li data-i18n="overlay.usage.items.1">Updates laufen kontrolliert und nachvollziehbar.</li>
-                    <li data-i18n="overlay.usage.items.2">Teams starten ohne Setup-Marathon.</li>
-                </ul>
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.usage.arguments.title">Wesentliche Argumente</h4>
+                    <ul class="cta-overlay__list">
+                        <li>
+                            <strong data-i18n="overlay.usage.arguments.items.0.title">Schneller Wert statt langer Einführungsphase.</strong>
+                            <span data-i18n="overlay.usage.arguments.items.0.body">Vom Setup bis zum ersten produktiven Workflow vergehen Stunden statt Wochen.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.usage.arguments.items.1.title">Geringere operative Komplexität.</strong>
+                            <span data-i18n="overlay.usage.arguments.items.1.body">Teammitglieder arbeiten mit derselben stabilen Umgebung statt mit individuell gebauten Workarounds.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.usage.arguments.items.2.title">Planbare Kosten und Verantwortung.</strong>
+                            <span data-i18n="overlay.usage.arguments.items.2.body">Keine wechselnden Cloud-Rechnungen durch unklare Nutzungspfade.</span>
+                        </li>
+                    </ul>
+                </section>
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.usage.assurance.title">Wie wir das sicherstellen</h4>
+                    <ul class="cta-overlay__list">
+                        <li>
+                            <strong data-i18n="overlay.usage.assurance.items.0.title">Vorkonfigurierte Kern-Workflows.</strong>
+                            <span data-i18n="overlay.usage.assurance.items.0.body">Modelle, Basis-Tools und typische Abläufe sind so vorbereitet, dass Teams direkt loslegen.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.usage.assurance.items.1.title">Kontrollierte Updates.</strong>
+                            <span data-i18n="overlay.usage.assurance.items.1.body">Änderungen passieren nachvollziehbar und ohne Überraschungen im laufenden Betrieb.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.usage.assurance.items.2.title">Klare Betriebsgrenzen.</strong>
+                            <span data-i18n="overlay.usage.assurance.items.2.body">Lokal betriebene KI reduziert externe Abhängigkeiten und macht Verantwortlichkeiten eindeutig.</span>
+                        </li>
+                    </ul>
+                </section>
                 <div class="cta-overlay__actions">
-                    <a href="#einsatz" class="button button--solid button--pill button--sm" data-i18n="overlay.usage.primary">Use Cases ansehen</a>
-                    <a href="mailto:contact@brainbot.com?subject=Indiebox%20Onboarding" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.common.contact">Frage stellen</a>
+                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
                 </div>
             </div>
         </article>
     </div>
 
-    <div class="cta-overlay" id="overlay-partner" aria-hidden="true">
+    <div class="cta-overlay cta-overlay--dark" id="overlay-partner" aria-hidden="true">
         <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-partner-title">
             <button class="cta-overlay__close" type="button" data-overlay-close>
                 <span aria-hidden="true">&times;</span>
@@ -258,18 +380,46 @@
             </button>
             <div class="cta-overlay__inner">
                 <p class="cta-overlay__kicker" data-i18n="overlay.partner.kicker">PARTNER</p>
-                <h3 class="cta-overlay__title gradient-light" id="overlay-partner-title" data-i18n="overlay.partner.title">Partner werden mit Indiebox.</h3>
+                <h3 class="cta-overlay__title" id="overlay-partner-title" data-i18n="overlay.partner.title">Warum Partner mit Indiebox gewinnen.</h3>
                 <p class="cta-overlay__body" data-i18n="overlay.partner.body">
-                    Für Agenturen, Integratoren und Produktteams: Du bringst deinen Kunden die Lösung, wir liefern die stabile technische Basis.
+                    Wenn du Kundenprojekte verantwortest, brauchst du eine Plattform, die robust wirkt und sich verständlich begründen lässt.
                 </p>
-                <ul class="cta-overlay__list">
-                    <li data-i18n="overlay.partner.items.0">Klare Basis für gemeinsame Kundenprojekte.</li>
-                    <li data-i18n="overlay.partner.items.1">Technische Begleitung beim Setup und Rollout.</li>
-                    <li data-i18n="overlay.partner.items.2">Skalierbares Modell für Services und Support.</li>
-                </ul>
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.arguments.title">Wesentliche Argumente</h4>
+                    <ul class="cta-overlay__list">
+                        <li>
+                            <strong data-i18n="overlay.partner.arguments.items.0.title">Glaubwürdige Security-Story im Presales.</strong>
+                            <span data-i18n="overlay.partner.arguments.items.0.body">Du kannst klar zeigen, warum Daten lokal bleiben und wie Auditierbarkeit entsteht.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.partner.arguments.items.1.title">Schnellere Projektstarts.</strong>
+                            <span data-i18n="overlay.partner.arguments.items.1.body">Eine einheitliche technische Basis reduziert Abstimmung und verkürzt Time-to-Value.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.partner.arguments.items.2.title">Wiederholbares Delivery-Modell.</strong>
+                            <span data-i18n="overlay.partner.arguments.items.2.body">Was bei einem Kunden funktioniert, lässt sich strukturiert auf weitere Rollouts übertragen.</span>
+                        </li>
+                    </ul>
+                </section>
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.assurance.title">Wie wir das sicherstellen</h4>
+                    <ul class="cta-overlay__list">
+                        <li>
+                            <strong data-i18n="overlay.partner.assurance.items.0.title">Offene und prüfbare Architektur.</strong>
+                            <span data-i18n="overlay.partner.assurance.items.0.body">Etablierte Open-Source-Bausteine erleichtern technische Reviews und Compliance-Gespräche.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.partner.assurance.items.1.title">Transparente Modell- und Tool-Landschaft.</strong>
+                            <span data-i18n="overlay.partner.assurance.items.1.body">Du arbeitest nicht mit einer Black Box, sondern mit klar benannten Komponenten.</span>
+                        </li>
+                        <li>
+                            <strong data-i18n="overlay.partner.assurance.items.2.title">Betrieb auch komplett offline möglich.</strong>
+                            <span data-i18n="overlay.partner.assurance.items.2.body">Für sensible Umgebungen kann die Plattform isoliert betrieben und dennoch produktiv genutzt werden.</span>
+                        </li>
+                    </ul>
+                </section>
                 <div class="cta-overlay__actions">
-                    <a href="mailto:contact@brainbot.com?subject=Partnerprogramm%20Indiebox" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.primary">Partnergespräch starten</a>
-                    <a href="#einsatz" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.secondary">Lösungen ansehen</a>
+                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
                 </div>
             </div>
         </article>
@@ -345,7 +495,7 @@
                 <h2 class="showcase-title" data-animate="fade-up" data-i18n="showcase.title">Dein privates KI-Ökosystem</h2>
                 <p class="showcase-text" data-animate="fade-up" data-i18n="showcase.text" data-i18n-html="true">
                     Nutze ein kuratiertes Ökosystem professioneller KI-Anwendungen.<br>
-                    Ein Klick zur Installation, automatische Updates und kein Datenabfluss.
+                    Ein Klick zur Installation, Updates auf Knopfdruck und kein Datenabfluss.
                 </p>
             </div>
         </div>
@@ -508,7 +658,7 @@
                                     <li><span data-i18n="spec.items.0">Prozessor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Kerne)</strong></li>
                                     <li><span data-i18n="spec.items.1">KI-Leistung</span><strong data-i18n="spec.values.1">High-Performance NPU (50 TOPS)</strong></li>
                                     <li><span data-i18n="spec.items.2">Arbeitsspeicher</span><strong data-i18n="spec.values.2">128 GB High-Speed RAM</strong></li>
-                                    <li><span data-i18n="spec.items.3">Speicher</span><strong data-i18n="spec.values.3">4 TB Professional NVMe SSD</strong></li>
+                                    <li><span data-i18n="spec.items.3">Speicher</span><strong data-i18n="spec.values.3">2 TB NVMe SSD</strong></li>
                                 </ul>
                                 <ul class="spec-checks">
                                     <li data-i18n="spec.checks.0">Vollständig vorkonfiguriertes System</li>
