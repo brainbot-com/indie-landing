@@ -122,15 +122,13 @@ function setupHeroCinematicSequence() {
 
     const isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
     if (isMobile) {
-        heroSection.classList.add(
-            'hero-seq-bg',
-            'hero-seq-content',
-            'hero-seq-stageout',
-            'hero-seq-line1',
-            'hero-seq-line2',
-            'hero-seq-subtitle-settle',
-            'hero-seq-cta'
-        );
+        const at = (ms, fn) => window.setTimeout(fn, ms);
+        heroSection.classList.add('hero-seq-bg', 'hero-seq-stageout');
+        at(220, () => heroSection.classList.add('hero-seq-content'));
+        at(360, () => heroSection.classList.add('hero-seq-cta'));
+        at(540, () => heroSection.classList.add('hero-seq-line1'));
+        at(900, () => heroSection.classList.add('hero-seq-line2'));
+        at(1200, () => heroSection.classList.add('hero-seq-subtitle-settle'));
         return;
     }
 

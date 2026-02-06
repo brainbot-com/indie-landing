@@ -3225,18 +3225,14 @@ button.box-cta.combi-pill {
 }
 
 .cta-overlay__title {
-    margin: 0;
+    margin: 0 0 0.6rem;
     font-family: var(--font-heading);
     font-size: var(--t-title);
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: -0.015em;
-    background-image: var(--gradient-hero-dark);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    text-shadow: 0 10px 28px rgba(5, 11, 19, 0.38);
+    color: rgba(246, 250, 255, 0.95);
+    text-shadow: 0 10px 28px rgba(5, 11, 19, 0.32);
 }
 
 .cta-overlay__body {
@@ -3273,23 +3269,19 @@ button.box-cta.combi-pill {
 
 .cta-overlay__section {
     display: grid;
-    gap: 0.95rem;
+    gap: 1.425rem;
 }
 
 .cta-overlay__section-title {
-    margin: 0;
+    margin: 0.6rem 0;
     font-family: var(--font-heading);
     font-size: clamp(1.28rem, 2.2vw, 1.58rem);
     line-height: 1.26;
     letter-spacing: -0.015em;
     text-transform: none;
     font-weight: 700;
-    background-image: var(--gradient-hero-dark);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    text-shadow: 0 8px 22px rgba(5, 11, 19, 0.32);
+    color: rgba(246, 250, 255, 0.93);
+    text-shadow: 0 8px 22px rgba(5, 11, 19, 0.28);
 }
 
 .cta-overlay__section-subline {
