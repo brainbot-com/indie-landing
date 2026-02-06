@@ -86,6 +86,25 @@ body {
     line-height: 1.6;
 }
 
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 11, 19, 0.66);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+    z-index: 1190;
+}
+
+body.overlay-scrim-on::before {
+    opacity: 1;
+    visibility: visible;
+}
+
 .container {
     max-width: var(--container-max);
     margin: 0 auto;
@@ -3159,13 +3178,7 @@ button.box-cta.combi-pill {
 }
 
 .cta-overlay::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(5, 11, 19, 0.66);
-    backdrop-filter: blur(14px) saturate(120%);
-    -webkit-backdrop-filter: blur(14px) saturate(120%);
-    pointer-events: none;
+    content: none;
 }
 
 .cta-overlay.is-open {
@@ -3256,7 +3269,7 @@ button.box-cta.combi-pill {
     margin: 0;
     max-width: 74ch;
     font-size: 1.02rem;
-    line-height: 1.72;
+    line-height: 1.62;
     color: rgba(236, 242, 248, 0.82);
 }
 
@@ -3278,11 +3291,19 @@ button.box-cta.combi-pill {
 
 .cta-overlay__section {
     display: grid;
-    gap: 1.425rem;
+    gap: clamp(0.42rem, 0.82vw, 0.6rem);
+}
+
+.cta-overlay__body + .cta-overlay__section {
+    margin-top: clamp(1.5rem, 2.8vw, 2.1rem);
+}
+
+.cta-overlay__section + .cta-overlay__section {
+    margin-top: clamp(1.4rem, 2.6vw, 1.95rem);
 }
 
 .cta-overlay__section-title {
-    margin: 0.6rem 0;
+    margin: 0;
     font-family: var(--font-heading);
     font-size: clamp(1.28rem, 2.2vw, 1.58rem);
     line-height: 1.26;
