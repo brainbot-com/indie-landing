@@ -3148,16 +3148,24 @@ button.box-cta.combi-pill {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: clamp(1rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem) clamp(2.5rem, 5vw, 4rem);
-    background: rgba(5, 11, 19, 0.66);
-    backdrop-filter: blur(14px) saturate(120%);
-    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    padding: clamp(1.6rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) clamp(2.5rem, 5vw, 4rem);
+    background: transparent;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 180ms ease;
     will-change: opacity;
     z-index: 1200;
+}
+
+.cta-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 11, 19, 0.66);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    pointer-events: none;
 }
 
 .cta-overlay.is-open {
@@ -3175,6 +3183,7 @@ button.box-cta.combi-pill {
     border: 1px solid rgba(255, 255, 255, 0.26);
     isolation: isolate;
     overflow: hidden;
+    z-index: 1;
     background:
         linear-gradient(rgba(8, 14, 22, 0.55), rgba(8, 14, 22, 0.55)),
         var(--overlay-panel-bg);
@@ -3382,7 +3391,7 @@ button.box-cta.combi-pill {
     }
 
     .cta-overlay {
-        padding: 0.6rem 0.6rem 1.5rem;
+        padding: 1rem 0.6rem 1.5rem;
     }
 
     .cta-overlay__close {
