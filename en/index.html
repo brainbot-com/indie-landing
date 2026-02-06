@@ -62,9 +62,9 @@
         </div>
 
         <div class="hero-actions hero-actions-pill">
-            <div class="price-pill">
-                <span class="price-text" data-i18n="hero.price">from €3,999</span>
-                <a href="checkout.html" class="button button--solid button--pill button--sm price-cta" data-i18n="hero.cta.buy">Buy</a>
+            <div class="combi-pill">
+                <span class="combi-pill-text" data-i18n="hero.price">from €3,999</span>
+                <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="hero.cta.buy">Buy</a>
             </div>
         </div>
 
@@ -120,7 +120,15 @@
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.privacy.body">Your AI runs locally and independently. Data, models, and results stay where they are created. Without sharing, without eavesdropping, without external dependencies.</p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.privacy.tag">For privacy enthusiasts</span>
-                    <a href="privacy.html" class="button button--plain-dark button--pill button--sm box-cta" data-i18n="boxes.privacy.cta">Explore privacy principles</a>
+                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
+                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.privacy.cta">More on privacy</span>
+                        <a href="#overlay-privacy" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-privacy" aria-controls="overlay-privacy" aria-haspopup="dialog">
+                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="sr-only" data-i18n="boxes.privacy.cta">More on privacy</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -132,7 +140,15 @@
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">Unbox, connect, and go. Indiebox is preconfigured, updates run automatically, and your teams start without technical hurdles.</p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.usage.tag">For product teams</span>
-                    <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta" data-i18n="boxes.usage.cta">Learn more about usage</a>
+                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
+                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.usage.cta">More on usage</span>
+                        <a href="#overlay-usage" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-usage" aria-controls="overlay-usage" aria-haspopup="dialog">
+                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="sr-only" data-i18n="boxes.usage.cta">More on usage</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -144,11 +160,88 @@
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.future.body">A stable environment with a future. Features can be extended without changing what exists. Partners and teams build their own solutions on top. Everything runs on a secure, working base.</p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.future.tag">For partners and product teams</span>
-                    <a href="mailto:contact@brainbot.com" class="button button--plain-dark button--pill button--sm box-cta" data-i18n="boxes.future.cta">Become a partner</a>
+                    <div class="box-cta combi-pill combi-pill--animated combi-pill--flat">
+                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.future.cta">Become a partner</span>
+                        <a href="#overlay-partner" class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" data-overlay-open="overlay-partner" aria-controls="overlay-partner" aria-haspopup="dialog">
+                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="sr-only" data-i18n="boxes.future.cta">Become a partner</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="cta-overlay" id="overlay-privacy" aria-hidden="true">
+        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-privacy-title">
+            <button class="cta-overlay__close" type="button" data-overlay-close>
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only" data-i18n="overlay.common.close">Close overlay</span>
+            </button>
+            <div class="cta-overlay__inner">
+                <p class="cta-overlay__kicker" data-i18n="overlay.privacy.kicker">PRIVACY</p>
+                <h3 class="cta-overlay__title gradient-light" id="overlay-privacy-title" data-i18n="overlay.privacy.title">Private AI without data leakage.</h3>
+                <p class="cta-overlay__body" data-i18n="overlay.privacy.body">Indiebox processes data, models, and results locally. External connections stay disabled by default until you explicitly enable them.</p>
+                <ul class="cta-overlay__list">
+                    <li data-i18n="overlay.privacy.items.0">No telemetry, no silent data sharing.</li>
+                    <li data-i18n="overlay.privacy.items.1">Local access for your team and infrastructure.</li>
+                    <li data-i18n="overlay.privacy.items.2">Full control over backups, roles, and access.</li>
+                </ul>
+                <div class="cta-overlay__actions">
+                    <a href="privacy.html" class="button button--solid button--pill button--sm" data-i18n="overlay.privacy.primary">View data security</a>
+                    <a href="mailto:contact@brainbot.com?subject=Indiebox%20Privacy%20Frage" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.common.contact">Ask a question</a>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="cta-overlay" id="overlay-usage" aria-hidden="true">
+        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-usage-title">
+            <button class="cta-overlay__close" type="button" data-overlay-close>
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only" data-i18n="overlay.common.close">Close overlay</span>
+            </button>
+            <div class="cta-overlay__inner">
+                <p class="cta-overlay__kicker" data-i18n="overlay.usage.kicker">USAGE</p>
+                <h3 class="cta-overlay__title gradient-light" id="overlay-usage-title" data-i18n="overlay.usage.title">Ready in minutes.</h3>
+                <p class="cta-overlay__body" data-i18n="overlay.usage.body">Unbox, power on, start locally. Indiebox is prepared so teams can move into productive workflows immediately.</p>
+                <ul class="cta-overlay__list">
+                    <li data-i18n="overlay.usage.items.0">Models and core workflows are preconfigured.</li>
+                    <li data-i18n="overlay.usage.items.1">Updates run in a controlled, transparent way.</li>
+                    <li data-i18n="overlay.usage.items.2">Teams start without a setup marathon.</li>
+                </ul>
+                <div class="cta-overlay__actions">
+                    <a href="#einsatz" class="button button--solid button--pill button--sm" data-i18n="overlay.usage.primary">See use cases</a>
+                    <a href="mailto:contact@brainbot.com?subject=Indiebox%20Onboarding" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.common.contact">Ask a question</a>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="cta-overlay" id="overlay-partner" aria-hidden="true">
+        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-partner-title">
+            <button class="cta-overlay__close" type="button" data-overlay-close>
+                <span aria-hidden="true">&times;</span>
+                <span class="sr-only" data-i18n="overlay.common.close">Close overlay</span>
+            </button>
+            <div class="cta-overlay__inner">
+                <p class="cta-overlay__kicker" data-i18n="overlay.partner.kicker">PARTNER</p>
+                <h3 class="cta-overlay__title gradient-light" id="overlay-partner-title" data-i18n="overlay.partner.title">Become an Indiebox partner.</h3>
+                <p class="cta-overlay__body" data-i18n="overlay.partner.body">For agencies, integrators, and product teams: you bring the solution to customers, we provide the stable technical base.</p>
+                <ul class="cta-overlay__list">
+                    <li data-i18n="overlay.partner.items.0">Clear foundation for joint customer projects.</li>
+                    <li data-i18n="overlay.partner.items.1">Technical support for setup and rollout.</li>
+                    <li data-i18n="overlay.partner.items.2">Scalable model for services and support.</li>
+                </ul>
+                <div class="cta-overlay__actions">
+                    <a href="mailto:contact@brainbot.com?subject=Partnerprogramm%20Indiebox" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.primary">Start partner conversation</a>
+                    <a href="#einsatz" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.secondary">See solutions</a>
+                </div>
+            </div>
+        </article>
+    </div>
 
 
     <!-- Vergleich + Warum -->
@@ -447,9 +540,9 @@
                         </div>
                     </div>
                     <div class="hero-actions spec-actions">
-                        <div class="price-pill">
-                            <span class="price-text" data-i18n="hero.price">from €3,999</span>
-                            <a href="checkout.html" class="button button--solid button--pill button--sm price-cta" data-i18n="finalCta.primary">Buy now</a>
+                        <div class="combi-pill">
+                            <span class="combi-pill-text" data-i18n="hero.price">from €3,999</span>
+                            <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="finalCta.primary">Buy now</a>
                         </div>
                     </div>
                 </div>
@@ -463,9 +556,9 @@
             <div class="final-cta-card">
                 <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-animate="fade-up" data-i18n="finalCta.title">Ready for local AI without compromise?</h2>
                 <div class="hero-actions" data-animate="fade-up" data-stagger="1">
-                    <div class="price-pill">
-                        <span class="price-text" data-i18n="hero.price">from €3,999</span>
-                        <a href="checkout.html" class="button button--solid button--pill button--sm price-cta" data-i18n="finalCta.primary">Buy now</a>
+                    <div class="combi-pill">
+                        <span class="combi-pill-text" data-i18n="hero.price">from €3,999</span>
+                        <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="finalCta.primary">Buy now</a>
                     </div>
                 </div>
             </div>

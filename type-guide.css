@@ -585,7 +585,8 @@ body {
     align-self: flex-start;
     align-items: center;
     gap: 0.5rem;
-    background: #42464b;
+    background:
+        linear-gradient(132deg, rgba(35, 43, 55, 0.96) 0%, rgba(18, 27, 39, 0.94) 52%, rgba(9, 15, 23, 0.96) 100%);
     border-radius: 999px;
     padding: 6px;
     border: 1px solid rgba(255, 255, 255, 0.16);
@@ -607,19 +608,44 @@ body {
 }
 
 .combi-pill-action--icon {
+    width: 32px;
+    height: 32px;
     min-width: 32px;
     min-height: 32px;
-    padding: 0.45rem 0.6rem;
+    padding: 0;
     line-height: 1;
+    flex: 0 0 32px;
+    color: #fff !important;
+    position: relative;
+}
+
+.combi-pill-action--icon::before {
+    content: "+";
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1;
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
 }
 
 .combi-pill-icon {
+    display: block;
     width: 15px;
     height: 15px;
-    stroke: currentColor;
-    stroke-width: 2.4;
+    stroke: #fff !important;
+    stroke-width: 2.6;
     fill: none;
     stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.combi-pill-action--icon .combi-pill-icon {
+    display: none;
 }
 
 .combi-pill-preview--animated {
@@ -629,21 +655,21 @@ body {
     justify-content: flex-end;
     overflow: hidden;
     clip-path: inset(0 0 0 calc(100% - 44px) round 999px);
-    animation: combi-pill-shell-reveal 920ms cubic-bezier(0.22, 0.61, 0.36, 1) 80ms forwards;
+    animation: combi-pill-shell-reveal 760ms cubic-bezier(0.22, 0.61, 0.36, 1) 500ms forwards;
 }
 
 .combi-pill-text--animated {
     opacity: 0;
     transform: scale(0.5);
     transform-origin: left center;
-    animation: combi-pill-text-reveal 380ms ease-in-out 620ms forwards;
+    animation: combi-pill-text-reveal 320ms ease-in-out 800ms forwards;
 }
 
 .combi-pill-preview--animated .combi-pill-action--icon {
     opacity: 0;
     transform: translateY(-18px) scale(0);
     transform-origin: center;
-    animation: combi-pill-icon-reveal 420ms cubic-bezier(0.2, 0.8, 0.2, 1) 240ms forwards;
+    animation: combi-pill-icon-reveal 320ms cubic-bezier(0.2, 0.8, 0.2, 1) 620ms forwards;
 }
 
 @keyframes combi-pill-shell-reveal {

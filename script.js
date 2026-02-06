@@ -377,6 +377,54 @@ function setupSpecExplorer() {
     });
 }
 
+function setupCtaOverlays() {
+    const overlays = Array.from(document.querySelectorAll('.cta-overlay[id]'));
+    if (!overlays.length) return;
+
+    const closeOverlay = (overlay) => {
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+    };
+
+    const openOverlay = (overlay) => {
+        const openTop = Math.max(window.scrollY || 0, window.pageYOffset || 0);
+        overlay.style.setProperty('--overlay-offset-top', `${openTop}px`);
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+    };
+
+    document.querySelectorAll('[data-overlay-open]').forEach((trigger) => {
+        const targetId = trigger.getAttribute('data-overlay-open');
+        if (!targetId) return;
+
+        const overlay = document.getElementById(targetId);
+        if (!overlay) return;
+
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            openOverlay(overlay);
+        });
+    });
+
+    overlays.forEach((overlay) => {
+        overlay.querySelectorAll('[data-overlay-close]').forEach((button) => {
+            button.addEventListener('click', () => closeOverlay(overlay));
+        });
+
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) closeOverlay(overlay);
+        });
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+
+        overlays.forEach((overlay) => {
+            if (overlay.classList.contains('is-open')) closeOverlay(overlay);
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -385,4 +433,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavReveal();
     setupMobileNav();
     setupSpecExplorer();
+    setupCtaOverlays();
 });
