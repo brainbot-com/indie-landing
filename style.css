@@ -2309,6 +2309,16 @@ ul {
     margin-left: 2rem;
 }
 
+.legal-links a[data-matomo-consent-open] {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.legal-links a[data-matomo-consent-open]:hover {
+    color: rgba(255, 255, 255, 0.98);
+}
+
 .legal-links a:hover {
     color: white;
 }
