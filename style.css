@@ -3445,14 +3445,6 @@ button.box-cta.combi-pill {
     justify-content: flex-end;
 }
 
-.matomo-settings {
-    position: fixed;
-    left: 1rem;
-    bottom: 1rem;
-    z-index: 1299;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-}
-
 .cta-overlay__section-subline {
     margin: -0.15rem 0 0;
     font-size: var(--t-body-sm);

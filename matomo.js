@@ -94,21 +94,6 @@
     s.parentNode.insertBefore(g, s);
   };
 
-  const ensureSettingsButton = (lang) => {
-    if (document.getElementById("matomo-settings-button")) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.id = "matomo-settings-button";
-    button.className = "matomo-settings button button--plain-light button--pill button--sm";
-    button.textContent = lang === "de" ? "Tracking-Einstellungen" : "Tracking settings";
-    button.addEventListener("click", () => {
-      showConsentBanner({ force: true });
-    });
-
-    document.body.appendChild(button);
-  };
-
   const showConsentBanner = ({ force } = {}) => {
     const existing = document.getElementById("matomo-consent-banner");
     if (existing && !force) return;
@@ -148,7 +133,6 @@
     accept.addEventListener("click", () => {
       storeConsent(CONSENT_GRANTED);
       banner.remove();
-      ensureSettingsButton(lang);
       if (window._paq) {
         window._paq.push(["setConsentGiven"]);
         window._paq.push(["setCookieConsentGiven"]);
@@ -161,7 +145,6 @@
       storeConsent(CONSENT_DENIED);
       clearMatomoCookies();
       banner.remove();
-      ensureSettingsButton(lang);
       if (window._paq) {
         window._paq.push(["forgetConsentGiven"]);
         window._paq.push(["forgetCookieConsentGiven"]);
@@ -208,6 +191,37 @@
 
   const lang = getLang();
   const consent = getStoredConsent();
+  const debugEnabled = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      if (params.get("matomo_debug") === "1") return true;
+    } catch (err) {
+      /* Ignore */
+    }
+    return false;
+  })();
+
+  if (debugEnabled) {
+    // eslint-disable-next-line no-console
+    console.log("[matomo] init", { consent, lang, baseUrl, siteId: MATOMO_SITE_ID });
+  }
+
+  const bindConsentLinks = () => {
+    document.querySelectorAll("[data-matomo-consent-open]").forEach((el) => {
+      if (el.__matomoBound) return;
+      el.__matomoBound = true;
+      el.addEventListener("click", (event) => {
+        event.preventDefault();
+        showConsentBanner({ force: true });
+      });
+    });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindConsentLinks, { once: true });
+  } else {
+    bindConsentLinks();
+  }
 
   if (!MATOMO_REQUIRE_CONSENT) {
     loadMatomoScriptOnce(baseUrl);
@@ -215,8 +229,6 @@
     _paq.push(["enableLinkTracking"]);
     return;
   }
-
-  ensureSettingsButton(lang);
 
   if (consent === CONSENT_GRANTED) {
     loadMatomoScriptOnce(baseUrl);
