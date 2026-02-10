@@ -141,7 +141,7 @@
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">Unbox, connect, and go. Indiebox is preconfigured, updates are manual by default (one click), and your teams start without technical hurdles.</p>
                 <div class="box-meta" data-animate="fade-up">
                     <span class="box-tag" data-i18n="boxes.usage.tag">For product teams</span>
-                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-usage" aria-controls="overlay-usage" aria-haspopup="dialog">
+                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-usage" aria-controls="overlay-usage" aria-haspopup="dialog" data-matomo-category="cta" data-matomo-action="overlay_open" data-matomo-label="usage_more">
                         <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.usage.cta">More on usage</span>
                         <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
                             <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -362,7 +362,7 @@
                     <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.picker.title">What do you need an Indiebox base for?</h4>
                     <p class="cta-overlay__section-subline" data-i18n="overlay.partner.picker.subline">Pick the path that best matches your business.</p>
                     <div class="cta-overlay__pick-grid">
-                        <a class="cta-overlay__pick" href="#partner-model-custom">
+                        <a class="cta-overlay__pick" href="#partner-model-custom" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_picker_custom">
                             <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.0.title">For custom customer solutions</h5>
                             <ul class="cta-overlay__list cta-overlay__pick-list">
                                 <li><span data-i18n="overlay.partner.picker.items.0.bullets.0">You design and implement bespoke solutions</span></li>
@@ -370,7 +370,7 @@
                                 <li><span data-i18n="overlay.partner.picker.items.0.bullets.2">You want repeatable delivery without building infrastructure</span></li>
                             </ul>
                         </a>
-                        <a class="cta-overlay__pick" href="#partner-model-packages">
+                        <a class="cta-overlay__pick" href="#partner-model-packages" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_picker_packages">
                             <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.1.title">For AI software packages</h5>
                             <ul class="cta-overlay__list cta-overlay__pick-list">
                                 <li><span data-i18n="overlay.partner.picker.items.1.bullets.0">You have an AI product (e.g. RAG, agent) as a packaged solution</span></li>
@@ -421,7 +421,7 @@
                             <li><span data-i18n="overlay.partner.models.items.0.benefits.5">Special terms from the first customer</span></li>
                         </ul>
                         <div class="cta-overlay__actions cta-overlay__actions--start">
-                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta">Get in touch</a>
+                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_contact_custom">Get in touch</a>
                         </div>
                     </div>
 
@@ -447,7 +447,7 @@
                             <li><span data-i18n="overlay.partner.models.items.1.enables.3">productive operation without cloud- or consumption-based billing</span></li>
                         </ul>
                         <div class="cta-overlay__actions cta-overlay__actions--start">
-                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta">Get in touch</a>
+                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_contact_packages">Get in touch</a>
                         </div>
                     </div>
                 </section>
@@ -474,7 +474,7 @@
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button type="submit" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.contact.submit">Send request</button>
+                            <button type="submit" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.contact.submit" data-matomo-category="partner" data-matomo-action="submit" data-matomo-label="partner_contact_submit">Send request</button>
                         </div>
                     </form>
                 </section>
