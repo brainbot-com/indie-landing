@@ -379,10 +379,16 @@ function setupCtaOverlays() {
     const overlays = Array.from(document.querySelectorAll('.cta-overlay[id]'));
     if (!overlays.length) return;
 
+    const syncScrimState = () => {
+        const hasOpenOverlay = overlays.some((overlay) => overlay.classList.contains('is-open'));
+        document.body.classList.toggle('overlay-scrim-on', hasOpenOverlay);
+    };
+
     const closeOverlay = (overlay) => {
         if (!overlay.classList.contains('is-open')) return;
         overlay.classList.remove('is-open');
         overlay.setAttribute('aria-hidden', 'true');
+        syncScrimState();
     };
 
     const openOverlay = (overlay) => {
@@ -392,6 +398,7 @@ function setupCtaOverlays() {
         });
         const openTop = Math.max(window.scrollY || 0, window.pageYOffset || 0);
         overlay.style.setProperty('--overlay-offset-top', `${openTop}px`);
+        document.body.classList.add('overlay-scrim-on');
         overlay.setAttribute('aria-hidden', 'false');
         requestAnimationFrame(() => overlay.classList.add('is-open'));
     };
