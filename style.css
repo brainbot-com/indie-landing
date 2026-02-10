@@ -2137,6 +2137,17 @@ ul {
     border-color: rgba(11, 34, 52, 0.6);
 }
 
+.legal-content .text-link {
+    font-weight: 600;
+    color: rgba(11, 34, 52, 0.9);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.legal-content .text-link:hover {
+    color: rgba(11, 34, 52, 1);
+}
+
 .legal-title {
     font-size: var(--t-display-2);
     line-height: 1.08;

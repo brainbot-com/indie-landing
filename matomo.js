@@ -127,7 +127,7 @@
 
     const decline = document.createElement("button");
     decline.type = "button";
-    decline.className = "button button--plain-light button--pill button--sm";
+    decline.className = "button button--plain-dark button--pill button--sm";
     decline.textContent = lang === "de" ? "Ablehnen" : "Decline";
 
     accept.addEventListener("click", () => {
@@ -158,6 +158,10 @@
     banner.appendChild(actions);
 
     document.body.appendChild(banner);
+  };
+
+  window.indieboxOpenTrackingSettings = () => {
+    showConsentBanner({ force: true });
   };
 
   // Avoid tracking a transient page that will immediately redirect to /en/
