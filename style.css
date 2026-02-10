@@ -3392,6 +3392,67 @@ button.box-cta.combi-pill {
     }
 }
 
+.matomo-consent {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: min(980px, calc(100% - 2rem));
+    margin: 0 auto;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background:
+        linear-gradient(rgba(8, 14, 22, 0.62), rgba(8, 14, 22, 0.62)),
+        var(--bg-dark-metal);
+    color: rgba(246, 250, 255, 0.93);
+    padding: 1.05rem 1.2rem;
+    display: grid;
+    gap: 0.7rem;
+    z-index: 1300;
+    box-shadow:
+        0 22px 60px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(185, 218, 236, 0.12) inset;
+    backdrop-filter: blur(14px) saturate(130%);
+    -webkit-backdrop-filter: blur(14px) saturate(130%);
+}
+
+.matomo-consent__title {
+    font-family: var(--font-heading);
+    font-weight: 750;
+    letter-spacing: -0.015em;
+}
+
+.matomo-consent__body {
+    color: rgba(236, 242, 248, 0.86);
+    line-height: 1.55;
+}
+
+.matomo-consent__body strong {
+    color: rgba(246, 250, 255, 0.98);
+    font-weight: 650;
+}
+
+.matomo-consent__link {
+    color: rgba(246, 250, 255, 0.93);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.matomo-consent__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: flex-end;
+}
+
+.matomo-settings {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 1299;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
 .cta-overlay__section-subline {
     margin: -0.15rem 0 0;
     font-size: var(--t-body-sm);
