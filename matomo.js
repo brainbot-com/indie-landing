@@ -114,8 +114,8 @@
     body.className = "matomo-consent__body";
     body.innerHTML =
       lang === "de"
-        ? `Wir nutzen Matomo, um die Website zu verbessern. Mit deiner Zustimmung setzen wir Cookies, um <strong>wiederkehrende Besucher</strong> zu erkennen. <a class="matomo-consent__link" href="${privacyLink}">Mehr Infos</a>.`
-        : `We use Matomo to improve this website. With your consent, we set cookies to recognize <strong>returning visitors</strong>. <a class="matomo-consent__link" href="${privacyLink}">Learn more</a>.`;
+        ? `Analyse des Nutzerverhaltens auf unserer Website zur Reichweitenmessung, auch über mehrere Besuche hinweg. <a class="matomo-consent__link" href="${privacyLink}">Mehr Infos</a>.`
+        : `Analytics of user behavior on our website to measure reach, including across multiple visits. <a class="matomo-consent__link" href="${privacyLink}">Learn more</a>.`;
 
     const actions = document.createElement("div");
     actions.className = "matomo-consent__actions";
