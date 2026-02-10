@@ -82,6 +82,18 @@
     });
   };
 
+  const loadMatomoScriptOnce = (baseUrl) => {
+    if (window.__matomoScriptLoaded) return;
+    window.__matomoScriptLoaded = true;
+
+    const d = document;
+    const g = d.createElement("script");
+    const s = d.getElementsByTagName("script")[0];
+    g.async = true;
+    g.src = MATOMO_JS_URL ? MATOMO_JS_URL : `${baseUrl}matomo.js`;
+    s.parentNode.insertBefore(g, s);
+  };
+
   const ensureSettingsButton = (lang) => {
     if (document.getElementById("matomo-settings-button")) return;
 
@@ -137,7 +149,12 @@
       storeConsent(CONSENT_GRANTED);
       banner.remove();
       ensureSettingsButton(lang);
-      initTracking();
+      if (window._paq) {
+        window._paq.push(["setConsentGiven"]);
+        window._paq.push(["setCookieConsentGiven"]);
+        window._paq.push(["trackPageView"]);
+        window._paq.push(["enableLinkTracking"]);
+      }
     });
 
     decline.addEventListener("click", () => {
@@ -145,6 +162,10 @@
       clearMatomoCookies();
       banner.remove();
       ensureSettingsButton(lang);
+      if (window._paq) {
+        window._paq.push(["forgetConsentGiven"]);
+        window._paq.push(["forgetCookieConsentGiven"]);
+      }
     });
 
     actions.appendChild(accept);
@@ -173,49 +194,51 @@
     if (prefersEnglish && isRoot) return;
   }
 
-  const initTracking = () => {
-    const baseUrl = MATOMO_BASE_URL.endsWith("/") ? MATOMO_BASE_URL : `${MATOMO_BASE_URL}/`;
+  const baseUrl = MATOMO_BASE_URL.endsWith("/") ? MATOMO_BASE_URL : `${MATOMO_BASE_URL}/`;
 
-    window._paq = window._paq || [];
-    const _paq = window._paq;
+  window._paq = window._paq || [];
+  const _paq = window._paq;
 
-    if (MATOMO_DISABLE_COOKIES) _paq.push(["disableCookies"]);
-    _paq.push(["setDoNotTrack", true]);
-    _paq.push(["setAnonymizeIp", true]);
+  if (MATOMO_DISABLE_COOKIES) _paq.push(["disableCookies"]);
+  _paq.push(["setDoNotTrack", true]);
+  _paq.push(["setAnonymizeIp", true]);
 
-    _paq.push(["setTrackerUrl", `${baseUrl}matomo.php`]);
-    _paq.push(["setSiteId", String(MATOMO_SITE_ID)]);
-
-    _paq.push(["trackPageView"]);
-    _paq.push(["enableLinkTracking"]);
-
-    const d = document;
-    const g = d.createElement("script");
-    const s = d.getElementsByTagName("script")[0];
-    g.async = true;
-    g.src = MATOMO_JS_URL ? MATOMO_JS_URL : `${baseUrl}matomo.js`;
-    s.parentNode.insertBefore(g, s);
-  };
+  _paq.push(["setTrackerUrl", `${baseUrl}matomo.php`]);
+  _paq.push(["setSiteId", String(MATOMO_SITE_ID)]);
 
   const lang = getLang();
   const consent = getStoredConsent();
 
   if (!MATOMO_REQUIRE_CONSENT) {
-    initTracking();
+    loadMatomoScriptOnce(baseUrl);
+    _paq.push(["trackPageView"]);
+    _paq.push(["enableLinkTracking"]);
     return;
   }
 
   ensureSettingsButton(lang);
 
   if (consent === CONSENT_GRANTED) {
-    initTracking();
+    loadMatomoScriptOnce(baseUrl);
+    _paq.push(["setConsentGiven"]);
+    _paq.push(["setCookieConsentGiven"]);
+    _paq.push(["trackPageView"]);
+    _paq.push(["enableLinkTracking"]);
     return;
   }
 
   if (consent === CONSENT_DENIED) {
+    _paq.push(["requireConsent"]);
+    _paq.push(["requireCookieConsent"]);
+    loadMatomoScriptOnce(baseUrl);
     clearMatomoCookies();
+    _paq.push(["forgetConsentGiven"]);
+    _paq.push(["forgetCookieConsentGiven"]);
     return;
   }
 
+  _paq.push(["requireConsent"]);
+  _paq.push(["requireCookieConsent"]);
+  loadMatomoScriptOnce(baseUrl);
   showConsentBanner();
 })();
