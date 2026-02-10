@@ -3265,6 +3265,13 @@ button.box-cta.combi-pill {
     color: rgba(236, 242, 248, 0.84);
 }
 
+.cta-overlay__body strong,
+.cta-overlay__copy strong,
+.cta-overlay__details-body strong {
+    color: rgba(246, 250, 255, 0.98);
+    font-weight: 650;
+}
+
 .cta-overlay__copy {
     margin: 0;
     max-width: 74ch;
@@ -3314,6 +3321,77 @@ button.box-cta.combi-pill {
     text-shadow: 0 8px 22px rgba(5, 11, 19, 0.28);
 }
 
+.cta-overlay__model {
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 1.1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.03);
+    display: grid;
+    gap: 0.65rem;
+}
+
+.cta-overlay__model + .cta-overlay__model {
+    margin-top: 0.85rem;
+}
+
+.cta-overlay__model-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.12rem, 1.7vw, 1.28rem);
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    font-weight: 750;
+    text-transform: none;
+}
+
+.cta-overlay__pick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.cta-overlay__pick {
+    display: grid;
+    gap: 0.7rem;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 1.1rem 1.2rem;
+    background: rgba(255, 255, 255, 0.03);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.cta-overlay__pick:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.cta-overlay__pick:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.18);
+}
+
+.cta-overlay__pick-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: clamp(1.08rem, 1.6vw, 1.22rem);
+    line-height: 1.22;
+    letter-spacing: -0.015em;
+    font-weight: 750;
+}
+
+.cta-overlay__pick-list {
+    gap: 0.68rem;
+}
+
+@media (max-width: 820px) {
+    .cta-overlay__pick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .cta-overlay__section-subline {
     margin: -0.15rem 0 0;
     font-size: var(--t-body-sm);
@@ -3351,6 +3429,35 @@ button.box-cta.combi-pill {
     flex-wrap: wrap;
     gap: 0.65rem;
     justify-content: flex-end;
+}
+
+.cta-overlay__actions--start {
+    justify-content: flex-start;
+}
+
+.cta-overlay__form {
+    display: grid;
+    gap: 1rem;
+}
+
+.cta-overlay .form-label {
+    color: rgba(246, 250, 255, 0.9);
+}
+
+.cta-overlay .form-input,
+.cta-overlay .form-textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(246, 250, 255, 0.92);
+}
+
+.cta-overlay .form-input::placeholder,
+.cta-overlay .form-textarea::placeholder {
+    color: rgba(218, 229, 238, 0.6);
+}
+
+.cta-overlay .form-note {
+    color: rgba(218, 229, 238, 0.78);
 }
 
 .cta-overlay__details {

@@ -14,6 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
+    <script src="matomo.js" defer></script>
 </head>
 
 <body>
@@ -379,44 +380,142 @@
                 <span class="sr-only" data-i18n="overlay.common.close">Overlay schließen</span>
             </button>
             <div class="cta-overlay__inner">
-                <p class="cta-overlay__kicker" data-i18n="overlay.partner.kicker">PARTNER</p>
-                <h3 class="cta-overlay__title" id="overlay-partner-title" data-i18n="overlay.partner.title">Warum Partner mit Indiebox gewinnen.</h3>
-                <p class="cta-overlay__body" data-i18n="overlay.partner.body">
-                    Wenn du Kundenprojekte verantwortest, brauchst du eine Plattform, die robust wirkt und sich verständlich begründen lässt.
+                <p class="cta-overlay__kicker" data-i18n="overlay.partner.kicker">PARTNERPROGRAMM</p>
+                <h3 class="cta-overlay__title" id="overlay-partner-title" data-i18n="overlay.partner.title">Kundenlösungen lokal umsetzen</h3>
+                <p class="cta-overlay__body" data-i18n="overlay.partner.body" data-i18n-html="true">
+                    Indiebox ist die Plattform für Partner, die Kundenlösungen <strong>lokal</strong> umsetzen. Für Projekte mit Anforderungen an <strong>Datenhoheit</strong>, <strong>Sicherheit</strong> und <strong>kalkulierbare</strong> Laufzeitkosten.
                 </p>
+                <p class="cta-overlay__copy" data-i18n="overlay.partner.target" data-i18n-html="true">
+                    Gedacht für Partner, die gezielt ein <strong>lokales Setup</strong> einsetzen, um Kundenanforderungen <strong>wirtschaftlich</strong> umzusetzen.
+                </p>
+
+                <section class="cta-overlay__section cta-overlay__picker">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.picker.title">Wofür suchst du eine Indiebox-Basis?</h4>
+                    <p class="cta-overlay__section-subline" data-i18n="overlay.partner.picker.subline">Wähle den Typ, der am besten zu deinem Geschäft passt.</p>
+                    <div class="cta-overlay__pick-grid">
+                        <a class="cta-overlay__pick" href="#partner-model-custom">
+                            <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.0.title">Für individuelle Kundenlösungen</h5>
+                            <ul class="cta-overlay__list cta-overlay__pick-list">
+                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.0">Du konzipierst und implementierst kundenspezifische Lösungen</span></li>
+                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.1">Du brauchst eine stabile Basis für Datenhoheit &amp; Security</span></li>
+                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.2">Du willst wiederholbar liefern, ohne Infrastruktur zu bauen</span></li>
+                            </ul>
+                        </a>
+                        <a class="cta-overlay__pick" href="#partner-model-packages">
+                            <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.1.title">Für KI-Software Pakete</h5>
+                            <ul class="cta-overlay__list cta-overlay__pick-list">
+                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.0">Du hast ein KI-Produkt (z. B. RAG, Agent) als Paket</span></li>
+                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.1">Du willst Plug-and-Play beim Kunden ohne Setup-Projekt</span></li>
+                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.2">Du willst Lizenz-, Preis- und Vertriebsmodelle frei gestalten</span></li>
+                            </ul>
+                        </a>
+                    </div>
+                </section>
+
                 <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.arguments.title">Wesentliche Argumente</h4>
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.value.title">Der Mehrwert für Partner</h4>
+                    <p class="cta-overlay__copy" data-i18n="overlay.partner.value.body" data-i18n-html="true">
+                        Indiebox ermöglicht lokalen Betrieb <strong>ohne eigenes Infrastrukturprojekt</strong> und <strong>ohne nutzungsabhängige Kostenmodelle</strong>.
+                    </p>
+                    <p class="cta-overlay__copy" data-i18n="overlay.partner.value.body2">
+                        So entstehen Lösungen, die langfristig stabil laufen und auch bei dauerhafter Nutzung wirtschaftlich bleiben.
+                    </p>
                     <ul class="cta-overlay__list">
                         <li>
-                            <strong data-i18n="overlay.partner.arguments.items.0.title">Glaubwürdige Security-Story im Presales.</strong>
-                            <span data-i18n="overlay.partner.arguments.items.0.body">Du kannst klar zeigen, warum Daten lokal bleiben und wie Auditierbarkeit entsteht.</span>
+                            <span data-i18n="overlay.partner.value.items.0">Lokaler Betrieb zur Erfüllung von Datenhoheits- und Sicherheitsanforderungen</span>
                         </li>
                         <li>
-                            <strong data-i18n="overlay.partner.arguments.items.1.title">Schnellere Projektstarts.</strong>
-                            <span data-i18n="overlay.partner.arguments.items.1.body">Eine einheitliche technische Basis reduziert Abstimmung und verkürzt Time-to-Value.</span>
+                            <span data-i18n="overlay.partner.value.items.1">Kostenstabile Laufzeitmodelle ohne token- oder verbrauchsabhängige Abrechnung</span>
                         </li>
                         <li>
-                            <strong data-i18n="overlay.partner.arguments.items.2.title">Wiederholbares Delivery-Modell.</strong>
-                            <span data-i18n="overlay.partner.arguments.items.2.body">Was bei einem Kunden funktioniert, lässt sich strukturiert auf weitere Rollouts übertragen.</span>
+                            <span data-i18n="overlay.partner.value.items.2">Lang laufende Agenten und Automatisierungen ohne steigende Nutzungskosten</span>
+                        </li>
+                        <li>
+                            <span data-i18n="overlay.partner.value.items.3">Projektumsätze und Kundenbeziehung verbleiben vollständig beim Partner</span>
                         </li>
                     </ul>
                 </section>
                 <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.assurance.title">Wie wir das sicherstellen</h4>
-                    <ul class="cta-overlay__list">
-                        <li>
-                            <strong data-i18n="overlay.partner.assurance.items.0.title">Offene und prüfbare Architektur.</strong>
-                            <span data-i18n="overlay.partner.assurance.items.0.body">Etablierte Open-Source-Bausteine erleichtern technische Reviews und Compliance-Gespräche.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.partner.assurance.items.1.title">Transparente Modell- und Tool-Landschaft.</strong>
-                            <span data-i18n="overlay.partner.assurance.items.1.body">Du arbeitest nicht mit einer Black Box, sondern mit klar benannten Komponenten.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.partner.assurance.items.2.title">Betrieb auch komplett offline möglich.</strong>
-                            <span data-i18n="overlay.partner.assurance.items.2.body">Für sensible Umgebungen kann die Plattform isoliert betrieben und dennoch produktiv genutzt werden.</span>
-                        </li>
-                    </ul>
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.models.title">Partner-Modelle</h4>
+                    <p class="cta-overlay__section-subline" data-i18n="overlay.partner.models.subline">Zwei typische Wege, wie Partner mit Indiebox arbeiten.</p>
+
+                    <div class="cta-overlay__model" id="partner-model-custom">
+                        <h5 class="cta-overlay__model-title gradient-signature" data-i18n="overlay.partner.models.items.0.title">Individuelle Kundenlösungen</h5>
+                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.0.body1">
+                            Indiebox eignet sich für Partner, die kundenspezifische Lösungen konzipieren und implementieren und dafür eine lokal betriebene Plattform benötigen.
+                        </p>
+                        <p class="cta-overlay__copy">
+                            <strong data-i18n="overlay.partner.models.focusLabel">Fokus:</strong>
+                            <span data-i18n="overlay.partner.models.items.0.body2">Der Fokus liegt auf Fachlogik, Integration und Business-Anforderungen. Die Plattform stellt den lokalen Betrieb sicher.</span>
+                        </p>
+                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.0.benefitsLead">Was Partner davon haben:</p>
+                        <ul class="cta-overlay__list">
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.0">Zugang zu Kundenprojekten mit klaren Anforderungen an Lokalität und Datenhoheit</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.1">Kalkulierbare Projektaufwände durch eine einheitliche technische Basis</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.2">Wirtschaftlicher Betrieb unabhängig von Nutzung oder Laufzeit</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.3">Konzentration auf Lösung und Mehrwert statt Infrastruktur</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.4">Volle Kontrolle über Kundenbeziehung und Abrechnung</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.0.benefits.5">Sonderkonditionen ab dem ersten Kunden</span></li>
+                        </ul>
+                        <div class="cta-overlay__actions cta-overlay__actions--start">
+                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta">Kontakt aufnehmen</a>
+                        </div>
+                    </div>
+
+                    <div class="cta-overlay__model" id="partner-model-packages">
+                        <h5 class="cta-overlay__model-title gradient-signature" data-i18n="overlay.partner.models.items.1.title">Eigene Lösungen auf lokaler Laufzeitumgebung ausliefern</h5>
+                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.body1">
+                            Indiebox bietet eine lokale Laufzeitumgebung, um eigene Lösungen mit großen Modellen direkt beim Kunden produktiv zu betreiben. Die Umgebung ist sofort einsatzbereit und als vertrauenswürdige Basis für sensible und dauerhaft laufende Systeme ausgelegt.
+                        </p>
+                        <p class="cta-overlay__copy">
+                            <strong data-i18n="overlay.partner.models.idealLabel">Ideal wenn:</strong>
+                            <span data-i18n="overlay.partner.models.items.1.body2">Eine bestehende Lösung wie ein Legal-System, ein RAG-Setup oder ein autonomer Agent als Produkt zum Kunden gebracht werden soll und dafür eine lokale Laufzeitumgebung mit großen Modellen fehlt.</span>
+                        </p>
+                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.offersLead">Indiebox bietet:</p>
+                        <ul class="cta-overlay__list">
+                            <li><span data-i18n="overlay.partner.models.items.1.offers.0">eine einsatzbereite lokale Laufzeitumgebung für große Modelle</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.offers.1">Plug-and-Play beim Kunden ohne Projekt- oder Setup-Phase</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.offers.2">lokalen Betrieb als Vertrauens- und Compliance-Grundlage</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.offers.3">Entlastung von Infrastruktur, Auslieferung und Plattformbetrieb</span></li>
+                        </ul>
+                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.enablesLead">Dies ermöglicht:</p>
+                        <ul class="cta-overlay__list">
+                            <li><span data-i18n="overlay.partner.models.items.1.enables.0">Fokus auf Produkt, Funktionalität und Vertrieb</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.enables.1">freie Gestaltung von Lizenz-, Preis- und Vertriebsmodellen</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.enables.2">Integration als App oder dedizierte Lösung, auch exklusiv oder vertikal</span></li>
+                            <li><span data-i18n="overlay.partner.models.items.1.enables.3">produktiven Betrieb ohne Cloud- oder verbrauchsbasierte Abrechnung</span></li>
+                        </ul>
+                        <div class="cta-overlay__actions cta-overlay__actions--start">
+                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta">Kontakt aufnehmen</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cta-overlay__section" id="partner-contact">
+                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.contact.title">Kontakt aufnehmen</h4>
+                    <form class="cta-overlay__form" data-mailto-to="contact@brainbot.com" data-mailto-subject="Partneranfrage Indiebox">
+                        <div class="form-grid">
+                            <div class="form-row">
+                                <label class="form-label" for="partner-name"><span data-i18n="overlay.partner.contact.fields.name.label">Name</span><span class="field-required">*</span></label>
+                                <input class="form-input" type="text" id="partner-name" name="name" autocomplete="name" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="partner-email"><span data-i18n="overlay.partner.contact.fields.email.label">E-Mail</span><span class="field-required">*</span></label>
+                                <input class="form-input" type="email" id="partner-email" name="email" autocomplete="email" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="partner-url" data-i18n="overlay.partner.contact.fields.url.label">URL</label>
+                                <input class="form-input" type="url" id="partner-url" name="url" autocomplete="url" placeholder="https://">
+                            </div>
+                            <div class="form-row form-row--full">
+                                <label class="form-label" for="partner-message"><span data-i18n="overlay.partner.contact.fields.message.label">Beschreibung</span><span class="field-required">*</span></label>
+                                <textarea class="form-textarea" id="partner-message" name="message" required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.contact.submit">Anfrage senden</button>
+                        </div>
+                    </form>
                 </section>
                 <div class="cta-overlay__actions">
                     <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>

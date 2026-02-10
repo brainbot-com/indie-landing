@@ -435,6 +435,40 @@ function setupCtaOverlays() {
     });
 }
 
+function setupMailtoForms() {
+    const forms = Array.from(document.querySelectorAll('form[data-mailto-to]'));
+    if (!forms.length) return;
+
+    forms.forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const to = form.getAttribute('data-mailto-to') || '';
+            if (!to) return;
+
+            const subject = form.getAttribute('data-mailto-subject') || 'Anfrage';
+            const formData = new FormData(form);
+
+            const name = String(formData.get('name') || '').trim();
+            const email = String(formData.get('email') || '').trim();
+            const url = String(formData.get('url') || '').trim();
+            const message = String(formData.get('message') || '').trim();
+
+            const lines = [
+                `Name: ${name || '-'}`,
+                `E-Mail: ${email || '-'}`,
+                `URL: ${url || '-'}`,
+                '',
+                'Beschreibung:',
+                message || '-',
+            ];
+
+            const mailtoHref = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+            window.location.href = mailtoHref;
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -444,4 +478,5 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMobileNav();
     setupSpecExplorer();
     setupCtaOverlays();
+    setupMailtoForms();
 });
