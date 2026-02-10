@@ -217,10 +217,78 @@
     });
   };
 
+  const isDoNotTrackEnabled = () => {
+    const dnt =
+      (navigator && (navigator.doNotTrack || navigator.msDoNotTrack)) ||
+      (window && window.doNotTrack);
+    return String(dnt) === "1" || String(dnt).toLowerCase() === "yes";
+  };
+
+  const buildClickLabel = (el) => {
+    const explicit = el.getAttribute("data-matomo-label");
+    if (explicit) return explicit.trim();
+
+    const i18nKey = el.getAttribute("data-i18n");
+    if (i18nKey) return `i18n:${i18nKey}`;
+
+    const aria = el.getAttribute("aria-label");
+    if (aria) return aria.trim();
+
+    const id = el.id;
+    if (id) return `#${id}`;
+
+    const text = String(el.textContent || "").replace(/\s+/g, " ").trim();
+    if (text) return text.slice(0, 80);
+
+    return "unknown";
+  };
+
+  const buildClickAction = (el) => {
+    if (el.hasAttribute("data-overlay-open")) return "overlay_open";
+    if (el.hasAttribute("data-overlay-close")) return "overlay_close";
+    return "click";
+  };
+
+  const setupButtonTracking = () => {
+    if (window.__matomoButtonTrackingInstalled) return;
+    window.__matomoButtonTrackingInstalled = true;
+
+    document.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target;
+        if (!target || typeof target.closest !== "function") return;
+
+        const button = target.closest("button, a.button, a.combi-pill, [data-overlay-open]");
+        if (!button) return;
+        if (button.hasAttribute("data-matomo-ignore")) return;
+        if (button.closest && button.closest("#matomo-consent-banner")) return;
+
+        if (isDoNotTrackEnabled()) return;
+        if (MATOMO_REQUIRE_CONSENT && getStoredConsent() !== CONSENT_GRANTED) return;
+
+        window._paq = window._paq || [];
+
+        const category = button.getAttribute("data-matomo-category") || "ui";
+        const action = button.getAttribute("data-matomo-action") || buildClickAction(button);
+        const label = button.getAttribute("data-matomo-event") || buildClickLabel(button);
+
+        window._paq.push(["trackEvent", category, action, label]);
+      },
+      { capture: true, passive: true }
+    );
+  };
+
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bindConsentLinks, { once: true });
   } else {
     bindConsentLinks();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupButtonTracking, { once: true });
+  } else {
+    setupButtonTracking();
   }
 
   if (!MATOMO_REQUIRE_CONSENT) {
