@@ -151,7 +151,7 @@
   "capabilities.models.body": "Indiebox comes with powerful models preinstalled.<br>Add more models as needed and switch instantly.",
   "capabilities.models.items.0": "Strong reasoning models",
   "capabilities.models.items.1": "Vision and audio tasks",
-  "capabilities.models.items.2": "Tool calling",
+  "capabilities.models.items.2": "Tool calls",
   "capabilities.models.items.3": "High response quality through local compute",
   "dataSafety.title": "Your data stays with you",
   "dataSafety.lead": "By default, not a single byte leaves your network.<br>No cloud. No telemetry.",
