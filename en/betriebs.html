@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operations and Administration – Indiebox</title>
+
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Indiebox operations and administration: commissioning, containers, access, updates, models, backup, and network integration.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../style.css">
+    <script src="../matomo.js" defer></script>
+</head>
+<body class="checkout-page">
+    <nav class="nav-bar" aria-label="Main menu">
+        <div class="container nav-container">
+            <a class="nav-logo" href="index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html#einsatz">Use cases</a>
+                <a href="index.html#spezifikation">Specifications</a>
+                <a href="betriebs.html" aria-current="page">Operations</a>
+                <a href="privacy.html">Data security</a>
+            </div>
+            <div class="nav-actions">
+                <a href="checkout.html" class="button button--pill button--sm nav-buy">Buy</a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menu</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="checkout-hero checkout-hero--light">
+            <div class="container">
+                <div class="checkout-hero-copy">
+                    <h1 class="checkout-title">Operations and Administration</h1>
+                    <p class="checkout-subtitle checkout-subtitle--sm">Indiebox is operated in your own network and provides chat, workflows, agents, and administration as web interfaces.</p>
+                    <p class="checkout-hero-note">After commissioning, chat is immediately usable. Agents, workflows, and automations can then be added step by step.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="checkout-section checkout-specs">
+            <div class="container">
+                <aside class="checkout-card checkout-card--muted" aria-labelledby="at-a-glance">
+                    <p class="checkout-tag">At a glance</p>
+                    <h2 class="checkout-card-title" id="at-a-glance">At a glance</h2>
+                    <ul class="checkout-list">
+                        <li>Access via browser on desktop and mobile device. On mobile devices, OpenWebUI can also be used as an installable web app if access is provided via HTTPS.</li>
+                        <li>Each application runs in its own container and can be managed separately.</li>
+                        <li>Data is bundled in a central data area on the box, separated by application. This simplifies backup and recovery.</li>
+                        <li>Updates are triggered through the admin interface. Automatic updates are also possible on request.</li>
+                        <li>Models are preinstalled and can additionally be extended via Ollama. Downloaded models can be removed at any time.</li>
+                    </ul>
+                </aside>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Commissioning: ready to work in a few minutes</h2>
+                    <div class="form-section">
+                        <p>Commissioning is designed for a fast start.</p>
+                        <p>If the box is connected via network cable, it is directly reachable after switching on. Chat can then be used immediately.</p>
+                        <p>If the box should be reachable via Wi‑Fi, a QR code leads to the installation assistant. The box is added to the network there. After that, you can work directly in chat and create the first agents or automations as needed.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Applications: separate containers, managed separately</h2>
+                    <div class="form-section">
+                        <p>All Indiebox applications run in separate containers. This makes operations easier because services can be managed independently of each other. Restarting or updating one application does not automatically affect the others.</p>
+                        <p>Typically included:</p>
+                        <ul class="checkout-list">
+                            <li><strong>OpenWebUI</strong> as chat interface</li>
+                            <li><strong>n8n</strong> for workflows, automation, and integrations</li>
+                            <li><strong>Letta</strong> as agent environment if agents are used</li>
+                            <li><strong>Own applications</strong>: an additional container for fully custom solutions</li>
+                        </ul>
+                        <p>All containers can be controlled via the box dashboard and admin interface.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Dashboard and admin interface: overview and control</h2>
+                    <div class="form-section">
+                        <p>The dashboard is the central entry point for operations and diagnostics. It shows which applications are running, how the box is being used, and provides direct control.</p>
+                        <p>Typical tasks covered there:</p>
+                        <ul class="checkout-list">
+                            <li>Start, stop, restart applications</li>
+                            <li>Check status and utilization</li>
+                            <li>View logs to narrow down issues</li>
+                            <li>Manage box settings</li>
+                        </ul>
+                        <p>This keeps normal operations in web interfaces. Daily work on operating-system level is not necessary.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Access: browser, mobile device, and secure remote access</h2>
+                    <div class="form-section">
+                        <p>Chat, workflows, dashboard, and administration are web interfaces. Access happens via browser, both on desktop and on mobile devices.</p>
+                        <p>For mobile devices, OpenWebUI can also be used as an installable web app. It feels like an app, but technically remains a web interface.</p>
+                        <p>If access from outside the local network is required, two clean approaches are common:</p>
+                        <ul class="checkout-list">
+                            <li><strong>VPN</strong>, so access works like in the internal network</li>
+                            <li><strong>targeted release of defined endpoints</strong> through a local firewall, instead of exposing the box generally to the internet</li>
+                        </ul>
+                        <p>Which option fits depends on the use case. The direction is important: internal is standard, external is deliberately enabled.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Users and login: start local, add business login optionally</h2>
+                    <div class="form-section">
+                        <p>OpenWebUI and n8n are web applications. Users are created and managed there. Roles and permissions separate normal use from administration.</p>
+                        <p>In a business context, login can be connected to existing systems. This is an integration point, not a startup obstacle.</p>
+                    </div>
+                    <aside class="checkout-card checkout-card--muted" aria-labelledby="info-sso-ldap">
+                        <p class="checkout-tag">Info</p>
+                        <h3 class="form-section-title" id="info-sso-ldap">Optional: SSO and LDAP</h3>
+                        <div class="form-section">
+                            <ul class="checkout-list">
+                                <li>OpenWebUI can be connected to LDAP. SSO variants are possible depending on setup.</li>
+                                <li>n8n can support LDAP and SSO, depending on the edition used.</li>
+                            </ul>
+                            <p>In practice this means: starting with local user management is immediately possible. If central login is required, it is added afterwards.</p>
+                        </div>
+                    </aside>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Workflows and integrations with n8n</h2>
+                    <div class="form-section">
+                        <p>n8n is the interface for workflows, automations, and integrations. Workflows consist of triggers and steps. This makes it understandable when actions are executed and where data flows.</p>
+                        <p>n8n includes many connectors. A representative selection that is frequently used in daily work:</p>
+                        <ul class="checkout-list">
+                            <li><strong>Slack:</strong> <a class="text-link" href="https://n8n.io/integrations/slack/" target="_blank" rel="noopener noreferrer">Slack</a></li>
+                            <li><strong>Microsoft Teams:</strong> <a class="text-link" href="https://n8n.io/integrations/microsoft-teams/" target="_blank" rel="noopener noreferrer">Microsoft Teams</a></li>
+                            <li><strong>Google Sheets:</strong> <a class="text-link" href="https://n8n.io/integrations/google-sheets/" target="_blank" rel="noopener noreferrer">Google Sheets</a></li>
+                            <li><strong>Jira Software:</strong> <a class="text-link" href="https://n8n.io/integrations/jira-software/" target="_blank" rel="noopener noreferrer">Jira Software</a></li>
+                            <li><strong>Salesforce:</strong> <a class="text-link" href="https://n8n.io/integrations/salesforce/" target="_blank" rel="noopener noreferrer">Salesforce</a></li>
+                        </ul>
+                        <p>The complete overview of integrations: <a class="text-link" href="https://n8n.io/integrations/" target="_blank" rel="noopener noreferrer">n8n integrations</a></p>
+                        <p>Important for operations: external integrations do not appear “by themselves”, but are deliberately configured in workflows.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Updates: plannable, controlled, optionally automatic</h2>
+                    <div class="form-section">
+                        <p>Updates are triggered through the admin interface. Standard is manual start, so updates fit into a maintenance window. Automatic updates are possible on request.</p>
+                        <p>Through container separation, applications can be updated independently. This reduces surprises: if an update affects only n8n, chat does not need to be touched at the same time.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Models: preinstalled, fit for purpose, expandable later</h2>
+                    <div class="form-section">
+                        <p>Indiebox is delivered with several models for different tasks. This means the start is not “search for a model”, but “start the task”.</p>
+                        <p>Preinstalled are:</p>
+                        <ul class="checkout-list">
+                            <li><strong>gpt-oss:120b</strong> for more complex tasks with high demand for reasoning and multi-step problem solving</li>
+                            <li><strong>qwen3:30b</strong> for everyday tasks and automations</li>
+                            <li><strong>qwen3-coder-next</strong> for coding tasks</li>
+                            <li><strong>granite-embedding:278m</strong> for documents, search, and RAG (embeddings)</li>
+                        </ul>
+
+                        <h3 class="form-section-title">Disk space vs runtime: the decisive point is memory</h3>
+                        <p>With 2 TB storage, space for several models is usually sufficiently dimensioned for daily work. Less decisive is storage on disk, more decisive is <strong>runtime memory demand</strong>.</p>
+                        <p>Indiebox is designed for systems with <strong>128 GB shared memory</strong>. This is a practical advantage compared to classic GPU setups, which are often limited by GPU memory (VRAM). Through the large shared memory, even very large models in suitable quantization become realistically usable if the use case fits.</p>
+                    </div>
+
+                    <aside class="checkout-card checkout-card--muted" aria-labelledby="info-open-source-models">
+                        <p class="checkout-tag">Info</p>
+                        <h3 class="form-section-title" id="info-open-source-models">Info: Why open-source models as a base make sense</h3>
+                        <div class="form-section">
+                            <p>Open-source models (open weights) are evolving quickly. New versions improve quality, tool capability, and specialization, often without rebuilding anything in the infrastructure. For operations this means: the box remains the stable base, while models and model versions improve over time and can be exchanged deliberately.</p>
+                            <p>Limits remain transparent: memory, parallelism, context sizes, and security requirements.</p>
+                        </div>
+                    </aside>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Load additional models (Ollama): deliberate and reversible</h3>
+                        <p>In addition to the preinstalled models, further models can be downloaded and integrated via Ollama.</p>
+                        <p>Downloaded models are not part of the preconfigured Indiebox environment. Stability, quality, and suitability are therefore the responsibility of operations. The risk remains manageable because models can be removed at any time. This enables deliberate testing without permanently changing the system.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Data areas, backup, and recovery</h2>
+                    <div class="form-section">
+                        <p>Indiebox bundles persistent application data in a <strong>central data area</strong> on the box. Within this area, data is separated by application. This is intentionally designed so backup and recovery stay simple.</p>
+                        <p>In operation this means:</p>
+                        <ul class="checkout-list">
+                            <li>Data and configuration are not distributed across many locations, but organized centrally.</li>
+                            <li>Backup can be implemented as a backup of this data area.</li>
+                            <li>Recovery happens via the installer: install base system, restore data area, start applications via dashboard.</li>
+                        </ul>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Network and data flow: from client to local model</h2>
+                    <div class="form-section">
+                        <p>At the core, data flow is simple:</p>
+                        <ol class="legal-list">
+                            <li><strong>Access</strong><br>Usage happens via browser or installable web app on Indiebox web interfaces (chat, workflows, dashboard).</li>
+                            <li><strong>Chat to the local model</strong><br>OpenWebUI forwards prompt and context to the model service on the box. The response goes back to OpenWebUI and is shown in the client.</li>
+                            <li><strong>Workflows to internal or external targets</strong><br>n8n executes workflows. Whether internal systems or external APIs are called depends on the specific workflow.</li>
+                        </ol>
+
+                        <h3 class="form-section-title">External services, MCP, and the risk from manipulated content</h3>
+                        <p>If the administrator enables external services, the box can access these services from inside to outside, for example for search or additional tools via MCP.</p>
+                        <p>This increases possibilities but also brings a risk: content can be designed so that agents or automations are moved to unwanted actions. This is often described as prompt injection. It becomes critical especially when workflows have write permissions or execute actions without confirmation.</p>
+                    </div>
+
+                    <aside class="checkout-card checkout-card--muted" aria-labelledby="info-security-principles">
+                        <p class="checkout-tag">Info</p>
+                        <h3 class="form-section-title" id="info-security-principles">Info: sensible security principles for external tools</h3>
+                        <ul class="checkout-list">
+                            <li>Enable external endpoints selectively, not globally.</li>
+                            <li>Use credentials with minimum permissions.</li>
+                            <li>Require confirmation for critical actions or separate them deliberately.</li>
+                            <li>Do not put external tools and sensitive data together in the same workflow unnecessarily.</li>
+                        </ul>
+                    </aside>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Network integration and HTTPS</h2>
+                    <div class="form-section">
+                        <p>There is a configuration interface for network integration. Relevant settings are set there, without daily work on operating-system level.</p>
+                        <p>As soon as the box is in the network and has a fixed name, a TLS certificate for HTTPS can be created or stored. This provides clean encrypted access in the browser.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="checkout-section checkout-form-section">
+            <div class="container">
+                <article class="checkout-card">
+                    <h2 class="checkout-card-title">Own applications, partner solutions, and OpenClaw</h2>
+                    <div class="form-section">
+                        <p>The additional container for own applications is intended for fully custom solutions. This allows partners or internal teams to build specialized applications and integrations without changing the standard containers. This can range from industry workflows to clearly separated internal tools.</p>
+                        <p>Other local agent applications can also be operated in this area. One example is OpenClaw: <a class="text-link" href="https://docs.ollama.com/integrations/openclaw" target="_blank" rel="noopener noreferrer">OpenClaw</a></p>
+                        <p>An Indiebox marketplace is in preparation, through which curated models and solution packages can be installed. The goal is reproducible installation instead of individual one-off setups.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h4>Indiebox</h4>
+                    <p>Private AI. Fully local. No cloud.</p>
+                </div>
+                <div class="footer-contact">
+                    <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2025 Indiebox</div>
+                <div class="legal-links">
+                    <a href="terms.html">Terms</a>
+                    <a href="datenschutz.html">Privacy policy</a>
+                    <a href="impressum.html">Legal notice</a>
+                    <a href="#" data-matomo-consent-open>Tracking settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../script.js"></script>
+</body>
+</html>
