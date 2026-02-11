@@ -2,14 +2,14 @@
 
 This is the **single source of truth** for styling. Use these tokens and rules in all new work.
 
-## Style Intent (from `type-guide.html`)
+## Style Intent (from current production pages)
 - Premium, calm, and technical. Dark metallic hero backgrounds with soft gradients.
 - Prism/orange is a **signature accent** for key words only, not for UI chrome.
 - Typography is confident and tight: large display lines, uppercase kicker style, generous spacing.
 - Light sections are clean and quiet; dark sections feel deep and dimensional.
 
 ## Typography Tokens (use these)
-Defined in `style.css` and `type-guide.css`.
+Defined in `style.css`.
 
 - `--t-display-1` : Hero headline
 - `--t-display-2` : Section/feature headlines
@@ -29,10 +29,6 @@ Defined in `style.css` and `type-guide.css`.
 - `.story-kicker`, `.box-kicker`, `.box-tag` → `--t-small`
 - Body text (e.g. `.card p`, `.use-case-item p`, `.box-body`) → `--t-body`
 - Buttons + nav → `--t-ui`
-
-### Usage Mapping (Reference-only in `type-guide.css`)
-- `.display-1`, `.display-2`, `.title`, `.subhead`, `.body`, `.body-lg`, `.body-sm`, `.ui`, `.kicker`
-- These are visual reference classes for the type guide. If we need them on the actual site, propose adding them to `style.css` first.
 
 ## Gradients (Approved)
 Use only these tokens.
@@ -144,10 +140,8 @@ Use the CTA overlay when a click on a primary action should open focused content
 
 ## Files of Truth
 - `style.css` (main site tokens)
-- `type-guide.css` (visual reference)
-- `type-guide.html` (visual reference)
 
-If you change tokens, update **both** CSS files and this `STYLE_GUIDE.md`.
+If you change tokens, update `style.css` and this `STYLE_GUIDE.md`.
 
 ## Legacy Cleanup
 - Do not reintroduce `v4-` classes or legacy references.
