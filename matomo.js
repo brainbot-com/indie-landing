@@ -16,12 +16,11 @@
   // Leave empty for self-hosted; set for Matomo Cloud.
   const MATOMO_JS_URL = "https://cdn.matomo.cloud/indieboxai.matomo.cloud/matomo.js";
 
-  // Privacy-oriented defaults:
-  // - require consent before loading Matomo
+  // Tracking policy:
+  // - always track pageviews/events in cookieless mode
+  // - enable cookies only after explicit consent (for returning visitors)
   // - respect Do Not Track (browser setting)
-  // - enable cookies only after consent (needed for returning visitors)
   const MATOMO_DISABLE_COOKIES = false;
-  const MATOMO_REQUIRE_CONSENT = true;
 
   // Don't track local previews.
   const DISABLE_ON_LOCALHOST = true;
@@ -82,6 +81,19 @@
     });
   };
 
+  const applyCookieConsentState = (consent) => {
+    if (!window._paq) return;
+
+    if (consent === CONSENT_GRANTED) {
+      window._paq.push(["setCookieConsentGiven"]);
+      window._paq.push(["rememberCookieConsentGiven", 24 * 30]);
+      return;
+    }
+
+    clearMatomoCookies();
+    window._paq.push(["forgetCookieConsentGiven"]);
+  };
+
   const loadMatomoScriptOnce = (baseUrl) => {
     if (window.__matomoScriptLoaded) return;
     window.__matomoScriptLoaded = true;
@@ -133,12 +145,7 @@
     accept.addEventListener("click", () => {
       storeConsent(CONSENT_GRANTED);
       banner.remove();
-      if (window._paq) {
-        window._paq.push(["setConsentGiven"]);
-        window._paq.push(["setCookieConsentGiven"]);
-        window._paq.push(["trackPageView"]);
-        window._paq.push(["enableLinkTracking"]);
-      }
+      applyCookieConsentState(CONSENT_GRANTED);
       if (debugEnabled) {
         // eslint-disable-next-line no-console
         console.log("[matomo] consent accepted");
@@ -147,11 +154,8 @@
 
     decline.addEventListener("click", () => {
       storeConsent(CONSENT_DENIED);
-      clearMatomoCookies();
       banner.remove();
-      if (window._paq) {
-        window._paq.push(["forgetConsentGiven"]);
-      }
+      applyCookieConsentState(CONSENT_DENIED);
       if (debugEnabled) {
         // eslint-disable-next-line no-console
         console.log("[matomo] consent declined");
@@ -276,7 +280,6 @@
         if (button.closest && button.closest("#matomo-consent-banner")) return;
 
         if (isDoNotTrackEnabled()) return;
-        if (MATOMO_REQUIRE_CONSENT && getStoredConsent() !== CONSENT_GRANTED) return;
 
         window._paq = window._paq || [];
 
@@ -302,34 +305,12 @@
     setupButtonTracking();
   }
 
-  if (!MATOMO_REQUIRE_CONSENT) {
-    loadMatomoScriptOnce(baseUrl);
-    _paq.push(["trackPageView"]);
-    _paq.push(["enableLinkTracking"]);
-    return;
-  }
+  // Cookie consent controls only cookie usage; tracking itself remains active without cookies.
+  _paq.push(["requireCookieConsent"]);
+  applyCookieConsentState(consent);
+  if (consent !== CONSENT_GRANTED && consent !== CONSENT_DENIED) showConsentBanner();
 
-  if (consent === CONSENT_GRANTED) {
-    loadMatomoScriptOnce(baseUrl);
-    _paq.push(["setConsentGiven"]);
-    _paq.push(["setCookieConsentGiven"]);
-    _paq.push(["trackPageView"]);
-    _paq.push(["enableLinkTracking"]);
-    return;
-  }
-
-  if (consent === CONSENT_DENIED) {
-    _paq.push(["requireConsent"]);
-    loadMatomoScriptOnce(baseUrl);
-    clearMatomoCookies();
-    _paq.push(["forgetConsentGiven"]);
-    return;
-  }
-
-  _paq.push(["requireConsent"]);
-  // Keep analytics blocked until explicit consent, but don't depend on Matomo's cookie-consent flow.
-  // This ensures we can count a visit after consent even if cookies are not available on some browsers.
-  _paq.push(["disableCookies"]);
   loadMatomoScriptOnce(baseUrl);
-  showConsentBanner();
+  _paq.push(["trackPageView"]);
+  _paq.push(["enableLinkTracking"]);
 })();
