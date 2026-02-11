@@ -199,7 +199,6 @@
 
   if (MATOMO_DISABLE_COOKIES) _paq.push(["disableCookies"]);
   _paq.push(["setDoNotTrack", true]);
-  _paq.push(["setAnonymizeIp", true]);
 
   _paq.push(["setTrackerUrl", `${baseUrl}matomo.php`]);
   _paq.push(["setSiteId", String(MATOMO_SITE_ID)]);
