@@ -139,6 +139,10 @@
         window._paq.push(["trackPageView"]);
         window._paq.push(["enableLinkTracking"]);
       }
+      if (debugEnabled) {
+        // eslint-disable-next-line no-console
+        console.log("[matomo] consent accepted");
+      }
     });
 
     decline.addEventListener("click", () => {
@@ -147,7 +151,10 @@
       banner.remove();
       if (window._paq) {
         window._paq.push(["forgetConsentGiven"]);
-        window._paq.push(["forgetCookieConsentGiven"]);
+      }
+      if (debugEnabled) {
+        // eslint-disable-next-line no-console
+        console.log("[matomo] consent declined");
       }
     });
 
@@ -313,16 +320,16 @@
 
   if (consent === CONSENT_DENIED) {
     _paq.push(["requireConsent"]);
-    _paq.push(["requireCookieConsent"]);
     loadMatomoScriptOnce(baseUrl);
     clearMatomoCookies();
     _paq.push(["forgetConsentGiven"]);
-    _paq.push(["forgetCookieConsentGiven"]);
     return;
   }
 
   _paq.push(["requireConsent"]);
-  _paq.push(["requireCookieConsent"]);
+  // Keep analytics blocked until explicit consent, but don't depend on Matomo's cookie-consent flow.
+  // This ensures we can count a visit after consent even if cookies are not available on some browsers.
+  _paq.push(["disableCookies"]);
   loadMatomoScriptOnce(baseUrl);
   showConsentBanner();
 })();
