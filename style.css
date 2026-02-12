@@ -3282,6 +3282,22 @@ button.box-cta.combi-pill {
     text-shadow: 0 10px 28px rgba(5, 11, 19, 0.32);
 }
 
+.cta-overlay__title--display-2 {
+    margin-bottom: clamp(1rem, 2vw, 1.4rem);
+    font-size: var(--t-display-2);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    text-shadow: none;
+}
+
+.cta-overlay__title-line {
+    display: block;
+}
+
+.cta-overlay__title-line + .cta-overlay__title-line {
+    margin-top: 0.08em;
+}
+
 .cta-overlay__body {
     margin: 0;
     max-width: 70ch;
