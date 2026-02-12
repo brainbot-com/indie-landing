@@ -3094,6 +3094,10 @@ ul {
     margin-top: clamp(1.5rem, 3vw, 2.5rem);
 }
 
+#datensicherheit {
+    scroll-margin-top: 7.2rem;
+}
+
 .box:nth-child(2) {
     background: var(--bg-dark-metal);
     border-color: rgba(255, 255, 255, 0.12);
@@ -3309,12 +3313,25 @@ button.box-cta.combi-pill {
     gap: 0.82rem;
 }
 
+.cta-overlay__section > .cta-overlay__list {
+    margin: 0.35rem 0 0.6rem;
+    padding-left: 0.22rem;
+}
+
 .cta-overlay__list li {
     position: relative;
-    padding-left: 1.2rem;
+    padding-left: 1.56rem;
     font-size: 0.98rem;
     line-height: 1.5;
     color: rgba(236, 242, 248, 0.86);
+}
+
+.cta-overlay__section > .cta-overlay__copy + .cta-overlay__list {
+    margin-top: 0.55rem;
+}
+
+.cta-overlay__section > .cta-overlay__list + .cta-overlay__copy {
+    margin-top: 0.55rem;
 }
 
 .cta-overlay__section {
@@ -3491,7 +3508,7 @@ button.box-cta.combi-pill {
     content: "";
     position: absolute;
     top: 0.58em;
-    left: 0;
+    left: 0.18rem;
     width: 0.48rem;
     height: 0.48rem;
     border-radius: 999px;

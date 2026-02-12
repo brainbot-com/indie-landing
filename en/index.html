@@ -25,7 +25,7 @@
                 <a href="#einsatz" data-i18n="nav.einsatz">Use cases</a>
                 <a href="#spezifikation" data-i18n="nav.spec">Specifications</a>
                 <a href="betriebs.html" data-i18n="nav.operations">Operations</a>
-                <a href="privacy.html" data-i18n="nav.security">Data security</a>
+                <a href="#datensicherheit" data-i18n="nav.security">Data security</a>
             </div>
             <div class="nav-actions">
                 <a href="checkout.html" class="button button--pill button--sm nav-buy" data-i18n="nav.buy" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_nav">Buy</a>
@@ -114,10 +114,10 @@
     <!-- Box Stack -->
     <section class="box-stack">
         <div class="box-stack-container">
-            <div class="box">
+            <div class="box" id="datensicherheit">
                 <div class="box-head">
                     <div class="box-kicker" data-i18n="boxes.privacy.kicker">PRIVACY</div>
-                    <div class="box-display" data-animate="fade-up" data-i18n="boxes.privacy.title">EVERYTHING STAYS WITH YOU</div>
+                    <div class="box-display" data-animate="fade-up" data-i18n="boxes.privacy.title">Privacy &amp; Data Security.<br>Built from the ground up.</div>
                 </div>
                 <p class="box-body" data-animate="fade-up" data-i18n="boxes.privacy.body">Indiebox processes prompts, files, and responses entirely on the box. By default, nothing goes to the cloud: no telemetry, no hidden background connections. External services, model downloads, or support access exist only if you explicitly enable them, and you can verify this in your network.</p>
                 <div class="box-meta" data-animate="fade-up">
@@ -185,57 +185,130 @@
             <div class="cta-overlay__inner">
                 <p class="cta-overlay__kicker">PRIVATSPHÄRE</p>
                 <h3 class="cta-overlay__title" id="overlay-privacy-title">Privatsphäre und Datensicherheit</h3>
-                <p class="cta-overlay__body">
-                    Indiebox läuft <strong>vollständig im Netzwerk</strong>. Das gilt nicht nur für das Modell, sondern für den gesamten Stack: LLM-Runtime und Modellverwaltung, Chat-Oberfläche (OpenWebUI), Agents (Letta) und Automatisierungen (n8n). Der Anbieter hat <strong>keinen Zugriff</strong> auf Inhalte, weil Verarbeitung und Speicherung im Netzwerk stattfinden.
-                </p>
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Grundprinzipien der Indiebox</h4>
+                    <p class="cta-overlay__copy">
+                        Indiebox wurde nach folgenden Prinzipien entwickelt:
+                    </p>
+                    <ul class="cta-overlay__list">
+                        <li><span>Inhaltsdaten verbleiben auf dem System.</span></li>
+                        <li><span>Es erfolgt keine versteckte Übertragung von Inhalts- oder Nutzungsdaten an den Anbieter.</span></li>
+                        <li><span>Das System ist vollständig offline und air gapped betreibbar.</span></li>
+                        <li><span>Kontrolle über Modelle, Fähigkeiten und Integrationen liegt beim Eigentümer bzw. der administrativen Instanz des Systems.</span></li>
+                    </ul>
+                    <p class="cta-overlay__copy">
+                        „Inhalte“ meint eigene Daten wie Prompts, Chatverläufe, Uploads, Dokumente, erzeugte Ergebnisse sowie daraus abgeleitete Indizes. Diese verbleiben physisch auf der Box. Die Einhaltung ist durch Architektur, eingesetzte Komponenten sowie durch Kontrolle des ausgehenden Netzwerkverkehrs überprüfbar.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Die Nutzungsmöglichkeiten für Anwender werden durch die administrativen Einstellungen definiert. Änderungen an Modellen oder systemweiten Fähigkeiten erfolgen ausschließlich durch die dafür berechtigte Instanz.
+                    </p>
+                </section>
 
                 <section class="cta-overlay__section">
                     <h4 class="cta-overlay__section-title">Wie die Indiebox arbeitet</h4>
                     <p class="cta-overlay__copy">
-                        Prompts, Dokumente und Antworten werden lokal verarbeitet. Es gibt <strong>keine Inhalts-Telemetrie</strong>, kein Training mit Daten und keine Profilbildung über die Arbeit. Nutzerverhalten, Fragen, Klicks oder Nutzungsmuster werden nicht überwacht, nicht analysiert und nicht an Dritte übertragen. Genau deshalb nutzen viele Indiebox, um offene Modelle lokal zu betreiben, ohne dass ihr Verhalten zu einem Produkt wird.
+                        Prompts, Dokumente und Antworten werden lokal verarbeitet. Es gibt keine versteckte Inhalts-Telemetrie oder Weitergabe von Inhalts- oder Nutzungsdaten.
                     </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Gibt es Kontakt ins Netz?</h4>
                     <p class="cta-overlay__copy">
-                        Standardmäßig bleiben Inhaltsdaten lokal. Wenn gewünscht, kann Indiebox gezielt mit der Außenwelt interagieren, zum Beispiel um externe Dienste zu nutzen oder Workflows über Systemgrenzen hinweg umzusetzen. Dafür gibt es optionale Integrationen, die ein Admin aktiviert und konfiguriert, zum Beispiel:
+                        „Versteckte Telemetrie“ bezeichnet Mechanismen, bei denen Systeme im Hintergrund Informationen wie Fragen, Eingaben, Nutzungsmuster oder Systemzustände an externe Server übertragen, ohne dass dies funktional erforderlich oder transparent konfiguriert ist. Eine solche Übertragung findet nicht statt.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Netzwerkverkehr im technischen Sinn kann bestehen, etwa für Infrastrukturprotokolle wie DNS oder NTP oder um das System erreichbar zu machen. Ausgehender Verkehr ins Internet entsteht ausschließlich, wenn:
                     </p>
                     <ul class="cta-overlay__list">
-                        <li><span>externe KI-Dienste oder externe Tools</span></li>
-                        <li><span>Tools wie Suche oder MCP-Services</span></li>
-                        <li><span>Connectoren zur Umgebung, etwa Netzwerk-Drives, Mail-Systeme, Datenbanken oder interne APIs</span></li>
+                        <li><span>Updates angestoßen werden</span></li>
+                        <li><span>externe Informationsquellen aktiv genutzt werden</span></li>
+                        <li><span>Integrationen oder Tools bewusst konfiguriert und verwendet werden</span></li>
                     </ul>
                     <p class="cta-overlay__copy">
-                        Diese Anbindungen sind keine Voraussetzung. Sie funktionieren nur, wenn sie bewusst eingerichtet werden (Ziele, Zugangsdaten, Rechte, Datenquellen). Damit bleibt steuerbar, welche Systeme angebunden sind und welche Daten genutzt werden.
+                        Es erfolgt keine eigenständige Übermittlung von Inhalts- oder Nutzungsdaten ins Internet.
                     </p>
                 </section>
 
                 <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Updates</h4>
+                    <h4 class="cta-overlay__section-title">Offline- und Air-Gap-Betrieb</h4>
                     <p class="cta-overlay__copy">
-                        Updates werden vom lokalen System als Download ausgelöst. Es gibt <strong>keine Remote-Pushes</strong> durch den Anbieter. Der Zeitpunkt bleibt steuerbar.
+                        Das System ist fertig installiert und einsatzbereit. Es sind keine zusätzlichen Installationen erforderlich, um die Kernfunktionen zu nutzen. Zur Inbetriebnahme wird das System entweder einem bestehenden Netzwerk zugeordnet oder stellt ein eigenes lokales WLAN bereit. Auch ein vollständig isolierter Betrieb ohne Internetanbindung ist möglich.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Chat, Analyse bereitgestellter Daten sowie Generierung von Inhalten funktionieren ohne externe Abhängigkeiten. Modelle sind lokal installiert und lauffähig.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Updates können auch air gapped durchgeführt werden, indem geprüfte Update-Pakete kontrolliert übertragen und eingespielt werden.
                     </p>
                 </section>
 
                 <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Administrator und Benutzer</h4>
+                    <h4 class="cta-overlay__section-title">Modelle, Kontrolle, Zensur</h4>
                     <p class="cta-overlay__copy">
-                        Nutzerbereiche sind getrennt; Inhalte sind nicht automatisch für andere sichtbar. Wie bei jedem lokalen System kann ein Administrator technisch auf gespeicherte Daten zugreifen (Systemrechte, Wartung, Backups). Der Unterschied zu Cloud-Angeboten ist, dass diese Kontrolle in der Organisation liegt.
+                        Indiebox verwendet etablierte offene Modelle, die lokal ausgeführt werden. Es gibt keine nachgelagerte Filterung, Protokollierung oder inhaltliche Steuerung durch den Anbieter.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Die Eigenschaften eines Systems hinsichtlich Antwortstil, inhaltlicher Zurückhaltung oder möglicher Einschränkungen ergeben sich aus dem gewählten Modell selbst. Eine zentrale Instanz, die Antworten überwacht oder verändert, existiert nicht.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Welche Modelle installiert, entfernt oder produktiv genutzt werden, wird durch die administrative Ebene festgelegt. Anwender können diese Konfiguration nicht eigenständig verändern.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Der Austausch von Modellen ist möglich. Die Bewertung von Qualität, Eignung und möglichen inhaltlichen Ausprägungen liegt in der Verantwortung des Eigentümers bzw. der administrativen Instanz.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Integrationen und externe Zugriffe</h4>
+                    <p class="cta-overlay__copy">
+                        Standardmäßig verbleiben Inhaltsdaten lokal. Externe Integrationen sind optional und müssen aktiv konfiguriert werden, etwa für:
+                    </p>
+                    <ul class="cta-overlay__list">
+                        <li><span>Webrecherche</span></li>
+                        <li><span>externe KI-Dienste</span></li>
+                        <li><span>Datenbanken, APIs oder MCP</span></li>
+                        <li><span>interne Unternehmenssysteme und Netzlaufwerke</span></li>
+                    </ul>
+                    <p class="cta-overlay__copy">
+                        Vor Aktivierung solcher Funktionen sind die Auswirkungen auf Datenschutz, Informationsabfluss und Systemverhalten zu prüfen. Bei Webrecherchen werden zwangsläufig Informationen über das jeweilige Interessensgebiet nach außen sichtbar. Bei der Anbindung externer Dienste verlassen Daten das lokale System.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Zusätzlich ist das Risiko von Prompt Injection zu berücksichtigen. Bei einfachen Chat-Szenarien ist dies in der Regel beherrschbar. Bei Agenten mit weitergehenden System- oder Datenzugriffen kann eine unzureichende Validierung externer Inhalte zu Manipulationen führen. Der Einsatz solcher Funktionen erfordert daher eine bewusste Risikobewertung.
+                    </p>
+                </section>
+
+                <section class="cta-overlay__section">
+                    <h4 class="cta-overlay__section-title">Multi-User-Betrieb und Rollen</h4>
+                    <p class="cta-overlay__copy">
+                        Indiebox unterstützt den Betrieb mit mehreren Nutzern. Benutzerbereiche sind voneinander getrennt. Inhalte sind nicht für andere Nutzer sichtbar, sofern keine entsprechenden Rechte vergeben wurden.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Administrative Konten besitzen systembedingte Zugriffsrechte, wie bei jedem lokal betriebenen IT-System. Diese Kontrolle liegt vollständig in der eigenen Organisation.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Rollen, Rechte und Modellzugriffe werden lokal definiert und verwaltet.
                     </p>
                 </section>
 
                 <section class="cta-overlay__section">
                     <h4 class="cta-overlay__section-title">Datenhaltung, Aufbewahrung, Löschung</h4>
                     <p class="cta-overlay__copy">
-                        Indiebox speichert Arbeitsstände lokal, je nach Nutzung zum Beispiel Chats, Uploads und Daten, die für Suche/Wissensbasen entstehen können (z. B. Indizes). Aufbewahrung und Löschung wird im Betrieb gesteuert: was gespeichert wird, wie lange und wann es entfernt wird.
+                        Indiebox speichert Arbeitsstände lokal, je nach Nutzung zum Beispiel Chats, Uploads und erzeugte Indizes.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Die Datenhaltung ist technisch nachvollziehbar und erfolgt ausschließlich innerhalb der eigenen Infrastruktur. Lösch- und Aufbewahrungsregeln werden auf System- oder Objektebene gesteuert, etwa durch das Entfernen von Chats, Projekten oder Datenbeständen. Eine selektive Entfernung einzelner Inhalte innerhalb eines bestehenden Chatverlaufs ist systembedingt nicht in jedem Fall vorgesehen.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Es erfolgt keine parallele oder verdeckte Speicherung außerhalb des Systems.
                     </p>
                 </section>
 
                 <section class="cta-overlay__section">
                     <h4 class="cta-overlay__section-title">DSGVO in der Praxis</h4>
                     <p class="cta-overlay__copy">
-                        Wenn personenbezogene Daten verarbeitet werden, gilt die DSGVO unabhängig davon, ob lokal oder Cloud. Rein lokal bleibt der Empfängerkreis typischerweise intern, ähnlich wie bei Mailserver, Fileserver oder DMS. Sobald externe Dienste angebunden werden und Inhalte dorthin übertragen werden, ist das eine zusätzliche Übermittlung an Dritte und muss entsprechend abgesichert werden.
+                        Im rein lokalen Betrieb treten keine neuen externen Drittverarbeiter hinzu. Es findet keine automatische Einbindung externer KI-Anbieter oder Cloud-Dienste statt. Damit entsteht kein zusätzlicher Auftragsverarbeitungsvertrag allein durch den Einsatz des Systems.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Die Verarbeitung erfolgt innerhalb der eigenen Infrastruktur, vergleichbar mit einer selbst betriebenen Datenbank, einem Fileserver oder einem Dokumentenmanagementsystem. Verantwortlichkeiten verbleiben in der eigenen Organisation.
+                    </p>
+                    <p class="cta-overlay__copy">
+                        Werden personenbezogene Daten verarbeitet, stellt dies einen Verarbeitungsvorgang im Sinne der DSGVO dar. Die rechtliche Bewertung, Zweckdefinition und Festlegung von Aufbewahrungsfristen obliegen dem Verantwortlichen. Solange keine externen Integrationen aktiviert werden, bleibt der Kreis der Empfänger technisch auf die eigene Organisation begrenzt.
                     </p>
                 </section>
 
@@ -283,12 +356,6 @@
                     </details>
                 </section>
 
-                <section class="cta-overlay__section cta-overlay__footnote">
-                    <h4 class="cta-overlay__section-title">Fußnote</h4>
-                    <p class="cta-overlay__copy">
-                        Wie bei jedem System kann es technischen Basisverkehr geben (z. B. DNS, Zeitabgleich, ein manuell gestarteter Update-Download). Das sind keine Inhaltsübertragungen und lässt sich über den normalen Netzwerkbetrieb steuern.
-                    </p>
-                </section>
                 <div class="cta-overlay__actions">
                     <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Back</button>
                 </div>
