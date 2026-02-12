@@ -15,7 +15,7 @@
   "story.focus.title": "Built for productive on-site AI",
   "story.focus.text": "Chat, automation, and agents run on your platform.<br>Everything is set up, optimized, and ready immediately.<br>Built to grow with you.",
   "boxes.privacy.kicker": "PRIVACY",
-  "boxes.privacy.title": "Privacy & Data Security.<br>Built from the ground up.",
+  "boxes.privacy.title": "EVERYTHING STAYS WITH YOU",
   "boxes.privacy.body": "Indiebox processes prompts, files, and responses entirely on the box. By default, nothing goes to the cloud: no telemetry, no hidden background connections. External services, model downloads, or support access exist only if you explicitly enable them, and you can verify this in your network.",
   "boxes.privacy.tag": "For privacy enthusiasts",
   "boxes.privacy.cta": "Privacy and data security details",
