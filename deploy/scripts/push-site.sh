@@ -31,6 +31,8 @@ RSYNC_BASE_ARGS=(
   --exclude
   ".vscode/"
   --exclude
+  ".local-data/"
+  --exclude
   "node_modules/"
   --exclude
   "dist/"

@@ -15,6 +15,7 @@ fi
 
 rsync -av --delete --delete-excluded -e "ssh -i $SSH_KEY" \
   --exclude ".DS_Store" \
+  --exclude "node_modules/" \
   "$ROOT_DIR/backend/" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${APP_PATH}backend/"
 
