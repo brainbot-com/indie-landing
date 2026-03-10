@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dokumentation – Indiebox</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Systemdokumentation für die Indiebox: Einrichten, verbinden, OpenWebUI nutzen, Dokumente hinzufügen und den Betrieb absichern.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <script src="../matomo.js" defer></script>
+</head>
+<body class="docs-page">
+    <nav class="nav-bar" aria-label="Hauptmenü">
+        <div class="container nav-container">
+            <a class="nav-logo" href="../index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="./index.html" aria-current="page">Docs</a>
+                <a href="../betriebs.html">Betrieb</a>
+                <a href="../privacy.html">Datensicherheit</a>
+                <a href="../index.html">Website</a>
+            </div>
+            <div class="nav-actions">
+                <a href="../en/docs/index.html" class="button button--plain-light button--pill button--sm">EN</a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menü</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="docs-main">
+        <div class="container docs-layout">
+            <aside class="docs-sidebar" aria-label="Dokumentationsnavigation">
+                <div class="docs-nav-card">
+                    <h2 class="docs-nav-title">Dokumentation</h2>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Einstieg</div>
+                        <nav>
+                            <ul class="docs-nav-list">
+                                <li><a href="./index.html" aria-current="page">Überblick</a></li>
+                                <li><a href="./getting-started.html">Indiebox einrichten</a></li>
+                                <li><a href="./connection-access.html">Verbindung & Zugriff</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Nutzung</div>
+                        <nav>
+                            <ul class="docs-nav-list">
+                                <li><a href="./openwebui.html">OpenWebUI</a></li>
+                                <li><a href="./knowledge.html">Wissensquellen</a></li>
+                                <li><a href="./privacy-network.html">Datenschutz & Netzwerk</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Betrieb</div>
+                        <nav>
+                            <ul class="docs-nav-list">
+                                <li><a href="./administration.html">Nutzer, Dashboard & Updates</a></li>
+                                <li><a href="./n8n.html">Automatisierungen mit n8n</a></li>
+                                <li><a href="./shell-access.html">Shell & Expertenzugriff</a></li>
+                                <li><a href="./troubleshooting.html">Fehlerbehebung</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="docs-content">
+                <article class="docs-article">
+                    <nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+                        <a href="./index.html">Docs</a>
+                        <span>/</span>
+                        <span>Überblick</span>
+                    </nav>
+                    <header>
+                        <p class="docs-page-kicker">Dokumentation</p>
+                        <h1 class="docs-page-title">Indiebox Dokumentation</h1>
+                        <p class="docs-page-lead">Einrichten, nutzen und betreiben.</p>
+                    </header>
+
+                    <section class="docs-section" id="erster-start">
+                        <h2>Für den ersten Start</h2>
+                        <p>Für den ersten Start zunächst <a class="docs-link" href="./getting-started.html">Indiebox einrichten</a> öffnen. Dort stehen Anschluss, Zugriff, Anmeldung und die ersten Schritte in OpenWebUI in der richtigen Reihenfolge.</p>
+                        <p>Bei Problemen beim Zugriff hilft <a class="docs-link" href="./connection-access.html">Verbindung & Zugriff</a> weiter.</p>
+                    </section>
+
+                    <section class="docs-section" id="danach">
+                        <h2>Danach</h2>
+                        <h3>OpenWebUI und Dokumente</h3>
+                        <p>Nach dem ersten Login geht es mit <a class="docs-link" href="./openwebui.html">OpenWebUI</a> und <a class="docs-link" href="./knowledge.html">Wissensquellen</a> weiter. Dort lassen sich Modelle testen und eigene Inhalte ergänzen.</p>
+                        <h3>Nutzer, Dashboard und Updates</h3>
+                        <p>Wenn der Grundbetrieb steht, folgen <a class="docs-link" href="./administration.html">Nutzer, Dashboard & Updates</a>.</p>
+                        <h3>n8n, Shell und Fehlerbehebung</h3>
+                        <p><a class="docs-link" href="./n8n.html">n8n</a>, <a class="docs-link" href="./shell-access.html">Shell & Expertenzugriff</a> und <a class="docs-link" href="./troubleshooting.html">Fehlerbehebung</a> gehören zu den nächsten technischen Schritten.</p>
+                    </section>
+
+                    <section class="docs-section" id="extern">
+                        <h2>Weiterführende Links</h2>
+                        <ul>
+                            <li><a class="docs-link" href="https://docs.openwebui.com/">OpenWebUI Dokumentation</a></li>
+                            <li><a class="docs-link" href="https://docs.openwebui.com/getting-started/">OpenWebUI Getting Started</a></li>
+                            <li><a class="docs-link" href="https://docs.openwebui.com/features/workspace/knowledge/">OpenWebUI Knowledge</a></li>
+                            <li><a class="docs-link" href="https://docs.openwebui.com/features/web-search/tavily/">OpenWebUI Web Search</a></li>
+                            <li><a class="docs-link" href="https://docs.n8n.io/">n8n Dokumentation</a></li>
+                            <li><a class="docs-link" href="https://docs.n8n.io/try-it-out/quickstart/">n8n Quickstart</a></li>
+                        </ul>
+                    </section>
+
+                    <section class="docs-related">
+                        <h2>Wichtige Seiten</h2>
+                        <ul class="docs-related-list">
+                            <li><a href="./getting-started.html">Indiebox einrichten<span>Die Anleitung für den ersten Start der Box.</span></a></li>
+                            <li><a href="./connection-access.html">Verbindung & Zugriff<span>Wenn es Fragen zu Offline, LAN, WiFi oder Erreichbarkeit gibt.</span></a></li>
+                            <li><a href="./openwebui.html">OpenWebUI<span>Die Oberfläche für die Arbeit nach dem Login.</span></a></li>
+                        </ul>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>

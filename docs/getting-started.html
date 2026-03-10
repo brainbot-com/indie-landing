@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indiebox einrichten – Indiebox Dokumentation</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Indiebox einrichten: anschließen, öffnen, anmelden und OpenWebUI zum ersten Mal nutzen.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <script src="../matomo.js" defer></script>
+</head>
+<body class="docs-page">
+    <nav class="nav-bar" aria-label="Hauptmenü">
+        <div class="container nav-container">
+            <a class="nav-logo" href="../index.html" aria-label="Indiebox Home">Indiebox</a>
+            <div class="nav-links" id="nav-links">
+                <a href="./index.html" aria-current="page">Docs</a>
+                <a href="../betriebs.html">Betrieb</a>
+                <a href="../privacy.html">Datensicherheit</a>
+                <a href="../index.html">Website</a>
+            </div>
+            <div class="nav-actions">
+                <a href="../en/docs/getting-started.html" class="button button--plain-light button--pill button--sm">EN</a>
+                <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                    <span class="sr-only">Menü</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="docs-main">
+        <div class="container docs-layout">
+            <aside class="docs-sidebar" aria-label="Dokumentationsnavigation">
+                <div class="docs-nav-card">
+                    <h2 class="docs-nav-title">Dokumentation</h2>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Einstieg</div>
+                        <ul class="docs-nav-list">
+                            <li><a href="./index.html">Überblick</a></li>
+                            <li><a href="./getting-started.html" aria-current="page">Indiebox einrichten</a></li>
+                            <li><a href="./connection-access.html">Verbindung & Zugriff</a></li>
+                        </ul>
+                    </div>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Nutzung</div>
+                        <ul class="docs-nav-list">
+                            <li><a href="./openwebui.html">OpenWebUI</a></li>
+                            <li><a href="./knowledge.html">Wissensquellen</a></li>
+                            <li><a href="./privacy-network.html">Datenschutz & Netzwerk</a></li>
+                        </ul>
+                    </div>
+                    <div class="docs-nav-group">
+                        <div class="docs-nav-group-label">Betrieb</div>
+                        <ul class="docs-nav-list">
+                            <li><a href="./administration.html">Nutzer, Dashboard & Updates</a></li>
+                            <li><a href="./n8n.html">Automatisierungen mit n8n</a></li>
+                            <li><a href="./shell-access.html">Shell & Expertenzugriff</a></li>
+                            <li><a href="./troubleshooting.html">Fehlerbehebung</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="docs-content">
+                <article class="docs-article">
+                    <nav class="docs-breadcrumbs" aria-label="Breadcrumb">
+                        <a href="./index.html">Docs</a>
+                        <span>/</span>
+                        <span>Indiebox einrichten</span>
+                    </nav>
+                    <header>
+                        <p class="docs-page-kicker">Einstieg</p>
+                        <h1 class="docs-page-title">Indiebox einrichten</h1>
+                        <p class="docs-page-lead">Anschließen, öffnen und anmelden.</p>
+                    </header>
+
+                    <section class="docs-section docs-context-box" id="ziel">
+                        <h2>Ergebnis</h2>
+                        <p>Am Ende dieser Anleitung ist die Indiebox eingeschaltet und erreichbar. Die Anmeldung ist erfolgt, OpenWebUI läuft, ein erstes Modell ist ausprobiert und die nächsten Schritte für eigene Dokumente, Nutzer, Dashboard und Updates sind klar.</p>
+                    </section>
+
+                    <section class="docs-section" id="vorbereiten">
+                        <h2>Vor dem Start</h2>
+                        <p>In der Box liegt ein Handout. Darauf stehen der Nutzername, das Passwort und der Gerätename der Box. Diese Informationen werden für den ersten Login und für den Zugriff im lokalen Netzwerk benötigt.</p>
+                        <p>Für den Start werden Strom, das Handout und entweder ein Gerät mit Browser im selben lokalen Netzwerk oder alternativ Bildschirm, Tastatur und Maus direkt an der Box benötigt.</p>
+                        <p>Die Indiebox funktioniert vollständig offline. Empfohlen ist trotzdem der Anschluss per Netzwerkkabel im lokalen Netzwerk. WiFi ist ebenfalls möglich und lässt sich per QR-Code einrichten.</p>
+                    </section>
+
+                    <section class="docs-section" id="handout">
+                        <h2>Was im Handout steht</h2>
+                        <p>Das Handout sollte für die ersten Schritte bereitliegen.</p>
+                        <table class="docs-table">
+                            <thead>
+                                <tr>
+                                    <th>Information</th>
+                                    <th>Wofür sie gebraucht wird</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Nutzername</td>
+                                    <td>Für den ersten Login in der Weboberfläche.</td>
+                                </tr>
+                                <tr>
+                                    <td>Passwort</td>
+                                    <td>Für den ersten Login und danach für den Passwortwechsel.</td>
+                                </tr>
+                                <tr>
+                                    <td>Gerätename</td>
+                                    <td>Für den bevorzugten Zugriff im lokalen Netzwerk per Browser.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                    <section class="docs-section" id="einschalten">
+                        <h2>Box anschließen</h2>
+                        <p>Die Indiebox an den Strom anschließen und einschalten. Für den empfohlenen Weg die Box zusätzlich per Netzwerkkabel mit dem lokalen Netzwerk verbinden.</p>
+                        <p>Warten, bis die Box vollständig gestartet ist, bevor mit dem Zugriff begonnen wird.</p>
+                    </section>
+
+                    <section class="docs-section" id="verbinden">
+                        <h2>Box öffnen</h2>
+                        <h3>Offline direkt an der Box</h3>
+                        <p>Die Indiebox funktioniert vollständig offline. Wenn kein Netzwerk genutzt werden soll, Bildschirm, Tastatur und Maus direkt anschließen und lokal am Gerät arbeiten.</p>
+
+                        <h3>Empfohlen: LAN über Netzwerkkabel</h3>
+                        <p>Der bevorzugte Weg ist der Betrieb im lokalen Netzwerk über Netzwerkkabel. Danach die Box im Browser über ihren Gerätenamen aus dem Handout aufrufen.</p>
+                        <pre><code>http://&lt;geraetename-aus-dem-handout&gt;</code></pre>
+
+                        <h3>WiFi per QR-Code</h3>
+                        <p>Für die Einbindung per WiFi den QR-Code scannen und dem Setup folgen. Danach ist die Box ebenfalls über die Weboberfläche erreichbar.</p>
+
+                        <details class="docs-details">
+                            <summary>Wenn der Gerätename im Browser nicht direkt funktioniert</summary>
+                            <p>Dann liegt das häufig an der lokalen Namensauflösung. In diesem Fall ist der QR-Code-Weg der einfachste Fallback. Wenn bewusst ohne Netzwerk gearbeitet wird, stattdessen den Offline-Betrieb direkt an der Box nutzen.</p>
+                        </details>
+                    </section>
+
+                    <section class="docs-section" id="anmelden">
+                        <h2>Anmelden</h2>
+                        <p>Sobald die Box erreichbar ist, erfolgt die Anmeldung mit Nutzername und Passwort aus dem Handout. Danach öffnet sich OpenWebUI als erste Oberfläche.</p>
+                    </section>
+
+                    <section class="docs-section" id="erste-nutzung">
+                        <h2>OpenWebUI zum ersten Mal nutzen</h2>
+                        <h3>Ein Modell ausprobieren</h3>
+                        <p>Zum Einstieg eine einfache Aufgabe mit einem zweiten Modell wiederholen. So wird schnell sichtbar, dass sich Modelle in Stil, Geschwindigkeit und Qualität unterscheiden können.</p>
+
+                        <h3>Dokumente als Wissensquelle ergänzen</h3>
+                        <p>Einen kleinen, klaren Dokumentbestand hinzufügen. Damit arbeitet die Box nicht nur mit allgemeinem Modellwissen, sondern kann Antworten auf eigene Inhalte beziehen.</p>
+                    </section>
+
+                    <section class="docs-section" id="lokal">
+                        <h2>Standardmäßig bleibt alles lokal</h2>
+                        <p>Im Auslieferungszustand überträgt die Indiebox keine Nutzungsdaten aus der KI nach außen. Auch externe Suchdienste oder Websuche sind nicht aktiv. Wenn solche Funktionen genutzt werden sollen, müssen sie gezielt eingeschaltet werden.</p>
+                        <p>Die normale Nutzung bleibt lokal. Externe Websuche ist keine versteckte Hintergrundfunktion.</p>
+                    </section>
+
+                    <section class="docs-section" id="danach">
+                        <h2>Danach</h2>
+                        <h3>Nutzer anlegen und Passwort ändern</h3>
+                        <p>Nachdem der erste Zugriff funktioniert, sollten Passwortwechsel und Nutzeranlage sauber erledigt werden.</p>
+
+                        <h3>Dashboard, Vitaldaten und Updates prüfen</h3>
+                        <p>Danach lohnt sich ein Blick auf Dashboard und Systemzustand. Updates sollten bewusst durchgeführt und nicht einfach sofort eingespielt werden.</p>
+
+                        <h3>Erste Automatisierungen mit n8n</h3>
+                        <p>n8n ist sinnvoll, wenn die Box nicht nur antworten, sondern wiederkehrende Aufgaben ausführen soll.</p>
+
+                        <h3>Shell für Experten</h3>
+                        <p>Der Shell-Zugriff gehört nicht zur Inbetriebnahme. Er wird erst wichtig, wenn Diagnose oder tiefere Administration nötig werden.</p>
+                    </section>
+
+                    <section class="docs-related">
+                        <h2>Verwandte Seiten</h2>
+                        <ul class="docs-related-list">
+                            <li><a href="./connection-access.html">Verbindung & Zugriff<span>Offline, LAN, WiFi und Erreichbarkeit im Detail.</span></a></li>
+                            <li><a href="./openwebui.html">OpenWebUI<span>Die Oberfläche für die erste Nutzung nach dem Login.</span></a></li>
+                            <li><a href="./administration.html">Nutzer, Dashboard & Updates<span>Das kommt nach der erfolgreichen Einrichtung.</span></a></li>
+                        </ul>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>
