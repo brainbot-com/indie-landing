@@ -50,8 +50,6 @@
                         Agenten, Automatisierungen und Generative KI mit den aktuellsten Open Source Modellen direkt verfügbar sind.
                     </p>
                     <p class="checkout-hero-note">Rückgabe in 14 Tagen. Support für die Inbetriebnahme inklusive.</p>
-                    <p class="checkout-hero-note">Zahlungsarten: PayPal, Kreditkarte (Visa, MasterCard).</p>
-                    <p class="checkout-hero-note checkout-hero-note--strong">Ratenzahlung möglich: 12 Raten über Santander Bank.*</p>
                 </div>
                 <div class="checkout-hero-media">
                     <img src="indiebox-free-clean.png" alt="Indiebox" class="checkout-hero-image">
@@ -166,32 +164,40 @@
                         <span class="checkout-tag">Bestellung</span>
                         <h2 class="checkout-section-title">Bestellformular</h2>
                         <p class="checkout-section-subtitle">
-                            Daten für die Rechnungsadresse angeben. Nach dem Absenden
-                            übermitteln wir die Angaben an unser Backend und melden uns zur Bestätigung.
+                            Lieferung aktuell nur innerhalb Deutschlands. Nach dem Absenden wird die Bestellung angelegt und direkt zur Zahlung weitergeleitet.
                         </p>
                     </div>
 
-                    <form class="checkout-form" action="__BACKEND_URL__" method="post">
+                    <div class="checkout-order-summary">
+                        <div class="checkout-spec-row">
+                            <span class="checkout-spec-label">Produkt</span>
+                            <span class="checkout-spec-value">Indiebox AI-Workstation</span>
+                        </div>
+                        <div class="checkout-spec-row">
+                            <span class="checkout-spec-label">Kurzprofil</span>
+                            <span class="checkout-spec-value">Ryzen AI Max+ 395, 128 GB RAM, 2 TB SSD, OpenWebUI, Letta, n8n</span>
+                        </div>
+                        <div class="checkout-spec-row">
+                            <span class="checkout-spec-label">Preis</span>
+                            <span class="checkout-spec-value">3.999 € zzgl. MwSt.</span>
+                        </div>
+                    </div>
+
+                    <form class="checkout-form" action="/api/orders/checkout" method="post" novalidate data-checkout-form data-country-scope="DE">
                         <input type="hidden" name="product" value="Indiebox AI-Workstation">
+                        <input type="hidden" name="locale" value="de">
+                        <div class="form-alert" data-form-alert hidden></div>
 
                         <div class="form-section">
                             <div class="form-section-title">Kontaktdaten</div>
                             <div class="form-grid">
                                 <div class="form-row">
                                     <label class="form-label" for="first-name">Vorname<span class="field-required">*</span></label>
-                                    <input class="form-input" type="text" id="first-name" name="firstName" autocomplete="given-name" required>
+                                    <input class="form-input" type="text" id="first-name" name="firstName" autocomplete="given-name" minlength="2" required>
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="last-name">Nachname<span class="field-required">*</span></label>
-                                    <input class="form-input" type="text" id="last-name" name="lastName" autocomplete="family-name" required>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="company">Firma</label>
-                                    <input class="form-input" type="text" id="company" name="company" autocomplete="organization">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="vat-id">USt-IdNr.</label>
-                                    <input class="form-input" type="text" id="vat-id" name="vatId" autocomplete="off">
+                                    <input class="form-input" type="text" id="last-name" name="lastName" autocomplete="family-name" minlength="2" required>
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="email">E-Mail<span class="field-required">*</span></label>
@@ -205,6 +211,25 @@
                         </div>
 
                         <div class="form-section">
+                            <label class="form-checkbox" for="company-order-toggle">
+                                <input type="checkbox" id="company-order-toggle" name="isCompanyOrder" value="on" data-toggle-panel="company-order-panel">
+                                <span>Als Firma bestellen</span>
+                            </label>
+                            <div class="form-toggle-panel" id="company-order-panel" hidden data-disabled-when-hidden>
+                                <div class="form-grid">
+                                    <div class="form-row">
+                                        <label class="form-label" for="company">Firma<span class="field-required">*</span></label>
+                                        <input class="form-input" type="text" id="company" name="company" autocomplete="organization" data-required-when-active>
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label" for="vat-id">USt-IdNr.</label>
+                                        <input class="form-input" type="text" id="vat-id" name="vatId" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
                             <div class="form-section-title">Rechnungsadresse</div>
                             <div class="form-grid">
                                 <div class="form-row form-row--full">
@@ -213,45 +238,50 @@
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="billing-zip">PLZ<span class="field-required">*</span></label>
-                                    <input class="form-input" type="text" id="billing-zip" name="billingZip" autocomplete="postal-code" required>
+                                        <input class="form-input" type="text" id="billing-zip" name="billingZip" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{5}" required>
                                 </div>
                                 <div class="form-row">
                                     <label class="form-label" for="billing-city">Stadt<span class="field-required">*</span></label>
                                     <input class="form-input" type="text" id="billing-city" name="billingCity" autocomplete="address-level2" required>
                                 </div>
                                 <div class="form-row">
-                                    <label class="form-label" for="billing-country">Land<span class="field-required">*</span></label>
-                                    <input class="form-input" type="text" id="billing-country" name="billingCountry" autocomplete="country-name" required>
+                                    <label class="form-label" for="billing-country-display">Land</label>
+                                    <input class="form-input form-input--locked" type="text" id="billing-country-display" value="Deutschland" disabled aria-disabled="true">
+                                    <input type="hidden" name="billingCountry" value="DE">
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-section">
-                            <details class="form-details">
-                                <summary>Lieferadresse weicht von der Rechnungsadresse ab</summary>
+                            <label class="form-checkbox" for="shipping-toggle">
+                                <input type="checkbox" id="shipping-toggle" name="shippingDifferent" value="on" data-toggle-panel="shipping-panel">
+                                <span>Lieferadresse weicht von der Rechnungsadresse ab</span>
+                            </label>
+                            <div class="form-toggle-panel" id="shipping-panel" hidden data-disabled-when-hidden>
                                 <div class="form-grid">
                                     <div class="form-row form-row--full">
                                         <label class="form-label" for="shipping-careof">c/o</label>
                                         <input class="form-input" type="text" id="shipping-careof" name="shippingCareOf" autocomplete="shipping organization">
                                     </div>
                                     <div class="form-row form-row--full">
-                                        <label class="form-label" for="shipping-street">Straße und Hausnummer</label>
-                                        <input class="form-input" type="text" id="shipping-street" name="shippingStreet" autocomplete="shipping address-line1">
+                                        <label class="form-label" for="shipping-street">Straße und Hausnummer<span class="field-required">*</span></label>
+                                        <input class="form-input" type="text" id="shipping-street" name="shippingStreet" autocomplete="shipping address-line1" data-required-when-active>
                                     </div>
                                     <div class="form-row">
-                                        <label class="form-label" for="shipping-zip">PLZ</label>
-                                        <input class="form-input" type="text" id="shipping-zip" name="shippingZip" autocomplete="shipping postal-code">
+                                        <label class="form-label" for="shipping-zip">PLZ<span class="field-required">*</span></label>
+                                        <input class="form-input" type="text" id="shipping-zip" name="shippingZip" autocomplete="shipping postal-code" inputmode="numeric" pattern="[0-9]{5}" data-required-when-active>
                                     </div>
                                     <div class="form-row">
-                                        <label class="form-label" for="shipping-city">Stadt</label>
-                                        <input class="form-input" type="text" id="shipping-city" name="shippingCity" autocomplete="shipping address-level2">
+                                        <label class="form-label" for="shipping-city">Stadt<span class="field-required">*</span></label>
+                                        <input class="form-input" type="text" id="shipping-city" name="shippingCity" autocomplete="shipping address-level2" data-required-when-active>
                                     </div>
                                     <div class="form-row">
-                                        <label class="form-label" for="shipping-country">Land</label>
-                                        <input class="form-input" type="text" id="shipping-country" name="shippingCountry" autocomplete="shipping country-name">
+                                        <label class="form-label" for="shipping-country-display">Land</label>
+                                        <input class="form-input form-input--locked" type="text" id="shipping-country-display" value="Deutschland" disabled aria-disabled="true">
+                                        <input type="hidden" name="shippingCountry" value="DE">
                                     </div>
                                 </div>
-                            </details>
+                            </div>
                         </div>
 
                         <div class="form-section">
@@ -268,26 +298,14 @@
                             <div class="form-section-title">Zahlungsart</div>
                             <div class="form-grid">
                                 <div class="form-row form-row--full">
-                                    <ul class="form-list" style="list-style: none; margin: 0; padding: 0;">
-                                        <li>
-                                            <label class="form-checkbox" for="pay-method-paypal">
-                                                <input type="radio" id="pay-method-paypal" name="paymentMethod" value="paypal" required>
-                                                <span>PayPal</span>
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <label class="form-checkbox" for="pay-method-visa">
-                                                <input type="radio" id="pay-method-visa" name="paymentMethod" value="visa" required>
-                                                <span>Visa</span>
-                                            </label>
-                                        </li>
-                                        <li>
-                                            <label class="form-checkbox" for="pay-method-mastercard">
-                                                <input type="radio" id="pay-method-mastercard" name="paymentMethod" value="mastercard" required>
-                                                <span>Mastercard</span>
-                                            </label>
-                                        </li>
-                                    </ul>
+                                    <div class="payment-methods"
+                                        data-payment-methods
+                                        data-locale="de"
+                                        data-loading-text="Verfügbare Zahlungsarten werden geladen."
+                                        data-error-text="Die Zahlungsarten konnten nicht geladen werden."
+                                        data-empty-text="Für dieses Profil sind derzeit keine Zahlungsarten verfügbar.">
+                                        <p class="payment-methods-status">Verfügbare Zahlungsarten werden geladen.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -300,10 +318,15 @@
                         </div>
 
                         <div class="form-actions">
+                            <button
+                                class="checkout-test-fill"
+                                type="button"
+                                data-test-fill
+                                data-label="Testdaten einfüllen"
+                                hidden>Testdaten einfüllen</button>
                             <button class="button button--solid button--pill button--md" type="submit" data-matomo-category="checkout" data-matomo-action="submit" data-matomo-label="checkout_continue_payment">Weiter zur Zahlung</button>
                             <p class="form-note">
-                                Mit Klick auf Weiter zur Zahlung werden die Angaben an unser Backend gesendet.
-                                Danach leiten wir zur Zahlung weiter und bestätigen die Bestellung per E-Mail.
+                                Mit Klick auf Weiter zur Zahlung wird die Bestellung angelegt und direkt zur Zahlung über Mollie weitergeleitet.
                             </p>
                         </div>
                         <p class="form-footnote">* Pflichtfelder</p>

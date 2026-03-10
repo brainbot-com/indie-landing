@@ -1,0 +1,47 @@
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: indiebox-caddy
+    restart: unless-stopped
+    depends_on:
+      - backend-staging
+      - backend-live
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /srv/indiebox/config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/indiebox/app/site:/srv/site:ro
+      - /srv/staging.indiebox:/srv/staging.indiebox:ro
+      - /srv/indiebox/data/caddy_data:/data
+      - /srv/indiebox/data/caddy_config:/config
+
+  backend-staging:
+    build:
+      context: ./backend
+    container_name: indiebox-backend-staging
+    restart: unless-stopped
+    env_file:
+      - /srv/indiebox/config/runtime.staging.env
+    environment:
+      CHECKOUT_PRICE_EUR: "3999.00"
+      CHECKOUT_PRODUCT_NAME: Indiebox AI-Workstation
+      DATA_DIR: /app/data
+      PORT: "8080"
+    volumes:
+      - /srv/indiebox/data/backend-staging:/app/data
+
+  backend-live:
+    build:
+      context: ./backend
+    container_name: indiebox-backend-live
+    restart: unless-stopped
+    env_file:
+      - /srv/indiebox/config/runtime.live.env
+    environment:
+      CHECKOUT_PRICE_EUR: "3999.00"
+      CHECKOUT_PRODUCT_NAME: Indiebox AI-Workstation
+      DATA_DIR: /app/data
+      PORT: "8080"
+    volumes:
+      - /srv/indiebox/data/backend-live:/app/data

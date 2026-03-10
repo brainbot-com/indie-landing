@@ -1,0 +1,34 @@
+{
+  email ops@indiebox.ai
+}
+
+:80 {
+  handle /api/* {
+    reverse_proxy backend-staging:8080
+  }
+
+  root * /srv/site
+  encode zstd gzip
+  file_server
+}
+
+staging.indiebox.ai {
+  handle /api/* {
+    reverse_proxy backend-staging:8080
+  }
+
+  root * /srv/staging.indiebox
+  encode zstd gzip
+  file_server
+}
+
+docs.indiebox.ai {
+  root * /srv/site
+  encode zstd gzip
+
+  @docsRoot path /
+  rewrite @docsRoot /docs/index.html
+  try_files /docs{path} {path}
+
+  file_server
+}

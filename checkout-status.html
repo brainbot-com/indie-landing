@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zahlungsstatus – Indiebox</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Rücksprungseite nach dem Mollie Checkout. Der Zahlungsstatus wird serverseitig geprüft.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="matomo.js" defer></script>
+</head>
+<body class="docs-page">
+    <main class="docs-main">
+        <div class="container docs-layout docs-layout--single">
+            <div class="docs-content">
+                <article class="docs-article">
+                    <header>
+                        <p class="docs-page-kicker">Bestellung</p>
+                        <h1 class="docs-page-title">Zahlung wird geprüft</h1>
+                        <p class="docs-page-lead">Die Rückkehr aus dem Checkout ist erfolgt. Der aktuelle Zahlungsstatus wird jetzt vom Server abgefragt.</p>
+                    </header>
+
+                    <section class="docs-section">
+                        <h2>Aktueller Stand</h2>
+                        <p id="status-text">Status wird geladen.</p>
+                        <p>Diese Seite bestätigt nur den Rücksprung aus Mollie. Die Freigabe einer Bestellung erfolgt erst nach serverseitiger Statusprüfung.</p>
+                    </section>
+
+                    <section class="docs-section">
+                        <h2>Weiter</h2>
+                        <p><a class="docs-link" href="checkout.html">Zurück zum Checkout</a></p>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('order_id');
+        const statusText = document.getElementById('status-text');
+
+        async function loadStatus() {
+            if (!orderId) {
+                statusText.textContent = 'Keine Bestellnummer gefunden.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}`);
+                if (!response.ok) {
+                    statusText.textContent = 'Bestellung wurde gefunden, der Status ist aber noch nicht verfügbar.';
+                    return;
+                }
+
+                const payload = await response.json();
+                const states = {
+                    paid: 'Zahlung bestätigt. Die Bestellung kann weiter verarbeitet werden.',
+                    payment_created: 'Zahlung angelegt. Die Rückmeldung aus Mollie wird noch verarbeitet.',
+                    pending: 'Zahlung ist noch in Bearbeitung.',
+                    authorized: 'Zahlung wurde autorisiert.',
+                    failed: 'Zahlung wurde nicht abgeschlossen.',
+                    cancelled: 'Zahlung wurde abgebrochen.'
+                };
+
+                statusText.textContent = states[payload.status] || `Aktueller Status: ${payload.status}`;
+            } catch {
+                statusText.textContent = 'Status konnte im Moment nicht geladen werden.';
+            }
+        }
+
+        loadStatus();
+    </script>
+</body>
+</html>

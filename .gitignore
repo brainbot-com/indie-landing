@@ -2,5 +2,7 @@ node_modules
 .DS_Store
 .vscode
 .env
+deploy/env/.env*
+.local-data/
 dist
 build

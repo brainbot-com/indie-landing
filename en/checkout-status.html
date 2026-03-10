@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment status – Indiebox</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Return page after Mollie Checkout. The payment status is verified on the server side.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <script src="../matomo.js" defer></script>
+</head>
+<body class="docs-page">
+    <main class="docs-main">
+        <div class="container docs-layout docs-layout--single">
+            <div class="docs-content">
+                <article class="docs-article">
+                    <header>
+                        <p class="docs-page-kicker">Order</p>
+                        <h1 class="docs-page-title">Payment status is being checked</h1>
+                        <p class="docs-page-lead">The return from checkout has completed. The current payment status is now fetched from the server.</p>
+                    </header>
+
+                    <section class="docs-section">
+                        <h2>Current status</h2>
+                        <p id="status-text">Loading status.</p>
+                        <p>This page only confirms the return from Mollie. An order is only released after server-side status verification.</p>
+                    </section>
+
+                    <section class="docs-section">
+                        <h2>Next</h2>
+                        <p><a class="docs-link" href="checkout.html">Back to checkout</a></p>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('order_id');
+        const statusText = document.getElementById('status-text');
+
+        async function loadStatus() {
+            if (!orderId) {
+                statusText.textContent = 'No order ID found.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}`);
+                if (!response.ok) {
+                    statusText.textContent = 'The order was found, but the status is not available yet.';
+                    return;
+                }
+
+                const payload = await response.json();
+                const states = {
+                    paid: 'Payment confirmed. The order can continue.',
+                    payment_created: 'Payment created. The response from Mollie is still being processed.',
+                    pending: 'Payment is still being processed.',
+                    authorized: 'Payment has been authorized.',
+                    failed: 'Payment did not complete.',
+                    cancelled: 'Payment was cancelled.'
+                };
+
+                statusText.textContent = states[payload.status] || `Current status: ${payload.status}`;
+            } catch {
+                statusText.textContent = 'The status could not be loaded right now.';
+            }
+        }
+
+        loadStatus();
+    </script>
+</body>
+</html>

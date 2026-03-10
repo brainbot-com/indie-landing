@@ -469,6 +469,290 @@ function setupMailtoForms() {
     });
 }
 
+function setupCheckoutPaymentMethods() {
+    const containers = Array.from(document.querySelectorAll('[data-payment-methods]'));
+    if (!containers.length) return;
+
+    const renderStatus = (container, text, isError = false) => {
+        container.innerHTML = '';
+        const message = document.createElement('p');
+        message.className = `payment-methods-status${isError ? ' payment-methods-status--error' : ''}`;
+        message.textContent = text;
+        container.appendChild(message);
+    };
+
+    const renderMethods = (container, methods) => {
+        const form = container.closest('form');
+        const list = document.createElement('ul');
+        list.className = 'form-list';
+
+        methods.forEach((method, index) => {
+            const item = document.createElement('li');
+            const label = document.createElement('label');
+            const radio = document.createElement('input');
+            const copy = document.createElement('span');
+            const title = document.createElement('strong');
+            const description = document.createElement('span');
+            const inputId = `pay-method-${method.id}`;
+
+            label.className = 'form-checkbox';
+            label.setAttribute('for', inputId);
+
+            radio.type = 'radio';
+            radio.id = inputId;
+            radio.name = 'paymentMethod';
+            radio.value = method.id;
+            radio.required = true;
+            radio.checked = index === 0;
+
+            copy.className = 'payment-method-label';
+            title.textContent = method.label;
+            description.className = 'payment-method-description';
+            description.textContent = method.description;
+
+            copy.appendChild(title);
+            copy.appendChild(description);
+            label.appendChild(radio);
+            label.appendChild(copy);
+            item.appendChild(label);
+            list.appendChild(item);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(list);
+
+        const submitButton = form && form.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = false;
+    };
+
+    containers.forEach(async (container) => {
+        const locale = container.getAttribute('data-locale') || 'de';
+        const loadingText = container.getAttribute('data-loading-text') || 'Loading payment methods.';
+        const errorText = container.getAttribute('data-error-text') || 'Payment methods could not be loaded.';
+        const emptyText = container.getAttribute('data-empty-text') || 'No payment methods available.';
+        const form = container.closest('form');
+        const submitButton = form && form.querySelector('button[type="submit"]');
+
+        if (submitButton) submitButton.disabled = true;
+        renderStatus(container, loadingText);
+
+        try {
+            const response = await fetch(`/api/payment-methods?locale=${encodeURIComponent(locale)}`, {
+                headers: {
+                    Accept: 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Payment methods request failed with ${response.status}`);
+            }
+
+            const payload = await response.json();
+            const methods = Array.isArray(payload.methods) ? payload.methods : [];
+
+            if (!methods.length) {
+                renderStatus(container, emptyText, true);
+                return;
+            }
+
+            renderMethods(container, methods);
+        } catch (error) {
+            console.error('Unable to load payment methods', error);
+            renderStatus(container, errorText, true);
+        }
+    });
+}
+
+function setupCheckoutTestFill() {
+    const buttons = Array.from(document.querySelectorAll('[data-test-fill]'));
+    if (!buttons.length) return;
+
+    const hostname = window.location.hostname || '';
+    const isTestRuntime =
+        window.location.protocol === 'file:' ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === 'staging.indiebox.ai';
+
+    if (!isTestRuntime) return;
+
+    const fillValue = (form, name, value) => {
+        const field = form.elements.namedItem(name);
+        if (!field || typeof field.value === 'undefined') return;
+        field.value = value;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    buttons.forEach((button) => {
+        const form = button.closest('form');
+        if (!form) return;
+
+        button.hidden = false;
+
+        button.addEventListener('click', () => {
+            const localeField = form.elements.namedItem('locale');
+            const locale = localeField && 'value' in localeField ? localeField.value : 'de';
+
+            fillValue(form, 'firstName', 'Heiko');
+            fillValue(form, 'lastName', 'Tester');
+            fillValue(form, 'email', 'test@indiebox.ai');
+            fillValue(form, 'phone', '+49 30 1234567');
+            fillValue(form, 'billingStreet', 'Musterstrasse 12');
+            fillValue(form, 'billingZip', '10115');
+            fillValue(form, 'billingCity', 'Berlin');
+            fillValue(
+                form,
+                'notes',
+                locale === 'en'
+                    ? 'Automatically filled test data for Mollie staging.'
+                    : 'Automatisch eingefuellte Testdaten fuer Mollie Staging.'
+            );
+
+            const terms = form.elements.namedItem('termsAccepted');
+            if (terms && 'checked' in terms) {
+                terms.checked = true;
+                terms.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            const checkedPaymentMethod = form.querySelector('input[name="paymentMethod"]:checked');
+            const firstPaymentMethod = form.querySelector('input[name="paymentMethod"]');
+            const paymentMethod = checkedPaymentMethod || firstPaymentMethod;
+            if (paymentMethod) {
+                paymentMethod.checked = true;
+                paymentMethod.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    });
+}
+
+function setupCheckoutFormPanels() {
+    const toggles = Array.from(document.querySelectorAll('[data-toggle-panel]'));
+    if (!toggles.length) return;
+
+    const syncPanel = (toggle) => {
+        const panelId = toggle.getAttribute('data-toggle-panel');
+        if (!panelId) return;
+
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        const active = Boolean(toggle.checked);
+        panel.hidden = !active;
+
+        if (!panel.hasAttribute('data-disabled-when-hidden')) return;
+
+        panel.querySelectorAll('input, select, textarea').forEach((field) => {
+            if (field.type === 'hidden') return;
+            field.disabled = !active;
+
+            if (field.hasAttribute('data-required-when-active')) {
+                field.required = active;
+            }
+        });
+    };
+
+    toggles.forEach((toggle) => {
+        syncPanel(toggle);
+        toggle.addEventListener('change', () => syncPanel(toggle));
+    });
+}
+
+function setupCheckoutValidation() {
+    const forms = Array.from(document.querySelectorAll('form[data-checkout-form]'));
+    if (!forms.length) return;
+
+    forms.forEach((form) => {
+        const alertBox = form.querySelector('[data-form-alert]');
+        const fields = Array.from(form.querySelectorAll('input, select, textarea'));
+        const localeField = form.elements.namedItem('locale');
+        const locale = localeField && 'value' in localeField ? localeField.value : 'de';
+        const messages = locale === 'en'
+            ? {
+                zip: 'Please enter a 5-digit German postal code.',
+                minLength: 'Please enter at least 2 characters.',
+                required: 'This field is required.',
+                email: 'Please enter a valid email address.',
+                summary: 'Please check and correct the highlighted fields.'
+            }
+            : {
+                zip: 'Bitte eine deutsche Postleitzahl mit 5 Ziffern eingeben.',
+                minLength: 'Bitte mindestens 2 Zeichen eingeben.',
+                required: 'Dieses Feld ist erforderlich.',
+                email: 'Bitte eine gueltige E-Mail-Adresse eingeben.',
+                summary: 'Bitte die markierten Felder pruefen und korrigieren.'
+            };
+
+        const setFieldError = (field, message) => {
+            if (typeof field.setCustomValidity === 'function') {
+                field.setCustomValidity(message || '');
+            }
+            field.classList.toggle('form-input--invalid', Boolean(message));
+            field.classList.toggle('form-textarea--invalid', Boolean(message));
+        };
+
+        const validateField = (field) => {
+            if (!field.name || field.disabled || field.type === 'hidden') return true;
+
+            setFieldError(field, '');
+
+            if (field.name === 'billingZip' || field.name === 'shippingZip') {
+                if (field.required && !/^\d{5}$/.test(field.value.trim())) {
+                    setFieldError(field, messages.zip);
+                    return false;
+                }
+            }
+
+            if ((field.name === 'firstName' || field.name === 'lastName') && field.required) {
+                if (field.value.trim().length < 2) {
+                    setFieldError(field, messages.minLength);
+                    return false;
+                }
+            }
+
+            if (field.required && !field.value.trim()) {
+                setFieldError(field, messages.required);
+                return false;
+            }
+
+            if (field.type === 'email' && field.value.trim()) {
+                const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value.trim());
+                if (!isValidEmail) {
+                    setFieldError(field, messages.email);
+                    return false;
+                }
+            }
+
+            return field.checkValidity();
+        };
+
+        fields.forEach((field) => {
+            field.addEventListener('input', () => validateField(field));
+            field.addEventListener('change', () => validateField(field));
+        });
+
+        form.addEventListener('submit', (event) => {
+            const invalidFields = fields.filter((field) => !validateField(field));
+            if (!invalidFields.length) {
+                if (alertBox) {
+                    alertBox.hidden = true;
+                    alertBox.textContent = '';
+                }
+                return;
+            }
+
+            event.preventDefault();
+
+            if (alertBox) {
+                alertBox.hidden = false;
+                alertBox.textContent = messages.summary;
+            }
+
+            invalidFields[0]?.focus();
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -479,4 +763,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSpecExplorer();
     setupCtaOverlays();
     setupMailtoForms();
+    setupCheckoutPaymentMethods();
+    setupCheckoutFormPanels();
+    setupCheckoutValidation();
+    setupCheckoutTestFill();
 });
