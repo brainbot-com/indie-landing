@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Inventory</title>
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Internal admin page for Indiebox inventory, system data, and supplier orders.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body class="docs-page admin-page">
+    <header class="admin-header">
+        <div class="container admin-header__inner">
+            <div class="admin-header__brand">
+                <p class="admin-header__kicker">Indiebox Admin</p>
+                <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox</a>
+            </div>
+            <div class="admin-header__actions">
+                <a href="../../admin/inventory.html" class="button button--plain-light button--pill button--sm">DE</a>
+            </div>
+        </div>
+        <div class="container">
+            <nav class="admin-subnav" aria-label="Admin sections">
+                <a href="./inventory.html" aria-current="page">Inventory</a>
+                <a href="./orders.html">Orders</a>
+                <a href="../checkout.html">View checkout</a>
+                <a href="../index.html">Website</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-shell">
+        <div class="container admin-layout" data-admin-inventory data-locale="en" data-product-key="indiebox-ai-workstation">
+            <header class="docs-article">
+                <p class="docs-page-kicker">Admin</p>
+                <h1 class="docs-page-title">Inventory and procurement</h1>
+                <p class="docs-page-lead">This page keeps public availability, system definition, and supplier orders separate.</p>
+            </header>
+
+            <section class="admin-card admin-auth">
+                <div>
+                    <h2>Admin access</h2>
+                    <p>The sign-in stays active for up to 30 days. Without an active admin session, the internal endpoints remain locked.</p>
+                </div>
+                <form class="admin-auth-row" data-admin-auth-form>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-password">Admin password</label>
+                        <input class="form-input" id="admin-password" type="password" autocomplete="current-password" data-admin-password-input>
+                    </div>
+                    <button class="button button--plain-dark button--pill button--sm" type="submit">Sign in</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Sign out</button>
+                </form>
+                <p class="admin-auth-status" data-admin-auth-status>Sign in to load internal inventory data.</p>
+            </section>
+
+            <section class="admin-grid">
+                <article class="admin-card">
+                    <h2>Public availability</h2>
+                    <div class="admin-overview">
+                        <div class="admin-metric">
+                            <span class="admin-metric-label">Status</span>
+                            <span class="admin-metric-value" data-admin-overview-status>–</span>
+                        </div>
+                        <div class="admin-metric">
+                            <span class="admin-metric-label">Lead time</span>
+                            <span class="admin-metric-value" data-admin-overview-lead-time>–</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="admin-card">
+                    <h2>System definition</h2>
+                    <form class="admin-section-stack" data-admin-model-form>
+                        <div class="form-row">
+                            <label class="form-label" for="product-name">Product name</label>
+                            <input class="form-input" id="product-name" name="productName" type="text" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="system-spec">System designation</label>
+                            <textarea class="form-textarea" id="system-spec" name="systemSpec" rows="4" placeholder="e.g. AMD Ryzen AI Max+ 395, Radeon 8060S, 128 GB RAM, 2 TB SSD"></textarea>
+                        </div>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">Save system data</button>
+                    </form>
+                </article>
+            </section>
+
+            <section class="admin-grid">
+                <article class="admin-card">
+                    <h2>Public delivery window</h2>
+                    <form class="admin-section-stack" data-admin-inventory-form>
+                        <div class="form-grid">
+                            <div class="form-row">
+                                <label class="form-label" for="available-units">Available units</label>
+                                <input class="form-input" id="available-units" name="availableUnits" type="number" min="0" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="lead-time-min">Min. business days</label>
+                                <input class="form-input" id="lead-time-min" name="leadTimeMinBusinessDays" type="number" min="1" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="lead-time-max">Max. business days</label>
+                                <input class="form-input" id="lead-time-max" name="leadTimeMaxBusinessDays" type="number" min="1" required>
+                            </div>
+                        </div>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">Save public availability</button>
+                    </form>
+                </article>
+
+                <article class="admin-card">
+                    <h2>New supplier order</h2>
+                    <form class="admin-section-stack" data-admin-procurement-form>
+                        <div class="form-grid">
+                            <div class="form-row">
+                                <label class="form-label" for="supplier-name">Supplier</label>
+                                <input class="form-input" id="supplier-name" name="supplierName" type="text" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="supplier-reference">Reference</label>
+                                <input class="form-input" id="supplier-reference" name="supplierReference" type="text">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="quantity">Quantity</label>
+                                <input class="form-input" id="quantity" name="quantity" type="number" min="1" value="1" required>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="supplier-status">Status</label>
+                                <select class="form-input" id="supplier-status" name="status">
+                                    <option value="ordered">Ordered</option>
+                                    <option value="in_transit">In transit</option>
+                                    <option value="received">Received</option>
+                                    <option value="in_stock">In stock</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="ordered-at">Ordered at</label>
+                                <input class="form-input" id="ordered-at" name="orderedAt" type="date">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="expected-delivery">Expected delivery</label>
+                                <input class="form-input" id="expected-delivery" name="expectedDeliveryAt" type="date">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="received-at">Received at</label>
+                                <input class="form-input" id="received-at" name="receivedAt" type="date">
+                            </div>
+                            <div class="form-row form-row--full">
+                                <label class="form-label" for="supplier-notes">Notes</label>
+                                <textarea class="form-textarea" id="supplier-notes" name="notes" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">Create supplier order</button>
+                    </form>
+                </article>
+            </section>
+
+            <section class="admin-card">
+                <h2>Existing supplier orders</h2>
+                <p>This list contains procurement data only. Customer orders remain separate in the order system.</p>
+                <div class="admin-section-stack" data-admin-procurement-list></div>
+            </section>
+
+            <section class="admin-card">
+                <h2>Reserved customer orders</h2>
+                <p>Paid orders automatically reserve available stock. This list only shows the coupling between order and inventory.</p>
+                <div class="admin-section-stack" data-admin-allocations-list></div>
+            </section>
+
+            <div class="form-alert" data-admin-feedback hidden></div>
+        </div>
+    </main>
+
+    <script src="../../script.js"></script>
+</body>
+</html>

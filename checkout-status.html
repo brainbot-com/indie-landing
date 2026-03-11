@@ -26,6 +26,7 @@
                     <section class="docs-section">
                         <h2>Aktueller Stand</h2>
                         <p id="status-text">Status wird geladen.</p>
+                        <p id="status-meta">Der Status wird automatisch aktualisiert, solange die Zahlung noch verarbeitet wird.</p>
                         <p>Diese Seite bestätigt nur den Rücksprung aus Mollie. Die Freigabe einer Bestellung erfolgt erst nach serverseitiger Statusprüfung.</p>
                     </section>
 
@@ -41,18 +42,27 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('order_id');
+        const statusToken = params.get('status_token');
         const statusText = document.getElementById('status-text');
+        const statusMeta = document.getElementById('status-meta');
+        const pageTitle = document.querySelector('.docs-page-title');
+        let pollTimer = null;
+
+        const finalStates = new Set(['paid', 'failed', 'cancelled']);
 
         async function loadStatus() {
-            if (!orderId) {
+            if (!orderId || !statusToken) {
                 statusText.textContent = 'Keine Bestellnummer gefunden.';
+                statusMeta.textContent = '';
                 return;
             }
 
             try {
-                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}`);
+                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}&status_token=${encodeURIComponent(statusToken)}`);
                 if (!response.ok) {
                     statusText.textContent = 'Bestellung wurde gefunden, der Status ist aber noch nicht verfügbar.';
+                    statusMeta.textContent = 'Die Statusprüfung wird in Kürze erneut versucht.';
+                    scheduleReload();
                     return;
                 }
 
@@ -67,9 +77,24 @@
                 };
 
                 statusText.textContent = states[payload.status] || `Aktueller Status: ${payload.status}`;
+                statusMeta.textContent = finalStates.has(payload.status)
+                    ? 'Der Status ist abgeschlossen.'
+                    : 'Der Status wird automatisch erneut abgefragt.';
+                pageTitle.textContent = payload.status === 'paid' ? 'Zahlung bestätigt' : 'Zahlung wird geprüft';
+
+                if (!finalStates.has(payload.status)) {
+                    scheduleReload();
+                }
             } catch {
                 statusText.textContent = 'Status konnte im Moment nicht geladen werden.';
+                statusMeta.textContent = 'Die Statusprüfung wird in Kürze erneut versucht.';
+                scheduleReload();
             }
+        }
+
+        function scheduleReload() {
+            window.clearTimeout(pollTimer);
+            pollTimer = window.setTimeout(loadStatus, 3000);
         }
 
         loadStatus();

@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -17,9 +18,66 @@ function parseJson(value, fallback) {
   }
 }
 
+function minimizePaymentPayload(payload) {
+  if (!payload || typeof payload !== 'object') return payload ?? null;
+
+  const compact = {};
+  const scalarKeys = [
+    'id',
+    'resource',
+    'status',
+    'method',
+    'description',
+    'profileId',
+    'sequenceType',
+    'createdAt',
+    'paidAt',
+    'expiresAt',
+    'canceledAt',
+    'failedAt',
+    'failureReason',
+    'message',
+    'title',
+    'detail',
+    'field'
+  ];
+
+  for (const key of scalarKeys) {
+    if (payload[key] !== undefined && payload[key] !== null && payload[key] !== '') {
+      compact[key] = payload[key];
+    }
+  }
+
+  if (payload.amount?.currency && payload.amount?.value) {
+    compact.amount = {
+      currency: payload.amount.currency,
+      value: payload.amount.value
+    };
+  }
+
+  if (payload._links?.checkout?.href) {
+    compact.checkoutUrl = payload._links.checkout.href;
+  }
+
+  if (payload.metadata && typeof payload.metadata === 'object') {
+    const metadata = {};
+    for (const key of ['orderId', 'locale', 'runtime']) {
+      if (payload.metadata[key] !== undefined && payload.metadata[key] !== null && payload.metadata[key] !== '') {
+        metadata[key] = payload.metadata[key];
+      }
+    }
+    if (Object.keys(metadata).length > 0) {
+      compact.metadata = metadata;
+    }
+  }
+
+  return Object.keys(compact).length > 0 ? compact : null;
+}
+
 function normalizeOrder(order) {
   return {
     id: order.id,
+    orderNumber: Number.isInteger(order.orderNumber) ? order.orderNumber : null,
     locale: order.locale || 'de',
     runtime: order.runtime || 'development',
     status: order.status || 'draft',
@@ -42,10 +100,11 @@ function normalizeOrder(order) {
     paymentMethod: order.paymentMethod || '',
     paymentId: order.paymentId || '',
     paymentStatus: order.paymentStatus || '',
+    statusToken: order.statusToken || crypto.randomUUID(),
     checkoutUrl: order.checkoutUrl || '',
     mollieMode: order.mollieMode || '',
     mollieProfileId: order.mollieProfileId || '',
-    molliePayload: order.molliePayload || null,
+	    molliePayload: minimizePaymentPayload(order.molliePayload),
     metadata: order.metadata || {},
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
@@ -58,6 +117,7 @@ function mapOrderRow(row) {
 
   return normalizeOrder({
     id: row.id,
+    orderNumber: row.order_number,
     locale: row.locale,
     runtime: row.runtime,
     status: row.status,
@@ -80,10 +140,11 @@ function mapOrderRow(row) {
     paymentMethod: row.payment_method,
     paymentId: row.payment_id,
     paymentStatus: row.payment_status,
+    statusToken: row.status_token,
     checkoutUrl: row.checkout_url,
     mollieMode: row.mollie_mode,
     mollieProfileId: row.mollie_profile_id,
-    molliePayload: parseJson(row.mollie_payload_json, null),
+	    molliePayload: minimizePaymentPayload(parseJson(row.mollie_payload_json, null)),
     metadata: parseJson(row.metadata_json, {}),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -100,8 +161,76 @@ function mapEventRow(row) {
     eventType: row.event_type,
     paymentStatus: row.payment_status,
     idempotencyKey: row.idempotency_key,
-    payload: parseJson(row.payload_json, null),
+	    payload: minimizePaymentPayload(parseJson(row.payload_json, null)),
     createdAt: row.created_at
+  };
+}
+
+function mapInventoryRow(row) {
+  if (!row) return null;
+
+  return {
+    productKey: row.product_key,
+    productName: row.product_name,
+    availableUnits: row.available_units,
+    leadTimeMinBusinessDays: row.lead_time_min_business_days,
+    leadTimeMaxBusinessDays: row.lead_time_max_business_days,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapDeviceModelRow(row) {
+  if (!row) return null;
+
+  const legacyParts = [
+    row.cpu,
+    row.gpu,
+    row.vram_gb ? `${row.vram_gb} GB VRAM` : '',
+    row.ram_gb ? `${row.ram_gb} GB RAM` : '',
+    row.storage_gb ? `${row.storage_gb} GB SSD` : ''
+  ].filter(Boolean);
+
+  return {
+    productKey: row.product_key,
+    productName: row.product_name,
+    systemSpec: row.system_spec || legacyParts.join(', '),
+    updatedAt: row.updated_at
+  };
+}
+
+function mapSupplierOrderRow(row) {
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    productKey: row.product_key,
+    supplierName: row.supplier_name,
+    supplierReference: row.supplier_reference || '',
+    quantity: row.quantity,
+    orderedAt: row.ordered_at,
+    expectedDeliveryAt: row.expected_delivery_at,
+    receivedAt: row.received_at,
+    status: row.status,
+    notes: row.notes || '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapOrderAllocationRow(row) {
+  if (!row) return null;
+
+  return {
+    orderId: row.order_id,
+    productKey: row.product_key,
+    quantity: row.quantity,
+    status: row.status,
+    allocatedAt: row.allocated_at,
+    fulfilledAt: row.fulfilled_at,
+    releasedAt: row.released_at,
+    notes: row.notes || '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
   };
 }
 
@@ -118,6 +247,7 @@ export async function createStore({ dataDir, logger = console }) {
 
     CREATE TABLE IF NOT EXISTS orders (
       id TEXT PRIMARY KEY,
+      order_number INTEGER UNIQUE,
       locale TEXT NOT NULL,
       runtime TEXT NOT NULL,
       status TEXT NOT NULL,
@@ -138,6 +268,7 @@ export async function createStore({ dataDir, logger = console }) {
       payment_method TEXT,
       payment_id TEXT,
       payment_status TEXT,
+      status_token TEXT,
       checkout_url TEXT,
       mollie_mode TEXT,
       mollie_profile_id TEXT,
@@ -167,11 +298,82 @@ export async function createStore({ dataDir, logger = console }) {
 
     CREATE INDEX IF NOT EXISTS idx_payment_events_order_id ON payment_events(order_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_payment_events_payment_id ON payment_events(payment_id, created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS inventory (
+      product_key TEXT PRIMARY KEY,
+      product_name TEXT NOT NULL,
+      available_units INTEGER NOT NULL DEFAULT 0,
+      lead_time_min_business_days INTEGER NOT NULL DEFAULT 3,
+      lead_time_max_business_days INTEGER NOT NULL DEFAULT 5,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS device_models (
+      product_key TEXT PRIMARY KEY,
+      product_name TEXT NOT NULL,
+      system_spec TEXT,
+      cpu TEXT,
+      gpu TEXT,
+      vram_gb INTEGER,
+      ram_gb INTEGER,
+      storage_gb INTEGER,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS supplier_orders (
+      id TEXT PRIMARY KEY,
+      product_key TEXT NOT NULL,
+      supplier_name TEXT NOT NULL,
+      supplier_reference TEXT,
+      quantity INTEGER NOT NULL DEFAULT 1,
+      ordered_at TEXT,
+      expected_delivery_at TEXT,
+      received_at TEXT,
+      status TEXT NOT NULL,
+      notes TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(product_key) REFERENCES device_models(product_key) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_supplier_orders_product_key ON supplier_orders(product_key, updated_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_supplier_orders_status ON supplier_orders(status, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS order_allocations (
+      order_id TEXT PRIMARY KEY,
+      product_key TEXT NOT NULL,
+      quantity INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL,
+      allocated_at TEXT,
+      fulfilled_at TEXT,
+      released_at TEXT,
+      notes TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE,
+      FOREIGN KEY(product_key) REFERENCES device_models(product_key) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_order_allocations_product_key ON order_allocations(product_key, updated_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_order_allocations_status ON order_allocations(status, updated_at DESC);
   `);
+
+  function ensureColumn(tableName, columnName, columnSql) {
+    const columns = db.prepare(`PRAGMA table_info(${tableName})`).all();
+    if (!columns.some((column) => column.name === columnName)) {
+      db.exec(`ALTER TABLE ${tableName} ADD COLUMN ${columnSql}`);
+    }
+  }
+
+  ensureColumn('device_models', 'system_spec', 'system_spec TEXT');
+  ensureColumn('orders', 'status_token', 'status_token TEXT');
+  ensureColumn('orders', 'order_number', 'order_number INTEGER');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number DESC)');
 
   const upsertOrderStatement = db.prepare(`
     INSERT INTO orders (
       id,
+      order_number,
       locale,
       runtime,
       status,
@@ -191,8 +393,9 @@ export async function createStore({ dataDir, logger = console }) {
       payment_method_requested,
       payment_method,
       payment_id,
-      payment_status,
-      checkout_url,
+	      payment_status,
+	      status_token,
+	      checkout_url,
       mollie_mode,
       mollie_profile_id,
       mollie_payload_json,
@@ -202,6 +405,7 @@ export async function createStore({ dataDir, logger = console }) {
       updated_at
     ) VALUES (
       @id,
+      @order_number,
       @locale,
       @runtime,
       @status,
@@ -221,8 +425,9 @@ export async function createStore({ dataDir, logger = console }) {
       @payment_method_requested,
       @payment_method,
       @payment_id,
-      @payment_status,
-      @checkout_url,
+	      @payment_status,
+	      @status_token,
+	      @checkout_url,
       @mollie_mode,
       @mollie_profile_id,
       @mollie_payload_json,
@@ -232,6 +437,7 @@ export async function createStore({ dataDir, logger = console }) {
       @updated_at
     )
     ON CONFLICT(id) DO UPDATE SET
+      order_number = excluded.order_number,
       locale = excluded.locale,
       runtime = excluded.runtime,
       status = excluded.status,
@@ -251,8 +457,9 @@ export async function createStore({ dataDir, logger = console }) {
       payment_method_requested = excluded.payment_method_requested,
       payment_method = excluded.payment_method,
       payment_id = excluded.payment_id,
-      payment_status = excluded.payment_status,
-      checkout_url = excluded.checkout_url,
+	      payment_status = excluded.payment_status,
+	      status_token = excluded.status_token,
+	      checkout_url = excluded.checkout_url,
       mollie_mode = excluded.mollie_mode,
       mollie_profile_id = excluded.mollie_profile_id,
       mollie_payload_json = excluded.mollie_payload_json,
@@ -285,10 +492,23 @@ export async function createStore({ dataDir, logger = console }) {
   `);
 
   const getOrderStatement = db.prepare('SELECT * FROM orders WHERE id = ?');
+  const getMaxOrderNumberStatement = db.prepare('SELECT COALESCE(MAX(order_number), 0) AS max_order_number FROM orders');
+  const listOrdersWithoutOrderNumberStatement = db.prepare(`
+    SELECT id
+    FROM orders
+    WHERE order_number IS NULL
+    ORDER BY datetime(created_at) ASC, id ASC
+  `);
+  const listOrdersWithoutStatusTokenStatement = db.prepare(`
+    SELECT id
+    FROM orders
+    WHERE status_token IS NULL OR status_token = ''
+  `);
   const getOrderByPaymentIdStatement = db.prepare('SELECT * FROM orders WHERE payment_id = ? LIMIT 1');
   const listOrdersStatement = db.prepare(`
     SELECT
       id,
+      order_number,
       created_at,
       updated_at,
       status,
@@ -305,19 +525,202 @@ export async function createStore({ dataDir, logger = console }) {
     ORDER BY datetime(created_at) DESC
     LIMIT ?
   `);
-  const listPaymentEventsStatement = db.prepare(`
+	  const listPaymentEventsStatement = db.prepare(`
     SELECT *
     FROM payment_events
     WHERE order_id = ?
     ORDER BY datetime(created_at) DESC, id DESC
+	  `);
+  const listOrdersWithPayloadStatement = db.prepare(`
+    SELECT id
+    FROM orders
+    WHERE mollie_payload_json IS NOT NULL AND mollie_payload_json != ''
+  `);
+  const listPaymentEventsWithPayloadStatement = db.prepare(`
+    SELECT id, payload_json
+    FROM payment_events
+    WHERE payload_json IS NOT NULL AND payload_json != ''
+  `);
+  const updatePaymentEventPayloadStatement = db.prepare(`
+    UPDATE payment_events
+    SET payload_json = @payload_json
+    WHERE id = @id
   `);
   const orderExistsStatement = db.prepare('SELECT 1 FROM orders WHERE id = ? LIMIT 1');
+  const getInventoryStatement = db.prepare('SELECT * FROM inventory WHERE product_key = ?');
+  const getDeviceModelStatement = db.prepare('SELECT * FROM device_models WHERE product_key = ?');
+  const listDeviceModelsStatement = db.prepare('SELECT * FROM device_models ORDER BY product_name ASC');
+  const upsertDeviceModelStatement = db.prepare(`
+    INSERT INTO device_models (
+      product_key,
+      product_name,
+      system_spec,
+      cpu,
+      gpu,
+      vram_gb,
+      ram_gb,
+      storage_gb,
+      updated_at
+    ) VALUES (
+      @product_key,
+      @product_name,
+      @system_spec,
+      @cpu,
+      @gpu,
+      @vram_gb,
+      @ram_gb,
+      @storage_gb,
+      @updated_at
+    )
+    ON CONFLICT(product_key) DO UPDATE SET
+      product_name = excluded.product_name,
+      system_spec = excluded.system_spec,
+      cpu = excluded.cpu,
+      gpu = excluded.gpu,
+      vram_gb = excluded.vram_gb,
+      ram_gb = excluded.ram_gb,
+      storage_gb = excluded.storage_gb,
+      updated_at = excluded.updated_at
+  `);
+  const getSupplierOrderStatement = db.prepare('SELECT * FROM supplier_orders WHERE id = ?');
+  const listSupplierOrdersStatement = db.prepare(`
+    SELECT *
+    FROM supplier_orders
+    WHERE (@product_key IS NULL OR product_key = @product_key)
+    ORDER BY
+      CASE status
+        WHEN 'in_stock' THEN 1
+        WHEN 'ordered' THEN 2
+        WHEN 'in_transit' THEN 3
+        WHEN 'received' THEN 4
+        ELSE 9
+      END,
+      COALESCE(expected_delivery_at, ordered_at, created_at) ASC,
+      created_at DESC
+  `);
+  const upsertSupplierOrderStatement = db.prepare(`
+    INSERT INTO supplier_orders (
+      id,
+      product_key,
+      supplier_name,
+      supplier_reference,
+      quantity,
+      ordered_at,
+      expected_delivery_at,
+      received_at,
+      status,
+      notes,
+      created_at,
+      updated_at
+    ) VALUES (
+      @id,
+      @product_key,
+      @supplier_name,
+      @supplier_reference,
+      @quantity,
+      @ordered_at,
+      @expected_delivery_at,
+      @received_at,
+      @status,
+      @notes,
+      @created_at,
+      @updated_at
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      product_key = excluded.product_key,
+      supplier_name = excluded.supplier_name,
+      supplier_reference = excluded.supplier_reference,
+      quantity = excluded.quantity,
+      ordered_at = excluded.ordered_at,
+      expected_delivery_at = excluded.expected_delivery_at,
+      received_at = excluded.received_at,
+      status = excluded.status,
+      notes = excluded.notes,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at
+  `);
+  const sumInStockUnitsStatement = db.prepare(`
+    SELECT COALESCE(SUM(quantity), 0) AS available_units
+    FROM supplier_orders
+    WHERE product_key = ? AND status = 'in_stock'
+  `);
+  const sumAllocatedUnitsStatement = db.prepare(`
+    SELECT COALESCE(SUM(quantity), 0) AS allocated_units
+    FROM order_allocations
+    WHERE product_key = ? AND status IN ('reserved', 'fulfilled')
+  `);
+  const getOrderAllocationStatement = db.prepare('SELECT * FROM order_allocations WHERE order_id = ?');
+  const listOrderAllocationsStatement = db.prepare(`
+    SELECT *
+    FROM order_allocations
+    WHERE (@product_key IS NULL OR product_key = @product_key)
+    ORDER BY datetime(updated_at) DESC, datetime(created_at) DESC
+  `);
+  const upsertOrderAllocationStatement = db.prepare(`
+    INSERT INTO order_allocations (
+      order_id,
+      product_key,
+      quantity,
+      status,
+      allocated_at,
+      fulfilled_at,
+      released_at,
+      notes,
+      created_at,
+      updated_at
+    ) VALUES (
+      @order_id,
+      @product_key,
+      @quantity,
+      @status,
+      @allocated_at,
+      @fulfilled_at,
+      @released_at,
+      @notes,
+      @created_at,
+      @updated_at
+    )
+    ON CONFLICT(order_id) DO UPDATE SET
+      product_key = excluded.product_key,
+      quantity = excluded.quantity,
+      status = excluded.status,
+      allocated_at = excluded.allocated_at,
+      fulfilled_at = excluded.fulfilled_at,
+      released_at = excluded.released_at,
+      notes = excluded.notes,
+      created_at = excluded.created_at,
+      updated_at = excluded.updated_at
+  `);
+  const upsertInventoryStatement = db.prepare(`
+    INSERT INTO inventory (
+      product_key,
+      product_name,
+      available_units,
+      lead_time_min_business_days,
+      lead_time_max_business_days,
+      updated_at
+    ) VALUES (
+      @product_key,
+      @product_name,
+      @available_units,
+      @lead_time_min_business_days,
+      @lead_time_max_business_days,
+      @updated_at
+    )
+    ON CONFLICT(product_key) DO UPDATE SET
+      product_name = excluded.product_name,
+      available_units = excluded.available_units,
+      lead_time_min_business_days = excluded.lead_time_min_business_days,
+      lead_time_max_business_days = excluded.lead_time_max_business_days,
+      updated_at = excluded.updated_at
+  `);
 
   function serializeOrder(order) {
     const normalized = normalizeOrder(order);
 
     return {
       id: normalized.id,
+      order_number: normalized.orderNumber,
       locale: normalized.locale,
       runtime: normalized.runtime,
       status: normalized.status,
@@ -337,8 +740,9 @@ export async function createStore({ dataDir, logger = console }) {
       payment_method_requested: normalized.paymentMethodRequested || null,
       payment_method: normalized.paymentMethod || null,
       payment_id: normalized.paymentId || null,
-      payment_status: normalized.paymentStatus || null,
-      checkout_url: normalized.checkoutUrl || null,
+	      payment_status: normalized.paymentStatus || null,
+	      status_token: normalized.statusToken,
+	      checkout_url: normalized.checkoutUrl || null,
       mollie_mode: normalized.mollieMode || null,
       mollie_profile_id: normalized.mollieProfileId || null,
       mollie_payload_json: stringifyJson(normalized.molliePayload),
@@ -350,8 +754,12 @@ export async function createStore({ dataDir, logger = console }) {
   }
 
   function saveOrder(order) {
-    upsertOrderStatement.run(serializeOrder(order));
-    return getOrder(order.id);
+    const normalized = normalizeOrder(order);
+    if (!Number.isInteger(normalized.orderNumber)) {
+      normalized.orderNumber = Number(getMaxOrderNumberStatement.get().max_order_number || 0) + 1;
+    }
+    upsertOrderStatement.run(serializeOrder(normalized));
+    return getOrder(normalized.id);
   }
 
   function getOrder(orderId) {
@@ -365,6 +773,7 @@ export async function createStore({ dataDir, logger = console }) {
   function listOrders(limit = 50) {
     return listOrdersStatement.all(limit).map((row) => ({
       id: row.id,
+      orderNumber: row.order_number,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       status: row.status,
@@ -391,7 +800,7 @@ export async function createStore({ dataDir, logger = console }) {
       event_type: eventType,
       payment_status: paymentStatus,
       idempotency_key: idempotencyKey,
-      payload_json: stringifyJson(payload),
+      payload_json: stringifyJson(minimizePaymentPayload(payload)),
       created_at: new Date().toISOString()
     });
 
@@ -400,7 +809,147 @@ export async function createStore({ dataDir, logger = console }) {
     };
   }
 
-  async function migrateLegacyJsonOrders() {
+  function saveInventory(item) {
+    const now = new Date().toISOString();
+    upsertInventoryStatement.run({
+      product_key: item.productKey,
+      product_name: item.productName,
+      available_units: Math.max(0, Number.parseInt(item.availableUnits || '0', 10) || 0),
+      lead_time_min_business_days: Math.max(1, Number.parseInt(item.leadTimeMinBusinessDays || '3', 10) || 3),
+      lead_time_max_business_days: Math.max(1, Number.parseInt(item.leadTimeMaxBusinessDays || '5', 10) || 5),
+      updated_at: now
+    });
+
+    return getInventory(item.productKey);
+  }
+
+  function getInventory(productKey) {
+    return mapInventoryRow(getInventoryStatement.get(productKey));
+  }
+
+  function refreshInventoryAvailability(productKey) {
+    const current = getInventory(productKey);
+    if (!current) return null;
+
+    const inStockUnits = sumInStockUnitsStatement.get(productKey)?.available_units || 0;
+    const allocatedUnits = sumAllocatedUnitsStatement.get(productKey)?.allocated_units || 0;
+    const availableUnits = Math.max(0, inStockUnits - allocatedUnits);
+    return saveInventory({
+      ...current,
+      availableUnits
+    });
+  }
+
+  function saveDeviceModel(item) {
+    const now = new Date().toISOString();
+    upsertDeviceModelStatement.run({
+      product_key: item.productKey,
+      product_name: item.productName,
+      system_spec: item.systemSpec || null,
+      cpu: null,
+      gpu: null,
+      vram_gb: null,
+      ram_gb: null,
+      storage_gb: null,
+      updated_at: now
+    });
+
+    return getDeviceModel(item.productKey);
+  }
+
+  function getDeviceModel(productKey) {
+    return mapDeviceModelRow(getDeviceModelStatement.get(productKey));
+  }
+
+  function listDeviceModels() {
+    return listDeviceModelsStatement.all().map(mapDeviceModelRow);
+  }
+
+  function saveSupplierOrder(order) {
+    const now = new Date().toISOString();
+    const normalized = {
+      id: order.id,
+      productKey: order.productKey,
+      supplierName: order.supplierName,
+      supplierReference: order.supplierReference || null,
+      quantity: Math.max(1, Number.parseInt(order.quantity || '1', 10) || 1),
+      orderedAt: order.orderedAt || null,
+      expectedDeliveryAt: order.expectedDeliveryAt || null,
+      receivedAt: order.receivedAt || null,
+      status: order.status,
+      notes: order.notes || null,
+      createdAt: order.createdAt || now,
+      updatedAt: now
+    };
+
+    upsertSupplierOrderStatement.run({
+      id: normalized.id,
+      product_key: normalized.productKey,
+      supplier_name: normalized.supplierName,
+      supplier_reference: normalized.supplierReference,
+      quantity: normalized.quantity,
+      ordered_at: normalized.orderedAt,
+      expected_delivery_at: normalized.expectedDeliveryAt,
+      received_at: normalized.receivedAt,
+      status: normalized.status,
+      notes: normalized.notes,
+      created_at: normalized.createdAt,
+      updated_at: normalized.updatedAt
+    });
+
+    refreshInventoryAvailability(normalized.productKey);
+    return getSupplierOrder(normalized.id);
+  }
+
+  function getSupplierOrder(id) {
+    return mapSupplierOrderRow(getSupplierOrderStatement.get(id));
+  }
+
+  function listSupplierOrders(productKey = null) {
+    return listSupplierOrdersStatement.all({ product_key: productKey || null }).map(mapSupplierOrderRow);
+  }
+
+  function saveOrderAllocation(allocation) {
+    const now = new Date().toISOString();
+    const normalized = {
+      orderId: allocation.orderId,
+      productKey: allocation.productKey,
+      quantity: Math.max(1, Number.parseInt(allocation.quantity || '1', 10) || 1),
+      status: allocation.status,
+      allocatedAt: allocation.allocatedAt || null,
+      fulfilledAt: allocation.fulfilledAt || null,
+      releasedAt: allocation.releasedAt || null,
+      notes: allocation.notes || null,
+      createdAt: allocation.createdAt || now,
+      updatedAt: now
+    };
+
+    upsertOrderAllocationStatement.run({
+      order_id: normalized.orderId,
+      product_key: normalized.productKey,
+      quantity: normalized.quantity,
+      status: normalized.status,
+      allocated_at: normalized.allocatedAt,
+      fulfilled_at: normalized.fulfilledAt,
+      released_at: normalized.releasedAt,
+      notes: normalized.notes,
+      created_at: normalized.createdAt,
+      updated_at: normalized.updatedAt
+    });
+
+    refreshInventoryAvailability(normalized.productKey);
+    return getOrderAllocation(normalized.orderId);
+  }
+
+  function getOrderAllocation(orderId) {
+    return mapOrderAllocationRow(getOrderAllocationStatement.get(orderId));
+  }
+
+  function listOrderAllocations(productKey = null) {
+    return listOrderAllocationsStatement.all({ product_key: productKey || null }).map(mapOrderAllocationRow);
+  }
+
+	  async function migrateLegacyJsonOrders() {
     let fileNames = [];
 
     try {
@@ -438,7 +987,68 @@ export async function createStore({ dataDir, logger = console }) {
     }
   }
 
-  await migrateLegacyJsonOrders();
+	  await migrateLegacyJsonOrders();
+  for (const row of listOrdersWithPayloadStatement.all()) {
+    const existingOrder = getOrder(row.id);
+    if (!existingOrder) continue;
+    saveOrder(existingOrder);
+  }
+  for (const row of listPaymentEventsWithPayloadStatement.all()) {
+    updatePaymentEventPayloadStatement.run({
+      id: row.id,
+      payload_json: stringifyJson(minimizePaymentPayload(parseJson(row.payload_json, null)))
+    });
+  }
+  for (const row of listOrdersWithoutStatusTokenStatement.all()) {
+    const existingOrder = getOrder(row.id);
+    if (!existingOrder) continue;
+    saveOrder({
+      ...existingOrder,
+      statusToken: crypto.randomUUID()
+    });
+  }
+  let nextOrderNumber = Number(getMaxOrderNumberStatement.get().max_order_number || 0) + 1;
+  for (const row of listOrdersWithoutOrderNumberStatement.all()) {
+    const existingOrder = getOrder(row.id);
+    if (!existingOrder) continue;
+    saveOrder({
+      ...existingOrder,
+      orderNumber: nextOrderNumber
+    });
+    nextOrderNumber += 1;
+  }
+  if (!getDeviceModel('indiebox-ai-workstation')) {
+    saveDeviceModel({
+      productKey: 'indiebox-ai-workstation',
+      productName: 'Indiebox AI-Workstation',
+      systemSpec: 'AMD Ryzen AI Max+ 395, Radeon 8060S, 128 GB RAM, 2 TB SSD'
+    });
+  }
+  if (!getInventory('indiebox-ai-workstation')) {
+    saveInventory({
+      productKey: 'indiebox-ai-workstation',
+      productName: 'Indiebox AI-Workstation',
+      availableUnits: 1,
+      leadTimeMinBusinessDays: 3,
+      leadTimeMaxBusinessDays: 5
+    });
+  }
+  if (listSupplierOrders('indiebox-ai-workstation').length === 0) {
+    saveSupplierOrder({
+      id: 'supplier-seed-indiebox-1',
+      productKey: 'indiebox-ai-workstation',
+      supplierName: 'Initial stock',
+      supplierReference: 'seed',
+      quantity: 1,
+      orderedAt: new Date().toISOString().slice(0, 10),
+      expectedDeliveryAt: new Date().toISOString().slice(0, 10),
+      receivedAt: new Date().toISOString().slice(0, 10),
+      status: 'in_stock',
+      notes: 'Initial seeded stock item for inventory separation.'
+    });
+  } else {
+    refreshInventoryAvailability('indiebox-ai-workstation');
+  }
 
   return {
     dbPath,
@@ -447,6 +1057,17 @@ export async function createStore({ dataDir, logger = console }) {
     getOrderByPaymentId,
     listOrders,
     listPaymentEvents,
-    recordPaymentEvent
+    recordPaymentEvent,
+    getInventory,
+    saveInventory,
+    getDeviceModel,
+    saveDeviceModel,
+    listDeviceModels,
+    getSupplierOrder,
+    saveSupplierOrder,
+    listSupplierOrders,
+    getOrderAllocation,
+    saveOrderAllocation,
+    listOrderAllocations
   };
 }

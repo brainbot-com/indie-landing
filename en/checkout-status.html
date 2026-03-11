@@ -26,6 +26,7 @@
                     <section class="docs-section">
                         <h2>Current status</h2>
                         <p id="status-text">Loading status.</p>
+                        <p id="status-meta">The status updates automatically while the payment is still being processed.</p>
                         <p>This page only confirms the return from Mollie. An order is only released after server-side status verification.</p>
                     </section>
 
@@ -41,18 +42,27 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         const orderId = params.get('order_id');
+        const statusToken = params.get('status_token');
         const statusText = document.getElementById('status-text');
+        const statusMeta = document.getElementById('status-meta');
+        const pageTitle = document.querySelector('.docs-page-title');
+        let pollTimer = null;
+
+        const finalStates = new Set(['paid', 'failed', 'cancelled']);
 
         async function loadStatus() {
-            if (!orderId) {
+            if (!orderId || !statusToken) {
                 statusText.textContent = 'No order ID found.';
+                statusMeta.textContent = '';
                 return;
             }
 
             try {
-                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}`);
+                const response = await fetch(`/api/orders/status?order_id=${encodeURIComponent(orderId)}&status_token=${encodeURIComponent(statusToken)}`);
                 if (!response.ok) {
                     statusText.textContent = 'The order was found, but the status is not available yet.';
+                    statusMeta.textContent = 'The status check will be retried shortly.';
+                    scheduleReload();
                     return;
                 }
 
@@ -67,9 +77,24 @@
                 };
 
                 statusText.textContent = states[payload.status] || `Current status: ${payload.status}`;
+                statusMeta.textContent = finalStates.has(payload.status)
+                    ? 'The payment status is final.'
+                    : 'The status is checked again automatically.';
+                pageTitle.textContent = payload.status === 'paid' ? 'Payment confirmed' : 'Payment status is being checked';
+
+                if (!finalStates.has(payload.status)) {
+                    scheduleReload();
+                }
             } catch {
                 statusText.textContent = 'The status could not be loaded right now.';
+                statusMeta.textContent = 'The status check will be retried shortly.';
+                scheduleReload();
             }
+        }
+
+        function scheduleReload() {
+            window.clearTimeout(pollTimer);
+            pollTimer = window.setTimeout(loadStatus, 3000);
         }
 
         loadStatus();

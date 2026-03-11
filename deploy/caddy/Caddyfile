@@ -2,27 +2,61 @@
   email ops@indiebox.ai
 }
 
-:80 {
-  handle /api/* {
-    reverse_proxy backend-staging:8080
+(security_headers) {
+  header {
+    -Server
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "DENY"
+    Referrer-Policy "no-referrer"
+    Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()"
+    Cross-Origin-Opener-Policy "same-origin"
+    Cross-Origin-Resource-Policy "same-origin"
+    Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self' https://www.mollie.com https://*.mollie.com;"
   }
+}
 
-  root * /srv/site
-  encode zstd gzip
-  file_server
+(tls_security_headers) {
+  header {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  }
+}
+
+(admin_basic_auth) {
+  basic_auth {
+    {$ADMIN_BASIC_AUTH_USER} {$ADMIN_BASIC_AUTH_HASH}
+  }
+}
+
+:80 {
+  redir https://{host}{uri} 308
 }
 
 staging.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
+  @adminPages path /admin* /en/admin*
+  handle @adminPages {
+    import admin_basic_auth
+    root * /srv/staging.indiebox/site
+    encode zstd gzip
+    file_server
+  }
+
   handle /api/* {
+    request_header X-Proxy-Auth {$PROXY_INTERNAL_TOKEN}
     reverse_proxy backend-staging:8080
   }
 
-  root * /srv/staging.indiebox
+  root * /srv/staging.indiebox/site
   encode zstd gzip
   file_server
 }
 
 docs.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
   root * /srv/site
   encode zstd gzip
 
@@ -30,5 +64,18 @@ docs.indiebox.ai {
   rewrite @docsRoot /docs/index.html
   try_files /docs{path} {path}
 
+  file_server
+}
+
+indiebox.ai, www.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
+  handle /api/* {
+    reverse_proxy backend-live:8080
+  }
+
+  root * /srv/site
+  encode zstd gzip
   file_server
 }

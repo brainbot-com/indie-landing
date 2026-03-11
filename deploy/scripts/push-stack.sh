@@ -6,7 +6,7 @@ DEPLOY_HOST="${INDIEBOX_DEPLOY_HOST:-87.106.111.141}"
 DEPLOY_USER="${INDIEBOX_DEPLOY_USER:-deploy}"
 SSH_KEY="${INDIEBOX_DEPLOY_KEY:-$HOME/.ssh/indiebox_ionos}"
 APP_PATH="${INDIEBOX_APP_PATH:-/srv/indiebox/app/}"
-CONFIG_PATH="${INDIEBOX_CONFIG_PATH:-/srv/indiebox/config/}"
+CONFIG_PATH="${INDIEBOX_CONFIG_PATH:-/srv/edge/config/}"
 
 if [[ ! -f "$SSH_KEY" ]]; then
   echo "SSH key not found: $SSH_KEY" >&2
@@ -28,4 +28,4 @@ rsync -av -e "ssh -i $SSH_KEY" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}Caddyfile"
 
 ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-  "install -d -m 755 /srv/indiebox/data/backend-staging /srv/indiebox/data/backend-live && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build"
+  "install -d -m 755 /srv/staging.indiebox/site /srv/staging.indiebox/config /srv/staging.indiebox/data /srv/staging.indiebox/backups /srv/indiebox/data/backend-live /srv/edge/config && if [ ! -f ${CONFIG_PATH}caddy.env ]; then install -m 600 /dev/null ${CONFIG_PATH}caddy.env; fi && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build"

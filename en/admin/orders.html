@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Orders</title>
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Internal admin page for Indiebox customer orders, payment status, and fulfilment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body class="docs-page admin-page">
+    <header class="admin-header">
+        <div class="container admin-header__inner">
+            <div class="admin-header__brand">
+                <p class="admin-header__kicker">Indiebox Admin</p>
+                <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox</a>
+            </div>
+            <div class="admin-header__actions">
+                <a href="../../admin/orders.html" class="button button--plain-light button--pill button--sm">DE</a>
+            </div>
+        </div>
+        <div class="container">
+            <nav class="admin-subnav" aria-label="Admin sections">
+                <a href="./inventory.html">Inventory</a>
+                <a href="./orders.html" aria-current="page">Orders</a>
+                <a href="../checkout.html">View checkout</a>
+                <a href="../index.html">Website</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-shell">
+        <div class="container admin-layout" data-admin-orders data-locale="en">
+            <header class="docs-article">
+                <p class="docs-page-kicker">Admin</p>
+                <h1 class="docs-page-title">Orders and fulfilment</h1>
+                <p class="docs-page-lead">This page shows customer orders, payment status, and the link between reservation and fulfilment.</p>
+            </header>
+
+            <section class="admin-card admin-auth">
+                <div>
+                    <h2>Admin access</h2>
+                    <p>The sign-in stays active for up to 30 days. Without an active admin session, the internal order data remains locked.</p>
+                </div>
+                <form class="admin-auth-row" data-admin-orders-auth-form>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-orders-password">Admin password</label>
+                        <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" data-admin-password-input>
+                    </div>
+                    <button class="button button--plain-dark button--pill button--sm" type="submit">Sign in</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Sign out</button>
+                </form>
+                <p class="admin-auth-status" data-admin-auth-status>Sign in to load order and fulfilment data.</p>
+            </section>
+
+            <section class="admin-card">
+                <h2>Orders</h2>
+                <p>The list is condensed for operational work. Details and fulfilment editing appear below the selected order.</p>
+                <div class="admin-toolbar" data-admin-orders-toolbar>
+                    <div class="form-row admin-toolbar__search">
+                        <label class="form-label" for="admin-order-search">Search</label>
+                        <input class="form-input" id="admin-order-search" type="search" placeholder="Order number, name, company, city" data-admin-order-search>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-payment-filter">Payment</label>
+                        <select class="form-input" id="admin-payment-filter" data-admin-payment-filter>
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="open">Open</option>
+                            <option value="failed">Failed</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-fulfilment-filter">Fulfilment</label>
+                        <select class="form-input" id="admin-fulfilment-filter" data-admin-fulfilment-filter>
+                            <option value="all">All</option>
+                            <option value="none">No reservation</option>
+                            <option value="reserved">Reserved</option>
+                            <option value="fulfilled">Fulfilled</option>
+                            <option value="released">Released</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="admin-toolbar-meta">
+                    <p class="admin-result-count" data-admin-order-count>0 orders</p>
+                    <div class="admin-status-legend" aria-label="Status legend">
+                        <span><span class="admin-dot admin-dot--success"></span> Paid / Fulfilled</span>
+                        <span><span class="admin-dot admin-dot--warning"></span> Open / Reserved</span>
+                        <span><span class="admin-dot admin-dot--danger"></span> Failed / Expired</span>
+                        <span><span class="admin-dot admin-dot--neutral"></span> No reservation / Released</span>
+                    </div>
+                </div>
+                <div class="admin-section-stack" data-admin-orders-list></div>
+            </section>
+
+            <div class="form-alert" data-admin-feedback hidden></div>
+        </div>
+    </main>
+
+    <script src="../../script.js"></script>
+</body>
+</html>

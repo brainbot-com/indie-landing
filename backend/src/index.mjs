@@ -23,6 +23,13 @@ const config = {
   mollieProfileId: process.env.MOLLIE_PROFILE_ID || '',
   checkoutPriceEur: process.env.CHECKOUT_PRICE_EUR || '3999.00',
   checkoutProductName: process.env.CHECKOUT_PRODUCT_NAME || 'Indiebox AI-Workstation',
+  checkoutProductKey: process.env.CHECKOUT_PRODUCT_KEY || 'indiebox-ai-workstation',
+  adminApiToken: process.env.ADMIN_API_TOKEN || '',
+  proxyInternalToken: process.env.PROXY_INTERNAL_TOKEN || '',
+  adminLoginHash: process.env.ADMIN_LOGIN_HASH || '',
+  adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
+  adminSessionCookieName: process.env.ADMIN_SESSION_COOKIE_NAME || 'indiebox_admin_session',
+  adminSessionTtlSeconds: Number.parseInt(process.env.ADMIN_SESSION_TTL_SECONDS || '2592000', 10),
   dataDir: process.env.DATA_DIR || '/app/data',
   enableAdminApi: process.env.ENABLE_ADMIN_API === 'true' || (process.env.APP_ENV || 'development') === 'development',
   port: Number.parseInt(process.env.PORT || '8080', 10)
@@ -65,10 +72,12 @@ const supportedPaymentMethods = {
 };
 
 const store = await createStore({ dataDir: config.dataDir, logger: console });
+const rateLimitBuckets = new Map();
 
+app.set('trust proxy', 1);
 app.disable('x-powered-by');
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: false, limit: '20kb' }));
+app.use(express.json({ limit: '20kb' }));
 
 function localePrefix(locale) {
   return locale === 'en' ? '/en/' : '/';
@@ -110,13 +119,267 @@ function orderStatusFromPayment(payment) {
   }
 }
 
+function isFinalOrderStatus(status) {
+  return ['paid', 'failed', 'cancelled'].includes(status);
+}
+
 function requiredField(body, fieldName, maxLength = 300) {
   const value = typeof body[fieldName] === 'string' ? body[fieldName].trim() : '';
   return value.slice(0, maxLength);
 }
 
+function sanitizeSingleLineInput(value, maxLength = 300) {
+  if (typeof value !== 'string') return '';
+  return value
+    .normalize('NFKC')
+    .replace(/[\u0000-\u001f\u007f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+}
+
+function sanitizeMultilineInput(value, maxLength = 1000) {
+  if (typeof value !== 'string') return '';
+  return value
+    .normalize('NFKC')
+    .replace(/\r\n/g, '\n')
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ')
+    .trim()
+    .slice(0, maxLength);
+}
+
+function normalizeEmail(value) {
+  return sanitizeSingleLineInput(value, 320).toLowerCase();
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function normalizeName(value, maxLength = 120) {
+  const normalized = sanitizeSingleLineInput(value, maxLength);
+  return /^[\p{L}\p{N} .,'&()\/+-]+$/u.test(normalized) ? normalized : '';
+}
+
+function normalizeAddressLine(value, maxLength = 180) {
+  const normalized = sanitizeSingleLineInput(value, maxLength);
+  return /^[\p{L}\p{N} .,'&()\/+#-]+$/u.test(normalized) ? normalized : '';
+}
+
+function normalizePostalCodeDe(value) {
+  const normalized = sanitizeSingleLineInput(value, 10);
+  return /^\d{5}$/.test(normalized) ? normalized : '';
+}
+
+function normalizePhone(value) {
+  const normalized = sanitizeSingleLineInput(value, 40);
+  return !normalized || /^[\d+()\/ -]+$/.test(normalized) ? normalized : '';
+}
+
+function normalizeVatId(value) {
+  const normalized = sanitizeSingleLineInput(value, 40).toUpperCase();
+  return !normalized || /^[A-Z0-9 .-]+$/.test(normalized) ? normalized : '';
+}
+
+function normalizeCountryCode(value) {
+  const normalized = sanitizeSingleLineInput(value, 2).toUpperCase();
+  return normalized === 'DE' ? 'DE' : '';
+}
+
+function normalizeIsoDate(value) {
+  const normalized = sanitizeSingleLineInput(value, 32);
+  return !normalized || /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : '';
+}
+
+function normalizeIsoDateTime(value) {
+  const normalized = sanitizeSingleLineInput(value, 50);
+  return !normalized || /^\d{4}-\d{2}-\d{2}(?:T[\d:.+-]+Z?)?$/.test(normalized) ? normalized : '';
+}
+
+function normalizeEnum(value, allowedValues) {
+  const normalized = sanitizeSingleLineInput(value, 64);
+  return allowedValues.has(normalized) ? normalized : '';
+}
+
+function createRateLimit({ bucketName, windowMs, maxRequests }) {
+  return (req, res, next) => {
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    const key = `${bucketName}:${ip}`;
+    const now = Date.now();
+    const bucket = rateLimitBuckets.get(key);
+
+    if (!bucket || now >= bucket.resetAt) {
+      rateLimitBuckets.set(key, {
+        count: 1,
+        resetAt: now + windowMs
+      });
+      return next();
+    }
+
+    if (bucket.count >= maxRequests) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+      res.set('Retry-After', String(retryAfterSeconds));
+      return res.status(429).json({
+        error: 'rate_limited',
+        retryAfterSeconds
+      });
+    }
+
+    bucket.count += 1;
+    return next();
+  };
+}
+
+const checkoutRateLimit = createRateLimit({
+  bucketName: 'checkout',
+  windowMs: 60_000,
+  maxRequests: 8
+});
+
+const statusRateLimit = createRateLimit({
+  bucketName: 'order-status',
+  windowMs: 60_000,
+  maxRequests: 30
+});
+
+const adminRateLimit = createRateLimit({
+  bucketName: 'admin',
+  windowMs: 60_000,
+  maxRequests: 60
+});
+
+const webhookRateLimit = createRateLimit({
+  bucketName: 'mollie-webhook',
+  windowMs: 60_000,
+  maxRequests: 120
+});
+
 function adminAuthEnabled() {
   return config.enableAdminApi;
+}
+
+function parseCookies(req) {
+  const cookieHeader = req.get('cookie') || '';
+  if (!cookieHeader) return {};
+
+  return cookieHeader
+    .split(';')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .reduce((cookies, part) => {
+      const index = part.indexOf('=');
+      if (index === -1) return cookies;
+      const key = part.slice(0, index).trim();
+      const value = part.slice(index + 1).trim();
+      cookies[key] = decodeURIComponent(value);
+      return cookies;
+    }, {});
+}
+
+function signAdminSession(expiresAt) {
+  return crypto
+    .createHmac('sha256', config.adminSessionSecret)
+    .update(`admin:${expiresAt}`)
+    .digest('hex');
+}
+
+function verifyAdminPassword(password) {
+  if (!config.adminLoginHash || !password) return false;
+  const [salt, storedHash] = config.adminLoginHash.split(':');
+  if (!salt || !storedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  const left = Buffer.from(derived, 'utf8');
+  const right = Buffer.from(storedHash, 'utf8');
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
+
+function getAdminSession(req) {
+  if (!config.adminSessionSecret) return { authenticated: false };
+  const cookies = parseCookies(req);
+  const raw = cookies[config.adminSessionCookieName];
+  if (!raw) return { authenticated: false };
+
+  const [expiresAtRaw, signature] = raw.split('.');
+  const expiresAt = Number.parseInt(expiresAtRaw || '', 10);
+  if (!expiresAt || !signature) return { authenticated: false };
+  if (Date.now() >= expiresAt) return { authenticated: false };
+  const expectedSignature = signAdminSession(expiresAt);
+  const left = Buffer.from(signature, 'utf8');
+  const right = Buffer.from(expectedSignature, 'utf8');
+  if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
+    return { authenticated: false };
+  }
+
+  return {
+    authenticated: true,
+    expiresAt
+  };
+}
+
+function setAdminSessionCookie(res) {
+  const expiresAt = Date.now() + (config.adminSessionTtlSeconds * 1000);
+  const value = `${expiresAt}.${signAdminSession(expiresAt)}`;
+  const parts = [
+    `${config.adminSessionCookieName}=${encodeURIComponent(value)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    `Max-Age=${config.adminSessionTtlSeconds}`
+  ];
+  if (config.appEnv !== 'development') {
+    parts.push('Secure');
+  }
+  res.setHeader('Set-Cookie', parts.join('; '));
+}
+
+function clearAdminSessionCookie(res) {
+  const parts = [
+    `${config.adminSessionCookieName}=`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    'Max-Age=0'
+  ];
+  if (config.appEnv !== 'development') {
+    parts.push('Secure');
+  }
+  res.setHeader('Set-Cookie', parts.join('; '));
+}
+
+function readAdminToken(req) {
+  const authHeader = req.get('authorization') || '';
+  if (authHeader.toLowerCase().startsWith('bearer ')) {
+    return authHeader.slice(7).trim();
+  }
+
+  return req.get('x-admin-token') || '';
+}
+
+function requireAdmin(req, res, next) {
+  if (!adminAuthEnabled()) {
+    return res.status(404).json({ error: 'not_found' });
+  }
+
+  if (config.proxyInternalToken) {
+    const proxyAuth = req.get('x-proxy-auth') || '';
+    if (proxyAuth !== config.proxyInternalToken) {
+      return res.status(401).json({ error: 'admin_auth_required' });
+    }
+  }
+
+  if (getAdminSession(req).authenticated) {
+    return next();
+  }
+
+  if (!config.adminApiToken) {
+    return res.status(401).json({ error: 'admin_auth_required' });
+  }
+
+  if (readAdminToken(req) !== config.adminApiToken) {
+    return res.status(401).json({ error: 'admin_auth_required' });
+  }
+
+  return next();
 }
 
 function summarizeOrder(order) {
@@ -129,6 +392,7 @@ function summarizeOrder(order) {
     status: order.status,
     paymentStatus: order.paymentStatus,
     paymentId: order.paymentId,
+    statusToken: order.statusToken,
     paymentMethod: order.paymentMethod,
     paymentMethodRequested: order.paymentMethodRequested,
     amount: order.amount,
@@ -140,9 +404,83 @@ function summarizeOrder(order) {
       email: order.customer.email,
       company: order.customer.company
     },
+    inventorySnapshot: order.metadata.inventorySnapshot || null,
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
     paidAt: order.paidAt
+  };
+}
+
+function inventoryPayload(item, locale) {
+  const inStock = Number(item?.availableUnits || 0) > 0;
+  const minDays = item?.leadTimeMinBusinessDays || 3;
+  const maxDays = item?.leadTimeMaxBusinessDays || 5;
+
+  return {
+    productKey: item?.productKey || config.checkoutProductKey,
+    productName: item?.productName || config.checkoutProductName,
+    availableUnits: Number(item?.availableUnits || 0),
+    leadTimeMinBusinessDays: minDays,
+    leadTimeMaxBusinessDays: maxDays,
+    inStock,
+    shippingCountryScope: 'DE',
+    leadTimeLabel: locale === 'en'
+      ? (inStock
+          ? `Usually ships ${minDays}-${maxDays} business days after order.`
+          : 'Delivery timing will be confirmed after the order.')
+      : (inStock
+          ? `In der Regel ${minDays}-${maxDays} Werktage nach Bestellung.`
+          : 'Lieferzeit wird nach der Bestellung bestätigt.'),
+    stockLabel: locale === 'en'
+      ? (inStock ? 'In stock' : 'Built and shipped after confirmation')
+      : (inStock ? 'Auf Lager' : 'Wird nach Bestätigung gebaut und versendet')
+  };
+}
+
+function deviceModelPayload(model) {
+  if (!model) return null;
+
+  return {
+    productKey: model.productKey,
+    productName: model.productName,
+    systemSpec: model.systemSpec,
+    updatedAt: model.updatedAt
+  };
+}
+
+function supplierOrderPayload(order) {
+  if (!order) return null;
+
+  return {
+    id: order.id,
+    productKey: order.productKey,
+    supplierName: order.supplierName,
+    supplierReference: order.supplierReference,
+    quantity: order.quantity,
+    orderedAt: order.orderedAt,
+    expectedDeliveryAt: order.expectedDeliveryAt,
+    receivedAt: order.receivedAt,
+    status: order.status,
+    notes: order.notes,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt
+  };
+}
+
+function orderAllocationPayload(allocation) {
+  if (!allocation) return null;
+
+  return {
+    orderId: allocation.orderId,
+    productKey: allocation.productKey,
+    quantity: allocation.quantity,
+    status: allocation.status,
+    allocatedAt: allocation.allocatedAt,
+    fulfilledAt: allocation.fulfilledAt,
+    releasedAt: allocation.releasedAt,
+    notes: allocation.notes,
+    createdAt: allocation.createdAt,
+    updatedAt: allocation.updatedAt
   };
 }
 
@@ -156,6 +494,23 @@ function paymentMethodPayload(methodId, locale) {
     description: method.descriptions[locale] || method.descriptions.de,
     sortOrder: method.sortOrder
   };
+}
+
+function wantsJsonResponse(req) {
+  const accept = req.get('accept') || '';
+  const requestMode = req.get('x-checkout-request') || '';
+  return requestMode === 'fetch' || accept.includes('application/json');
+}
+
+function sendCheckoutError(req, res, status, message, code = 'checkout_error') {
+  if (wantsJsonResponse(req)) {
+    return res.status(status).json({
+      error: code,
+      message
+    });
+  }
+
+  return res.status(status).send(message);
 }
 
 async function mollieRequest(url, options = {}) {
@@ -200,27 +555,27 @@ async function fetchAvailablePaymentMethods(locale) {
 }
 
 function buildOrderFromRequest(body) {
-  const firstName = requiredField(body, 'firstName');
-  const lastName = requiredField(body, 'lastName');
-  const email = requiredField(body, 'email');
-  const company = requiredField(body, 'company');
-  const billingStreet = requiredField(body, 'billingStreet');
-  const billingZip = requiredField(body, 'billingZip');
-  const billingCity = requiredField(body, 'billingCity');
-  const billingCountry = requiredField(body, 'billingCountry');
-  const shippingStreet = requiredField(body, 'shippingStreet');
-  const shippingZip = requiredField(body, 'shippingZip');
-  const shippingCity = requiredField(body, 'shippingCity');
-  const shippingCountry = requiredField(body, 'shippingCountry') || 'DE';
-  const paymentMethodInput = requiredField(body, 'paymentMethod');
+  const firstName = normalizeName(body.firstName);
+  const lastName = normalizeName(body.lastName);
+  const email = normalizeEmail(body.email);
+  const company = normalizeName(body.company, 160);
+  const billingStreet = normalizeAddressLine(body.billingStreet);
+  const billingZip = normalizePostalCodeDe(body.billingZip);
+  const billingCity = normalizeName(body.billingCity, 120);
+  const billingCountry = normalizeCountryCode(body.billingCountry);
+  const shippingStreet = normalizeAddressLine(body.shippingStreet);
+  const shippingZip = normalizePostalCodeDe(body.shippingZip);
+  const shippingCity = normalizeName(body.shippingCity, 120);
+  const shippingCountry = normalizeCountryCode(body.shippingCountry) || 'DE';
+  const paymentMethodInput = normalizeEnum(body.paymentMethod, new Set(['creditcard', 'paypal', 'banktransfer', 'visa', 'mastercard']));
   const locale = body.locale === 'en' ? 'en' : 'de';
   const paymentMethod = paymentMethodForMollie(paymentMethodInput);
   const termsAccepted = body.termsAccepted === 'on';
   const isCompanyOrder = body.isCompanyOrder === 'on';
   const shippingDifferent = body.shippingDifferent === 'on';
-  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const hasValidBillingZip = /^\d{5}$/.test(billingZip);
-  const hasValidShippingZip = !shippingDifferent || /^\d{5}$/.test(shippingZip);
+  const hasValidEmail = isValidEmail(email);
+  const hasValidBillingZip = Boolean(billingZip);
+  const hasValidShippingZip = !shippingDifferent || Boolean(shippingZip);
 
   const hasRequiredFields = Boolean(
     firstName.length >= 2 &&
@@ -242,19 +597,20 @@ function buildOrderFromRequest(body) {
 
   return {
     id: crypto.randomUUID(),
+    statusToken: crypto.randomUUID(),
     locale,
     runtime: config.appRuntimeName,
     status: 'draft',
-    product: requiredField(body, 'product') || config.checkoutProductName,
+    product: sanitizeSingleLineInput(body.product, 160) || config.checkoutProductName,
     amount: config.checkoutPriceEur,
     currency: 'EUR',
     customer: {
       firstName,
       lastName,
       email,
-      phone: requiredField(body, 'phone'),
+      phone: normalizePhone(body.phone),
       company,
-      vatId: requiredField(body, 'vatId')
+      vatId: normalizeVatId(body.vatId)
     },
     billingAddress: {
       street: billingStreet,
@@ -263,13 +619,13 @@ function buildOrderFromRequest(body) {
       country: billingCountry
     },
     shippingAddress: {
-      careOf: requiredField(body, 'shippingCareOf'),
+      careOf: normalizeName(body.shippingCareOf, 160),
       street: shippingStreet,
       zip: shippingZip,
       city: shippingCity,
       country: shippingDifferent ? shippingCountry : ''
     },
-    notes: requiredField(body, 'notes', 4000),
+    notes: sanitizeMultilineInput(body.notes, 2000),
     paymentProvider: 'mollie',
     paymentMethodRequested: paymentMethodInput,
     paymentMethod,
@@ -308,16 +664,95 @@ function mergePaymentIntoOrder(order, payment) {
   };
 }
 
+function syncOrderAllocation(order) {
+  const existing = store.getOrderAllocation(order.id);
+
+  if (order.status === 'paid') {
+    if (existing && ['reserved', 'fulfilled'].includes(existing.status)) {
+      return existing;
+    }
+
+    return store.saveOrderAllocation({
+      orderId: order.id,
+      productKey: config.checkoutProductKey,
+      quantity: 1,
+      status: 'reserved',
+      allocatedAt: order.paidAt || new Date().toISOString(),
+      notes: `Reserved automatically for paid order ${order.id}.`
+    });
+  }
+
+  if (existing && existing.status === 'reserved' && ['failed', 'cancelled'].includes(order.status)) {
+    return store.saveOrderAllocation({
+      ...existing,
+      status: 'released',
+      releasedAt: new Date().toISOString(),
+      notes: `Released automatically after order status changed to ${order.status}.`
+    });
+  }
+
+  return existing;
+}
+
+function bootstrapOrderAllocations() {
+  for (const orderSummary of store.listOrders(500)) {
+    if (orderSummary.status !== 'paid') continue;
+    const fullOrder = store.getOrder(orderSummary.id);
+    if (fullOrder) {
+      syncOrderAllocation(fullOrder);
+    }
+  }
+}
+
+bootstrapOrderAllocations();
+
+async function syncOrderPaymentStatus(order, source = 'status_check') {
+  if (!config.mollieApiKey || !order?.paymentId) {
+    return order;
+  }
+
+  const payment = await mollieRequest(`https://api.mollie.com/v2/payments/${order.paymentId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  const nextOrder = mergePaymentIntoOrder(order, payment);
+  const idempotencyKey = `${source}:${payment.id}:${payment.status}`;
+  const eventResult = store.recordPaymentEvent({
+    orderId: nextOrder.id,
+    paymentId: payment.id,
+    source,
+    eventType: 'payment_status_sync',
+    paymentStatus: payment.status,
+    idempotencyKey,
+    payload: payment
+  });
+
+  if (!eventResult.inserted && order.paymentStatus === payment.status && order.status === nextOrder.status) {
+    return order;
+  }
+
+  const savedOrder = store.saveOrder(nextOrder);
+  syncOrderAllocation(savedOrder);
+  return savedOrder;
+}
+
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     runtime: config.appRuntimeName,
     env: config.appEnv,
     version: packageJson.version,
-    storage: {
-      type: 'sqlite',
-      dbPath: store.dbPath
-    }
+    storage: config.appEnv === 'development'
+      ? {
+          type: 'sqlite',
+          dbPath: store.dbPath
+        }
+      : {
+          type: 'sqlite'
+        }
   });
 });
 
@@ -327,6 +762,40 @@ app.get('/api/version', (_req, res) => {
     version: packageJson.version,
     runtime: config.appRuntimeName
   });
+});
+
+app.get('/api/admin/session', (req, res) => {
+  if (!adminAuthEnabled()) {
+    return res.status(404).json({ error: 'not_found' });
+  }
+
+  const session = getAdminSession(req);
+  return res.json({
+    authenticated: session.authenticated,
+    expiresAt: session.expiresAt || null
+  });
+});
+
+app.post('/api/admin/session', adminRateLimit, (req, res) => {
+  if (!adminAuthEnabled()) {
+    return res.status(404).json({ error: 'not_found' });
+  }
+  if (!config.adminLoginHash || !config.adminSessionSecret) {
+    return res.status(503).json({ error: 'admin_login_not_configured' });
+  }
+
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+  if (!verifyAdminPassword(password)) {
+    return res.status(401).json({ error: 'admin_login_failed' });
+  }
+
+  setAdminSessionCookie(res);
+  return res.status(204).end();
+});
+
+app.delete('/api/admin/session', (req, res) => {
+  clearAdminSessionCookie(res);
+  return res.status(204).end();
 });
 
 app.get('/api/payment-methods', async (req, res) => {
@@ -346,37 +815,74 @@ app.get('/api/payment-methods', async (req, res) => {
   } catch (error) {
     return res.status(error.status || 502).json({
       error: 'payment_methods_unavailable',
-      detail: error.message
+      ...(config.appEnv === 'development' ? { detail: error.message } : {})
     });
   }
 });
 
-app.get('/api/orders/status', (req, res) => {
+app.get('/api/inventory/:productKey', (req, res) => {
+  const locale = req.query.locale === 'en' ? 'en' : 'de';
+  const item = store.getInventory(req.params.productKey);
+  const deviceModel = store.getDeviceModel(req.params.productKey);
+  if (!item) {
+    return res.status(404).json({ error: 'inventory_not_found' });
+  }
+
+  return res.json({
+    runtime: config.appRuntimeName,
+    inventory: inventoryPayload(item, locale),
+    deviceModel: deviceModelPayload(deviceModel)
+  });
+});
+
+app.get('/api/orders/status', statusRateLimit, async (req, res) => {
   const orderId = typeof req.query.order_id === 'string' ? req.query.order_id : '';
+  const statusToken = typeof req.query.status_token === 'string' ? req.query.status_token.trim() : '';
   if (!orderId) {
     return res.status(400).json({ error: 'order_id is required' });
+  }
+  if (!statusToken) {
+    return res.status(400).json({ error: 'status_token is required' });
   }
 
   const order = store.getOrder(orderId);
   if (!order) {
     return res.status(404).json({ error: 'order not found' });
   }
+  if (order.statusToken !== statusToken) {
+    return res.status(404).json({ error: 'order not found' });
+  }
+
+  let currentOrder = order;
+
+  if (currentOrder.paymentId && !isFinalOrderStatus(currentOrder.status)) {
+    try {
+      currentOrder = await syncOrderPaymentStatus(currentOrder, 'status_check');
+    } catch (error) {
+      return res.status(error.status || 502).json({
+        error: 'status_sync_failed',
+        detail: error.message,
+        id: currentOrder.id,
+        status: currentOrder.status,
+        paymentStatus: currentOrder.paymentStatus,
+        paymentId: currentOrder.paymentId,
+        runtime: config.appRuntimeName,
+        locale: currentOrder.locale
+      });
+    }
+  }
 
   return res.json({
-    id: order.id,
-    status: order.status,
-    paymentStatus: order.paymentStatus,
-    paymentId: order.paymentId,
+    id: currentOrder.id,
+    status: currentOrder.status,
+    paymentStatus: currentOrder.paymentStatus,
+    paymentId: currentOrder.paymentId,
     runtime: config.appRuntimeName,
-    locale: order.locale
+    locale: currentOrder.locale
   });
 });
 
-app.get('/api/orders', (req, res) => {
-  if (!adminAuthEnabled()) {
-    return res.status(404).json({ error: 'not_found' });
-  }
-
+app.get('/api/orders', adminRateLimit, requireAdmin, (req, res) => {
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10), 1), 200);
   return res.json({
     runtime: config.appRuntimeName,
@@ -384,11 +890,7 @@ app.get('/api/orders', (req, res) => {
   });
 });
 
-app.get('/api/orders/:orderId', (req, res) => {
-  if (!adminAuthEnabled()) {
-    return res.status(404).json({ error: 'not_found' });
-  }
-
+app.get('/api/orders/:orderId', adminRateLimit, requireAdmin, (req, res) => {
   const orderId = req.params.orderId;
   const order = store.getOrder(orderId);
   if (!order) {
@@ -397,18 +899,218 @@ app.get('/api/orders/:orderId', (req, res) => {
 
   return res.json({
     order,
-    events: store.listPaymentEvents(orderId)
+    events: store.listPaymentEvents(orderId),
+    allocation: orderAllocationPayload(store.getOrderAllocation(orderId))
   });
 });
 
-app.post('/api/orders/checkout', async (req, res) => {
-  if (!config.mollieApiKey) {
-    return res.status(503).send('Mollie is not configured for this environment.');
+app.put('/api/inventory/:productKey', adminRateLimit, requireAdmin, (req, res) => {
+  const current = store.getInventory(req.params.productKey);
+  const availableUnits = Number.parseInt(req.body.availableUnits, 10);
+  const leadTimeMinBusinessDays = Number.parseInt(req.body.leadTimeMinBusinessDays, 10);
+  const leadTimeMaxBusinessDays = Number.parseInt(req.body.leadTimeMaxBusinessDays, 10);
+
+  if (!Number.isInteger(availableUnits) || availableUnits < 0) {
+    return res.status(400).json({ error: 'invalid_available_units' });
   }
 
+  if (!Number.isInteger(leadTimeMinBusinessDays) || !Number.isInteger(leadTimeMaxBusinessDays) || leadTimeMinBusinessDays < 1 || leadTimeMaxBusinessDays < leadTimeMinBusinessDays) {
+    return res.status(400).json({ error: 'invalid_lead_time' });
+  }
+
+  const saved = store.saveInventory({
+    productKey: req.params.productKey,
+    productName: current?.productName || config.checkoutProductName,
+    availableUnits,
+    leadTimeMinBusinessDays,
+    leadTimeMaxBusinessDays
+  });
+
+  return res.json({
+    inventory: inventoryPayload(saved, 'de')
+  });
+});
+
+app.get('/api/device-models', adminRateLimit, requireAdmin, (req, res) => {
+  return res.json({
+    runtime: config.appRuntimeName,
+    deviceModels: store.listDeviceModels().map(deviceModelPayload)
+  });
+});
+
+app.put('/api/device-models/:productKey', adminRateLimit, requireAdmin, (req, res) => {
+  const existing = store.getDeviceModel(req.params.productKey);
+  const normalizedProductName = normalizeName(req.body.productName, 160) || existing?.productName || config.checkoutProductName;
+  if (!normalizedProductName) {
+    return res.status(400).json({ error: 'product_name_required' });
+  }
+
+  const saved = store.saveDeviceModel({
+    productKey: req.params.productKey,
+    productName: normalizedProductName,
+    systemSpec: sanitizeSingleLineInput(req.body.systemSpec, 500) || existing?.systemSpec || ''
+  });
+
+  return res.json({
+    deviceModel: deviceModelPayload(saved)
+  });
+});
+
+app.get('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = typeof req.query.productKey === 'string' ? req.query.productKey : null;
+  return res.json({
+    runtime: config.appRuntimeName,
+    supplierOrders: store.listSupplierOrders(productKey).map(supplierOrderPayload)
+  });
+});
+
+app.get('/api/order-allocations', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = typeof req.query.productKey === 'string' ? req.query.productKey : null;
+  return res.json({
+    runtime: config.appRuntimeName,
+    allocations: store.listOrderAllocations(productKey).map(orderAllocationPayload)
+  });
+});
+
+app.put('/api/order-allocations/:orderId', adminRateLimit, requireAdmin, (req, res) => {
+  const existing = store.getOrderAllocation(req.params.orderId);
+  if (!existing) {
+    return res.status(404).json({ error: 'allocation_not_found' });
+  }
+
+  const status = requiredField(req.body, 'status') || existing.status;
+  const allowedStatuses = new Set(['reserved', 'fulfilled', 'released', 'cancelled']);
+  if (!allowedStatuses.has(status)) {
+    return res.status(400).json({ error: 'invalid_allocation_status' });
+  }
+
+  const fulfilledAt = normalizeIsoDateTime(req.body.fulfilledAt);
+  const releasedAt = normalizeIsoDateTime(req.body.releasedAt);
+  if (req.body.fulfilledAt && !fulfilledAt) {
+    return res.status(400).json({ error: 'invalid_fulfilled_at' });
+  }
+  if (req.body.releasedAt && !releasedAt) {
+    return res.status(400).json({ error: 'invalid_released_at' });
+  }
+
+  const saved = store.saveOrderAllocation({
+    ...existing,
+    status,
+    fulfilledAt: status === 'fulfilled'
+      ? (fulfilledAt || existing.fulfilledAt || new Date().toISOString())
+      : null,
+    releasedAt: status === 'released' || status === 'cancelled'
+      ? (releasedAt || existing.releasedAt || new Date().toISOString())
+      : null,
+    notes: sanitizeMultilineInput(req.body.notes, 1000) || existing.notes
+  });
+
+  return res.json({
+    allocation: orderAllocationPayload(saved),
+    inventory: inventoryPayload(store.getInventory(saved.productKey), 'de')
+  });
+});
+
+app.post('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = sanitizeSingleLineInput(req.body.productKey, 80) || config.checkoutProductKey;
+  const product = store.getDeviceModel(productKey);
+  if (!product) {
+    return res.status(400).json({ error: 'unknown_product_key' });
+  }
+
+  const supplierName = normalizeName(req.body.supplierName, 160);
+  const status = normalizeEnum(req.body.status, new Set(['ordered', 'in_transit', 'received', 'in_stock', 'cancelled'])) || 'ordered';
+  const quantity = Number.parseInt(req.body.quantity, 10);
+
+  if (!supplierName) {
+    return res.status(400).json({ error: 'supplier_name_required' });
+  }
+
+  if (!Number.isInteger(quantity) || quantity < 1) {
+    return res.status(400).json({ error: 'invalid_quantity' });
+  }
+
+  const orderedAt = normalizeIsoDate(req.body.orderedAt);
+  const expectedDeliveryAt = normalizeIsoDate(req.body.expectedDeliveryAt);
+  const receivedAt = normalizeIsoDate(req.body.receivedAt);
+  if (req.body.orderedAt && !orderedAt) return res.status(400).json({ error: 'invalid_ordered_at' });
+  if (req.body.expectedDeliveryAt && !expectedDeliveryAt) return res.status(400).json({ error: 'invalid_expected_delivery_at' });
+  if (req.body.receivedAt && !receivedAt) return res.status(400).json({ error: 'invalid_received_at' });
+
+  const saved = store.saveSupplierOrder({
+    id: crypto.randomUUID(),
+    productKey,
+    supplierName,
+    supplierReference: sanitizeSingleLineInput(req.body.supplierReference, 120),
+    quantity,
+    orderedAt,
+    expectedDeliveryAt,
+    receivedAt,
+    status,
+    notes: sanitizeMultilineInput(req.body.notes, 1000)
+  });
+
+  return res.status(201).json({
+    supplierOrder: supplierOrderPayload(saved),
+    inventory: inventoryPayload(store.getInventory(productKey), 'de')
+  });
+});
+
+app.put('/api/supplier-orders/:supplierOrderId', adminRateLimit, requireAdmin, (req, res) => {
+  const existing = store.getSupplierOrder(req.params.supplierOrderId);
+  if (!existing) {
+    return res.status(404).json({ error: 'supplier_order_not_found' });
+  }
+
+  const status = normalizeEnum(req.body.status, new Set(['ordered', 'in_transit', 'received', 'in_stock', 'cancelled'])) || existing.status;
+  if (!status) {
+    return res.status(400).json({ error: 'invalid_status' });
+  }
+
+  const quantity = Number.parseInt(req.body.quantity, 10);
+  const orderedAt = normalizeIsoDate(req.body.orderedAt);
+  const expectedDeliveryAt = normalizeIsoDate(req.body.expectedDeliveryAt);
+  const receivedAt = normalizeIsoDate(req.body.receivedAt);
+  if (req.body.orderedAt && !orderedAt) return res.status(400).json({ error: 'invalid_ordered_at' });
+  if (req.body.expectedDeliveryAt && !expectedDeliveryAt) return res.status(400).json({ error: 'invalid_expected_delivery_at' });
+  if (req.body.receivedAt && !receivedAt) return res.status(400).json({ error: 'invalid_received_at' });
+
+  const saved = store.saveSupplierOrder({
+    ...existing,
+    supplierName: normalizeName(req.body.supplierName, 160) || existing.supplierName,
+    supplierReference: sanitizeSingleLineInput(req.body.supplierReference, 120) || existing.supplierReference,
+    quantity: Number.isInteger(quantity) && quantity > 0 ? quantity : existing.quantity,
+    orderedAt: orderedAt || existing.orderedAt,
+    expectedDeliveryAt: expectedDeliveryAt || existing.expectedDeliveryAt,
+    receivedAt: receivedAt || existing.receivedAt,
+    status,
+    notes: sanitizeMultilineInput(req.body.notes, 1000) || existing.notes
+  });
+
+  return res.json({
+    supplierOrder: supplierOrderPayload(saved),
+    inventory: inventoryPayload(store.getInventory(saved.productKey), 'de')
+  });
+});
+
+app.post('/api/orders/checkout', checkoutRateLimit, async (req, res) => {
+  if (!config.mollieApiKey) {
+    return sendCheckoutError(req, res, 503, 'Mollie is not configured for this environment.', 'mollie_not_configured');
+  }
+
+  const inventory = store.getInventory(config.checkoutProductKey);
   const order = buildOrderFromRequest(req.body);
   if (!order) {
-    return res.status(400).send('Required checkout fields are missing.');
+    return sendCheckoutError(req, res, 400, 'Required checkout fields are missing.', 'checkout_fields_missing');
+  }
+
+  if (inventory) {
+    order.metadata.inventorySnapshot = {
+      availableUnits: inventory.availableUnits,
+      leadTimeMinBusinessDays: inventory.leadTimeMinBusinessDays,
+      leadTimeMaxBusinessDays: inventory.leadTimeMaxBusinessDays,
+      capturedAt: new Date().toISOString()
+    };
   }
 
   store.saveOrder(order);
@@ -431,7 +1133,7 @@ app.post('/api/orders/checkout', async (req, res) => {
         },
         description: `${config.checkoutProductName} ${order.id}`,
         method: order.paymentMethod,
-        redirectUrl: `${config.appBaseUrl}${localePrefix(order.locale)}checkout-status.html?order_id=${order.id}`,
+        redirectUrl: `${config.appBaseUrl}${localePrefix(order.locale)}checkout-status.html?order_id=${order.id}&status_token=${encodeURIComponent(order.statusToken)}`,
         webhookUrl: `${config.appBaseUrl}/api/mollie/webhook`,
         metadata: {
           orderId: order.id,
@@ -454,7 +1156,14 @@ app.post('/api/orders/checkout', async (req, res) => {
     });
 
     if (!nextOrder.checkoutUrl) {
-      return res.status(502).send('Mollie did not return a checkout URL.');
+      return sendCheckoutError(req, res, 502, 'Mollie did not return a checkout URL.', 'missing_checkout_url');
+    }
+
+    if (wantsJsonResponse(req)) {
+      return res.status(200).json({
+        orderId: nextOrder.id,
+        checkoutUrl: nextOrder.checkoutUrl
+      });
     }
 
     return res.redirect(303, nextOrder.checkoutUrl);
@@ -475,11 +1184,11 @@ app.post('/api/orders/checkout', async (req, res) => {
       payload: error.payload || { message: error.message }
     });
 
-    return res.status(error.status || 502).send(error.message);
+    return sendCheckoutError(req, res, error.status || 502, error.message, 'checkout_create_failed');
   }
 });
 
-app.post('/api/mollie/webhook', async (req, res) => {
+app.post('/api/mollie/webhook', webhookRateLimit, async (req, res) => {
   const paymentId = requiredField(req.body, 'id');
   if (!paymentId) {
     return res.status(400).send('Missing payment id');
@@ -503,22 +1212,11 @@ app.post('/api/mollie/webhook', async (req, res) => {
       return res.status(404).send('Order not found');
     }
 
-    const eventKey = `webhook:${payment.id}:${payment.status}`;
-    const eventResult = store.recordPaymentEvent({
-      orderId,
-      paymentId,
-      source: 'mollie_webhook',
-      eventType: 'payment_status_sync',
-      paymentStatus: payment.status,
-      idempotencyKey: eventKey,
-      payload: payment
-    });
-
-    if (!eventResult.inserted && order.paymentStatus === payment.status) {
+    const nextOrder = await syncOrderPaymentStatus(order, 'mollie_webhook');
+    if (nextOrder.paymentStatus === order.paymentStatus && nextOrder.status === order.status) {
       return res.status(200).send('ok');
     }
 
-    store.saveOrder(mergePaymentIntoOrder(order, payment));
     return res.status(200).send('ok');
   } catch (error) {
     return res.status(error.status || 502).send(error.message);

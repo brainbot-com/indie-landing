@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 DEPLOY_HOST="${INDIEBOX_DEPLOY_HOST:-87.106.111.141}"
 DEPLOY_USER="${INDIEBOX_DEPLOY_USER:-deploy}"
 DEPLOY_PATH="${INDIEBOX_DEPLOY_PATH:-/srv/indiebox/app/site/}"
-STAGING_PATH="${INDIEBOX_STAGING_PATH:-/srv/staging.indiebox/}"
+STAGING_PATH="${INDIEBOX_STAGING_PATH:-/srv/staging.indiebox/site/}"
 SSH_KEY="${INDIEBOX_DEPLOY_KEY:-$HOME/.ssh/indiebox_ionos}"
 
 if [[ ! -f "$SSH_KEY" ]]; then
@@ -39,7 +39,11 @@ RSYNC_BASE_ARGS=(
   --exclude
   "build/"
   --exclude
+  "backend/"
+  --exclude
   "deploy/"
+  --exclude
+  "i18n/"
   --exclude
   "scripts/"
   --exclude
