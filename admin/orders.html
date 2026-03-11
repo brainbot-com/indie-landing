@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin – Orders</title>
+    <title>Admin – Bestellungen</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <meta name="description" content="Interne Verwaltungsseite für Kundenbestellungen, Zahlungsstatus und Fulfillment der Indiebox.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,11 +14,15 @@
 <body class="docs-page admin-page">
     <header class="admin-header">
         <div class="container admin-header__inner">
-            <div class="admin-header__brand">
-                <p class="admin-header__kicker">Indiebox Admin</p>
-                <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox</a>
-            </div>
+            <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox Admin</a>
             <div class="admin-header__actions">
+                <form class="admin-header-auth" data-admin-orders-auth-form>
+                    <input class="admin-header-auth__input" id="admin-orders-password" type="password" autocomplete="current-password" placeholder="Passwort" data-admin-password-input>
+                    <button class="admin-header-auth__hint" type="button" title="Passwort: Server .env → ADMIN_LOGIN_HASH (gehashtes Passwort). Plain-Text im eigenen Passwort-Manager.">i</button>
+                    <button class="button button--plain-light button--pill button--sm" type="submit">Anmelden</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Abmelden</button>
+                </form>
+                <span class="admin-header-auth__status" data-admin-auth-status></span>
                 <a href="../en/admin/orders.html" class="button button--plain-light button--pill button--sm">EN</a>
             </div>
         </div>
@@ -34,26 +38,29 @@
 
     <main class="admin-shell">
         <div class="container admin-layout" data-admin-orders data-locale="de">
-            <header class="docs-article">
-                <p class="docs-page-kicker">Admin</p>
-                <h1 class="docs-page-title">Bestellungen und Fulfillment</h1>
-                <p class="docs-page-lead">Diese Seite zeigt Kundenbestellungen, Zahlungsstatus und die Kopplung an Reservierung und Auslieferung.</p>
-            </header>
 
-            <section class="admin-card admin-auth">
-                <div>
-                    <h2>Admin-Zugriff</h2>
-                    <p>Die Anmeldung bleibt bis zu 30 Tage aktiv. Ohne aktive Admin-Sitzung bleiben die internen Order-Daten gesperrt.</p>
+            <section class="admin-stock-bar admin-card" data-admin-stock-bar hidden>
+                <div class="admin-stock-bar__warning" data-no-stock-warning hidden>
+                    ⚠ Kein freies Gerät auf Lager – neue bezahlte Bestellungen können nicht sofort zugewiesen werden.
                 </div>
-                <form class="admin-auth-row" data-admin-orders-auth-form>
-                    <div class="form-row">
-                        <label class="form-label" for="admin-orders-password">Admin-Passwort</label>
-                        <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" data-admin-password-input>
+                <div class="admin-stock-bar__metrics">
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">Bestellt</span>
+                        <span class="admin-metric-value" data-stock-ordered>–</span>
                     </div>
-                    <button class="button button--plain-dark button--pill button--sm" type="submit">Anmelden</button>
-                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Abmelden</button>
-                </form>
-                <p class="admin-auth-status" data-admin-auth-status>Anmelden, um Bestellungen und Fulfillment-Daten zu laden.</p>
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">Frei</span>
+                        <span class="admin-metric-value" data-stock-free>–</span>
+                    </div>
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">Reserviert</span>
+                        <span class="admin-metric-value" data-stock-reserved>–</span>
+                    </div>
+                </div>
+                <div class="admin-stock-bar__pending" data-stock-pending-orders hidden>
+                    <h3>Offene Lieferantenbestellungen</h3>
+                    <div class="admin-stock-bar__pending-list" data-stock-pending-list></div>
+                </div>
             </section>
 
             <section class="admin-card">
@@ -61,11 +68,10 @@
                     <h2>Bestellungen</h2>
                     <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-reload-orders>Neu laden</button>
                 </div>
-                <p>Die Liste ist für operative Arbeit verdichtet. Details und Fulfillment-Bearbeitung erscheinen unterhalb der ausgewählten Bestellung.</p>
                 <div class="admin-toolbar" data-admin-orders-toolbar>
                     <div class="form-row admin-toolbar__search">
                         <label class="form-label" for="admin-order-search">Suche</label>
-                        <input class="form-input" id="admin-order-search" type="search" placeholder="Bestellnummer, Name, Firma, Ort" data-admin-order-search>
+                        <input class="form-input" id="admin-order-search" type="search" placeholder="Bestellnr., Name, Firma, Ort" data-admin-order-search>
                     </div>
                     <div class="form-row">
                         <label class="form-label" for="admin-payment-filter">Zahlung</label>
@@ -81,9 +87,14 @@
                         <label class="form-label" for="admin-fulfilment-filter">Fulfillment</label>
                         <select class="form-input" id="admin-fulfilment-filter" data-admin-fulfilment-filter>
                             <option value="all">Alle</option>
+                            <option value="new">Neu (bezahlt, offen)</option>
                             <option value="none">Keine Reservierung</option>
                             <option value="reserved">Reserviert</option>
-                            <option value="fulfilled">Erfüllt</option>
+                            <option value="installed">Installiert</option>
+                            <option value="packed">Verpackt</option>
+                            <option value="shipped">Versendet</option>
+                            <option value="delivered">Zugestellt</option>
+                            <option value="fulfilled">Abgeschlossen</option>
                             <option value="released">Freigegeben</option>
                             <option value="cancelled">Storniert</option>
                         </select>
@@ -91,14 +102,18 @@
                 </div>
                 <div class="admin-toolbar-meta">
                     <p class="admin-result-count" data-admin-order-count>0 Bestellungen</p>
-                    <div class="admin-status-legend" aria-label="Status-Legende">
-                        <span><span class="admin-dot admin-dot--success"></span> Bezahlt / Erfüllt</span>
-                        <span><span class="admin-dot admin-dot--warning"></span> Offen / Reserviert</span>
-                        <span><span class="admin-dot admin-dot--danger"></span> Fehlgeschlagen / Abgelaufen</span>
-                        <span><span class="admin-dot admin-dot--neutral"></span> Keine Reservierung / Freigegeben</span>
+                </div>
+
+                <div class="admin-orders-split">
+                    <div class="admin-orders-list-pane">
+                        <div class="admin-section-stack" data-admin-orders-list></div>
+                    </div>
+                    <div class="admin-orders-detail-pane" data-admin-orders-detail>
+                        <div class="admin-detail-placeholder">
+                            <p>Eine Bestellung auswählen, um Details und Fulfillment zu bearbeiten.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="admin-section-stack" data-admin-orders-list></div>
             </section>
 
             <div class="form-alert" data-admin-feedback hidden></div>

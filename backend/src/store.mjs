@@ -232,6 +232,7 @@ function mapStockDeviceRow(row) {
     devicePassword: row.device_password || '',
     status: row.status || 'available',
     assignedOrderId: row.assigned_order_id || null,
+    supplierOrderId: row.supplier_order_id || null,
     supplierName: row.supplier_name || '',
     orderedAt: row.ordered_at || null,
     expectedDeliveryAt: row.expected_delivery_at || null,
@@ -418,6 +419,7 @@ export async function createStore({ dataDir, logger = console }) {
   ensureColumn('device_models', 'system_spec', 'system_spec TEXT');
   ensureColumn('device_models', 'manufacturer', 'manufacturer TEXT');
   ensureColumn('stock_devices', 'supplier_name', 'supplier_name TEXT');
+  ensureColumn('stock_devices', 'supplier_order_id', 'supplier_order_id TEXT');
   ensureColumn('stock_devices', 'ordered_at', 'ordered_at TEXT');
   ensureColumn('stock_devices', 'expected_delivery_at', 'expected_delivery_at TEXT');
   ensureColumn('stock_devices', 'received_at', 'received_at TEXT');
@@ -835,15 +837,16 @@ export async function createStore({ dataDir, logger = console }) {
   `;
   const getStockDeviceStatement = db.prepare(`${stockDeviceSelect} WHERE sd.id = ?`);
   const getDevicesByOrderIdStatement = db.prepare(`${stockDeviceSelect} WHERE sd.assigned_order_id = ? ORDER BY sd.created_at ASC`);
-  const listStockDevicesStatement = db.prepare(`${stockDeviceSelect} WHERE sd.product_key = ? ORDER BY sd.status ASC, sd.serial_number ASC`);
+  const listStockDevicesStatement = db.prepare(`${stockDeviceSelect} WHERE sd.product_key = ? ORDER BY sd.created_at DESC`);
+  const listAllStockDevicesStatement = db.prepare(`${stockDeviceSelect} ORDER BY sd.created_at DESC`);
   const upsertStockDeviceStatement = db.prepare(`
     INSERT INTO stock_devices (
       id, product_key, serial_number, device_username, device_password,
-      status, assigned_order_id, supplier_name, ordered_at, expected_delivery_at,
+      status, assigned_order_id, supplier_order_id, supplier_name, ordered_at, expected_delivery_at,
       received_at, notes, created_at, updated_at
     ) VALUES (
       @id, @product_key, @serial_number, @device_username, @device_password,
-      @status, @assigned_order_id, @supplier_name, @ordered_at, @expected_delivery_at,
+      @status, @assigned_order_id, @supplier_order_id, @supplier_name, @ordered_at, @expected_delivery_at,
       @received_at, @notes, @created_at, @updated_at
     )
     ON CONFLICT(id) DO UPDATE SET
@@ -852,6 +855,7 @@ export async function createStore({ dataDir, logger = console }) {
       device_password = excluded.device_password,
       status = excluded.status,
       assigned_order_id = excluded.assigned_order_id,
+      supplier_order_id = excluded.supplier_order_id,
       supplier_name = excluded.supplier_name,
       ordered_at = excluded.ordered_at,
       expected_delivery_at = excluded.expected_delivery_at,
@@ -1181,12 +1185,19 @@ export async function createStore({ dataDir, logger = console }) {
     return listStockDevicesStatement.all(productKey).map(mapStockDeviceRow);
   }
 
+  function listAllStockDevices() {
+    return listAllStockDevicesStatement.all().map(mapStockDeviceRow);
+  }
+
   function listDevicesByOrderId(orderId) {
     return getDevicesByOrderIdStatement.all(orderId).map(mapStockDeviceRow);
   }
 
   const deleteDeviceModelStatement = db.prepare('DELETE FROM device_models WHERE product_key = ?');
   const deleteStockDeviceStatement = db.prepare('DELETE FROM stock_devices WHERE id = ?');
+  const deleteSupplierOrderStatement = db.prepare('DELETE FROM supplier_orders WHERE id = ?');
+  const deleteStockDevicesBySupplierOrderStatement = db.prepare("DELETE FROM stock_devices WHERE supplier_order_id = ? AND status = 'ordered'");
+  const listDevicesBySupplierOrderStatement = db.prepare(`${stockDeviceSelect} WHERE sd.supplier_order_id = ? ORDER BY sd.created_at ASC`);
 
   function deleteDeviceModel(productKey) {
     deleteDeviceModelStatement.run(productKey);
@@ -1194,6 +1205,15 @@ export async function createStore({ dataDir, logger = console }) {
 
   function deleteStockDevice(id) {
     deleteStockDeviceStatement.run(id);
+  }
+
+  function deleteSupplierOrder(id) {
+    deleteStockDevicesBySupplierOrderStatement.run(id);
+    deleteSupplierOrderStatement.run(id);
+  }
+
+  function listDevicesBySupplierOrder(supplierOrderId) {
+    return listDevicesBySupplierOrderStatement.all(supplierOrderId).map(mapStockDeviceRow);
   }
 
   function saveStockDevice(device) {
@@ -1206,6 +1226,7 @@ export async function createStore({ dataDir, logger = console }) {
       device_password: device.devicePassword || null,
       status: device.status || 'available',
       assigned_order_id: device.assignedOrderId || null,
+      supplier_order_id: device.supplierOrderId || null,
       supplier_name: device.supplierName || null,
       ordered_at: device.orderedAt || null,
       expected_delivery_at: device.expectedDeliveryAt || null,
@@ -1341,9 +1362,12 @@ export async function createStore({ dataDir, logger = console }) {
     archiveOrder,
     getStockDevice,
     listStockDevices,
+    listAllStockDevices,
     listDevicesByOrderId,
     saveStockDevice,
     deleteDeviceModel,
-    deleteStockDevice
+    deleteStockDevice,
+    deleteSupplierOrder,
+    listDevicesBySupplierOrder
   };
 }

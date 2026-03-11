@@ -508,6 +508,7 @@ function stockDevicePayload(device) {
     devicePassword: device.devicePassword,
     status: device.status,
     assignedOrderId: device.assignedOrderId,
+    supplierOrderId: device.supplierOrderId || null,
     supplierName: device.supplierName || '',
     orderedAt: device.orderedAt || null,
     expectedDeliveryAt: device.expectedDeliveryAt || null,
@@ -911,6 +912,7 @@ app.get('/api/orders/status', statusRateLimit, async (req, res) => {
     status: currentOrder.status,
     paymentStatus: currentOrder.paymentStatus,
     paymentId: currentOrder.paymentId,
+    paymentMethod: currentOrder.paymentMethod || '',
     runtime: config.appRuntimeName,
     locale: currentOrder.locale
   });
@@ -927,12 +929,14 @@ app.get('/api/orders', adminRateLimit, requireAdmin, (req, res) => {
 app.get('/api/admin/orders-overview', adminRateLimit, requireAdmin, (req, res) => {
   const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '200', 10), 1), 500);
   const productKey = config.checkoutProductKey;
-  const inventory = store.getInventory(productKey);
   const supplierOrders = store.listSupplierOrders(productKey);
-  const inStockUnits = supplierOrders.filter((s) => s.status === 'in_stock').reduce((sum, s) => sum + s.quantity, 0);
-  const allocatedUnits = store.listOrderAllocations(productKey)
-    .filter((a) => ['reserved', 'fulfilled', 'installed', 'packed', 'shipped', 'delivered'].includes(a.status))
-    .reduce((sum, a) => sum + a.quantity, 0);
+  const allDevices = store.listAllStockDevices();
+  const deviceCounts = { ordered: 0, free: 0, reserved: 0 };
+  for (const d of allDevices) {
+    if (d.status === 'ordered') deviceCounts.ordered++;
+    else if (d.status === 'in_stock' || d.status === 'available') deviceCounts.free++;
+    else if (d.status === 'reserved' || d.status === 'assigned') deviceCounts.reserved++;
+  }
   const pendingSupplierOrders = supplierOrders
     .filter((s) => ['ordered', 'in_transit'].includes(s.status))
     .map((s) => ({
@@ -949,13 +953,12 @@ app.get('/api/admin/orders-overview', adminRateLimit, requireAdmin, (req, res) =
     orders: store.listOrdersOverview(limit),
     stock: {
       productKey,
-      inStock: inStockUnits,
-      allocated: allocatedUnits,
-      available: Math.max(0, inStockUnits - allocatedUnits),
-      availableUnits: inventory?.availableUnits ?? 0
+      ordered: deviceCounts.ordered,
+      free: deviceCounts.free,
+      reserved: deviceCounts.reserved
     },
     pendingSupplierOrders,
-    availableDevices: store.listStockDevices(productKey).filter((d) => d.status === 'available').map((d) => ({ id: d.id, serialNumber: d.serialNumber }))
+    availableDevices: allDevices.filter((d) => ['available', 'in_stock', 'installed'].includes(d.status)).map((d) => ({ id: d.id, serialNumber: d.serialNumber, status: d.status }))
   });
 });
 
@@ -1237,10 +1240,6 @@ app.put('/api/order-allocations/:orderId', adminRateLimit, requireAdmin, (req, r
 
 app.post('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
   const productKey = sanitizeSingleLineInput(req.body.productKey, 80) || config.checkoutProductKey;
-  const product = store.getDeviceModel(productKey);
-  if (!product) {
-    return res.status(400).json({ error: 'unknown_product_key' });
-  }
 
   const supplierName = normalizeName(req.body.supplierName, 160);
   const status = normalizeEnum(req.body.status, new Set(['ordered', 'in_transit', 'received', 'in_stock', 'cancelled'])) || 'ordered';
@@ -1280,34 +1279,42 @@ app.post('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
     notes: sanitizeMultilineInput(req.body.notes, 1000)
   });
 
-  // Auto-create device records for this supplier order
+  // Create one device record per ordered unit, linked to this supplier order
   const now = new Date().toISOString();
-  const createdDevices = [];
+  let devicesCreated = 0;
+  let deviceCreateError = null;
   for (let i = 0; i < quantity; i++) {
-    const deviceId = crypto.randomUUID();
-    const placeholderSerial = `PENDING-${deviceId.slice(0, 8).toUpperCase()}`;
-    const device = store.saveStockDevice({
-      id: deviceId,
-      productKey,
-      serialNumber: placeholderSerial,
-      deviceUsername: '',
-      devicePassword: '',
-      status: 'ordered',
-      assignedOrderId: null,
-      supplierName,
-      orderedAt: orderedAt || null,
-      expectedDeliveryAt: expectedDeliveryAt || null,
-      receivedAt: null,
-      notes: `Auto-created from supplier order ${supplierOrderId}`,
-      createdAt: now
-    });
-    createdDevices.push(stockDevicePayload(device));
+    try {
+      const deviceId = crypto.randomUUID();
+      const placeholderSerial = `PENDING-${deviceId.slice(0, 8).toUpperCase()}`;
+      store.saveStockDevice({
+        id: deviceId,
+        productKey,
+        serialNumber: placeholderSerial,
+        deviceUsername: '',
+        devicePassword: '',
+        status: 'ordered',
+        assignedOrderId: null,
+        supplierOrderId: supplierOrderId,
+        supplierName,
+        orderedAt: orderedAt || null,
+        expectedDeliveryAt: expectedDeliveryAt || null,
+        receivedAt: null,
+        notes: '',
+        createdAt: now
+      });
+      devicesCreated++;
+    } catch (err) {
+      console.error('[supplier-order] failed to create device placeholder:', err?.message);
+      deviceCreateError = err?.message;
+    }
   }
 
   return res.status(201).json({
     supplierOrder: supplierOrderPayload(saved),
-    devices: createdDevices,
-    inventory: inventoryPayload(store.getInventory(productKey), 'de')
+    inventory: inventoryPayload(store.getInventory(productKey), 'de'),
+    devicesCreated,
+    ...(deviceCreateError ? { deviceCreateError } : {})
   });
 });
 
@@ -1355,11 +1362,37 @@ app.put('/api/supplier-orders/:supplierOrderId', adminRateLimit, requireAdmin, (
   });
 });
 
+app.delete('/api/supplier-orders/:supplierOrderId', adminRateLimit, requireAdmin, (req, res) => {
+  const existing = store.getSupplierOrder(req.params.supplierOrderId);
+  if (!existing) {
+    return res.status(404).json({ error: 'supplier_order_not_found' });
+  }
+
+  const linkedDevices = store.listDevicesBySupplierOrder(existing.id);
+  const nonOrderedDevices = linkedDevices.filter((d) => d.status !== 'ordered');
+  if (nonOrderedDevices.length > 0) {
+    return res.status(409).json({ error: 'devices_already_processed', count: nonOrderedDevices.length });
+  }
+
+  store.deleteSupplierOrder(existing.id);
+  return res.json({ ok: true, inventory: inventoryPayload(store.getInventory(existing.productKey), 'de') });
+});
+
 app.get('/api/admin/stock-devices', adminRateLimit, requireAdmin, (req, res) => {
-  const productKey = typeof req.query.productKey === 'string' ? req.query.productKey : config.checkoutProductKey;
-  return res.json({
-    devices: store.listStockDevices(productKey).map(stockDevicePayload)
+  const devices = store.listAllStockDevices().map((device) => {
+    const payload = stockDevicePayload(device);
+    if (device.assignedOrderId) {
+      const order = store.getOrder(device.assignedOrderId);
+      if (order?.customer) {
+        const nameParts = [order.customer.firstName, order.customer.lastName].filter(Boolean);
+        payload.customerName = nameParts.join(' ');
+        payload.customerCompany = order.customer.company || '';
+        payload.orderNumber = order.orderNumber || '';
+      }
+    }
+    return payload;
   });
+  return res.json({ devices });
 });
 
 app.post('/api/admin/stock-devices', adminRateLimit, requireAdmin, (req, res) => {
@@ -1394,7 +1427,7 @@ app.put('/api/admin/stock-devices/:deviceId', adminRateLimit, requireAdmin, (req
   if (!existing) {
     return res.status(404).json({ error: 'device_not_found' });
   }
-  const allowedStatuses = new Set(['available', 'ordered', 'reserved', 'assigned', 'retired', 'unavailable', 'in_stock']);
+  const allowedStatuses = new Set(['available', 'ordered', 'reserved', 'assigned', 'retired', 'unavailable', 'in_stock', 'installed']);
   const status = normalizeEnum(req.body.status, allowedStatuses) || existing.status;
   const serialNumber = sanitizeSingleLineInput(req.body.serialNumber, 100) || existing.serialNumber;
 

@@ -521,6 +521,18 @@ function setupCheckoutPaymentMethods() {
         container.innerHTML = '';
         container.appendChild(list);
 
+        // Restore saved payment method selection
+        try {
+            const raw = localStorage.getItem('indiebox_checkout_draft');
+            if (raw) {
+                const draft = JSON.parse(raw);
+                if (draft.paymentMethod) {
+                    const saved = list.querySelector(`input[value="${CSS.escape(draft.paymentMethod)}"]`);
+                    if (saved) saved.checked = true;
+                }
+            }
+        } catch { /* ignore */ }
+
         const submitButton = form && form.querySelector('button[type="submit"]');
         if (submitButton) submitButton.disabled = false;
     };
@@ -725,6 +737,10 @@ function setupCheckoutValidation() {
             }
             field.classList.toggle('form-input--invalid', Boolean(message));
             field.classList.toggle('form-textarea--invalid', Boolean(message));
+            // Mark parent label for checkboxes
+            if (field.type === 'checkbox') {
+                field.closest('.form-checkbox')?.classList.toggle('form-checkbox--invalid', Boolean(message));
+            }
         };
 
         const validateField = (field) => {
@@ -759,6 +775,11 @@ function setupCheckoutValidation() {
                 }
             }
 
+            if (field.type === 'checkbox' && field.required && !field.checked) {
+                setFieldError(field, messages.required);
+                return false;
+            }
+
             return field.checkValidity();
         };
 
@@ -766,6 +787,45 @@ function setupCheckoutValidation() {
             field.addEventListener('input', () => validateField(field));
             field.addEventListener('change', () => validateField(field));
         });
+
+        // Restore saved draft if returning from a failed/cancelled payment
+        try {
+            const raw = localStorage.getItem('indiebox_checkout_draft');
+            if (raw) {
+                const draft = JSON.parse(raw);
+                const TEXT_FIELDS = ['firstName', 'lastName', 'email', 'phone',
+                    'company', 'vatId', 'billingStreet', 'billingZip', 'billingCity',
+                    'shippingCareOf', 'shippingStreet', 'shippingZip', 'shippingCity', 'notes'];
+                TEXT_FIELDS.forEach(name => {
+                    if (draft[name] == null) return;
+                    const el = form.elements.namedItem(name);
+                    if (el && !el.disabled && el.type !== 'hidden') el.value = draft[name];
+                });
+                // Restore toggle checkboxes (triggers panel show/hide via existing listeners)
+                ['isCompanyOrder', 'shippingDifferent'].forEach(name => {
+                    if (draft[name] == null) return;
+                    const el = form.elements.namedItem(name);
+                    if (el && 'checked' in el) {
+                        el.checked = draft[name] === 'on';
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                // Show restore notice
+                const notice = document.createElement('div');
+                notice.className = 'form-restore-notice';
+                const noticeMsg = locale === 'en'
+                    ? 'Your details have been restored. You can try again with the same data or choose a different payment method.'
+                    : 'Deine Angaben wurden wiederhergestellt. Du kannst es erneut versuchen oder eine andere Zahlungsart wählen.';
+                const discardLabel = locale === 'en' ? 'Discard' : 'Verwerfen';
+                notice.innerHTML = `<span>${noticeMsg}</span><button type="button" class="form-restore-discard">${discardLabel}</button>`;
+                form.insertAdjacentElement('afterbegin', notice);
+                notice.querySelector('.form-restore-discard').addEventListener('click', () => {
+                    localStorage.removeItem('indiebox_checkout_draft');
+                    form.reset();
+                    notice.remove();
+                });
+            }
+        } catch { /* ignore */ }
 
         form.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -808,6 +868,14 @@ function setupCheckoutValidation() {
                     throw new Error(payload?.message || messages.submitError);
                 }
 
+                try {
+                    const draft = {};
+                    for (const [k, v] of new FormData(form).entries()) {
+                        if (!['locale', 'product', 'billingCountry', 'shippingCountry'].includes(k)) draft[k] = v;
+                    }
+                    localStorage.setItem('indiebox_checkout_draft', JSON.stringify(draft));
+                } catch { /* ignore */ }
+
                 window.location.assign(payload.checkoutUrl);
             } catch (error) {
                 if (alertBox) {
@@ -823,6 +891,42 @@ function setupCheckoutValidation() {
     });
 }
 
+function showConfirmModal(title, body, onConfirm, yesLabel = 'OK', noLabel = 'Abbrechen') {
+    const overlay = document.createElement('div');
+    overlay.className = 'admin-confirm-overlay';
+    overlay.innerHTML = `
+        <div class="admin-confirm-dialog" role="alertdialog" aria-modal="true">
+            <div class="admin-confirm-dialog__title">${title}</div>
+            ${body ? `<div class="admin-confirm-dialog__body">${body}</div>` : ''}
+            <div class="admin-confirm-dialog__actions">
+                <button type="button" class="button button--pill button--sm" data-modal-cancel>${noLabel}</button>
+                <button type="button" class="button button--pill button--sm" style="background:#b91c1c;color:#fff;border-color:#b91c1c" data-modal-confirm>${yesLabel}</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector('[data-modal-cancel]').addEventListener('click', close);
+    overlay.querySelector('[data-modal-confirm]').addEventListener('click', () => { close(); onConfirm(); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+}
+
+function showInlineConfirm(btn, onConfirm, yesLabel, noLabel) {
+    const existing = btn.parentElement?.querySelector('[data-inline-confirm]');
+    if (existing) { existing.remove(); btn.disabled = false; return; }
+    btn.disabled = true;
+    const widget = document.createElement('span');
+    widget.setAttribute('data-inline-confirm', '');
+    widget.className = 'inline-confirm';
+    widget.innerHTML = `<button type="button" class="inline-confirm__yes">${yesLabel}</button><button type="button" class="inline-confirm__no">${noLabel}</button>`;
+    btn.insertAdjacentElement('afterend', widget);
+    widget.querySelector('.inline-confirm__yes').addEventListener('click', () => {
+        widget.remove(); btn.disabled = false; onConfirm();
+    });
+    widget.querySelector('.inline-confirm__no').addEventListener('click', () => {
+        widget.remove(); btn.disabled = false;
+    });
+}
+
 function setupAdminInventory() {
     const app = document.querySelector('[data-admin-inventory]');
     if (!app) return;
@@ -835,13 +939,20 @@ function setupAdminInventory() {
     const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
     const articleForm = app.querySelector('[data-admin-article-form]');
     const articlesList = app.querySelector('[data-admin-articles-list]');
-    const procurementForm = app.querySelector('[data-admin-procurement-form]');
     const procurementList = app.querySelector('[data-admin-procurement-list]');
+    const procurementDetail = app.querySelector('[data-admin-procurement-detail]');
     const allocationsList = app.querySelector('[data-admin-allocations-list]');
-    const devicesForm = app.querySelector('[data-admin-device-form]');
     const devicesList = app.querySelector('[data-admin-devices-list]');
-    const articleSelect = app.querySelector('[data-article-select]');
+    const devicesDetail = app.querySelector('[data-admin-devices-detail]');
+    const deviceFilterStatus = app.querySelector('[data-device-filter-status]');
     const feedback = app.querySelector('[data-admin-feedback]');
+
+    let selectedDeviceId = null;
+    let deviceStatusFilter = '';
+    let allDevicesCache = [];
+    let selectedSupplierOrderId = null;
+    let allSupplierOrdersCache = [];
+    let allDeviceModelsCache = [];
 
     const m = locale === 'en'
         ? {
@@ -863,12 +974,13 @@ function setupAdminInventory() {
             noArticles: 'No articles in the catalogue yet.',
             allocationSaved: 'Reservation updated.',
             statusAvailable: 'Available', statusAssigned: 'Assigned', statusRetired: 'Retired', statusUnavailable: 'Unavailable',
-            statusOrdered: 'On order', statusReserved: 'Reserved for order', statusInStock: 'In stock',
+            statusOrdered: 'On order', statusReserved: 'Reserved for order', statusInStock: 'In stock', statusInstalled: 'Installed',
             markUnavailable: 'Mark unavailable', markAvailable: 'Mark available',
-            markInStock: 'Received – enter serial',
+            markInStock: 'Received – enter serial', markInstalled: 'Mark as installed',
             save: 'Save', retire: 'Retire',
             deleteArticle: 'Delete',
             confirmDeleteArticle: 'Delete this article? This cannot be undone.',
+            confirmYes: 'Delete', confirmNo: 'Cancel',
             vatIncl: 'incl. VAT', vatExcl: 'excl. VAT'
         }
         : {
@@ -890,20 +1002,26 @@ function setupAdminInventory() {
             noArticles: 'Noch keine Artikel im Katalog.',
             allocationSaved: 'Reservierung gespeichert.',
             statusAvailable: 'Verfügbar', statusAssigned: 'Zugewiesen', statusRetired: 'Ausgemustert', statusUnavailable: 'Nicht verfügbar',
-            statusOrdered: 'Bestellt', statusReserved: 'Reserviert für Bestellung', statusInStock: 'Auf Lager',
+            statusOrdered: 'Bestellt', statusReserved: 'Reserviert für Bestellung', statusInStock: 'Auf Lager', statusInstalled: 'Installiert',
             markUnavailable: 'Sperren', markAvailable: 'Freigeben',
-            markInStock: 'Erhalten – Seriennr. eingeben',
+            markInStock: 'Erhalten – Seriennr. eingeben', markInstalled: 'Als installiert markieren',
             save: 'Speichern', retire: 'Ausmustern',
             deleteArticle: 'Löschen',
             confirmDeleteArticle: 'Diesen Artikel löschen? Das kann nicht rückgängig gemacht werden.',
+            confirmYes: 'Löschen', confirmNo: 'Abbrechen',
             vatIncl: 'inkl. MwSt.', vatExcl: 'zzgl. MwSt.'
         };
 
+    let feedbackTimer = null;
     const setFeedback = (message, isError = false) => {
         if (!feedback) return;
+        clearTimeout(feedbackTimer);
         feedback.hidden = !message;
         feedback.textContent = message || '';
-        feedback.classList.toggle('form-alert--error', Boolean(isError));
+        feedback.classList.toggle('admin-toast--error', Boolean(isError));
+        if (message && !isError) {
+            feedbackTimer = setTimeout(() => { feedback.hidden = true; }, 4000);
+        }
     };
 
     const setAuthStatus = (message, isError = false) => {
@@ -1000,57 +1118,122 @@ function setupAdminInventory() {
         if (status === 'available') return { label: m.statusAvailable, cls: 'available' };
         if (status === 'ordered') return { label: m.statusOrdered, cls: 'ordered' };
         if (status === 'in_stock') return { label: m.statusInStock, cls: 'available' };
+        if (status === 'installed') return { label: m.statusInstalled, cls: 'available' };
         if (status === 'reserved') return { label: m.statusReserved, cls: 'reserved' };
         if (status === 'assigned') return { label: m.statusAssigned, cls: 'assigned' };
         if (status === 'unavailable') return { label: m.statusUnavailable, cls: 'unavailable' };
         return { label: m.statusRetired, cls: 'retired' };
     };
 
-    const renderDevices = (devices) => {
-        if (!devicesList) return;
-        if (!devices.length) {
-            devicesList.innerHTML = `<p class="admin-empty">${m.noDevices}</p>`;
+    const supplierStatusBadge = (status) => {
+        switch (status) {
+            case 'ordered': return { cls: 'ordered', label: locale === 'en' ? 'Ordered' : 'Bestellt' };
+            case 'in_transit': return { cls: 'neutral', label: locale === 'en' ? 'In transit' : 'Unterwegs' };
+            case 'received': return { cls: 'info', label: locale === 'en' ? 'Received' : 'Geliefert' };
+            case 'in_stock': return { cls: 'available', label: locale === 'en' ? 'In stock' : 'Auf Lager' };
+            case 'cancelled': return { cls: 'danger', label: locale === 'en' ? 'Cancelled' : 'Storniert' };
+            default: return { cls: 'neutral', label: status || '–' };
+        }
+    };
+
+    const renderDeviceDetail = (device) => {
+        if (!devicesDetail) return;
+        if (!device) {
+            devicesDetail.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select a device to view and edit details.' : 'Gerät auswählen, um Details zu bearbeiten.'}</p></div>`;
             return;
         }
-        const rows = devices.map((d) => {
-            const st = deviceStatusLabel(d.status);
-            const editable = !['packed', 'shipped', 'delivered', 'fulfilled', 'retired'].includes(d.status);
-            const modelInfo = [d.manufacturer, d.modelName].filter(Boolean).join(' · ');
-            return `<tr data-device-row data-device-id="${esc(d.id)}">
-                <td>
-                    ${modelInfo ? `<div style="font-size:0.72rem;color:rgba(15,23,42,0.5);margin-bottom:0.15rem">${esc(modelInfo)}</div>` : ''}
-                    <input class="form-input admin-table-input" type="text" name="serialNumber" value="${esc(d.serialNumber)}" ${editable ? '' : 'disabled'}>
-                    ${d.supplierName ? `<div style="font-size:0.72rem;color:rgba(15,23,42,0.45);margin-top:0.15rem">${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${esc(d.expectedDeliveryAt)}` : ''}</div>` : ''}
-                </td>
-                <td><input class="form-input admin-table-input" type="text" name="deviceUsername" value="${esc(d.deviceUsername)}" ${editable ? '' : 'disabled'}></td>
-                <td><input class="form-input admin-table-input" type="text" name="devicePassword" value="${esc(d.devicePassword)}" ${editable ? '' : 'disabled'}></td>
-                <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2" ${editable ? '' : 'disabled'}>${esc(d.notes)}</textarea></td>
-                <td><span class="admin-device-status admin-device-status--${esc(st.cls)}">${esc(st.label)}</span></td>
-                ${d.assignedOrderId ? `<td class="admin-table-code" style="font-size:0.7rem;color:rgba(15,23,42,0.45)">${esc(d.assignedOrderId.slice(-8))}</td>` : '<td>–</td>'}
-                <td class="admin-table-action" style="white-space:nowrap;display:flex;flex-direction:column;gap:0.3rem;padding:0.4rem 0.6rem">
-                    ${editable ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-save-device>${esc(m.save)}</button>` : ''}
-                    ${d.status === 'ordered' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-mark-in-stock>${esc(m.markInStock)}</button>` : ''}
-                    ${d.status === 'available' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-toggle-unavailable data-next-status="unavailable">${esc(m.markUnavailable)}</button>` : ''}
-                    ${d.status === 'unavailable' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-toggle-unavailable data-next-status="available">${esc(m.markAvailable)}</button>` : ''}
-                    ${editable ? `<button type="button" class="button button--plain-light button--pill button--sm" data-retire-device>${esc(m.retire)}</button>` : ''}
-                </td>
-            </tr>`;
-        }).join('');
-        devicesList.innerHTML = `
-            <div class="admin-table-wrap">
-                <table class="admin-device-table">
-                    <thead><tr>
-                        <th>${locale === 'en' ? 'Serial / Model' : 'Seriennr. / Modell'}</th>
-                        <th>${locale === 'en' ? 'Username' : 'Benutzer'}</th>
-                        <th>${locale === 'en' ? 'Password' : 'Passwort'}</th>
-                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
-                        <th>${locale === 'en' ? 'Status' : 'Status'}</th>
-                        <th>${locale === 'en' ? 'Order' : 'Bestellung'}</th>
-                        <th></th>
-                    </tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
+        const d = device;
+        const st = deviceStatusLabel(d.status);
+        const editable = !['retired'].includes(d.status);
+        const modelInfo = [d.manufacturer, d.modelName].filter(Boolean).join(' · ');
+        devicesDetail.innerHTML = `
+            <div class="admin-detail-body" data-device-detail data-device-id="${esc(d.id)}">
+                ${d.assignedOrderId ? `
+                    <div class="admin-detail-section admin-detail-section--compact admin-detail-section--highlight">
+                        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#92400e;margin-bottom:0.35rem">${locale === 'en' ? 'Assigned to customer' : 'Zugewiesen an Kunde'}</div>
+                        <div style="font-weight:500">${esc(d.customerName || d.customerCompany || '–')}</div>
+                        ${d.customerCompany && d.customerName ? `<div style="font-size:0.85rem;color:rgba(15,23,42,0.6)">${esc(d.customerCompany)}</div>` : ''}
+                        <a href="./orders.html" class="admin-detail-link" style="font-size:0.82rem">${locale === 'en' ? 'Order' : 'Bestellung'} #${esc(d.orderNumber || d.assignedOrderId.slice(-8))} →</a>
+                    </div>
+                ` : ''}
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-detail-row-pair">
+                        <strong>Status</strong>
+                        <span class="admin-device-status admin-device-status--${esc(st.cls)}">${esc(st.label)}</span>
+                    </div>
+                    ${modelInfo ? `<div class="admin-detail-row-pair"><strong>${locale === 'en' ? 'Model' : 'Modell'}</strong><span>${esc(modelInfo)}</span></div>` : ''}
+                    ${d.supplierName ? `<div class="admin-detail-row-pair"><strong>${locale === 'en' ? 'Supplier' : 'Lieferant'}</strong><span>${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${locale === 'en' ? 'exp.' : 'erw.'} ${esc(d.expectedDeliveryAt)}` : ''}${d.supplierOrderId ? ` · <button type="button" class="admin-detail-link" style="background:none;border:none;padding:0;cursor:pointer" data-goto-supplier-order="${esc(d.supplierOrderId)}">${locale === 'en' ? 'View order →' : 'Zur Bestellung →'}</button>` : ''}</span></div>` : ''}
+                    ${d.status === 'ordered' ? `<div style="font-size:0.8rem;color:rgba(15,23,42,0.55);margin-top:0.25rem">${locale === 'en' ? 'Mark as received via the supplier order or use the button below.' : 'Status über die Lieferantenbestellung setzen oder unten direkt.'}</div>` : ''}
+                </div>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="form-row">
+                        <label class="form-label">${locale === 'en' ? 'Serial number' : 'Seriennummer'}</label>
+                        <input class="form-input" type="text" name="serialNumber" value="${esc(d.serialNumber.startsWith('PENDING-') ? '' : d.serialNumber)}" placeholder="${d.serialNumber.startsWith('PENDING-') ? (locale === 'en' ? 'Enter when received' : 'Bei Lieferung eintragen') : ''}" ${editable ? '' : 'disabled'}>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Username' : 'Benutzername'}</label>
+                            <input class="form-input" type="text" name="deviceUsername" value="${esc(d.deviceUsername || '')}" ${editable ? '' : 'disabled'}>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Password' : 'Passwort'}</label>
+                            <input class="form-input" type="text" name="devicePassword" value="${esc(d.devicePassword || '')}" ${editable ? '' : 'disabled'}>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                        <textarea class="form-textarea" name="notes" rows="3" ${editable ? '' : 'disabled'}>${esc(d.notes || '')}</textarea>
+                    </div>
+                </div>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-detail-actions">
+                        ${editable ? `<button type="button" class="button button--solid button--pill button--sm" data-save-device>${esc(m.save)}</button>` : ''}
+                        ${d.status === 'ordered' ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-mark-in-stock>${esc(m.markInStock)}</button>` : ''}
+                        ${['in_stock', 'reserved'].includes(d.status) ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-mark-installed>${esc(m.markInstalled)}</button>` : ''}
+                        ${d.status === 'available' ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-toggle-unavailable data-next-status="unavailable">${esc(m.markUnavailable)}</button>` : ''}
+                        ${d.status === 'unavailable' ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-toggle-unavailable data-next-status="available">${esc(m.markAvailable)}</button>` : ''}
+                        ${editable ? `<button type="button" class="button button--plain-light button--pill button--sm admin-danger-btn" data-retire-device>${esc(m.retire)}</button>` : ''}
+                    </div>
+                </div>
             </div>`;
+    };
+
+    const renderDevices = (devices) => {
+        allDevicesCache = devices;
+        if (!devicesList) return;
+        const filtered = deviceStatusFilter ? devices.filter((d) => d.status === deviceStatusFilter) : devices;
+        if (!filtered.length) {
+            devicesList.innerHTML = `<p class="admin-empty">${m.noDevices}</p>`;
+            if (selectedDeviceId) { selectedDeviceId = null; renderDeviceDetail(null); }
+            return;
+        }
+        devicesList.innerHTML = filtered.map((d) => {
+            const isSelected = d.id === selectedDeviceId;
+            const displaySerial = (d.serialNumber.startsWith('PENDING-') && d.status === 'ordered') ? `(${m.statusOrdered})` : d.serialNumber;
+            const shortLabel = (() => {
+                switch (d.status) {
+                    case 'available': case 'in_stock': case 'installed': return { label: deviceStatusLabel(d.status).label, cls: 'available' };
+                    case 'reserved': case 'assigned': return { label: locale === 'en' ? 'Reserved' : 'Reserviert', cls: 'reserved' };
+                    case 'unavailable': return { label: locale === 'en' ? 'Blocked' : 'Gesperrt', cls: 'unavailable' };
+                    default: return deviceStatusLabel(d.status);
+                }
+            })();
+            const subtitle = d.assignedOrderId
+                ? [d.orderNumber ? `#${d.orderNumber}` : null, d.customerName, d.customerCompany].filter(Boolean).join(' · ')
+                : ([d.manufacturer, d.modelName].filter(Boolean).join(' · '));
+            return `<div class="admin-order-item admin-order-item--simple${isSelected ? ' is-selected' : ''}" data-device-item data-device-id="${esc(d.id)}">
+                <div class="admin-order-item__body">
+                    <span class="admin-order-item__name">${esc(displaySerial)}</span>
+                    ${subtitle ? `<span class="admin-order-item__meta">${esc(subtitle)}</span>` : ''}
+                </div>
+                <span class="admin-device-status admin-device-status--${esc(shortLabel.cls)}" style="white-space:nowrap;flex-shrink:0">${esc(shortLabel.label)}</span>
+            </div>`;
+        }).join('');
+        if (selectedDeviceId) {
+            const d = devices.find((d) => d.id === selectedDeviceId);
+            if (d) renderDeviceDetail(d);
+            else { selectedDeviceId = null; renderDeviceDetail(null); }
+        }
     };
 
     const supplierStatusOptions = (currentValue) => {
@@ -1064,51 +1247,106 @@ function setupAdminInventory() {
         return options.map(([value, label]) => `<option value="${esc(value)}"${value === currentValue ? ' selected' : ''}>${esc(label)}</option>`).join('');
     };
 
+    const articleOptions = (currentKey) => (allDeviceModelsCache || []).map((model) =>
+        `<option value="${esc(model.productKey)}"${model.productKey === currentKey ? ' selected' : ''}>${esc([model.manufacturer, model.productName].filter(Boolean).join(' · '))}</option>`
+    ).join('');
+
+    const renderSupplierOrderDetail = (order) => {
+        if (!procurementDetail) return;
+        const isNew = !order;
+        const o = order || {};
+        const currentProductKey = o.productKey || productKey;
+        procurementDetail.innerHTML = `
+            <div class="admin-detail-body" data-supplier-order-detail ${o.id ? `data-supplier-order-id="${esc(o.id)}"` : ''}>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="form-grid">
+                        <div class="form-row form-row--full">
+                            <label class="form-label">${locale === 'en' ? 'Article' : 'Artikel'}</label>
+                            <select class="form-input" name="productKey">
+                                ${allDeviceModelsCache.length ? articleOptions(currentProductKey) : `<option value="${esc(currentProductKey)}">${esc(currentProductKey)}</option>`}
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Supplier' : 'Lieferant'}</label>
+                            <input class="form-input" type="text" name="supplierName" value="${esc(o.supplierName || '')}" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Reference' : 'Referenz'}</label>
+                            <input class="form-input" type="text" name="supplierReference" value="${esc(o.supplierReference || '')}">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Qty' : 'Menge'}</label>
+                            <input class="form-input" type="number" min="1" name="quantity" value="${esc(String(o.quantity || 1))}">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status">${supplierStatusOptions(o.status || 'ordered')}</select>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Price/unit (€)' : 'Preis/Stk. (€)'}</label>
+                            <input class="form-input" type="text" name="pricePerItem" value="${esc(o.pricePerItem || '')}" placeholder="0.00">
+                        </div>
+                        <div class="form-row" style="align-items:center;display:flex;gap:0.5rem">
+                            <input type="checkbox" name="priceIncludesVat" value="true"${o.priceIncludesVat ? ' checked' : ''} style="width:auto;flex:none">
+                            <label class="form-label" style="margin:0">${esc(m.vatIncl)}</label>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Ordered' : 'Bestellt am'}</label>
+                            <input class="form-input" type="date" name="orderedAt" value="${esc(o.orderedAt || '')}">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Expected delivery' : 'Erwartete Lieferung'}</label>
+                            <input class="form-input" type="date" name="expectedDeliveryAt" value="${esc(o.expectedDeliveryAt || '')}">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Received' : 'Geliefert am'}</label>
+                            <input class="form-input" type="date" name="receivedAt" value="${esc(o.receivedAt || '')}">
+                        </div>
+                        <div class="form-row form-row--full">
+                            <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                            <textarea class="form-textarea" name="notes" rows="2">${esc(o.notes || '')}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-detail-actions">
+                        ${isNew
+                            ? `<button type="button" class="button button--solid button--pill button--sm" data-create-supplier-order>${locale === 'en' ? 'Create supplier order' : 'Lieferantenbestellung anlegen'}</button>`
+                            : `<button type="button" class="button button--solid button--pill button--sm" data-save-supplier-order>${esc(m.save)}</button>
+                               <button type="button" class="button button--pill button--sm" data-delete-supplier-order style="color:#dc2626">${locale === 'en' ? 'Delete' : 'Löschen'}</button>`
+                        }
+                    </div>
+                </div>
+            </div>`;
+    };
+
     const renderSupplierOrders = (supplierOrders, deviceModels) => {
+        allSupplierOrdersCache = supplierOrders;
+        allDeviceModelsCache = deviceModels || [];
         if (!procurementList) return;
         if (!supplierOrders.length) {
             procurementList.innerHTML = `<p class="admin-empty">${m.noOrders}</p>`;
             return;
         }
-        const modelMap = new Map((deviceModels || []).map((dm) => [dm.productKey, dm]));
-        const articleOptions = (currentKey) => (deviceModels || []).map((model) =>
-            `<option value="${esc(model.productKey)}"${model.productKey === currentKey ? ' selected' : ''}>${esc([model.manufacturer, model.productName].filter(Boolean).join(' · '))}</option>`
-        ).join('');
-        procurementList.innerHTML = `
-            <div class="admin-table-wrap">
-                <table class="admin-table">
-                    <thead><tr>
-                        <th>${locale === 'en' ? 'Article' : 'Artikel'}</th>
-                        <th>${locale === 'en' ? 'Supplier' : 'Lieferant'}</th>
-                        <th>${locale === 'en' ? 'Reference' : 'Referenz'}</th>
-                        <th>${locale === 'en' ? 'Qty' : 'Menge'}</th>
-                        <th>${locale === 'en' ? 'Price/unit' : 'Preis/Stk.'}</th>
-                        <th>Status</th>
-                        <th>${locale === 'en' ? 'Ordered' : 'Bestellt'}</th>
-                        <th>${locale === 'en' ? 'Expected' : 'Erwartet'}</th>
-                        <th>${locale === 'en' ? 'Received' : 'Erhalten'}</th>
-                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
-                        <th></th>
-                    </tr></thead>
-                    <tbody>${supplierOrders.map((order) => `
-                        <tr data-supplier-order-row data-supplier-order-id="${esc(order.id)}">
-                            <td><select class="form-input admin-table-input" name="productKey">${articleOptions(order.productKey)}</select></td>
-                            <td><input class="form-input admin-table-input" type="text" name="supplierName" value="${esc(order.supplierName || '')}"></td>
-                            <td><input class="form-input admin-table-input" type="text" name="supplierReference" value="${esc(order.supplierReference || '')}"></td>
-                            <td><input class="form-input admin-table-input" type="number" min="1" name="quantity" value="${esc(order.quantity || 1)}"></td>
-                            <td><input class="form-input admin-table-input" type="text" name="pricePerItem" value="${esc(order.pricePerItem || '')}" placeholder="0.00" style="width:6rem">
-                                <label style="font-size:0.72rem;display:flex;align-items:center;gap:0.25rem;margin-top:0.2rem"><input type="checkbox" name="priceIncludesVat" value="true"${order.priceIncludesVat ? ' checked' : ''}> ${esc(m.vatIncl)}</label>
-                            </td>
-                            <td><select class="form-input admin-table-input" name="status">${supplierStatusOptions(order.status)}</select></td>
-                            <td><input class="form-input admin-table-input" type="date" name="orderedAt" value="${esc(order.orderedAt || '')}"></td>
-                            <td><input class="form-input admin-table-input" type="date" name="expectedDeliveryAt" value="${esc(order.expectedDeliveryAt || '')}"></td>
-                            <td><input class="form-input admin-table-input" type="date" name="receivedAt" value="${esc(order.receivedAt || '')}"></td>
-                            <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${esc(order.notes || '')}</textarea></td>
-                            <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-supplier-order>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
-                        </tr>`).join('')}
-                    </tbody>
-                </table>
+        const modelMap = new Map(allDeviceModelsCache.map((dm) => [dm.productKey, dm]));
+        procurementList.innerHTML = supplierOrders.map((order) => {
+            const isSelected = order.id === selectedSupplierOrderId;
+            const model = modelMap.get(order.productKey);
+            const modelName = model ? [model.manufacturer, model.productName].filter(Boolean).join(' ') : order.productKey;
+            const sb = supplierStatusBadge(order.status);
+            return `<div class="admin-order-item admin-order-item--simple${isSelected ? ' is-selected' : ''}" data-supplier-order-item data-supplier-order-id="${esc(order.id)}">
+                <div class="admin-order-item__body">
+                    <span class="admin-order-item__name">${esc(order.supplierName)}</span>
+                    <span class="admin-order-item__meta">${esc(modelName)} · ${esc(String(order.quantity))}×${order.expectedDeliveryAt ? ` · ${esc(order.expectedDeliveryAt)}` : ''}</span>
+                </div>
+                <span class="admin-device-status admin-device-status--${esc(sb.cls)}">${esc(sb.label)}</span>
             </div>`;
+        }).join('');
+        if (selectedSupplierOrderId) {
+            const o = supplierOrders.find((o) => o.id === selectedSupplierOrderId);
+            if (o) renderSupplierOrderDetail(o);
+            else { selectedSupplierOrderId = null; renderSupplierOrderDetail(null); }
+        }
     };
 
     const renderAllocations = (allocations) => {
@@ -1157,10 +1395,9 @@ function setupAdminInventory() {
                 adminFetch('/api/device-models'),
                 adminFetch('/api/supplier-orders'),
                 adminFetch(`/api/order-allocations?productKey=${encodeURIComponent(productKey)}`),
-                adminFetch(`/api/admin/stock-devices?productKey=${encodeURIComponent(productKey)}`)
+                adminFetch('/api/admin/stock-devices')
             ]);
             const deviceModels = deviceModelsResponse.deviceModels || [];
-            populateArticleSelect(deviceModels);
             renderArticles(deviceModels);
             renderSupplierOrders(supplierOrdersResponse.supplierOrders || [], deviceModels);
             renderAllocations(allocationsResponse.allocations || []);
@@ -1241,84 +1478,202 @@ function setupAdminInventory() {
                 const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
                 await adminFetch(`/api/device-models/${encodeURIComponent(pk)}`, { method: 'PUT', body: JSON.stringify(payload) });
                 setFeedback(m.articleSaved, false);
+                await loadAdminData();
             } else {
-                if (!confirm(m.confirmDeleteArticle)) return;
-                await adminFetch(`/api/device-models/${encodeURIComponent(pk)}`, { method: 'DELETE' });
-                setFeedback(m.articleDeleted, false);
+                showInlineConfirm(deleteBtn, async () => {
+                    try {
+                        await adminFetch(`/api/device-models/${encodeURIComponent(pk)}`, { method: 'DELETE' });
+                        setFeedback(m.articleDeleted, false);
+                        await loadAdminData();
+                    } catch (err) { setFeedback(err.message || m.loadFailed, true); }
+                }, m.confirmYes, m.confirmNo);
+                return;
             }
-            await loadAdminData();
         } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
-    devicesForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-            const payload = Object.fromEntries(new FormData(devicesForm).entries());
-            payload.productKey = productKey;
-            await adminFetch('/api/admin/stock-devices', { method: 'POST', body: JSON.stringify(payload) });
-            devicesForm.reset();
-            setFeedback(m.deviceAdded, false);
-            await loadAdminData();
-        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
+    // Device list selection
+    devicesList?.addEventListener('click', (event) => {
+        const item = event.target.closest('[data-device-item]');
+        if (!item) return;
+        const deviceId = item.getAttribute('data-device-id');
+        selectedDeviceId = deviceId;
+        devicesList.querySelectorAll('[data-device-item]').forEach((el) => {
+            el.classList.toggle('is-selected', el.getAttribute('data-device-id') === deviceId);
+        });
+        renderDeviceDetail(allDevicesCache.find((d) => d.id === deviceId) || null);
     });
 
-    devicesList?.addEventListener('click', async (event) => {
+    deviceFilterStatus?.addEventListener('change', () => {
+        deviceStatusFilter = deviceFilterStatus.value;
+        renderDevices(allDevicesCache);
+    });
+
+    // Device detail actions
+    devicesDetail?.addEventListener('click', async (event) => {
+        const gotoSupplierOrder = event.target.closest('[data-goto-supplier-order]');
+        if (gotoSupplierOrder) {
+            const supplierOrderId = gotoSupplierOrder.getAttribute('data-goto-supplier-order');
+            selectedSupplierOrderId = supplierOrderId;
+            switchTab('procurement');
+            const order = allSupplierOrdersCache.find((o) => o.id === supplierOrderId);
+            if (order) {
+                renderSupplierOrderDetail(order);
+                procurementList?.querySelectorAll('[data-supplier-order-item]').forEach((el) => {
+                    el.classList.toggle('is-selected', el.getAttribute('data-supplier-order-id') === supplierOrderId);
+                });
+            }
+            return;
+        }
+
         const saveBtn = event.target.closest('[data-save-device]');
         const retireBtn = event.target.closest('[data-retire-device]');
         const toggleBtn = event.target.closest('[data-toggle-unavailable]');
         const inStockBtn = event.target.closest('[data-mark-in-stock]');
-        const btn = saveBtn || retireBtn || toggleBtn || inStockBtn;
-        if (!btn) return;
-        const row = btn.closest('[data-device-row]');
-        if (!row) return;
+        const installedBtn = event.target.closest('[data-mark-installed]');
+        const createBtn = event.target.closest('[data-create-device]');
+        const actionBtn = saveBtn || retireBtn || toggleBtn || inStockBtn || installedBtn || createBtn;
+        if (!actionBtn) return;
         try {
-            const deviceId = row.getAttribute('data-device-id');
-            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            if (createBtn) {
+                const form = devicesDetail.querySelector('[data-new-device-form]');
+                if (!form) return;
+                const payload = Object.fromEntries(Array.from(form.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+                payload.productKey = productKey;
+                if (!payload.serialNumber) { setFeedback(locale === 'en' ? 'Serial number required.' : 'Seriennummer erforderlich.', true); return; }
+                await adminFetch('/api/admin/stock-devices', { method: 'POST', body: JSON.stringify(payload) });
+                setFeedback(m.deviceAdded, false);
+                await loadAdminData();
+                return;
+            }
+            const detailEl = devicesDetail.querySelector('[data-device-detail]');
+            if (!detailEl) return;
+            const deviceId = detailEl.getAttribute('data-device-id');
+            const payload = Object.fromEntries(Array.from(detailEl.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
             if (retireBtn) payload.status = 'retired';
             if (toggleBtn) payload.status = toggleBtn.getAttribute('data-next-status');
             if (inStockBtn) {
                 const serial = payload.serialNumber || '';
                 if (!serial || serial.startsWith('PENDING-')) {
-                    const newSerial = prompt(locale === 'en' ? 'Enter the real serial number:' : 'Seriennummer eingeben:');
-                    if (!newSerial) return;
-                    payload.serialNumber = newSerial.trim();
+                    setFeedback(locale === 'en' ? 'Please enter the real serial number first.' : 'Bitte zuerst eine echte Seriennummer eingeben.', true);
+                    return;
                 }
                 payload.status = 'in_stock';
             }
+            if (installedBtn) payload.status = 'installed';
             await adminFetch(`/api/admin/stock-devices/${encodeURIComponent(deviceId)}`, { method: 'PUT', body: JSON.stringify(payload) });
             setFeedback(m.deviceSaved, false);
             await loadAdminData();
         } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
-    procurementForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    // New device button → blank form in detail pane
+    app.querySelector('[data-new-device]')?.addEventListener('click', () => {
+        selectedDeviceId = null;
+        devicesList?.querySelectorAll('[data-device-item]').forEach((el) => el.classList.remove('is-selected'));
+        if (!devicesDetail) return;
+        devicesDetail.innerHTML = `
+            <div class="admin-detail-body" data-new-device-form>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="form-row">
+                        <label class="form-label">${locale === 'en' ? 'Serial number' : 'Seriennummer'}</label>
+                        <input class="form-input" type="text" name="serialNumber" required>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Username' : 'Benutzername'}</label>
+                            <input class="form-input" type="text" name="deviceUsername">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">${locale === 'en' ? 'Password' : 'Passwort'}</label>
+                            <input class="form-input" type="text" name="devicePassword">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                        <textarea class="form-textarea" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-detail-actions">
+                        <button type="button" class="button button--solid button--pill button--sm" data-create-device>${locale === 'en' ? 'Add device' : 'Gerät hinzufügen'}</button>
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    // Supplier order list selection
+    procurementList?.addEventListener('click', (event) => {
+        const item = event.target.closest('[data-supplier-order-item]');
+        if (!item) return;
+        const orderId = item.getAttribute('data-supplier-order-id');
+        selectedSupplierOrderId = orderId;
+        procurementList.querySelectorAll('[data-supplier-order-item]').forEach((el) => {
+            el.classList.toggle('is-selected', el.getAttribute('data-supplier-order-id') === orderId);
+        });
+        renderSupplierOrderDetail(allSupplierOrdersCache.find((o) => o.id === orderId) || null);
+    });
+
+    // Supplier order detail actions
+    procurementDetail?.addEventListener('click', async (event) => {
+        const saveBtn = event.target.closest('[data-save-supplier-order]');
+        const createBtn = event.target.closest('[data-create-supplier-order]');
+        const deleteBtn = event.target.closest('[data-delete-supplier-order]');
+
+        if (deleteBtn) {
+            const detailEl = procurementDetail.querySelector('[data-supplier-order-detail]');
+            const supplierOrderId = detailEl?.getAttribute('data-supplier-order-id');
+            if (!supplierOrderId) return;
+            showConfirmModal(
+                locale === 'en' ? 'Delete supplier order?' : 'Bestellung löschen?',
+                locale === 'en' ? 'This will also delete all linked devices that are still in "ordered" status.' : 'Dabei werden alle verknüpften Geräte im Status „Bestellt" ebenfalls gelöscht.',
+                async () => {
+                    try {
+                        await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, { method: 'DELETE' });
+                        selectedSupplierOrderId = null;
+                        await loadAdminData();
+                        setFeedback(locale === 'en' ? 'Deleted.' : 'Gelöscht.', false);
+                    } catch (error) {
+                        setFeedback(error.message || m.loadFailed, true);
+                    }
+                },
+                locale === 'en' ? 'Delete' : 'Löschen',
+                locale === 'en' ? 'Cancel' : 'Abbrechen'
+            );
+            return;
+        }
+
+        if (!saveBtn && !createBtn) return;
+        const detailEl = procurementDetail.querySelector('[data-supplier-order-detail]');
+        if (!detailEl) return;
         try {
-            const formData = new FormData(procurementForm);
-            const payload = Object.fromEntries(formData.entries());
-            // Checkbox value needs special handling
-            payload.priceIncludesVat = formData.get('priceIncludesVat') === 'true';
-            await adminFetch('/api/supplier-orders', { method: 'POST', body: JSON.stringify(payload) });
-            procurementForm.reset();
-            setFeedback(m.created, false);
+            const payload = Object.fromEntries(Array.from(detailEl.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            const vatCheckbox = detailEl.querySelector('[name="priceIncludesVat"]');
+            payload.priceIncludesVat = vatCheckbox ? vatCheckbox.checked : false;
+            if (createBtn) {
+                const result = await adminFetch('/api/supplier-orders', { method: 'POST', body: JSON.stringify(payload) });
+                selectedSupplierOrderId = result.supplierOrder?.id || null;
+                await loadAdminData();
+                if (result.deviceCreateError) {
+                    setFeedback(`${m.created} – Gerät-Fehler: ${result.deviceCreateError}`, true);
+                } else {
+                    setFeedback(`${m.created} (${result.devicesCreated ?? 0} ${locale === 'en' ? 'devices created' : 'Geräte angelegt'})`, false);
+                }
+                return;
+            } else {
+                const supplierOrderId = detailEl.getAttribute('data-supplier-order-id');
+                await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, { method: 'PUT', body: JSON.stringify(payload) });
+                setFeedback(m.saved, false);
+            }
             await loadAdminData();
         } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
-    procurementList?.addEventListener('click', async (event) => {
-        const button = event.target.closest('[data-save-supplier-order]');
-        if (!button) return;
-        const row = button.closest('[data-supplier-order-row]');
-        if (!row) return;
-        try {
-            const supplierOrderId = row.getAttribute('data-supplier-order-id');
-            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
-            const vatCheckbox = row.querySelector('[name="priceIncludesVat"]');
-            payload.priceIncludesVat = vatCheckbox ? vatCheckbox.checked : false;
-            await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, { method: 'PUT', body: JSON.stringify(payload) });
-            setFeedback(m.saved, false);
-            await loadAdminData();
-        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
+    // New supplier order button → blank form in detail pane
+    app.querySelector('[data-new-supplier-order]')?.addEventListener('click', () => {
+        selectedSupplierOrderId = null;
+        procurementList?.querySelectorAll('[data-supplier-order-item]').forEach((el) => el.classList.remove('is-selected'));
+        renderSupplierOrderDetail(null);
     });
 
     allocationsList?.addEventListener('click', async (event) => {
@@ -1399,6 +1754,7 @@ function setupAdminOrders() {
             units: 'units', expectedDelivery: 'expected',
             badgeNew: 'New', archive: 'Archive order', archiveConfirm: 'Archive this order? It will no longer appear in the list.',
             archived: 'Order archived.',
+            confirmYes: 'Archive', confirmNo: 'Cancel',
             orderDevice: 'Order device', assignFromStock: 'Assign from stock',
             supplier: 'Supplier', linkedDevice: 'Linked device', quantity: 'Qty',
             deviceOrdered: 'On order', deviceReserved: 'Reserved'
@@ -1433,6 +1789,7 @@ function setupAdminOrders() {
             units: 'Stück', expectedDelivery: 'erwartet',
             badgeNew: 'Neu', archive: 'Bestellung archivieren', archiveConfirm: 'Bestellung archivieren? Sie erscheint dann nicht mehr in der Liste.',
             archived: 'Bestellung archiviert.',
+            confirmYes: 'Archivieren', confirmNo: 'Abbrechen',
             orderDevice: 'Gerät bestellen', assignFromStock: 'Aus Lager zuweisen',
             supplier: 'Lieferant', linkedDevice: 'Verknüpftes Gerät', quantity: 'Anzahl',
             deviceOrdered: 'Bestellt', deviceReserved: 'Reserviert'
@@ -1565,9 +1922,15 @@ function setupAdminOrders() {
         if (!stockBar || !data) return;
         stockBar.hidden = false;
         const setVal = (sel, val) => { const el = stockBar.querySelector(sel); if (el) el.textContent = val; };
-        setVal('[data-stock-available]', String(data.stock.available));
-        setVal('[data-stock-in-stock]', String(data.stock.inStock));
-        setVal('[data-stock-allocated]', String(data.stock.allocated));
+        setVal('[data-stock-ordered]', String(data.stock.ordered ?? 0));
+        setVal('[data-stock-free]', String(data.stock.free ?? 0));
+        setVal('[data-stock-reserved]', String(data.stock.reserved ?? 0));
+
+        const noStockWarn = stockBar.querySelector('[data-no-stock-warning]');
+        if (noStockWarn) {
+            const freeDevices = (data.availableDevices || []).length;
+            noStockWarn.hidden = freeDevices > 0;
+        }
 
         const pendingSection = stockBar.querySelector('[data-stock-pending-orders]');
         const pendingList = stockBar.querySelector('[data-stock-pending-list]');
@@ -1579,7 +1942,7 @@ function setupAdminOrders() {
                     <div class="admin-stock-bar__pending-item">
                         <strong>${esc(s.supplierName)}</strong>
                         <span>${s.quantity} ${t.units}</span>
-                        <span class="admin-badge admin-badge--warning">${esc(s.status)}</span>
+                        <span class="admin-badge admin-badge--warning">${esc({ ordered: locale === 'en' ? 'Ordered' : 'Bestellt', in_transit: locale === 'en' ? 'In transit' : 'Unterwegs', received: locale === 'en' ? 'Received' : 'Geliefert', in_stock: locale === 'en' ? 'In stock' : 'Auf Lager', cancelled: locale === 'en' ? 'Cancelled' : 'Storniert' }[s.status] || s.status)}</span>
                         ${s.expectedDeliveryAt ? `<span>${t.expectedDelivery}: ${esc(fmtDate(s.expectedDeliveryAt))}</span>` : ''}
                     </div>
                 `).join('');
@@ -1708,6 +2071,11 @@ function setupAdminOrders() {
             </div>
             <div class="admin-info-content" data-info-target="order-id" style="padding:0 0 0.5rem;font-size:0.72rem;color:rgba(15,23,42,0.4);font-family:ui-monospace,monospace;word-break:break-all">${esc(order.id)}</div>
 
+            ${order.notes ? `<div class="admin-detail-section admin-detail-section--compact admin-detail-section--highlight">
+                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem">${t.customerNotes}</div>
+                <div style="white-space:pre-wrap;font-size:0.83rem;color:rgba(15,23,42,0.85)">${esc(order.notes)}</div>
+            </div>` : ''}
+
             ${isPaid || allocation ? `
             <div class="admin-detail-section" data-admin-workflow-section data-allocation-id="${esc(order.id)}">
                 <h3>${t.fulfillmentWorkflow}</h3>
@@ -1738,29 +2106,6 @@ function setupAdminOrders() {
                                 </select>
                             </div>
                         </div>` : ''}
-                        <div style="margin-top:0.5rem">
-                            <button type="button" class="button button--plain-dark button--pill button--sm" data-order-device-toggle>+ ${t.orderDevice}</button>
-                            <div data-order-device-form hidden style="margin-top:0.75rem;padding:0.75rem;background:rgba(15,23,42,0.04);border-radius:8px" data-order-id="${esc(order.id)}" data-product-key="${esc(order.product || '')}">
-                                <div class="admin-detail-form-grid">
-                                    <div class="form-row">
-                                        <label class="form-label">${t.supplier} *</label>
-                                        <input class="form-input" type="text" name="od_supplierName">
-                                    </div>
-                                    <div class="form-row">
-                                        <label class="form-label">${t.expectedDelivery}</label>
-                                        <input class="form-input" type="date" name="od_expectedDeliveryAt">
-                                    </div>
-                                    <div class="form-row">
-                                        <label class="form-label">${t.quantity}</label>
-                                        <input class="form-input" type="number" name="od_quantity" value="1" min="1" max="99" style="width:5rem">
-                                    </div>
-                                </div>
-                                <div class="admin-detail-actions" style="margin-top:0.5rem">
-                                    <button type="button" class="button button--plain-dark button--pill button--sm" data-submit-order-device>${t.orderDevice}</button>
-                                    <button type="button" class="button button--plain-light button--pill button--sm" data-order-device-toggle>${locale === 'en' ? 'Cancel' : 'Abbrechen'}</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="admin-form-section">
                         <div class="admin-form-section__label">${t.sectionShipping}</div>
@@ -1812,10 +2157,6 @@ function setupAdminOrders() {
                 </div>
             </div>
 
-            ${order.notes ? `<div class="admin-detail-section admin-detail-section--compact">
-                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem">${t.customerNotes}</div>
-                <div style="white-space:pre-wrap;font-size:0.83rem;color:rgba(15,23,42,0.75)">${esc(order.notes)}</div>
-            </div>` : ''}
 
             ${recentEvents.length ? `
             <div class="admin-detail-section admin-detail-section--compact">
@@ -2036,44 +2377,15 @@ function setupAdminOrders() {
 
         const archiveBtn = event.target.closest('[data-archive-order]');
         if (archiveBtn) {
-            if (!confirm(t.archiveConfirm)) return;
             const orderId = archiveBtn.getAttribute('data-order-id');
-            try {
-                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/archive`, { method: 'POST' });
-                selectedOrderId = null;
-                setFeedback(t.archived, false);
-                await loadOrders();
-            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
-        }
-    });
-
-    detailPane?.addEventListener('click', async (event) => {
-        const orderDeviceToggle = event.target.closest('[data-order-device-toggle]');
-        if (orderDeviceToggle) {
-            const form = detailPane.querySelector('[data-order-device-form]');
-            if (form) form.hidden = !form.hidden;
-            return;
-        }
-
-        const submitOrderDevice = event.target.closest('[data-submit-order-device]');
-        if (submitOrderDevice) {
-            const form = detailPane.querySelector('[data-order-device-form]');
-            if (!form) return;
-            const orderId = form.getAttribute('data-order-id');
-            const productKey = form.getAttribute('data-product-key');
-            const supplierName = form.querySelector('[name="od_supplierName"]')?.value?.trim();
-            const expectedDeliveryAt = form.querySelector('[name="od_expectedDeliveryAt"]')?.value || null;
-            const quantity = Number.parseInt(form.querySelector('[name="od_quantity"]')?.value || '1', 10);
-            if (!supplierName) { setFeedback(locale === 'en' ? 'Supplier name is required.' : 'Lieferantenname ist erforderlich.', true); return; }
-            try {
-                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/order-device`, {
-                    method: 'POST',
-                    body: JSON.stringify({ productKey, supplierName, expectedDeliveryAt, quantity })
-                });
-                setFeedback(locale === 'en' ? 'Device order created.' : 'Gerätebestellung angelegt.', false);
-                await loadOrderDetail(orderId);
-            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
-            return;
+            showInlineConfirm(archiveBtn, async () => {
+                try {
+                    await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/archive`, { method: 'POST' });
+                    selectedOrderId = null;
+                    setFeedback(t.archived, false);
+                    await loadOrders();
+                } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+            }, t.confirmYes, t.confirmNo);
         }
     });
 

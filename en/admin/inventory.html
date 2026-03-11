@@ -47,105 +47,53 @@
 
             <!-- Tab: Devices -->
             <div class="admin-tab-panel" data-tab-panel="devices">
-                <div class="admin-grid">
-                    <article class="admin-card">
-                        <h2>Add device</h2>
-                        <form class="admin-section-stack" data-admin-device-form>
-                            <div class="form-row">
-                                <label class="form-label" for="device-serial">Serial number</label>
-                                <input class="form-input" id="device-serial" name="serialNumber" type="text" required>
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>Devices</h2>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-new-device>+ Add device</button>
+                    </div>
+                    <div class="admin-orders-split">
+                        <div class="admin-orders-list-pane">
+                            <div class="admin-list-filter-bar">
+                                <select class="form-input form-input--sm" data-device-filter-status>
+                                    <option value="">All statuses</option>
+                                    <option value="ordered">On order</option>
+                                    <option value="in_stock">In stock</option>
+                                    <option value="available">Available</option>
+                                    <option value="reserved">Reserved</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="installed">Installed</option>
+                                    <option value="retired">Retired</option>
+                                </select>
                             </div>
-                            <div class="form-grid">
-                                <div class="form-row">
-                                    <label class="form-label" for="device-username">Username</label>
-                                    <input class="form-input" id="device-username" name="deviceUsername" type="text">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="device-password">Password</label>
-                                    <input class="form-input" id="device-password" name="devicePassword" type="text">
-                                </div>
+                            <div data-admin-devices-list></div>
+                        </div>
+                        <div class="admin-orders-detail-pane" data-admin-devices-detail>
+                            <div class="admin-detail-placeholder">
+                                <p>Select a device to view and edit details.</p>
                             </div>
-                            <div class="form-row">
-                                <label class="form-label" for="device-notes">Notes</label>
-                                <textarea class="form-textarea" id="device-notes" name="notes" rows="2"></textarea>
-                            </div>
-                            <button class="button button--plain-dark button--pill button--sm" type="submit">Add device</button>
-                        </form>
-                    </article>
-                </div>
-                <section class="admin-card" style="margin-top:1rem">
-                    <h2>Devices in stock</h2>
-                    <div class="admin-section-stack" data-admin-devices-list></div>
+                        </div>
+                    </div>
                 </section>
             </div>
 
             <!-- Tab: Procurement -->
             <div class="admin-tab-panel" data-tab-panel="procurement" hidden>
-                <div class="admin-grid">
-                    <article class="admin-card">
-                        <h2>New supplier order</h2>
-                        <form class="admin-section-stack" data-admin-procurement-form>
-                            <div class="form-grid">
-                                <div class="form-row form-row--full">
-                                    <label class="form-label" for="article-key">Article</label>
-                                    <select class="form-input" id="article-key" name="productKey" data-article-select required>
-                                        <option value="">— Select article —</option>
-                                    </select>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="supplier-name">Supplier</label>
-                                    <input class="form-input" id="supplier-name" name="supplierName" type="text" required>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="supplier-reference">Reference</label>
-                                    <input class="form-input" id="supplier-reference" name="supplierReference" type="text">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="quantity">Quantity</label>
-                                    <input class="form-input" id="quantity" name="quantity" type="number" min="1" value="1" required>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="supplier-status">Status</label>
-                                    <select class="form-input" id="supplier-status" name="status">
-                                        <option value="ordered">Ordered</option>
-                                        <option value="in_transit">In transit</option>
-                                        <option value="received">Received</option>
-                                        <option value="in_stock">In stock</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="price-per-item">Price per unit (€)</label>
-                                    <input class="form-input" id="price-per-item" name="pricePerItem" type="text" placeholder="0.00">
-                                </div>
-                                <div class="form-row" style="align-items:center;display:flex;gap:0.5rem">
-                                    <input type="checkbox" id="price-includes-vat" name="priceIncludesVat" value="true" style="width:auto;flex:none">
-                                    <label class="form-label" for="price-includes-vat" style="margin:0">Price includes VAT</label>
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="ordered-at">Ordered</label>
-                                    <input class="form-input" id="ordered-at" name="orderedAt" type="date">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="expected-delivery">Expected delivery</label>
-                                    <input class="form-input" id="expected-delivery" name="expectedDeliveryAt" type="date">
-                                </div>
-                                <div class="form-row">
-                                    <label class="form-label" for="received-at">Received</label>
-                                    <input class="form-input" id="received-at" name="receivedAt" type="date">
-                                </div>
-                                <div class="form-row form-row--full">
-                                    <label class="form-label" for="supplier-notes">Notes</label>
-                                    <textarea class="form-textarea" id="supplier-notes" name="notes" rows="2"></textarea>
-                                </div>
+                <section class="admin-card">
+                    <div class="admin-card-header">
+                        <h2>Supplier orders</h2>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-new-supplier-order>+ New order</button>
+                    </div>
+                    <div class="admin-orders-split">
+                        <div class="admin-orders-list-pane">
+                            <div data-admin-procurement-list></div>
+                        </div>
+                        <div class="admin-orders-detail-pane" data-admin-procurement-detail>
+                            <div class="admin-detail-placeholder">
+                                <p>Select a supplier order or create a new one.</p>
                             </div>
-                            <button class="button button--plain-dark button--pill button--sm" type="submit">Create supplier order</button>
-                        </form>
-                    </article>
-                </div>
-                <section class="admin-card" style="margin-top:1rem">
-                    <h2>Existing supplier orders</h2>
-                    <div class="admin-section-stack" data-admin-procurement-list></div>
+                        </div>
+                    </div>
                 </section>
             </div>
 
@@ -182,7 +130,7 @@
                 </section>
             </div>
 
-            <div class="form-alert" data-admin-feedback hidden></div>
+            <div class="admin-toast" data-admin-feedback hidden></div>
         </div>
     </main>
 

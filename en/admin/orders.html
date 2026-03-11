@@ -14,11 +14,15 @@
 <body class="docs-page admin-page">
     <header class="admin-header">
         <div class="container admin-header__inner">
-            <div class="admin-header__brand">
-                <p class="admin-header__kicker">Indiebox Admin</p>
-                <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox</a>
-            </div>
+            <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox Admin</a>
             <div class="admin-header__actions">
+                <form class="admin-header-auth" data-admin-orders-auth-form>
+                    <input class="admin-header-auth__input" id="admin-orders-password" type="password" autocomplete="current-password" placeholder="Password" data-admin-password-input>
+                    <button class="admin-header-auth__hint" type="button" title="Password: server .env → ADMIN_LOGIN_HASH (hashed). Plain-text in your password manager.">i</button>
+                    <button class="button button--plain-light button--pill button--sm" type="submit">Sign in</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Sign out</button>
+                </form>
+                <span class="admin-header-auth__status" data-admin-auth-status></span>
                 <a href="../../admin/orders.html" class="button button--plain-light button--pill button--sm">DE</a>
             </div>
         </div>
@@ -34,26 +38,29 @@
 
     <main class="admin-shell">
         <div class="container admin-layout" data-admin-orders data-locale="en">
-            <header class="docs-article">
-                <p class="docs-page-kicker">Admin</p>
-                <h1 class="docs-page-title">Orders and fulfilment</h1>
-                <p class="docs-page-lead">This page shows customer orders, payment status, and the link between reservation and fulfilment.</p>
-            </header>
 
-            <section class="admin-card admin-auth">
-                <div>
-                    <h2>Admin access</h2>
-                    <p>The sign-in stays active for up to 30 days. Without an active admin session, the internal order data remains locked.</p>
+            <section class="admin-stock-bar admin-card" data-admin-stock-bar hidden>
+                <div class="admin-stock-bar__warning" data-no-stock-warning hidden>
+                    ⚠ No free device in stock – new paid orders cannot be fulfilled immediately.
                 </div>
-                <form class="admin-auth-row" data-admin-orders-auth-form>
-                    <div class="form-row">
-                        <label class="form-label" for="admin-orders-password">Admin password</label>
-                        <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" data-admin-password-input>
+                <div class="admin-stock-bar__metrics">
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">On order</span>
+                        <span class="admin-metric-value" data-stock-ordered>–</span>
                     </div>
-                    <button class="button button--plain-dark button--pill button--sm" type="submit">Sign in</button>
-                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Sign out</button>
-                </form>
-                <p class="admin-auth-status" data-admin-auth-status>Sign in to load order and fulfilment data.</p>
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">Free</span>
+                        <span class="admin-metric-value" data-stock-free>–</span>
+                    </div>
+                    <div class="admin-metric">
+                        <span class="admin-metric-label">Reserved</span>
+                        <span class="admin-metric-value" data-stock-reserved>–</span>
+                    </div>
+                </div>
+                <div class="admin-stock-bar__pending" data-stock-pending-orders hidden>
+                    <h3>Pending supplier orders</h3>
+                    <div class="admin-stock-bar__pending-list" data-stock-pending-list></div>
+                </div>
             </section>
 
             <section class="admin-card">
@@ -61,7 +68,6 @@
                     <h2>Orders</h2>
                     <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-reload-orders>Reload</button>
                 </div>
-                <p>The list is condensed for operational work. Details and fulfilment editing appear below the selected order.</p>
                 <div class="admin-toolbar" data-admin-orders-toolbar>
                     <div class="form-row admin-toolbar__search">
                         <label class="form-label" for="admin-order-search">Search</label>
@@ -81,8 +87,13 @@
                         <label class="form-label" for="admin-fulfilment-filter">Fulfilment</label>
                         <select class="form-input" id="admin-fulfilment-filter" data-admin-fulfilment-filter>
                             <option value="all">All</option>
+                            <option value="new">New (paid, open)</option>
                             <option value="none">No reservation</option>
                             <option value="reserved">Reserved</option>
+                            <option value="installed">Installed</option>
+                            <option value="packed">Packed</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
                             <option value="fulfilled">Fulfilled</option>
                             <option value="released">Released</option>
                             <option value="cancelled">Cancelled</option>
@@ -91,14 +102,18 @@
                 </div>
                 <div class="admin-toolbar-meta">
                     <p class="admin-result-count" data-admin-order-count>0 orders</p>
-                    <div class="admin-status-legend" aria-label="Status legend">
-                        <span><span class="admin-dot admin-dot--success"></span> Paid / Fulfilled</span>
-                        <span><span class="admin-dot admin-dot--warning"></span> Open / Reserved</span>
-                        <span><span class="admin-dot admin-dot--danger"></span> Failed / Expired</span>
-                        <span><span class="admin-dot admin-dot--neutral"></span> No reservation / Released</span>
+                </div>
+
+                <div class="admin-orders-split">
+                    <div class="admin-orders-list-pane">
+                        <div class="admin-section-stack" data-admin-orders-list></div>
+                    </div>
+                    <div class="admin-orders-detail-pane" data-admin-orders-detail>
+                        <div class="admin-detail-placeholder">
+                            <p>Select an order to view and edit details.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="admin-section-stack" data-admin-orders-list></div>
             </section>
 
             <div class="form-alert" data-admin-feedback hidden></div>
