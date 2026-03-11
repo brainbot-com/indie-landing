@@ -443,6 +443,7 @@ function deviceModelPayload(model) {
   return {
     productKey: model.productKey,
     productName: model.productName,
+    manufacturer: model.manufacturer || '',
     systemSpec: model.systemSpec,
     updatedAt: model.updatedAt
   };
@@ -457,6 +458,8 @@ function supplierOrderPayload(order) {
     supplierName: order.supplierName,
     supplierReference: order.supplierReference,
     quantity: order.quantity,
+    pricePerItem: order.pricePerItem || '',
+    priceIncludesVat: Boolean(order.priceIncludesVat),
     orderedAt: order.orderedAt,
     expectedDeliveryAt: order.expectedDeliveryAt,
     receivedAt: order.receivedAt,
@@ -478,9 +481,40 @@ function orderAllocationPayload(allocation) {
     allocatedAt: allocation.allocatedAt,
     fulfilledAt: allocation.fulfilledAt,
     releasedAt: allocation.releasedAt,
+    serialNumber: allocation.serialNumber || '',
+    deviceUsername: allocation.deviceUsername || '',
+    devicePassword: allocation.devicePassword || '',
+    trackingNumber: allocation.trackingNumber || '',
+    trackingCarrier: allocation.trackingCarrier || '',
+    installedAt: allocation.installedAt || null,
+    packedAt: allocation.packedAt || null,
+    shippedAt: allocation.shippedAt || null,
+    deliveredAt: allocation.deliveredAt || null,
     notes: allocation.notes,
     createdAt: allocation.createdAt,
     updatedAt: allocation.updatedAt
+  };
+}
+
+function stockDevicePayload(device) {
+  if (!device) return null;
+  return {
+    id: device.id,
+    productKey: device.productKey,
+    modelName: device.modelName || '',
+    manufacturer: device.manufacturer || '',
+    serialNumber: device.serialNumber,
+    deviceUsername: device.deviceUsername,
+    devicePassword: device.devicePassword,
+    status: device.status,
+    assignedOrderId: device.assignedOrderId,
+    supplierName: device.supplierName || '',
+    orderedAt: device.orderedAt || null,
+    expectedDeliveryAt: device.expectedDeliveryAt || null,
+    receivedAt: device.receivedAt || null,
+    notes: device.notes,
+    createdAt: device.createdAt,
+    updatedAt: device.updatedAt
   };
 }
 
@@ -890,6 +924,97 @@ app.get('/api/orders', adminRateLimit, requireAdmin, (req, res) => {
   });
 });
 
+app.get('/api/admin/orders-overview', adminRateLimit, requireAdmin, (req, res) => {
+  const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '200', 10), 1), 500);
+  const productKey = config.checkoutProductKey;
+  const inventory = store.getInventory(productKey);
+  const supplierOrders = store.listSupplierOrders(productKey);
+  const inStockUnits = supplierOrders.filter((s) => s.status === 'in_stock').reduce((sum, s) => sum + s.quantity, 0);
+  const allocatedUnits = store.listOrderAllocations(productKey)
+    .filter((a) => ['reserved', 'fulfilled', 'installed', 'packed', 'shipped', 'delivered'].includes(a.status))
+    .reduce((sum, a) => sum + a.quantity, 0);
+  const pendingSupplierOrders = supplierOrders
+    .filter((s) => ['ordered', 'in_transit'].includes(s.status))
+    .map((s) => ({
+      id: s.id,
+      supplierName: s.supplierName,
+      quantity: s.quantity,
+      status: s.status,
+      expectedDeliveryAt: s.expectedDeliveryAt,
+      orderedAt: s.orderedAt
+    }));
+
+  return res.json({
+    runtime: config.appRuntimeName,
+    orders: store.listOrdersOverview(limit),
+    stock: {
+      productKey,
+      inStock: inStockUnits,
+      allocated: allocatedUnits,
+      available: Math.max(0, inStockUnits - allocatedUnits),
+      availableUnits: inventory?.availableUnits ?? 0
+    },
+    pendingSupplierOrders,
+    availableDevices: store.listStockDevices(productKey).filter((d) => d.status === 'available').map((d) => ({ id: d.id, serialNumber: d.serialNumber }))
+  });
+});
+
+app.post('/api/admin/orders/:orderId/archive', adminRateLimit, requireAdmin, (req, res) => {
+  const orderId = req.params.orderId;
+  if (!store.getOrder(orderId)) {
+    return res.status(404).json({ error: 'order not found' });
+  }
+  store.archiveOrder(orderId);
+  return res.json({ ok: true });
+});
+
+app.post('/api/admin/orders/:orderId/order-device', adminRateLimit, requireAdmin, (req, res) => {
+  const orderId = req.params.orderId;
+  const order = store.getOrder(orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'order_not_found' });
+  }
+
+  const productKey = sanitizeSingleLineInput(req.body.productKey, 80) || config.checkoutProductKey;
+  const product = store.getDeviceModel(productKey);
+  if (!product) {
+    return res.status(400).json({ error: 'unknown_product_key' });
+  }
+
+  const supplierName = normalizeName(req.body.supplierName, 160);
+  if (!supplierName) {
+    return res.status(400).json({ error: 'supplier_name_required' });
+  }
+
+  const quantity = Math.max(1, Number.parseInt(req.body.quantity, 10) || 1);
+  const orderedAt = normalizeIsoDate(req.body.orderedAt) || null;
+  const expectedDeliveryAt = normalizeIsoDate(req.body.expectedDeliveryAt) || null;
+  const notes = sanitizeMultilineInput(req.body.notes, 500) || '';
+
+  const devices = [];
+  for (let i = 0; i < quantity; i++) {
+    const id = crypto.randomUUID();
+    const serial = `PENDING-${id.slice(0, 8).toUpperCase()}`;
+    const saved = store.saveStockDevice({
+      id,
+      productKey,
+      serialNumber: serial,
+      deviceUsername: '',
+      devicePassword: '',
+      status: 'ordered',
+      assignedOrderId: orderId,
+      supplierName,
+      orderedAt,
+      expectedDeliveryAt,
+      receivedAt: null,
+      notes
+    });
+    devices.push(stockDevicePayload(saved));
+  }
+
+  return res.status(201).json({ devices });
+});
+
 app.get('/api/orders/:orderId', adminRateLimit, requireAdmin, (req, res) => {
   const orderId = req.params.orderId;
   const order = store.getOrder(orderId);
@@ -900,7 +1025,8 @@ app.get('/api/orders/:orderId', adminRateLimit, requireAdmin, (req, res) => {
   return res.json({
     order,
     events: store.listPaymentEvents(orderId),
-    allocation: orderAllocationPayload(store.getOrderAllocation(orderId))
+    allocation: orderAllocationPayload(store.getOrderAllocation(orderId)),
+    devices: store.listDevicesByOrderId(orderId).map(stockDevicePayload)
   });
 });
 
@@ -938,6 +1064,39 @@ app.get('/api/device-models', adminRateLimit, requireAdmin, (req, res) => {
   });
 });
 
+app.post('/api/device-models', adminRateLimit, requireAdmin, (req, res) => {
+  const productName = normalizeName(req.body.productName, 160);
+  if (!productName) {
+    return res.status(400).json({ error: 'product_name_required' });
+  }
+
+  const manufacturer = sanitizeSingleLineInput(req.body.manufacturer, 200) || '';
+  // Generate a URL-safe product key from manufacturer + product name
+  const base = [manufacturer, productName].filter(Boolean).join('-')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+  let productKey = base || 'article';
+  // Ensure uniqueness by appending a suffix if needed
+  let suffix = 0;
+  while (store.getDeviceModel(productKey)) {
+    suffix += 1;
+    productKey = `${base}-${suffix}`;
+  }
+
+  const saved = store.saveDeviceModel({
+    productKey,
+    productName,
+    manufacturer,
+    systemSpec: sanitizeSingleLineInput(req.body.systemSpec, 500) || ''
+  });
+
+  return res.status(201).json({ deviceModel: deviceModelPayload(saved) });
+});
+
 app.put('/api/device-models/:productKey', adminRateLimit, requireAdmin, (req, res) => {
   const existing = store.getDeviceModel(req.params.productKey);
   const normalizedProductName = normalizeName(req.body.productName, 160) || existing?.productName || config.checkoutProductName;
@@ -948,12 +1107,22 @@ app.put('/api/device-models/:productKey', adminRateLimit, requireAdmin, (req, re
   const saved = store.saveDeviceModel({
     productKey: req.params.productKey,
     productName: normalizedProductName,
+    manufacturer: sanitizeSingleLineInput(req.body.manufacturer, 200) || existing?.manufacturer || '',
     systemSpec: sanitizeSingleLineInput(req.body.systemSpec, 500) || existing?.systemSpec || ''
   });
 
   return res.json({
     deviceModel: deviceModelPayload(saved)
   });
+});
+
+app.delete('/api/device-models/:productKey', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = req.params.productKey;
+  if (!store.getDeviceModel(productKey)) {
+    return res.status(404).json({ error: 'device_model_not_found' });
+  }
+  store.deleteDeviceModel(productKey);
+  return res.json({ ok: true });
 });
 
 app.get('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
@@ -973,37 +1142,92 @@ app.get('/api/order-allocations', adminRateLimit, requireAdmin, (req, res) => {
 });
 
 app.put('/api/order-allocations/:orderId', adminRateLimit, requireAdmin, (req, res) => {
-  const existing = store.getOrderAllocation(req.params.orderId);
+  const orderId = req.params.orderId;
+  let existing = store.getOrderAllocation(orderId);
   if (!existing) {
-    return res.status(404).json({ error: 'allocation_not_found' });
+    const order = store.getOrder(orderId);
+    if (!order) {
+      return res.status(404).json({ error: 'order_not_found' });
+    }
+    const now = new Date().toISOString();
+    existing = {
+      orderId,
+      productKey: order.product || config.checkoutProductKey,
+      quantity: 1,
+      status: 'reserved',
+      allocatedAt: now,
+      fulfilledAt: null,
+      releasedAt: null,
+      serialNumber: '',
+      deviceUsername: '',
+      devicePassword: '',
+      trackingNumber: '',
+      trackingCarrier: '',
+      installedAt: null,
+      packedAt: null,
+      shippedAt: null,
+      deliveredAt: null,
+      notes: '',
+      createdAt: now,
+      updatedAt: now
+    };
   }
 
   const status = requiredField(req.body, 'status') || existing.status;
-  const allowedStatuses = new Set(['reserved', 'fulfilled', 'released', 'cancelled']);
+  const allowedStatuses = new Set(['reserved', 'installed', 'packed', 'shipped', 'delivered', 'fulfilled', 'released', 'cancelled']);
   if (!allowedStatuses.has(status)) {
     return res.status(400).json({ error: 'invalid_allocation_status' });
   }
 
-  const fulfilledAt = normalizeIsoDateTime(req.body.fulfilledAt);
-  const releasedAt = normalizeIsoDateTime(req.body.releasedAt);
-  if (req.body.fulfilledAt && !fulfilledAt) {
-    return res.status(400).json({ error: 'invalid_fulfilled_at' });
-  }
-  if (req.body.releasedAt && !releasedAt) {
-    return res.status(400).json({ error: 'invalid_released_at' });
+  // If a deviceId is provided, copy credentials from the stock device and mark it assigned
+  let deviceToAssign = null;
+  if (req.body.deviceId) {
+    deviceToAssign = store.getStockDevice(req.body.deviceId);
+    if (!deviceToAssign || !['available', 'reserved'].includes(deviceToAssign.status)) {
+      return res.status(400).json({ error: 'device_not_available' });
+    }
   }
 
+  const fulfilledAt = normalizeIsoDateTime(req.body.fulfilledAt);
+  const releasedAt = normalizeIsoDateTime(req.body.releasedAt);
+  const installedAt = normalizeIsoDateTime(req.body.installedAt);
+  const packedAt = normalizeIsoDateTime(req.body.packedAt);
+  const shippedAt = normalizeIsoDateTime(req.body.shippedAt);
+  const deliveredAt = normalizeIsoDateTime(req.body.deliveredAt);
+
+  const now = new Date().toISOString();
   const saved = store.saveOrderAllocation({
     ...existing,
     status,
+    serialNumber: deviceToAssign ? deviceToAssign.serialNumber : (sanitizeSingleLineInput(req.body.serialNumber, 100) || existing.serialNumber),
+    deviceUsername: existing.deviceUsername,
+    devicePassword: existing.devicePassword,
+    trackingNumber: sanitizeSingleLineInput(req.body.trackingNumber, 200) || existing.trackingNumber,
+    trackingCarrier: sanitizeSingleLineInput(req.body.trackingCarrier, 100) || existing.trackingCarrier,
+    installedAt: status === 'installed' || status === 'packed' || status === 'shipped' || status === 'delivered' || status === 'fulfilled'
+      ? (installedAt || existing.installedAt || now)
+      : existing.installedAt,
+    packedAt: status === 'packed' || status === 'shipped' || status === 'delivered' || status === 'fulfilled'
+      ? (packedAt || existing.packedAt || now)
+      : existing.packedAt,
+    shippedAt: status === 'shipped' || status === 'delivered'
+      ? (shippedAt || existing.shippedAt || now)
+      : existing.shippedAt,
+    deliveredAt: status === 'delivered'
+      ? (deliveredAt || existing.deliveredAt || now)
+      : existing.deliveredAt,
     fulfilledAt: status === 'fulfilled'
-      ? (fulfilledAt || existing.fulfilledAt || new Date().toISOString())
-      : null,
+      ? (fulfilledAt || existing.fulfilledAt || now)
+      : existing.fulfilledAt,
     releasedAt: status === 'released' || status === 'cancelled'
-      ? (releasedAt || existing.releasedAt || new Date().toISOString())
-      : null,
+      ? (releasedAt || existing.releasedAt || now)
+      : existing.releasedAt,
     notes: sanitizeMultilineInput(req.body.notes, 1000) || existing.notes
   });
+
+  if (deviceToAssign) {
+    store.saveStockDevice({ ...deviceToAssign, status: 'reserved', assignedOrderId: orderId });
+  }
 
   return res.json({
     allocation: orderAllocationPayload(saved),
@@ -1037,12 +1261,18 @@ app.post('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
   if (req.body.expectedDeliveryAt && !expectedDeliveryAt) return res.status(400).json({ error: 'invalid_expected_delivery_at' });
   if (req.body.receivedAt && !receivedAt) return res.status(400).json({ error: 'invalid_received_at' });
 
+  const pricePerItem = sanitizeSingleLineInput(req.body.pricePerItem, 40) || null;
+  const priceIncludesVat = req.body.priceIncludesVat === true || req.body.priceIncludesVat === 'true' || req.body.priceIncludesVat === '1';
+
+  const supplierOrderId = crypto.randomUUID();
   const saved = store.saveSupplierOrder({
-    id: crypto.randomUUID(),
+    id: supplierOrderId,
     productKey,
     supplierName,
     supplierReference: sanitizeSingleLineInput(req.body.supplierReference, 120),
     quantity,
+    pricePerItem,
+    priceIncludesVat,
     orderedAt,
     expectedDeliveryAt,
     receivedAt,
@@ -1050,8 +1280,33 @@ app.post('/api/supplier-orders', adminRateLimit, requireAdmin, (req, res) => {
     notes: sanitizeMultilineInput(req.body.notes, 1000)
   });
 
+  // Auto-create device records for this supplier order
+  const now = new Date().toISOString();
+  const createdDevices = [];
+  for (let i = 0; i < quantity; i++) {
+    const deviceId = crypto.randomUUID();
+    const placeholderSerial = `PENDING-${deviceId.slice(0, 8).toUpperCase()}`;
+    const device = store.saveStockDevice({
+      id: deviceId,
+      productKey,
+      serialNumber: placeholderSerial,
+      deviceUsername: '',
+      devicePassword: '',
+      status: 'ordered',
+      assignedOrderId: null,
+      supplierName,
+      orderedAt: orderedAt || null,
+      expectedDeliveryAt: expectedDeliveryAt || null,
+      receivedAt: null,
+      notes: `Auto-created from supplier order ${supplierOrderId}`,
+      createdAt: now
+    });
+    createdDevices.push(stockDevicePayload(device));
+  }
+
   return res.status(201).json({
     supplierOrder: supplierOrderPayload(saved),
+    devices: createdDevices,
     inventory: inventoryPayload(store.getInventory(productKey), 'de')
   });
 });
@@ -1075,11 +1330,18 @@ app.put('/api/supplier-orders/:supplierOrderId', adminRateLimit, requireAdmin, (
   if (req.body.expectedDeliveryAt && !expectedDeliveryAt) return res.status(400).json({ error: 'invalid_expected_delivery_at' });
   if (req.body.receivedAt && !receivedAt) return res.status(400).json({ error: 'invalid_received_at' });
 
+  const pricePerItem = req.body.pricePerItem !== undefined ? (sanitizeSingleLineInput(req.body.pricePerItem, 40) || null) : existing.pricePerItem;
+  const priceIncludesVat = req.body.priceIncludesVat !== undefined
+    ? (req.body.priceIncludesVat === true || req.body.priceIncludesVat === 'true' || req.body.priceIncludesVat === '1')
+    : existing.priceIncludesVat;
+
   const saved = store.saveSupplierOrder({
     ...existing,
     supplierName: normalizeName(req.body.supplierName, 160) || existing.supplierName,
     supplierReference: sanitizeSingleLineInput(req.body.supplierReference, 120) || existing.supplierReference,
     quantity: Number.isInteger(quantity) && quantity > 0 ? quantity : existing.quantity,
+    pricePerItem,
+    priceIncludesVat,
     orderedAt: orderedAt || existing.orderedAt,
     expectedDeliveryAt: expectedDeliveryAt || existing.expectedDeliveryAt,
     receivedAt: receivedAt || existing.receivedAt,
@@ -1091,6 +1353,75 @@ app.put('/api/supplier-orders/:supplierOrderId', adminRateLimit, requireAdmin, (
     supplierOrder: supplierOrderPayload(saved),
     inventory: inventoryPayload(store.getInventory(saved.productKey), 'de')
   });
+});
+
+app.get('/api/admin/stock-devices', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = typeof req.query.productKey === 'string' ? req.query.productKey : config.checkoutProductKey;
+  return res.json({
+    devices: store.listStockDevices(productKey).map(stockDevicePayload)
+  });
+});
+
+app.post('/api/admin/stock-devices', adminRateLimit, requireAdmin, (req, res) => {
+  const productKey = sanitizeSingleLineInput(req.body.productKey, 80) || config.checkoutProductKey;
+  const serialNumber = sanitizeSingleLineInput(req.body.serialNumber, 100);
+  if (!serialNumber) {
+    return res.status(400).json({ error: 'serial_number_required' });
+  }
+  const product = store.getDeviceModel(productKey);
+  if (!product) {
+    return res.status(400).json({ error: 'unknown_product_key' });
+  }
+  const saved = store.saveStockDevice({
+    id: crypto.randomUUID(),
+    productKey,
+    serialNumber,
+    deviceUsername: sanitizeSingleLineInput(req.body.deviceUsername, 100) || '',
+    devicePassword: sanitizeSingleLineInput(req.body.devicePassword, 100) || '',
+    status: 'available',
+    assignedOrderId: null,
+    supplierName: sanitizeSingleLineInput(req.body.supplierName, 160) || '',
+    orderedAt: normalizeIsoDate(req.body.orderedAt) || null,
+    expectedDeliveryAt: normalizeIsoDate(req.body.expectedDeliveryAt) || null,
+    receivedAt: normalizeIsoDate(req.body.receivedAt) || null,
+    notes: sanitizeMultilineInput(req.body.notes, 500) || ''
+  });
+  return res.status(201).json({ device: stockDevicePayload(saved) });
+});
+
+app.put('/api/admin/stock-devices/:deviceId', adminRateLimit, requireAdmin, (req, res) => {
+  const existing = store.getStockDevice(req.params.deviceId);
+  if (!existing) {
+    return res.status(404).json({ error: 'device_not_found' });
+  }
+  const allowedStatuses = new Set(['available', 'ordered', 'reserved', 'assigned', 'retired', 'unavailable', 'in_stock']);
+  const status = normalizeEnum(req.body.status, allowedStatuses) || existing.status;
+  const serialNumber = sanitizeSingleLineInput(req.body.serialNumber, 100) || existing.serialNumber;
+
+  let saved = store.saveStockDevice({
+    ...existing,
+    serialNumber,
+    deviceUsername: req.body.deviceUsername !== undefined ? (sanitizeSingleLineInput(req.body.deviceUsername, 100) || '') : existing.deviceUsername,
+    devicePassword: req.body.devicePassword !== undefined ? (sanitizeSingleLineInput(req.body.devicePassword, 100) || '') : existing.devicePassword,
+    status,
+    assignedOrderId: req.body.assignedOrderId !== undefined ? (req.body.assignedOrderId || null) : existing.assignedOrderId,
+    supplierName: req.body.supplierName !== undefined ? (sanitizeSingleLineInput(req.body.supplierName, 160) || '') : existing.supplierName,
+    orderedAt: req.body.orderedAt !== undefined ? (normalizeIsoDate(req.body.orderedAt) || null) : existing.orderedAt,
+    expectedDeliveryAt: req.body.expectedDeliveryAt !== undefined ? (normalizeIsoDate(req.body.expectedDeliveryAt) || null) : existing.expectedDeliveryAt,
+    receivedAt: req.body.receivedAt !== undefined ? (normalizeIsoDate(req.body.receivedAt) || null) : existing.receivedAt,
+    notes: req.body.notes !== undefined ? (sanitizeMultilineInput(req.body.notes, 500) || '') : existing.notes
+  });
+
+  // Auto-assign to customer order when device becomes in_stock and has a real serial
+  if (status === 'in_stock' && saved.assignedOrderId && !serialNumber.startsWith('PENDING-')) {
+    const allocation = store.getOrderAllocation(saved.assignedOrderId);
+    if (allocation && !['fulfilled', 'released', 'cancelled'].includes(allocation.status)) {
+      store.saveOrderAllocation({ ...allocation, serialNumber });
+      saved = store.saveStockDevice({ ...saved, status: 'assigned' });
+    }
+  }
+
+  return res.json({ device: stockDevicePayload(saved) });
 });
 
 app.post('/api/orders/checkout', checkoutRateLimit, async (req, res) => {

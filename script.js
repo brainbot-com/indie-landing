@@ -829,20 +829,21 @@ function setupAdminInventory() {
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
     const productKey = app.getAttribute('data-product-key') || 'indiebox-ai-workstation';
-    const passwordInput = app.querySelector('[data-admin-password-input]');
-    const authStatus = app.querySelector('[data-admin-auth-status]');
-    const authForm = app.querySelector('[data-admin-auth-form]');
-    const clearAuthButton = app.querySelector('[data-admin-clear-auth]');
-    const overviewStatus = app.querySelector('[data-admin-overview-status]');
-    const overviewLeadTime = app.querySelector('[data-admin-overview-lead-time]');
-    const modelForm = app.querySelector('[data-admin-model-form]');
-    const inventoryForm = app.querySelector('[data-admin-inventory-form]');
+    const passwordInput = document.querySelector('[data-admin-password-input]');
+    const authStatus = document.querySelector('[data-admin-auth-status]');
+    const authForm = document.querySelector('[data-admin-auth-form]');
+    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
+    const articleForm = app.querySelector('[data-admin-article-form]');
+    const articlesList = app.querySelector('[data-admin-articles-list]');
     const procurementForm = app.querySelector('[data-admin-procurement-form]');
     const procurementList = app.querySelector('[data-admin-procurement-list]');
     const allocationsList = app.querySelector('[data-admin-allocations-list]');
+    const devicesForm = app.querySelector('[data-admin-device-form]');
+    const devicesList = app.querySelector('[data-admin-devices-list]');
+    const articleSelect = app.querySelector('[data-article-select]');
     const feedback = app.querySelector('[data-admin-feedback]');
 
-    const messages = locale === 'en'
+    const m = locale === 'en'
         ? {
             authMissing: 'Sign in to load internal inventory data.',
             authSaved: 'Admin session is active.',
@@ -851,9 +852,24 @@ function setupAdminInventory() {
             loadFailed: 'The admin data could not be loaded.',
             saved: 'Changes saved.',
             created: 'Supplier order created.',
+            deviceAdded: 'Device added.',
+            deviceSaved: 'Device saved.',
+            articleCreated: 'Article created.',
+            articleSaved: 'Article saved.',
+            articleDeleted: 'Article deleted.',
             noOrders: 'No supplier orders have been entered yet.',
             noAllocations: 'No customer orders have reserved stock yet.',
-            allocationSaved: 'Reservation updated.'
+            noDevices: 'No devices in stock yet.',
+            noArticles: 'No articles in the catalogue yet.',
+            allocationSaved: 'Reservation updated.',
+            statusAvailable: 'Available', statusAssigned: 'Assigned', statusRetired: 'Retired', statusUnavailable: 'Unavailable',
+            statusOrdered: 'On order', statusReserved: 'Reserved for order', statusInStock: 'In stock',
+            markUnavailable: 'Mark unavailable', markAvailable: 'Mark available',
+            markInStock: 'Received – enter serial',
+            save: 'Save', retire: 'Retire',
+            deleteArticle: 'Delete',
+            confirmDeleteArticle: 'Delete this article? This cannot be undone.',
+            vatIncl: 'incl. VAT', vatExcl: 'excl. VAT'
         }
         : {
             authMissing: 'Anmelden, um die internen Bestandsdaten zu laden.',
@@ -863,9 +879,24 @@ function setupAdminInventory() {
             loadFailed: 'Die internen Bestandsdaten konnten nicht geladen werden.',
             saved: 'Änderungen gespeichert.',
             created: 'Lieferantenbestellung angelegt.',
+            deviceAdded: 'Gerät hinzugefügt.',
+            deviceSaved: 'Gerät gespeichert.',
+            articleCreated: 'Artikel angelegt.',
+            articleSaved: 'Artikel gespeichert.',
+            articleDeleted: 'Artikel gelöscht.',
             noOrders: 'Es wurden noch keine Lieferantenbestellungen erfasst.',
             noAllocations: 'Es wurden noch keine Kundenbestellungen gegen den Bestand reserviert.',
-            allocationSaved: 'Reservierung gespeichert.'
+            noDevices: 'Noch keine Geräte im Lager.',
+            noArticles: 'Noch keine Artikel im Katalog.',
+            allocationSaved: 'Reservierung gespeichert.',
+            statusAvailable: 'Verfügbar', statusAssigned: 'Zugewiesen', statusRetired: 'Ausgemustert', statusUnavailable: 'Nicht verfügbar',
+            statusOrdered: 'Bestellt', statusReserved: 'Reserviert für Bestellung', statusInStock: 'Auf Lager',
+            markUnavailable: 'Sperren', markAvailable: 'Freigeben',
+            markInStock: 'Erhalten – Seriennr. eingeben',
+            save: 'Speichern', retire: 'Ausmustern',
+            deleteArticle: 'Löschen',
+            confirmDeleteArticle: 'Diesen Artikel löschen? Das kann nicht rückgängig gemacht werden.',
+            vatIncl: 'inkl. MwSt.', vatExcl: 'zzgl. MwSt.'
         };
 
     const setFeedback = (message, isError = false) => {
@@ -878,7 +909,8 @@ function setupAdminInventory() {
     const setAuthStatus = (message, isError = false) => {
         if (!authStatus) return;
         authStatus.textContent = message;
-        authStatus.classList.toggle('admin-auth-status--error', Boolean(isError));
+        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
+        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
     };
 
     const adminFetch = async (url, options = {}) => {
@@ -887,54 +919,139 @@ function setupAdminInventory() {
         if (options.body && !headers.has('Content-Type')) {
             headers.set('Content-Type', 'application/json');
         }
-        const response = await fetch(url, {
-            ...options,
-            headers,
-            credentials: 'same-origin'
-        });
-
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
         const payload = await response.json().catch(() => null);
         if (!response.ok) {
             const error = new Error(payload?.error || payload?.message || response.statusText);
             error.status = response.status;
-            error.payload = payload;
             throw error;
         }
-
         return payload;
     };
 
-    const updateOverview = (inventory) => {
-        if (overviewStatus) overviewStatus.textContent = inventory?.stockLabel || '–';
-        if (overviewLeadTime) overviewLeadTime.textContent = inventory?.leadTimeLabel || '–';
+    const esc = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    // Tab switching
+    const tabs = app.querySelectorAll('[data-tab]');
+    const panels = app.querySelectorAll('[data-tab-panel]');
+    const switchTab = (tabKey) => {
+        tabs.forEach((tab) => {
+            const isActive = tab.getAttribute('data-tab') === tabKey;
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        panels.forEach((panel) => {
+            panel.hidden = panel.getAttribute('data-tab-panel') !== tabKey;
+        });
+    };
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
+    });
+
+    const populateArticleSelect = (deviceModels) => {
+        if (!articleSelect) return;
+        const current = articleSelect.value;
+        const firstOption = articleSelect.options[0];
+        articleSelect.innerHTML = '';
+        articleSelect.appendChild(firstOption);
+        for (const model of deviceModels) {
+            const opt = document.createElement('option');
+            opt.value = model.productKey;
+            opt.textContent = [model.manufacturer, model.productName].filter(Boolean).join(' · ');
+            articleSelect.appendChild(opt);
+        }
+        if (current) articleSelect.value = current;
     };
 
-    const fillForms = (inventoryPayload, deviceModel) => {
-        updateOverview(inventoryPayload);
-
-        if (modelForm) {
-            const productName = modelForm.elements.namedItem('productName');
-            const systemSpec = modelForm.elements.namedItem('systemSpec');
-            if (productName && 'value' in productName) productName.value = deviceModel?.productName || inventoryPayload?.productName || '';
-            if (systemSpec && 'value' in systemSpec) systemSpec.value = deviceModel?.systemSpec || '';
+    const renderArticles = (deviceModels) => {
+        if (!articlesList) return;
+        if (!deviceModels.length) {
+            articlesList.innerHTML = `<p class="admin-empty">${m.noArticles}</p>`;
+            return;
         }
-
-        if (inventoryForm) {
-            const minField = inventoryForm.elements.namedItem('leadTimeMinBusinessDays');
-            const maxField = inventoryForm.elements.namedItem('leadTimeMaxBusinessDays');
-            const unitsField = inventoryForm.elements.namedItem('availableUnits');
-            if (minField && 'value' in minField) minField.value = String(inventoryPayload?.leadTimeMinBusinessDays ?? 3);
-            if (maxField && 'value' in maxField) maxField.value = String(inventoryPayload?.leadTimeMaxBusinessDays ?? 5);
-            if (unitsField && 'value' in unitsField) unitsField.value = String(inventoryPayload?.availableUnits ?? 0);
+        // Group by manufacturer
+        const groups = new Map();
+        for (const model of deviceModels) {
+            const mfr = model.manufacturer || (locale === 'en' ? 'No manufacturer' : 'Kein Hersteller');
+            if (!groups.has(mfr)) groups.set(mfr, []);
+            groups.get(mfr).push(model);
         }
+        const html = Array.from(groups.entries()).map(([mfr, models]) => `
+            <div class="admin-article-group">
+                <div class="admin-article-group__label">${esc(mfr)}</div>
+                ${models.map((model) => `
+                <div class="admin-article-row" data-article-row data-product-key="${esc(model.productKey)}">
+                    <div class="admin-article-row__main">
+                        <input class="form-input admin-table-input" type="text" name="productName" value="${esc(model.productName)}" placeholder="${locale === 'en' ? 'Article name' : 'Artikelname'}">
+                        <input class="form-input admin-table-input" type="text" name="manufacturer" value="${esc(model.manufacturer || '')}" placeholder="${locale === 'en' ? 'Manufacturer' : 'Hersteller'}">
+                        <input class="form-input admin-table-input" type="text" name="systemSpec" value="${esc(model.systemSpec || '')}" placeholder="${locale === 'en' ? 'Specification' : 'Spezifikation'}">
+                    </div>
+                    <div class="admin-article-row__actions">
+                        <button type="button" class="button button--plain-dark button--pill button--sm" data-save-article>${esc(m.save)}</button>
+                        <button type="button" class="button button--plain-light button--pill button--sm" data-delete-article>${esc(m.deleteArticle)}</button>
+                    </div>
+                </div>`).join('')}
+            </div>`).join('');
+        articlesList.innerHTML = html;
     };
 
-    const escapeHtml = (value) => String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    const deviceStatusLabel = (status) => {
+        if (status === 'available') return { label: m.statusAvailable, cls: 'available' };
+        if (status === 'ordered') return { label: m.statusOrdered, cls: 'ordered' };
+        if (status === 'in_stock') return { label: m.statusInStock, cls: 'available' };
+        if (status === 'reserved') return { label: m.statusReserved, cls: 'reserved' };
+        if (status === 'assigned') return { label: m.statusAssigned, cls: 'assigned' };
+        if (status === 'unavailable') return { label: m.statusUnavailable, cls: 'unavailable' };
+        return { label: m.statusRetired, cls: 'retired' };
+    };
+
+    const renderDevices = (devices) => {
+        if (!devicesList) return;
+        if (!devices.length) {
+            devicesList.innerHTML = `<p class="admin-empty">${m.noDevices}</p>`;
+            return;
+        }
+        const rows = devices.map((d) => {
+            const st = deviceStatusLabel(d.status);
+            const editable = !['packed', 'shipped', 'delivered', 'fulfilled', 'retired'].includes(d.status);
+            const modelInfo = [d.manufacturer, d.modelName].filter(Boolean).join(' · ');
+            return `<tr data-device-row data-device-id="${esc(d.id)}">
+                <td>
+                    ${modelInfo ? `<div style="font-size:0.72rem;color:rgba(15,23,42,0.5);margin-bottom:0.15rem">${esc(modelInfo)}</div>` : ''}
+                    <input class="form-input admin-table-input" type="text" name="serialNumber" value="${esc(d.serialNumber)}" ${editable ? '' : 'disabled'}>
+                    ${d.supplierName ? `<div style="font-size:0.72rem;color:rgba(15,23,42,0.45);margin-top:0.15rem">${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${esc(d.expectedDeliveryAt)}` : ''}</div>` : ''}
+                </td>
+                <td><input class="form-input admin-table-input" type="text" name="deviceUsername" value="${esc(d.deviceUsername)}" ${editable ? '' : 'disabled'}></td>
+                <td><input class="form-input admin-table-input" type="text" name="devicePassword" value="${esc(d.devicePassword)}" ${editable ? '' : 'disabled'}></td>
+                <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2" ${editable ? '' : 'disabled'}>${esc(d.notes)}</textarea></td>
+                <td><span class="admin-device-status admin-device-status--${esc(st.cls)}">${esc(st.label)}</span></td>
+                ${d.assignedOrderId ? `<td class="admin-table-code" style="font-size:0.7rem;color:rgba(15,23,42,0.45)">${esc(d.assignedOrderId.slice(-8))}</td>` : '<td>–</td>'}
+                <td class="admin-table-action" style="white-space:nowrap;display:flex;flex-direction:column;gap:0.3rem;padding:0.4rem 0.6rem">
+                    ${editable ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-save-device>${esc(m.save)}</button>` : ''}
+                    ${d.status === 'ordered' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-mark-in-stock>${esc(m.markInStock)}</button>` : ''}
+                    ${d.status === 'available' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-toggle-unavailable data-next-status="unavailable">${esc(m.markUnavailable)}</button>` : ''}
+                    ${d.status === 'unavailable' ? `<button type="button" class="button button--plain-light button--pill button--sm" data-toggle-unavailable data-next-status="available">${esc(m.markAvailable)}</button>` : ''}
+                    ${editable ? `<button type="button" class="button button--plain-light button--pill button--sm" data-retire-device>${esc(m.retire)}</button>` : ''}
+                </td>
+            </tr>`;
+        }).join('');
+        devicesList.innerHTML = `
+            <div class="admin-table-wrap">
+                <table class="admin-device-table">
+                    <thead><tr>
+                        <th>${locale === 'en' ? 'Serial / Model' : 'Seriennr. / Modell'}</th>
+                        <th>${locale === 'en' ? 'Username' : 'Benutzer'}</th>
+                        <th>${locale === 'en' ? 'Password' : 'Passwort'}</th>
+                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
+                        <th>${locale === 'en' ? 'Status' : 'Status'}</th>
+                        <th>${locale === 'en' ? 'Order' : 'Bestellung'}</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    };
 
     const supplierStatusOptions = (currentValue) => {
         const options = [
@@ -944,168 +1061,131 @@ function setupAdminInventory() {
             ['in_stock', locale === 'en' ? 'In stock' : 'Auf Lager'],
             ['cancelled', locale === 'en' ? 'Cancelled' : 'Storniert']
         ];
-
-        return options.map(([value, label]) => `<option value="${escapeHtml(value)}"${value === currentValue ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+        return options.map(([value, label]) => `<option value="${esc(value)}"${value === currentValue ? ' selected' : ''}>${esc(label)}</option>`).join('');
     };
 
-    const renderSupplierOrders = (supplierOrders) => {
+    const renderSupplierOrders = (supplierOrders, deviceModels) => {
         if (!procurementList) return;
-
         if (!supplierOrders.length) {
-            procurementList.innerHTML = `<p class="admin-empty">${messages.noOrders}</p>`;
+            procurementList.innerHTML = `<p class="admin-empty">${m.noOrders}</p>`;
             return;
         }
-
+        const modelMap = new Map((deviceModels || []).map((dm) => [dm.productKey, dm]));
+        const articleOptions = (currentKey) => (deviceModels || []).map((model) =>
+            `<option value="${esc(model.productKey)}"${model.productKey === currentKey ? ' selected' : ''}>${esc([model.manufacturer, model.productName].filter(Boolean).join(' · '))}</option>`
+        ).join('');
         procurementList.innerHTML = `
             <div class="admin-table-wrap">
                 <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>${locale === 'en' ? 'Supplier' : 'Lieferant'}</th>
-                            <th>${locale === 'en' ? 'Reference' : 'Referenz'}</th>
-                            <th>${locale === 'en' ? 'Quantity' : 'Menge'}</th>
-                            <th>${locale === 'en' ? 'Status' : 'Status'}</th>
-                            <th>${locale === 'en' ? 'Ordered' : 'Bestellt'}</th>
-                            <th>${locale === 'en' ? 'Expected' : 'Erwartet'}</th>
-                            <th>${locale === 'en' ? 'Received' : 'Geliefert'}</th>
-                            <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
-                            <th>${locale === 'en' ? 'Action' : 'Aktion'}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${supplierOrders.map((order) => `
-                            <tr data-supplier-order-row data-supplier-order-id="${escapeHtml(order.id)}">
-                                <td><input class="form-input admin-table-input" type="text" name="supplierName" value="${escapeHtml(order.supplierName || '')}"></td>
-                                <td><input class="form-input admin-table-input" type="text" name="supplierReference" value="${escapeHtml(order.supplierReference || '')}"></td>
-                                <td><input class="form-input admin-table-input" type="number" min="1" name="quantity" value="${escapeHtml(order.quantity || 1)}"></td>
-                                <td><select class="form-input admin-table-input" name="status">${supplierStatusOptions(order.status)}</select></td>
-                                <td><input class="form-input admin-table-input" type="date" name="orderedAt" value="${escapeHtml(order.orderedAt || '')}"></td>
-                                <td><input class="form-input admin-table-input" type="date" name="expectedDeliveryAt" value="${escapeHtml(order.expectedDeliveryAt || '')}"></td>
-                                <td><input class="form-input admin-table-input" type="date" name="receivedAt" value="${escapeHtml(order.receivedAt || '')}"></td>
-                                <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${escapeHtml(order.notes || '')}</textarea></td>
-                                <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-supplier-order>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
-                            </tr>
-                        `).join('')}
+                    <thead><tr>
+                        <th>${locale === 'en' ? 'Article' : 'Artikel'}</th>
+                        <th>${locale === 'en' ? 'Supplier' : 'Lieferant'}</th>
+                        <th>${locale === 'en' ? 'Reference' : 'Referenz'}</th>
+                        <th>${locale === 'en' ? 'Qty' : 'Menge'}</th>
+                        <th>${locale === 'en' ? 'Price/unit' : 'Preis/Stk.'}</th>
+                        <th>Status</th>
+                        <th>${locale === 'en' ? 'Ordered' : 'Bestellt'}</th>
+                        <th>${locale === 'en' ? 'Expected' : 'Erwartet'}</th>
+                        <th>${locale === 'en' ? 'Received' : 'Erhalten'}</th>
+                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody>${supplierOrders.map((order) => `
+                        <tr data-supplier-order-row data-supplier-order-id="${esc(order.id)}">
+                            <td><select class="form-input admin-table-input" name="productKey">${articleOptions(order.productKey)}</select></td>
+                            <td><input class="form-input admin-table-input" type="text" name="supplierName" value="${esc(order.supplierName || '')}"></td>
+                            <td><input class="form-input admin-table-input" type="text" name="supplierReference" value="${esc(order.supplierReference || '')}"></td>
+                            <td><input class="form-input admin-table-input" type="number" min="1" name="quantity" value="${esc(order.quantity || 1)}"></td>
+                            <td><input class="form-input admin-table-input" type="text" name="pricePerItem" value="${esc(order.pricePerItem || '')}" placeholder="0.00" style="width:6rem">
+                                <label style="font-size:0.72rem;display:flex;align-items:center;gap:0.25rem;margin-top:0.2rem"><input type="checkbox" name="priceIncludesVat" value="true"${order.priceIncludesVat ? ' checked' : ''}> ${esc(m.vatIncl)}</label>
+                            </td>
+                            <td><select class="form-input admin-table-input" name="status">${supplierStatusOptions(order.status)}</select></td>
+                            <td><input class="form-input admin-table-input" type="date" name="orderedAt" value="${esc(order.orderedAt || '')}"></td>
+                            <td><input class="form-input admin-table-input" type="date" name="expectedDeliveryAt" value="${esc(order.expectedDeliveryAt || '')}"></td>
+                            <td><input class="form-input admin-table-input" type="date" name="receivedAt" value="${esc(order.receivedAt || '')}"></td>
+                            <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${esc(order.notes || '')}</textarea></td>
+                            <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-supplier-order>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
+                        </tr>`).join('')}
                     </tbody>
                 </table>
-            </div>
-        `;
+            </div>`;
     };
 
     const renderAllocations = (allocations) => {
         if (!allocationsList) return;
-
         if (!allocations.length) {
-            allocationsList.innerHTML = `<p class="admin-empty">${messages.noAllocations}</p>`;
+            allocationsList.innerHTML = `<p class="admin-empty">${m.noAllocations}</p>`;
             return;
         }
-
         const allocationStatusOptions = [
             ['reserved', locale === 'en' ? 'Reserved' : 'Reserviert'],
             ['fulfilled', locale === 'en' ? 'Fulfilled' : 'Erfüllt'],
             ['released', locale === 'en' ? 'Released' : 'Freigegeben'],
             ['cancelled', locale === 'en' ? 'Cancelled' : 'Storniert']
-        ].map(([value, label]) => ({ value, label }));
-
+        ];
         const optionsMarkup = (currentValue) => allocationStatusOptions
-            .map(({ value, label }) => `<option value="${escapeHtml(value)}"${value === currentValue ? ' selected' : ''}>${escapeHtml(label)}</option>`)
+            .map(([value, label]) => `<option value="${esc(value)}"${value === currentValue ? ' selected' : ''}>${esc(label)}</option>`)
             .join('');
-
         allocationsList.innerHTML = `
             <div class="admin-table-wrap">
                 <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>${locale === 'en' ? 'Order' : 'Bestellung'}</th>
-                            <th>${locale === 'en' ? 'Status' : 'Status'}</th>
-                            <th>${locale === 'en' ? 'Quantity' : 'Menge'}</th>
-                            <th>${locale === 'en' ? 'Allocated' : 'Reserviert'}</th>
-                            <th>${locale === 'en' ? 'Fulfilled' : 'Erfüllt'}</th>
-                            <th>${locale === 'en' ? 'Released' : 'Freigegeben'}</th>
-                            <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
-                            <th>${locale === 'en' ? 'Action' : 'Aktion'}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${allocations.map((allocation) => `
-                            <tr data-allocation-row data-allocation-id="${escapeHtml(allocation.orderId)}">
-                                <td class="admin-table-code">${escapeHtml(allocation.orderId)}</td>
-                                <td><select class="form-input admin-table-input" name="status">${optionsMarkup(allocation.status)}</select></td>
-                                <td><input class="form-input admin-table-input" type="number" value="${escapeHtml(allocation.quantity)}" disabled aria-disabled="true"></td>
-                                <td><input class="form-input admin-table-input" type="text" value="${escapeHtml(allocation.allocatedAt || '')}" disabled aria-disabled="true"></td>
-                                <td><input class="form-input admin-table-input" type="text" name="fulfilledAt" value="${escapeHtml(allocation.fulfilledAt || '')}"></td>
-                                <td><input class="form-input admin-table-input" type="text" name="releasedAt" value="${escapeHtml(allocation.releasedAt || '')}"></td>
-                                <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${escapeHtml(allocation.notes || '')}</textarea></td>
-                                <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-allocation>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
-                            </tr>
-                        `).join('')}
+                    <thead><tr>
+                        <th>${locale === 'en' ? 'Order' : 'Bestellung'}</th>
+                        <th>Status</th>
+                        <th>${locale === 'en' ? 'Qty' : 'Menge'}</th>
+                        <th>${locale === 'en' ? 'Allocated' : 'Reserviert'}</th>
+                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody>${allocations.map((allocation) => `
+                        <tr data-allocation-row data-allocation-id="${esc(allocation.orderId)}">
+                            <td class="admin-table-code">${esc(allocation.orderId)}</td>
+                            <td><select class="form-input admin-table-input" name="status">${optionsMarkup(allocation.status)}</select></td>
+                            <td><input class="form-input admin-table-input" type="number" value="${esc(allocation.quantity)}" disabled aria-disabled="true"></td>
+                            <td><input class="form-input admin-table-input" type="text" value="${esc(allocation.allocatedAt || '')}" disabled aria-disabled="true"></td>
+                            <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${esc(allocation.notes || '')}</textarea></td>
+                            <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-allocation>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
+                        </tr>`).join('')}
                     </tbody>
                 </table>
-            </div>
-        `;
-    };
-
-    const loadPublicOverview = async () => {
-        const response = await fetch(`/api/inventory/${encodeURIComponent(productKey)}?locale=${encodeURIComponent(locale)}`, {
-            headers: {
-                Accept: 'application/json'
-            }
-        });
-
-        const payload = await response.json().catch(() => null);
-        if (!response.ok || !payload?.inventory) {
-            throw new Error(messages.loadFailed);
-        }
-
-        updateOverview(payload.inventory);
-        return payload;
+            </div>`;
     };
 
     const loadAdminData = async () => {
         try {
-            const inventoryResponse = await loadPublicOverview();
-            const deviceModelsResponse = await adminFetch('/api/device-models');
-            const supplierOrdersResponse = await adminFetch(`/api/supplier-orders?productKey=${encodeURIComponent(productKey)}`);
-            const allocationsResponse = await adminFetch(`/api/order-allocations?productKey=${encodeURIComponent(productKey)}`);
-
-            const deviceModel = (deviceModelsResponse.deviceModels || []).find((item) => item.productKey === productKey) || inventoryResponse.deviceModel;
-            fillForms(inventoryResponse.inventory, deviceModel);
-            renderSupplierOrders(supplierOrdersResponse.supplierOrders || []);
+            const [deviceModelsResponse, supplierOrdersResponse, allocationsResponse, devicesResponse] = await Promise.all([
+                adminFetch('/api/device-models'),
+                adminFetch('/api/supplier-orders'),
+                adminFetch(`/api/order-allocations?productKey=${encodeURIComponent(productKey)}`),
+                adminFetch(`/api/admin/stock-devices?productKey=${encodeURIComponent(productKey)}`)
+            ]);
+            const deviceModels = deviceModelsResponse.deviceModels || [];
+            populateArticleSelect(deviceModels);
+            renderArticles(deviceModels);
+            renderSupplierOrders(supplierOrdersResponse.supplierOrders || [], deviceModels);
             renderAllocations(allocationsResponse.allocations || []);
+            renderDevices(devicesResponse.devices || []);
             setFeedback('', false);
-            setAuthStatus(messages.authSaved, false);
+            setAuthStatus(m.authSaved, false);
         } catch (error) {
-            renderSupplierOrders([]);
+            renderArticles([]);
+            renderSupplierOrders([], []);
             renderAllocations([]);
-            if (error.status === 401) {
-                setAuthStatus(messages.authFailed, true);
-            } else if (error.status === 404) {
-                setAuthStatus(messages.loadFailed, true);
-            } else {
-                setAuthStatus(messages.loadFailed, true);
-            }
-            setFeedback(messages.loadFailed, true);
+            renderDevices([]);
+            setAuthStatus(error.status === 401 ? m.authFailed : m.loadFailed, true);
         }
     };
 
     const loadAuthState = async () => {
         try {
-            const response = await fetch('/api/admin/session', {
-                headers: {
-                    Accept: 'application/json'
-                },
-                credentials: 'same-origin'
-            });
-            if (!response.ok) {
-                setAuthStatus(messages.authMissing, false);
-                return false;
-            }
+            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+            if (!response.ok) { setAuthStatus(m.authMissing, false); return false; }
             const payload = await response.json().catch(() => null);
             const authenticated = Boolean(payload?.authenticated);
-            setAuthStatus(authenticated ? messages.authSaved : messages.authMissing, false);
+            setAuthStatus(authenticated ? m.authSaved : m.authMissing, false);
             return authenticated;
         } catch {
-            setAuthStatus(messages.authMissing, false);
+            setAuthStatus(m.authMissing, false);
             return false;
         }
     };
@@ -1115,81 +1195,114 @@ function setupAdminInventory() {
         try {
             const password = passwordInput?.value || '';
             const response = await fetch('/api/admin/session', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ password })
+                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin', body: JSON.stringify({ password })
             });
-            if (!response.ok) {
-                throw new Error(messages.authFailed);
-            }
+            if (!response.ok) throw new Error(m.authFailed);
             if (passwordInput) passwordInput.value = '';
-            setAuthStatus(messages.authSaved, false);
+            setAuthStatus(m.authSaved, false);
             await loadAdminData();
         } catch {
-            setAuthStatus(messages.authFailed, true);
+            setAuthStatus(m.authFailed, true);
         }
     });
 
     clearAuthButton?.addEventListener('click', async () => {
-        await fetch('/api/admin/session', {
-            method: 'DELETE',
-            credentials: 'same-origin'
-        }).catch(() => {});
+        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
         if (passwordInput) passwordInput.value = '';
-        renderSupplierOrders([]);
+        renderArticles([]);
+        renderSupplierOrders([], []);
         renderAllocations([]);
-        setAuthStatus(messages.authCleared, false);
+        renderDevices([]);
+        setAuthStatus(m.authCleared, false);
     });
 
-    modelForm?.addEventListener('submit', async (event) => {
+    articleForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
-            const payload = Object.fromEntries(new FormData(modelForm).entries());
-            await adminFetch(`/api/device-models/${encodeURIComponent(productKey)}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-            setFeedback(messages.saved, false);
+            const payload = Object.fromEntries(new FormData(articleForm).entries());
+            await adminFetch('/api/device-models', { method: 'POST', body: JSON.stringify(payload) });
+            articleForm.reset();
+            setFeedback(m.articleCreated, false);
             await loadAdminData();
-        } catch (error) {
-            setFeedback(error.message || messages.loadFailed, true);
-        }
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
-    inventoryForm?.addEventListener('submit', async (event) => {
+    articlesList?.addEventListener('click', async (event) => {
+        const saveBtn = event.target.closest('[data-save-article]');
+        const deleteBtn = event.target.closest('[data-delete-article]');
+        const btn = saveBtn || deleteBtn;
+        if (!btn) return;
+        const row = btn.closest('[data-article-row]');
+        if (!row) return;
+        const pk = row.getAttribute('data-product-key');
+        try {
+            if (saveBtn) {
+                const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+                await adminFetch(`/api/device-models/${encodeURIComponent(pk)}`, { method: 'PUT', body: JSON.stringify(payload) });
+                setFeedback(m.articleSaved, false);
+            } else {
+                if (!confirm(m.confirmDeleteArticle)) return;
+                await adminFetch(`/api/device-models/${encodeURIComponent(pk)}`, { method: 'DELETE' });
+                setFeedback(m.articleDeleted, false);
+            }
+            await loadAdminData();
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
+    });
+
+    devicesForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
-            const payload = Object.fromEntries(new FormData(inventoryForm).entries());
-            await adminFetch(`/api/inventory/${encodeURIComponent(productKey)}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-            setFeedback(messages.saved, false);
+            const payload = Object.fromEntries(new FormData(devicesForm).entries());
+            payload.productKey = productKey;
+            await adminFetch('/api/admin/stock-devices', { method: 'POST', body: JSON.stringify(payload) });
+            devicesForm.reset();
+            setFeedback(m.deviceAdded, false);
             await loadAdminData();
-        } catch (error) {
-            setFeedback(error.message || messages.loadFailed, true);
-        }
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
+    });
+
+    devicesList?.addEventListener('click', async (event) => {
+        const saveBtn = event.target.closest('[data-save-device]');
+        const retireBtn = event.target.closest('[data-retire-device]');
+        const toggleBtn = event.target.closest('[data-toggle-unavailable]');
+        const inStockBtn = event.target.closest('[data-mark-in-stock]');
+        const btn = saveBtn || retireBtn || toggleBtn || inStockBtn;
+        if (!btn) return;
+        const row = btn.closest('[data-device-row]');
+        if (!row) return;
+        try {
+            const deviceId = row.getAttribute('data-device-id');
+            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            if (retireBtn) payload.status = 'retired';
+            if (toggleBtn) payload.status = toggleBtn.getAttribute('data-next-status');
+            if (inStockBtn) {
+                const serial = payload.serialNumber || '';
+                if (!serial || serial.startsWith('PENDING-')) {
+                    const newSerial = prompt(locale === 'en' ? 'Enter the real serial number:' : 'Seriennummer eingeben:');
+                    if (!newSerial) return;
+                    payload.serialNumber = newSerial.trim();
+                }
+                payload.status = 'in_stock';
+            }
+            await adminFetch(`/api/admin/stock-devices/${encodeURIComponent(deviceId)}`, { method: 'PUT', body: JSON.stringify(payload) });
+            setFeedback(m.deviceSaved, false);
+            await loadAdminData();
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
     procurementForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
-            const payload = Object.fromEntries(new FormData(procurementForm).entries());
-            payload.productKey = productKey;
-            await adminFetch('/api/supplier-orders', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
+            const formData = new FormData(procurementForm);
+            const payload = Object.fromEntries(formData.entries());
+            // Checkbox value needs special handling
+            payload.priceIncludesVat = formData.get('priceIncludesVat') === 'true';
+            await adminFetch('/api/supplier-orders', { method: 'POST', body: JSON.stringify(payload) });
             procurementForm.reset();
-            setFeedback(messages.created, false);
+            setFeedback(m.created, false);
             await loadAdminData();
-        } catch (error) {
-            setFeedback(error.message || messages.loadFailed, true);
-        }
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
     procurementList?.addEventListener('click', async (event) => {
@@ -1197,19 +1310,15 @@ function setupAdminInventory() {
         if (!button) return;
         const row = button.closest('[data-supplier-order-row]');
         if (!row) return;
-
         try {
             const supplierOrderId = row.getAttribute('data-supplier-order-id');
-            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((field) => [field.name, field.value]));
-            await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-            setFeedback(messages.saved, false);
+            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            const vatCheckbox = row.querySelector('[name="priceIncludesVat"]');
+            payload.priceIncludesVat = vatCheckbox ? vatCheckbox.checked : false;
+            await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, { method: 'PUT', body: JSON.stringify(payload) });
+            setFeedback(m.saved, false);
             await loadAdminData();
-        } catch (error) {
-            setFeedback(error.message || messages.loadFailed, true);
-        }
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
     allocationsList?.addEventListener('click', async (event) => {
@@ -1217,29 +1326,21 @@ function setupAdminInventory() {
         if (!button) return;
         const row = button.closest('[data-allocation-row]');
         if (!row) return;
-
         try {
             const orderId = row.getAttribute('data-allocation-id');
-            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((field) => [field.name, field.value]));
-            await adminFetch(`/api/order-allocations/${encodeURIComponent(orderId)}`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
-            setFeedback(messages.allocationSaved, false);
+            const payload = Object.fromEntries(Array.from(row.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            await adminFetch(`/api/order-allocations/${encodeURIComponent(orderId)}`, { method: 'PUT', body: JSON.stringify(payload) });
+            setFeedback(m.allocationSaved, false);
             await loadAdminData();
-        } catch (error) {
-            setFeedback(error.message || messages.loadFailed, true);
-        }
+        } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
     loadAuthState().then((authenticated) => {
-        if (authenticated) {
-            loadAdminData();
-            return;
-        }
-        renderSupplierOrders([]);
+        if (authenticated) { loadAdminData(); return; }
+        renderArticles([]);
+        renderSupplierOrders([], []);
         renderAllocations([]);
-        loadPublicOverview().catch(() => {});
+        renderDevices([]);
     });
 }
 
@@ -1248,23 +1349,26 @@ function setupAdminOrders() {
     if (!app) return;
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
-    const passwordInput = app.querySelector('[data-admin-password-input]');
-    const authStatus = app.querySelector('[data-admin-auth-status]');
-    const authForm = app.querySelector('[data-admin-orders-auth-form]');
-    const clearAuthButton = app.querySelector('[data-admin-clear-auth]');
+    const passwordInput = document.querySelector('[data-admin-password-input]');
+    const authStatus = document.querySelector('[data-admin-auth-status]');
+    const authForm = document.querySelector('[data-admin-orders-auth-form]');
+    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
     const ordersList = app.querySelector('[data-admin-orders-list]');
+    const detailPane = app.querySelector('[data-admin-orders-detail]');
     const searchInput = app.querySelector('[data-admin-order-search]');
     const paymentFilter = app.querySelector('[data-admin-payment-filter]');
     const fulfilmentFilter = app.querySelector('[data-admin-fulfilment-filter]');
     const orderCount = app.querySelector('[data-admin-order-count]');
     const reloadButton = app.querySelector('[data-admin-reload-orders]');
     const feedback = app.querySelector('[data-admin-feedback]');
-    const localePrefix = (loc) => loc === 'en' ? '/en/' : '/';
-    let currentEntries = [];
+    const stockBar = app.querySelector('[data-admin-stock-bar]');
+    const lpfx = (loc) => loc === 'en' ? '/en/' : '/';
+    let currentOrders = [];
+    let availableDevices = [];
     let selectedOrderId = null;
-    let activeStatusPopover = null;
+    let selectedOrderDetail = null;
 
-    const messages = locale === 'en'
+    const t = locale === 'en'
         ? {
             authMissing: 'Sign in to load customer orders.',
             authSaved: 'Admin session is active.',
@@ -1275,19 +1379,29 @@ function setupAdminOrders() {
             allocationSaved: 'Fulfilment state saved.',
             orderLoadFailed: 'Order details could not be loaded.',
             noReservation: 'No reservation',
-            detailIntro: 'Select an order to view and edit details.',
             save: 'Save',
-            orderLabel: 'Order',
-            dateLabel: 'Date',
-            customerLabel: 'Customer',
-            paymentLabel: 'Payment',
-            fulfilmentLabel: 'Fulfilment',
-            deliveryLabel: 'Delivery',
-            countLabel: (count) => `${count} ${count === 1 ? 'order' : 'orders'}`,
-            paymentStatusDetails: 'Payment status',
-            fulfilmentStatusDetails: 'Fulfilment status',
-            paymentMethodLabel: 'Method',
-            paymentReferenceLabel: 'Reference'
+            countLabel: (n) => `${n} ${n === 1 ? 'order' : 'orders'}`,
+            statusReserved: 'Reserved', statusInstalled: 'Installed', statusPacked: 'Packed',
+            statusShipped: 'Shipped', statusDelivered: 'Delivered', statusFulfilled: 'Fulfilled',
+            statusReleased: 'Released', statusCancelled: 'Cancelled',
+            order: 'Order', customer: 'Customer', addresses: 'Addresses',
+            billing: 'Billing', shipping: 'Shipping', shippingEqualsBilling: 'Shipping = billing',
+            created: 'Created', paidAt: 'Paid at', payment: 'Payment', fulfilment: 'Fulfilment',
+            method: 'Method', reference: 'Reference', customerNotes: 'Customer notes',
+            fulfillmentWorkflow: 'Fulfilment workflow', serialNumber: 'Serial number',
+            deviceUser: 'Device username', devicePassword: 'Device password',
+            trackingNumber: 'Tracking number', trackingCarrier: 'Carrier',
+            internalNotes: 'Internal notes', statusPage: 'Customer status page',
+            sectionDevice: 'Device', sectionShipping: 'Shipping', sectionDeviceConfig: 'Device config',
+            recentEvents: 'Recent events', name: 'Name', company: 'Company',
+            email: 'Email', phone: 'Phone', vatId: 'VAT ID',
+            mailCustomer: 'Email customer', pendingSupplier: 'Pending supplier orders',
+            units: 'units', expectedDelivery: 'expected',
+            badgeNew: 'New', archive: 'Archive order', archiveConfirm: 'Archive this order? It will no longer appear in the list.',
+            archived: 'Order archived.',
+            orderDevice: 'Order device', assignFromStock: 'Assign from stock',
+            supplier: 'Supplier', linkedDevice: 'Linked device', quantity: 'Qty',
+            deviceOrdered: 'On order', deviceReserved: 'Reserved'
         }
         : {
             authMissing: 'Anmelden, um Kundenbestellungen zu laden.',
@@ -1299,20 +1413,38 @@ function setupAdminOrders() {
             allocationSaved: 'Fulfillment-Status gespeichert.',
             orderLoadFailed: 'Bestelldetails konnten nicht geladen werden.',
             noReservation: 'Keine Reservierung',
-            detailIntro: 'Eine Bestellung auswählen, um Details und Fulfillment zu bearbeiten.',
             save: 'Speichern',
-            orderLabel: 'Bestellung',
-            dateLabel: 'Datum',
-            customerLabel: 'Kunde',
-            paymentLabel: 'Zahlung',
-            fulfilmentLabel: 'Fulfillment',
-            deliveryLabel: 'Lieferung',
-            countLabel: (count) => `${count} ${count === 1 ? 'Bestellung' : 'Bestellungen'}`,
-            paymentStatusDetails: 'Zahlungsstatus',
-            fulfilmentStatusDetails: 'Fulfillment-Status',
-            paymentMethodLabel: 'Zahlart',
-            paymentReferenceLabel: 'Referenz'
+            countLabel: (n) => `${n} ${n === 1 ? 'Bestellung' : 'Bestellungen'}`,
+            statusReserved: 'Reserviert', statusInstalled: 'Installiert', statusPacked: 'Verpackt',
+            statusShipped: 'Versendet', statusDelivered: 'Zugestellt', statusFulfilled: 'Abgeschlossen',
+            statusReleased: 'Freigegeben', statusCancelled: 'Storniert',
+            order: 'Bestellung', customer: 'Kunde', addresses: 'Adressen',
+            billing: 'Rechnung', shipping: 'Lieferung', shippingEqualsBilling: 'Lieferung = Rechnung',
+            created: 'Angelegt', paidAt: 'Bezahlt am', payment: 'Zahlung', fulfilment: 'Fulfillment',
+            method: 'Zahlart', reference: 'Referenz', customerNotes: 'Kundennotizen',
+            fulfillmentWorkflow: 'Fulfillment-Workflow', serialNumber: 'Seriennummer',
+            deviceUser: 'Benutzername', devicePassword: 'Geräte-Passwort',
+            trackingNumber: 'Sendungsnummer', trackingCarrier: 'Versanddienstleister',
+            internalNotes: 'Interne Notizen', statusPage: 'Kundenstatusseite',
+            sectionDevice: 'Gerät', sectionShipping: 'Versand', sectionDeviceConfig: 'Gerätekonfiguration',
+            recentEvents: 'Letzte Ereignisse', name: 'Name', company: 'Firma',
+            email: 'E-Mail', phone: 'Telefon', vatId: 'USt-ID',
+            mailCustomer: 'Kunde anschreiben', pendingSupplier: 'Offene Lieferantenbestellungen',
+            units: 'Stück', expectedDelivery: 'erwartet',
+            badgeNew: 'Neu', archive: 'Bestellung archivieren', archiveConfirm: 'Bestellung archivieren? Sie erscheint dann nicht mehr in der Liste.',
+            archived: 'Bestellung archiviert.',
+            orderDevice: 'Gerät bestellen', assignFromStock: 'Aus Lager zuweisen',
+            supplier: 'Lieferant', linkedDevice: 'Verknüpftes Gerät', quantity: 'Anzahl',
+            deviceOrdered: 'Bestellt', deviceReserved: 'Reserviert'
         };
+
+    const workflowSteps = [
+        { key: 'reserved', label: t.statusReserved, icon: '1' },
+        { key: 'installed', label: t.statusInstalled, icon: '2' },
+        { key: 'packed', label: t.statusPacked, icon: '3' },
+        { key: 'shipped', label: t.statusShipped, icon: '4' },
+        { key: 'delivered', label: t.statusDelivered, icon: '5' }
+    ];
 
     const setFeedback = (message, isError = false) => {
         if (!feedback) return;
@@ -1324,7 +1456,8 @@ function setupAdminOrders() {
     const setAuthStatus = (message, isError = false) => {
         if (!authStatus) return;
         authStatus.textContent = message;
-        authStatus.classList.toggle('admin-auth-status--error', Boolean(isError));
+        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
+        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
     };
 
     const adminFetch = async (url, options = {}) => {
@@ -1333,455 +1466,474 @@ function setupAdminOrders() {
         if (options.body && !headers.has('Content-Type')) {
             headers.set('Content-Type', 'application/json');
         }
-        const response = await fetch(url, {
-            ...options,
-            headers,
-            credentials: 'same-origin'
-        });
-
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
         const payload = await response.json().catch(() => null);
         if (!response.ok) {
             const error = new Error(payload?.error || payload?.message || response.statusText);
             error.status = response.status;
-            error.payload = payload;
             throw error;
         }
-
         return payload;
     };
 
-    const escapeHtml = (value) => String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-
-    const shortOrderId = (value) => {
-        const raw = String(value || '');
-        if (raw.length <= 8) return raw;
-        return `#${raw.slice(-6).toUpperCase()}`;
-    };
+    const esc = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
     const displayOrderNumber = (order) => {
-        if (Number.isInteger(order.orderNumber)) {
-            return `#${String(order.orderNumber).padStart(5, '0')}`;
+        if (Number.isInteger(order.orderNumber)) return `#${String(order.orderNumber).padStart(5, '0')}`;
+        const raw = String(order.id || '');
+        return raw.length <= 8 ? raw : `#${raw.slice(-6).toUpperCase()}`;
+    };
+
+    const fmtDateTime = (value) => {
+        if (!value) return '–';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+    };
+
+    const fmtDate = (value) => {
+        if (!value) return '–';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium' }).format(d);
+    };
+
+    const fmtRelative = (value) => {
+        if (!value) return '–';
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return value;
+        const diffMs = Date.now() - d.getTime();
+        if (diffMs < 0) return fmtDate(value);
+        const mins  = Math.floor(diffMs / 60000);
+        const hours = Math.floor(diffMs / 3600000);
+        const days  = Math.floor(diffMs / 86400000);
+        if (mins  < 2)  return locale === 'en' ? 'just now' : 'gerade eben';
+        if (mins  < 60) return locale === 'en' ? `${mins}m ago`  : `vor ${mins}m`;
+        if (hours < 24) return locale === 'en' ? `${hours}h ago` : `vor ${hours}h`;
+        if (days  < 7)  return locale === 'en' ? `${days}d ago`  : `vor ${days}d`;
+        return fmtDate(value);
+    };
+
+    const isoDate = (v) => { if (!v) return ''; const s = String(v); return s.length >= 10 ? s.slice(0, 10) : s; };
+
+    const paymentBadge = (status) => {
+        switch (status) {
+            case 'paid': return { tone: 'success', label: locale === 'en' ? 'Paid' : 'Bezahlt' };
+            case 'failed': return { tone: 'danger', label: locale === 'en' ? 'Failed' : 'Fehlgeschl.' };
+            case 'expired': return { tone: 'danger', label: locale === 'en' ? 'Expired' : 'Abgelaufen' };
+            case 'canceled': case 'cancelled': return { tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Abgebr.' };
+            case 'authorized': case 'pending': case 'open': case 'payment_created':
+                return { tone: 'warning', label: locale === 'en' ? 'Open' : 'Offen' };
+            default: return { tone: 'neutral', label: (status || 'draft').toUpperCase() };
         }
-        return shortOrderId(order.id);
     };
 
-    const formatDateTime = (value) => {
-        if (!value) return '–';
-        const parsed = new Date(value);
-        if (Number.isNaN(parsed.getTime())) return value;
-        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
-            dateStyle: 'medium',
-            timeStyle: 'short'
-        }).format(parsed);
-    };
-
-    const formatDate = (value) => {
-        if (!value) return '–';
-        const parsed = new Date(value);
-        if (Number.isNaN(parsed.getTime())) return value;
-        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', {
-            dateStyle: 'medium'
-        }).format(parsed);
-    };
-
-    const allocationStatusOptions = (currentValue) => {
-        const options = [
-            ['reserved', locale === 'en' ? 'Reserved' : 'Reserviert'],
-            ['fulfilled', locale === 'en' ? 'Fulfilled' : 'Erfüllt'],
-            ['released', locale === 'en' ? 'Released' : 'Freigegeben'],
-            ['cancelled', locale === 'en' ? 'Cancelled' : 'Storniert']
-        ];
-
-        return options.map(([value, label]) => `<option value="${escapeHtml(value)}"${value === currentValue ? ' selected' : ''}>${escapeHtml(label)}</option>`).join('');
+    const allocationBadge = (status) => {
+        switch (status) {
+            case 'reserved': return { tone: 'warning', label: t.statusReserved };
+            case 'installed': return { tone: 'info', label: t.statusInstalled };
+            case 'packed': return { tone: 'info', label: t.statusPacked };
+            case 'shipped': return { tone: 'info', label: t.statusShipped };
+            case 'delivered': return { tone: 'success', label: t.statusDelivered };
+            case 'fulfilled': return { tone: 'success', label: t.statusFulfilled };
+            case 'released': return { tone: 'neutral', label: t.statusReleased };
+            case 'cancelled': return { tone: 'danger', label: t.statusCancelled };
+            default: return { tone: 'neutral', label: t.noReservation };
+        }
     };
 
     const normalizePaymentFilter = (status) => {
         switch (status) {
-            case 'paid':
-                return 'paid';
-            case 'authorized':
-            case 'pending':
-            case 'open':
-            case 'payment_created':
-                return 'open';
-            case 'failed':
-                return 'failed';
-            case 'expired':
-                return 'expired';
-            case 'canceled':
-            case 'cancelled':
-                return 'failed';
-            default:
-                return 'other';
+            case 'paid': return 'paid';
+            case 'authorized': case 'pending': case 'open': case 'payment_created': return 'open';
+            case 'failed': return 'failed';
+            case 'expired': return 'expired';
+            case 'canceled': case 'cancelled': return 'failed';
+            default: return 'other';
         }
     };
 
     const normalizeFulfilmentFilter = (status) => {
         if (!status) return 'none';
-        if (['reserved', 'fulfilled', 'released', 'cancelled'].includes(status)) return status;
+        if (['reserved', 'installed', 'packed', 'shipped', 'delivered', 'fulfilled', 'released', 'cancelled'].includes(status)) return status;
         return 'other';
     };
 
-    const paymentStatusIcon = (status) => {
+    const renderStockBar = (data) => {
+        if (!stockBar || !data) return;
+        stockBar.hidden = false;
+        const setVal = (sel, val) => { const el = stockBar.querySelector(sel); if (el) el.textContent = val; };
+        setVal('[data-stock-available]', String(data.stock.available));
+        setVal('[data-stock-in-stock]', String(data.stock.inStock));
+        setVal('[data-stock-allocated]', String(data.stock.allocated));
+
+        const pendingSection = stockBar.querySelector('[data-stock-pending-orders]');
+        const pendingList = stockBar.querySelector('[data-stock-pending-list]');
+        if (pendingSection && pendingList) {
+            const pending = data.pendingSupplierOrders || [];
+            if (pending.length) {
+                pendingSection.hidden = false;
+                pendingList.innerHTML = pending.map((s) => `
+                    <div class="admin-stock-bar__pending-item">
+                        <strong>${esc(s.supplierName)}</strong>
+                        <span>${s.quantity} ${t.units}</span>
+                        <span class="admin-badge admin-badge--warning">${esc(s.status)}</span>
+                        ${s.expectedDeliveryAt ? `<span>${t.expectedDelivery}: ${esc(fmtDate(s.expectedDeliveryAt))}</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                pendingSection.hidden = true;
+            }
+        }
+    };
+
+    const paymentIcon = (status) => {
         switch (status) {
-            case 'paid':
-                return { symbol: '✓', tone: 'success', label: locale === 'en' ? 'Paid' : 'Bezahlt' };
-            case 'failed':
-                return { symbol: '✕', tone: 'danger', label: locale === 'en' ? 'Failed' : 'Fehlgeschlagen' };
-            case 'expired':
-                return { symbol: '⏱', tone: 'danger', label: locale === 'en' ? 'Expired' : 'Abgelaufen' };
-            case 'canceled':
-            case 'cancelled':
-                return { symbol: '↺', tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Abgebrochen' };
-            case 'authorized':
-            case 'pending':
-            case 'open':
-            case 'payment_created':
+            case 'paid': return { symbol: '✓', tone: 'success', label: locale === 'en' ? 'Paid' : 'Bezahlt' };
+            case 'failed': return { symbol: '✕', tone: 'danger', label: locale === 'en' ? 'Failed' : 'Fehlgeschlagen' };
+            case 'expired': return { symbol: '⏱', tone: 'danger', label: locale === 'en' ? 'Expired' : 'Abgelaufen' };
+            case 'canceled': case 'cancelled': return { symbol: '↺', tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Abgebrochen' };
+            case 'authorized': case 'pending': case 'open': case 'payment_created':
                 return { symbol: '…', tone: 'warning', label: locale === 'en' ? 'Open' : 'Offen' };
-            default:
-                return { symbol: '•', tone: 'neutral', label: (status || 'draft').toUpperCase() };
+            default: return { symbol: '·', tone: 'neutral', label: (status || 'draft').toUpperCase() };
         }
     };
 
-    const allocationStatusIcon = (status) => {
-        switch (status) {
-            case 'fulfilled':
-                return { symbol: '✓', tone: 'success', label: locale === 'en' ? 'Fulfilled' : 'Erfüllt' };
-            case 'reserved':
-                return { symbol: '□', tone: 'warning', label: locale === 'en' ? 'Reserved' : 'Reserviert' };
-            case 'released':
-                return { symbol: '↗', tone: 'neutral', label: locale === 'en' ? 'Released' : 'Freigegeben' };
-            case 'cancelled':
-                return { symbol: '✕', tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Storniert' };
-            default:
-                return { symbol: '–', tone: 'neutral', label: messages.noReservation };
+    const fulfillmentProgress = (status) => {
+        const steps = ['reserved', 'installed', 'packed', 'shipped', 'delivered'];
+        const activeIdx = steps.indexOf(status);
+        const label = allocationBadge(status).label;
+        if (['fulfilled', 'released', 'cancelled'].includes(status)) {
+            const mod = status === 'fulfilled' ? 'done' : 'dim';
+            return `<span class="admin-prog admin-prog--${mod}">${esc(label)}</span>`;
         }
+        const segs = steps.map((_, i) => {
+            const mod = i < activeIdx ? 'done' : (i === activeIdx ? 'active' : 'pending');
+            return `<span class="admin-prog__seg admin-prog__seg--${mod}"></span>`;
+        }).join('');
+        const lbl = activeIdx >= 0 ? `<span class="admin-prog__lbl">${esc(label)}</span>` : '';
+        const emptyCls = activeIdx < 0 ? ' admin-prog--empty' : '';
+        return `<span class="admin-prog${emptyCls}" title="${esc(activeIdx >= 0 ? label : t.noReservation)}"><span class="admin-prog__segs">${segs}</span>${lbl}</span>`;
     };
 
-    const renderStatusIcon = (status, type, order, allocation) => {
-        const meta = type === 'payment' ? paymentStatusIcon(status) : allocationStatusIcon(status);
-        const popoverKey = `${type}:${order.id}`;
-        const isOpen = activeStatusPopover === popoverKey;
-        const detailLabel = type === 'payment' ? messages.paymentStatusDetails : messages.fulfilmentStatusDetails;
-        const detailLines = type === 'payment'
-            ? [
-                `<strong>${escapeHtml(detailLabel)}:</strong> ${escapeHtml(meta.label)}`,
-                order.paymentMethod ? `<strong>${escapeHtml(messages.paymentMethodLabel)}:</strong> ${escapeHtml(order.paymentMethod)}` : '',
-                order.paymentId ? `<strong>${escapeHtml(messages.paymentReferenceLabel)}:</strong> ${escapeHtml(shortOrderId(order.paymentId))}` : ''
-            ]
-            : [
-                `<strong>${escapeHtml(detailLabel)}:</strong> ${escapeHtml(meta.label)}`,
-                allocation?.allocatedAt ? `<strong>${locale === 'en' ? 'Allocated' : 'Reserviert'}:</strong> ${escapeHtml(formatDateTime(allocation.allocatedAt))}` : '',
-                allocation?.fulfilledAt ? `<strong>${locale === 'en' ? 'Fulfilled' : 'Erfüllt'}:</strong> ${escapeHtml(allocation.fulfilledAt)}` : ''
-            ];
+    const renderOrderList = (orders) => {
+        if (!ordersList) return;
+        if (!orders.length) {
+            if (orderCount) orderCount.textContent = t.countLabel(0);
+            ordersList.innerHTML = `<p class="admin-empty">${t.noOrders}</p>`;
+            return;
+        }
+        if (orderCount) orderCount.textContent = t.countLabel(orders.length);
 
-        return `
-            <div class="admin-status-wrap">
-                <button
-                    type="button"
-                    class="admin-status-icon admin-status-icon--${meta.tone}"
-                    title="${escapeHtml(meta.label)}"
-                    aria-label="${escapeHtml(meta.label)}"
-                    aria-expanded="${isOpen ? 'true' : 'false'}"
-                    data-status-button
-                    data-status-key="${escapeHtml(popoverKey)}"
-                >${meta.symbol}</button>
-                ${isOpen ? `
-                    <div class="admin-status-popover" data-status-popover>
-                        ${detailLines.filter(Boolean).map((line) => `<p>${line}</p>`).join('')}
+        ordersList.innerHTML = orders.map((order) => {
+            const pi = paymentIcon(order.paymentStatus || order.status);
+            const city = order.shippingAddress?.city || order.billingAddress?.city || '';
+            const isSelected = order.id === selectedOrderId;
+            const isPaid = order.paymentStatus === 'paid' || order.status === 'paid';
+            const isNew = isPaid && !order.allocationStatus;
+            return `
+                <div class="admin-order-item${isSelected ? ' is-selected' : ''}" data-order-row data-order-id="${esc(order.id)}">
+                    <span class="admin-order-item__number">${esc(displayOrderNumber(order))}</span>
+                    <div class="admin-order-item__body">
+                        <span class="admin-order-item__name">${esc(order.customerName)}${order.customerCompany ? ` · ${esc(order.customerCompany)}` : ''}${isNew ? ` <span class="admin-badge admin-badge--new">${esc(t.badgeNew)}</span>` : ''}</span>
+                        <span class="admin-order-item__meta">${esc(city || '')}${city ? ` · ` : ''}${esc(fmtRelative(order.createdAt))}</span>
                     </div>
-                ` : ''}
-            </div>
-        `;
+                    <span class="admin-pay-icon admin-pay-icon--${pi.tone}" title="${esc(pi.label)}">${pi.symbol}</span>
+                    <div class="admin-order-item__progress">
+                        ${fulfillmentProgress(order.allocationStatus || '')}
+                    </div>
+                </div>
+            `;
+        }).join('');
     };
 
-    const isoDateOnly = (value) => {
-        if (!value) return '';
-        const s = String(value);
-        return s.length >= 10 ? s.slice(0, 10) : s;
+    const workflowStepIndex = (status) => {
+        const idx = workflowSteps.findIndex((s) => s.key === status);
+        return idx >= 0 ? idx : -1;
     };
 
-    const renderOrderDetail = (entry) => {
-        if (!entry) return '';
-        const { order, allocation, events } = entry;
-        const showAllocationForm = Boolean(allocation) || order.status === 'paid';
+    const renderWorkflow = (currentStatus) => {
+        const activeIdx = workflowStepIndex(currentStatus);
+        return `<div class="admin-workflow">${workflowSteps.map((step, i) => {
+            let cls = '';
+            if (i < activeIdx) cls = 'admin-workflow-step--done';
+            else if (i === activeIdx) cls = 'admin-workflow-step--active';
+            else cls = 'admin-workflow-step--next';
+            return `<button type="button" class="admin-workflow-step ${cls}" data-workflow-step="${step.key}">
+                <span class="admin-workflow-step__icon">${i < activeIdx ? '✓' : step.icon}</span>
+                ${esc(step.label)}
+            </button>`;
+        }).join('')}</div>`;
+    };
+
+    const orderDeviceStatusLabel = (status) => {
+        if (status === 'ordered') return { label: t.deviceOrdered, cls: 'ordered' };
+        if (status === 'reserved') return { label: t.deviceReserved, cls: 'reserved' };
+        if (status === 'assigned') return { label: t.deviceReserved, cls: 'reserved' };
+        return { label: status, cls: 'neutral' };
+    };
+
+    const renderDetail = (order, allocation, events, devices = []) => {
+        if (!detailPane) return;
+        if (!order) {
+            detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select an order to view and edit details.' : 'Eine Bestellung auswählen, um Details und Fulfillment zu bearbeiten.'}</p></div>`;
+            return;
+        }
+
+        const pi = paymentIcon(order.paymentStatus || order.status);
+        const isPaid = order.paymentStatus === 'paid' || order.status === 'paid';
         const hasShipping = Boolean(order.shippingAddress?.street);
-        const billingLines = [
-            order.billingAddress.street,
-            `${order.billingAddress.zip} ${order.billingAddress.city}`,
-            order.billingAddress.country || 'DE'
-        ].filter(Boolean);
-        const shippingLines = hasShipping ? [
-            order.shippingAddress.careOf ? `c/o ${order.shippingAddress.careOf}` : '',
-            order.shippingAddress.street,
-            `${order.shippingAddress.zip} ${order.shippingAddress.city}`,
-            order.shippingAddress.country || 'DE'
-        ].filter(Boolean) : null;
+        const billingLines = [order.billingAddress?.street, `${order.billingAddress?.zip || ''} ${order.billingAddress?.city || ''}`.trim(), order.billingAddress?.country || 'DE'].filter(Boolean);
+        const shippingLines = hasShipping ? [order.shippingAddress.careOf ? `c/o ${order.shippingAddress.careOf}` : '', order.shippingAddress.street, `${order.shippingAddress.zip} ${order.shippingAddress.city}`, order.shippingAddress.country || 'DE'].filter(Boolean) : null;
+        const statusUrl = order.statusToken ? `${lpfx(order.locale)}checkout-status.html?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}` : null;
+        const mailSubject = encodeURIComponent(`${locale === 'en' ? 'Your Indiebox order' : 'Ihre Indiebox-Bestellung'} ${displayOrderNumber(order)}`);
+        const mailTo = `mailto:${encodeURIComponent(order.customer?.email || order.customerEmail || '')}?subject=${mailSubject}`;
+        const recentEvents = Array.isArray(events) ? events.slice(0, 4) : [];
+        const allocStatus = allocation?.status || (isPaid ? 'reserved' : '');
+        const isTerminal = ['released', 'cancelled'].includes(allocStatus);
 
-        const paymentIcon = paymentStatusIcon(order.paymentStatus || order.status);
-        const allocIcon = allocationStatusIcon(allocation?.status || '');
-
-        const statusUrl = order.statusToken
-            ? `${localePrefix(order.locale)}checkout-status.html?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}`
-            : null;
-
-        const recentEvents = Array.isArray(events) ? events.slice(-5).reverse() : [];
-
-        return `
-            <div class="admin-detail-grid">
-                <article class="admin-detail-block">
-                    <h3>${locale === 'en' ? 'Order' : 'Bestellung'}</h3>
-                    <div class="admin-detail-meta">
-                        <p><strong>${locale === 'en' ? 'Number' : 'Nr.'}:</strong> ${escapeHtml(displayOrderNumber(order))}</p>
-                        <p><strong>ID:</strong> <span class="admin-mono">${escapeHtml(order.id)}</span></p>
-                        <p><strong>${locale === 'en' ? 'Created' : 'Angelegt'}:</strong> ${escapeHtml(formatDateTime(order.createdAt))}</p>
-                        ${order.paidAt ? `<p><strong>${locale === 'en' ? 'Paid at' : 'Bezahlt am'}:</strong> ${escapeHtml(formatDateTime(order.paidAt))}</p>` : ''}
-                        <p><strong>${locale === 'en' ? 'Payment' : 'Zahlung'}:</strong>
-                            <span class="admin-status-inline admin-status-inline--${paymentIcon.tone}">${escapeHtml(paymentIcon.label)}</span>
-                        </p>
-                        <p><strong>${locale === 'en' ? 'Fulfilment' : 'Fulfillment'}:</strong>
-                            <span class="admin-status-inline admin-status-inline--${allocIcon.tone}">${escapeHtml(allocIcon.label)}</span>
-                        </p>
-                        ${order.paymentMethod ? `<p><strong>${escapeHtml(messages.paymentMethodLabel)}:</strong> ${escapeHtml(order.paymentMethod)}</p>` : ''}
-                        ${order.paymentId ? `<p><strong>${escapeHtml(messages.paymentReferenceLabel)}:</strong> <span class="admin-mono">${escapeHtml(order.paymentId)}</span></p>` : ''}
-                        ${statusUrl ? `<p><a href="${escapeHtml(statusUrl)}" target="_blank" rel="noopener" class="admin-detail-link">${locale === 'en' ? 'Open customer status page ↗' : 'Kundenstatusseite öffnen ↗'}</a></p>` : ''}
-                    </div>
-                </article>
-                <article class="admin-detail-block">
-                    <h3>${locale === 'en' ? 'Customer' : 'Kunde'}</h3>
-                    <div class="admin-detail-meta">
-                        <p><strong>${locale === 'en' ? 'Name' : 'Name'}:</strong> ${escapeHtml(order.customer.firstName)} ${escapeHtml(order.customer.lastName)}</p>
-                        ${order.customer.company ? `<p><strong>${locale === 'en' ? 'Company' : 'Firma'}:</strong> ${escapeHtml(order.customer.company)}</p>` : ''}
-                        ${order.customer.vatId ? `<p><strong>${locale === 'en' ? 'VAT ID' : 'USt-ID'}:</strong> ${escapeHtml(order.customer.vatId)}</p>` : ''}
-                        <p><strong>${locale === 'en' ? 'Email' : 'E-Mail'}:</strong> <a href="mailto:${escapeHtml(order.customer.email)}" class="admin-detail-link">${escapeHtml(order.customer.email)}</a></p>
-                        ${order.customer.phone ? `<p><strong>${locale === 'en' ? 'Phone' : 'Telefon'}:</strong> ${escapeHtml(order.customer.phone)}</p>` : ''}
-                    </div>
-                </article>
-                <article class="admin-detail-block">
-                    <h3>${locale === 'en' ? 'Addresses' : 'Adressen'}</h3>
-                    <div class="admin-detail-meta">
-                        <p><strong>${locale === 'en' ? 'Billing' : 'Rechnung'}:</strong><br>${billingLines.map(escapeHtml).join('<br>')}</p>
-                        ${shippingLines
-                            ? `<p><strong>${locale === 'en' ? 'Shipping' : 'Lieferung'}:</strong><br>${shippingLines.map(escapeHtml).join('<br>')}</p>`
-                            : `<p class="admin-meta-dim">${locale === 'en' ? 'Shipping = billing' : 'Lieferung = Rechnung'}</p>`}
-                    </div>
-                </article>
-                ${order.notes ? `
-                <article class="admin-detail-block admin-detail-block--full">
-                    <h3>${locale === 'en' ? 'Customer notes' : 'Kundennotizen'}</h3>
-                    <div class="admin-detail-meta">
-                        <p class="admin-detail-notes">${escapeHtml(order.notes)}</p>
-                    </div>
-                </article>` : ''}
+        detailPane.innerHTML = `
+            <div class="admin-detail-head">
+                <div class="admin-detail-head__left">
+                    <span class="admin-detail-head__number">${esc(displayOrderNumber(order))}</span>
+                    <span class="admin-pay-icon admin-pay-icon--${pi.tone}" title="${esc(pi.label)}">${pi.symbol}</span>
+                    <button type="button" class="admin-info-toggle" data-info-toggle="order-id" title="UUID">i</button>
+                </div>
+                <div class="admin-detail-head__right">
+                    ${order.paymentMethod ? `<span class="admin-badge admin-badge--neutral">${esc(order.paymentMethod)}</span>` : ''}
+                    <span class="admin-badge admin-badge--neutral">${esc(order.amount)} ${esc(order.currency)}</span>
+                </div>
             </div>
-            <div class="admin-detail-form"${showAllocationForm ? ` data-admin-order-detail-form data-allocation-id="${escapeHtml(order.id)}"` : ''}>
-                <h3>${locale === 'en' ? 'Fulfilment' : 'Fulfillment'}</h3>
-                ${showAllocationForm ? `
-                    <div class="form-grid">
-                        <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Status' : 'Status'}</label>
-                            <select class="form-input" name="status">${allocationStatusOptions(allocation?.status || 'reserved')}</select>
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Fulfilled at' : 'Erfüllt am'}</label>
-                            <input class="form-input" type="date" name="fulfilledAt" value="${escapeHtml(isoDateOnly(allocation?.fulfilledAt))}">
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Released at' : 'Freigegeben am'}</label>
-                            <input class="form-input" type="date" name="releasedAt" value="${escapeHtml(isoDateOnly(allocation?.releasedAt))}">
-                        </div>
-                        <div class="form-row form-row--full">
-                            <label class="form-label">${locale === 'en' ? 'Internal notes' : 'Interne Notizen'}</label>
-                            <textarea class="form-textarea" name="notes" rows="3">${escapeHtml(allocation?.notes || '')}</textarea>
+            <div class="admin-info-content" data-info-target="order-id" style="padding:0 0 0.5rem;font-size:0.72rem;color:rgba(15,23,42,0.4);font-family:ui-monospace,monospace;word-break:break-all">${esc(order.id)}</div>
+
+            ${isPaid || allocation ? `
+            <div class="admin-detail-section" data-admin-workflow-section data-allocation-id="${esc(order.id)}">
+                <h3>${t.fulfillmentWorkflow}</h3>
+                ${renderWorkflow(allocStatus)}
+                <div class="admin-detail-section-inner" style="margin-top:0.5rem">
+                    <div class="admin-form-section">
+                        <div class="admin-form-section__label">${t.sectionDevice}</div>
+                        ${devices.length ? `<div class="admin-device-cards">${devices.map((d) => {
+                            const dst = orderDeviceStatusLabel(d.status);
+                            return `<div class="admin-device-card">
+                                <div class="admin-device-card__header">
+                                    <span class="admin-device-status admin-device-status--${esc(dst.cls)}">${esc(dst.label)}</span>
+                                    <span class="admin-device-card__serial">${esc(d.serialNumber)}</span>
+                                </div>
+                                <div class="admin-kv-grid admin-device-card__kv">
+                                    ${d.deviceUsername ? `<span class="admin-kv-key">${t.deviceUser}</span><span class="admin-kv-val">${esc(d.deviceUsername)}</span>` : ''}
+                                    ${d.devicePassword ? `<span class="admin-kv-key">${t.devicePassword}</span><span class="admin-kv-val">${esc(d.devicePassword)}</span>` : ''}
+                                    ${d.supplierName ? `<span class="admin-kv-key">${t.supplier}</span><span class="admin-kv-val">${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${esc(d.expectedDeliveryAt)}` : ''}</span>` : ''}
+                                </div>
+                            </div>`;
+                        }).join('')}</div>` : ''}
+                        ${availableDevices.length ? `<div class="admin-detail-form-grid" style="margin-top:0.5rem">
+                            <div class="form-row form-row--full">
+                                <label class="form-label">${t.assignFromStock}</label>
+                                <select class="form-input" name="deviceId" data-device-picker>
+                                    <option value="">—</option>
+                                    ${availableDevices.map((d) => `<option value="${esc(d.id)}">${esc(d.serialNumber)}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>` : ''}
+                        <div style="margin-top:0.5rem">
+                            <button type="button" class="button button--plain-dark button--pill button--sm" data-order-device-toggle>+ ${t.orderDevice}</button>
+                            <div data-order-device-form hidden style="margin-top:0.75rem;padding:0.75rem;background:rgba(15,23,42,0.04);border-radius:8px" data-order-id="${esc(order.id)}" data-product-key="${esc(order.product || '')}">
+                                <div class="admin-detail-form-grid">
+                                    <div class="form-row">
+                                        <label class="form-label">${t.supplier} *</label>
+                                        <input class="form-input" type="text" name="od_supplierName">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">${t.expectedDelivery}</label>
+                                        <input class="form-input" type="date" name="od_expectedDeliveryAt">
+                                    </div>
+                                    <div class="form-row">
+                                        <label class="form-label">${t.quantity}</label>
+                                        <input class="form-input" type="number" name="od_quantity" value="1" min="1" max="99" style="width:5rem">
+                                    </div>
+                                </div>
+                                <div class="admin-detail-actions" style="margin-top:0.5rem">
+                                    <button type="button" class="button button--plain-dark button--pill button--sm" data-submit-order-device>${t.orderDevice}</button>
+                                    <button type="button" class="button button--plain-light button--pill button--sm" data-order-device-toggle>${locale === 'en' ? 'Cancel' : 'Abbrechen'}</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="admin-table-action">
-                        <button type="button" class="button button--plain-dark button--pill button--sm" data-save-order-detail-allocation>${messages.save}</button>
+                    <div class="admin-form-section">
+                        <div class="admin-form-section__label">${t.sectionShipping}</div>
+                        <div class="admin-detail-form-grid">
+                            <div class="form-row">
+                                <label class="form-label">${t.trackingCarrier}</label>
+                                <input class="form-input" type="text" name="trackingCarrier" value="${esc(allocation?.trackingCarrier || '')}">
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label">${t.trackingNumber}</label>
+                                <input class="form-input" type="text" name="trackingNumber" value="${esc(allocation?.trackingNumber || '')}">
+                            </div>
+                        </div>
                     </div>
-                ` : `<p class="admin-empty">${messages.noReservation}</p>`}
+                    <div class="admin-form-section">
+                        <div class="admin-form-section__label">${t.internalNotes}</div>
+                        <textarea class="form-textarea" name="notes" rows="2">${esc(allocation?.notes || '')}</textarea>
+                    </div>
+                    <input type="hidden" name="status" value="${esc(allocStatus)}">
+                    <div class="admin-detail-actions">
+                        <button type="button" class="button button--plain-dark button--pill button--sm" data-save-allocation>${t.save}</button>
+                        ${!isTerminal ? `
+                            <button type="button" class="button button--plain-light button--pill button--sm" data-release-allocation>${t.statusReleased}</button>
+                            <button type="button" class="button button--plain-light button--pill button--sm" data-cancel-allocation>${t.statusCancelled}</button>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>` : ''}
+
+            <div class="admin-detail-section admin-detail-section--compact">
+                <div class="admin-kv-grid">
+                    <span class="admin-kv-key">${t.name}</span>
+                    <span class="admin-kv-val">${esc(order.customer?.firstName || '')} ${esc(order.customer?.lastName || '')}</span>
+                    ${order.customer?.company ? `<span class="admin-kv-key">${t.company}</span><span class="admin-kv-val">${esc(order.customer.company)}</span>` : ''}
+                    <span class="admin-kv-key">${t.email}</span>
+                    <span class="admin-kv-val"><a href="mailto:${esc(order.customer?.email || '')}" class="admin-detail-link">${esc(order.customer?.email || order.customerEmail || '')}</a></span>
+                    ${order.customer?.phone ? `<span class="admin-kv-key">${t.phone}</span><span class="admin-kv-val">${esc(order.customer.phone)}</span>` : ''}
+                    ${order.customer?.vatId ? `<span class="admin-kv-key">${t.vatId}</span><span class="admin-kv-val">${esc(order.customer.vatId)}</span>` : ''}
+                    <span class="admin-kv-key">${t.billing}</span>
+                    <span class="admin-kv-val">${billingLines.map(esc).join(', ')}</span>
+                    ${shippingLines ? `<span class="admin-kv-key">${t.shipping}</span><span class="admin-kv-val">${shippingLines.map(esc).join(', ')}</span>` : ''}
+                    <span class="admin-kv-key">${t.created}</span>
+                    <span class="admin-kv-val">${esc(fmtDateTime(order.createdAt))}</span>
+                    ${order.paidAt ? `<span class="admin-kv-key">${t.paidAt}</span><span class="admin-kv-val">${esc(fmtDateTime(order.paidAt))}</span>` : ''}
+                </div>
+                <div class="admin-detail-actions" style="margin-top:0.5rem">
+                    <a href="${mailTo}" class="admin-mailto-link">${t.mailCustomer} ↗</a>
+                    ${statusUrl ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
+                </div>
             </div>
+
+            ${order.notes ? `<div class="admin-detail-section admin-detail-section--compact">
+                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem">${t.customerNotes}</div>
+                <div style="white-space:pre-wrap;font-size:0.83rem;color:rgba(15,23,42,0.75)">${esc(order.notes)}</div>
+            </div>` : ''}
+
             ${recentEvents.length ? `
-            <div class="admin-detail-events">
-                <h3>${locale === 'en' ? 'Recent events' : 'Letzte Ereignisse'}</h3>
+            <div class="admin-detail-section admin-detail-section--compact">
+                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem">${t.recentEvents}</div>
                 <ul class="admin-events-list">
                     ${recentEvents.map((ev) => `
                         <li class="admin-event-item">
-                            <span class="admin-event-time">${escapeHtml(formatDateTime(ev.createdAt))}</span>
-                            <span class="admin-event-type">${escapeHtml(ev.eventType || ev.source || '')}</span>
-                            ${ev.paymentStatus ? `<span class="admin-event-status">${escapeHtml(ev.paymentStatus)}</span>` : ''}
+                            <span class="admin-event-time" title="${esc(fmtDateTime(ev.createdAt))}">${esc(fmtRelative(ev.createdAt))}</span>
+                            <span class="admin-event-type">${esc(ev.eventType || ev.source || '')}</span>
+                            ${ev.paymentStatus ? `<span class="admin-event-status">${esc(ev.paymentStatus)}</span>` : ''}
                         </li>
                     `).join('')}
                 </ul>
             </div>` : ''}
-        `;
-    };
 
-    const renderOrders = (entries) => {
-        if (!ordersList) return;
-
-        if (!entries.length) {
-            if (orderCount) orderCount.textContent = messages.countLabel(0);
-            ordersList.innerHTML = `<p class="admin-empty">${messages.noOrders}</p>`;
-            return;
-        }
-
-        if (orderCount) orderCount.textContent = messages.countLabel(entries.length);
-
-        ordersList.innerHTML = `
-            <div class="admin-table-wrap">
-                <table class="admin-table admin-table--orders">
-                    <thead>
-                        <tr>
-                            <th>${messages.orderLabel}</th>
-                            <th>${messages.dateLabel}</th>
-                            <th>${messages.customerLabel}</th>
-                            <th>${messages.paymentLabel}</th>
-                            <th>${messages.fulfilmentLabel}</th>
-                            <th>${messages.deliveryLabel}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        ${entries.map(({ order, allocation }) => {
-            const deliveryLabel = order.shippingAddress?.city
-                ? `${order.shippingAddress.zip} ${order.shippingAddress.city}`
-                : `${order.billingAddress.zip} ${order.billingAddress.city}`;
-            const detailMarkup = order.id === selectedOrderId
-                ? `<tr class="admin-detail-row"><td colspan="6">${renderOrderDetail({ order, allocation })}</td></tr>`
-                : '';
-            return `
-                            <tr class="${order.id === selectedOrderId ? 'is-selected' : ''}" data-order-row data-order-id="${escapeHtml(order.id)}">
-                                <td>
-                                    <div class="admin-cell-stack">
-                                        <span class="admin-cell-primary">${escapeHtml(displayOrderNumber(order))}</span>
-                                        <span class="admin-cell-secondary">${escapeHtml(order.id.slice(0, 8))}…</span>
-                                    </div>
-                                </td>
-                                <td>${escapeHtml(formatDate(order.createdAt))}</td>
-                                <td>
-                                    <div class="admin-cell-stack">
-                                        <span class="admin-cell-primary">${escapeHtml(order.customer.firstName)} ${escapeHtml(order.customer.lastName)}</span>
-                                        <span class="admin-cell-secondary">${escapeHtml(order.customer.company || '')}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="admin-cell-stack">
-                                        ${renderStatusIcon(order.paymentStatus || order.status, 'payment', order, allocation)}
-                                        <span class="admin-cell-secondary">${escapeHtml(paymentStatusIcon(order.paymentStatus || order.status).label)}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="admin-cell-stack">
-                                        ${renderStatusIcon(allocation?.status || '', 'allocation', order, allocation)}
-                                        <span class="admin-cell-secondary">${escapeHtml(allocationStatusIcon(allocation?.status || '').label)}</span>
-                                    </div>
-                                </td>
-                                <td>${escapeHtml(deliveryLabel)}</td>
-                            </tr>
-                            ${detailMarkup}
-                        `;
-        }).join('')}
-                    </tbody>
-                </table>
+            <div class="admin-detail-section admin-detail-section--compact admin-detail-section--danger">
+                <button type="button" class="button button--plain-light button--pill button--sm admin-danger-btn" data-archive-order data-order-id="${esc(order.id)}">${t.archive}</button>
             </div>
         `;
     };
 
-    const getFilteredEntries = () => {
+    const getFilteredOrders = () => {
         const query = (searchInput?.value || '').trim().toLowerCase();
         const paymentValue = paymentFilter?.value || 'all';
         const fulfilmentValue = fulfilmentFilter?.value || 'all';
 
-        return currentEntries.filter(({ order, allocation }) => {
-            const paymentGroup = normalizePaymentFilter(order.paymentStatus || order.status);
-            const fulfilmentGroup = normalizeFulfilmentFilter(allocation?.status || '');
-            const searchHaystack = [
-                displayOrderNumber(order),
-                order.id,
-                order.customer.firstName,
-                order.customer.lastName,
-                order.customer.email,
-                order.customer.company,
-                order.billingAddress.city,
-                order.shippingAddress?.city,
-                order.billingAddress.zip,
-                order.shippingAddress?.zip
-            ].filter(Boolean).join(' ').toLowerCase();
-
-            if (paymentValue !== 'all' && paymentGroup !== paymentValue) return false;
-            if (fulfilmentValue !== 'all' && fulfilmentGroup !== fulfilmentValue) return false;
-            if (query && !searchHaystack.includes(query)) return false;
+        return currentOrders.filter((order) => {
+            const pGroup = normalizePaymentFilter(order.paymentStatus || order.status);
+            const fGroup = normalizeFulfilmentFilter(order.allocationStatus || '');
+            if (paymentValue !== 'all' && pGroup !== paymentValue) return false;
+            if (fulfilmentValue === 'new') {
+                const isPaid = order.paymentStatus === 'paid' || order.status === 'paid';
+                if (!isPaid || order.allocationStatus) return false;
+            } else if (fulfilmentValue !== 'all' && fGroup !== fulfilmentValue) return false;
+            if (query) {
+                const hay = [
+                    displayOrderNumber(order), order.id, order.customerName,
+                    order.customerCompany, order.customerEmail,
+                    order.billingAddress?.city, order.shippingAddress?.city,
+                    order.billingAddress?.zip, order.shippingAddress?.zip
+                ].filter(Boolean).join(' ').toLowerCase();
+                if (!hay.includes(query)) return false;
+            }
             return true;
         });
     };
 
-    const refreshOrdersView = () => {
-        renderOrders(getFilteredEntries());
+    const refreshList = () => {
+        renderOrderList(getFilteredOrders());
+    };
+
+    const loadOrderDetail = async (orderId) => {
+        if (!orderId) {
+            selectedOrderDetail = null;
+            renderDetail(null);
+            return;
+        }
+        try {
+            const detail = await adminFetch(`/api/orders/${encodeURIComponent(orderId)}`);
+            selectedOrderDetail = detail;
+            renderDetail(detail.order, detail.allocation, detail.events, detail.devices || []);
+        } catch {
+            selectedOrderDetail = null;
+            renderDetail(null);
+            setFeedback(t.orderLoadFailed, true);
+        }
+    };
+
+    const saveAllocation = async (orderId, payload) => {
+        try {
+            await adminFetch(`/api/order-allocations/${encodeURIComponent(orderId)}`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+            setFeedback(t.allocationSaved, false);
+            await loadOrders();
+            if (selectedOrderId === orderId) {
+                await loadOrderDetail(orderId);
+            }
+        } catch (error) {
+            setFeedback(error.message || t.orderLoadFailed, true);
+        }
     };
 
     const loadOrders = async () => {
         try {
-            const ordersResponse = await adminFetch('/api/orders?limit=100');
-            const orders = ordersResponse.orders || [];
-            const detailedOrders = await Promise.all(
-                orders.map(async (entry) => {
-                    try {
-                        const detail = await adminFetch(`/api/orders/${encodeURIComponent(entry.id)}`);
-                        return detail;
-                    } catch {
-                        return null;
-                    }
-                })
-            );
-
-            currentEntries = detailedOrders.filter(Boolean);
-            if (!currentEntries.length) {
+            const data = await adminFetch('/api/admin/orders-overview?limit=200');
+            currentOrders = data.orders || [];
+            availableDevices = data.availableDevices || [];
+            renderStockBar(data);
+            if (selectedOrderId && !currentOrders.some((o) => o.id === selectedOrderId)) {
                 selectedOrderId = null;
-                activeStatusPopover = null;
-                renderOrders([]);
-                return;
+                selectedOrderDetail = null;
+                renderDetail(null);
             }
-            if (selectedOrderId && !currentEntries.some(({ order }) => order.id === selectedOrderId)) {
-                selectedOrderId = null;
-            }
-            activeStatusPopover = null;
-            refreshOrdersView();
+            refreshList();
             setFeedback('', false);
-            setAuthStatus(messages.authSaved, false);
+            setAuthStatus(t.authSaved, false);
         } catch (error) {
-            currentEntries = [];
+            currentOrders = [];
             selectedOrderId = null;
-            activeStatusPopover = null;
-            renderOrders([]);
-            setAuthStatus(error.status === 401 ? messages.authFailed : messages.loadFailed, true);
-            setFeedback(messages.loadFailed, true);
+            selectedOrderDetail = null;
+            renderOrderList([]);
+            renderDetail(null);
+            setAuthStatus(error.status === 401 ? t.authFailed : t.loadFailed, true);
+            setFeedback(t.loadFailed, true);
         }
     };
 
     const loadAuthState = async () => {
         try {
-            const response = await fetch('/api/admin/session', {
-                headers: {
-                    Accept: 'application/json'
-                },
-                credentials: 'same-origin'
-            });
-            if (!response.ok) {
-                setAuthStatus(messages.authMissing, false);
-                return false;
-            }
+            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+            if (!response.ok) { setAuthStatus(t.authMissing, false); return false; }
             const payload = await response.json().catch(() => null);
-            const authenticated = Boolean(payload?.authenticated);
-            setAuthStatus(authenticated ? messages.authSaved : messages.authMissing, false);
-            return authenticated;
-        } catch {
-            setAuthStatus(messages.authMissing, false);
-            return false;
-        }
+            const ok = Boolean(payload?.authenticated);
+            setAuthStatus(ok ? t.authSaved : t.authMissing, false);
+            return ok;
+        } catch { setAuthStatus(t.authMissing, false); return false; }
     };
 
     authForm?.addEventListener('submit', async (event) => {
@@ -1790,102 +1942,156 @@ function setupAdminOrders() {
             const password = passwordInput?.value || '';
             const response = await fetch('/api/admin/session', {
                 method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json'
-                },
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
                 body: JSON.stringify({ password })
             });
-            if (!response.ok) {
-                throw new Error(messages.authFailed);
-            }
+            if (!response.ok) throw new Error(t.authFailed);
             if (passwordInput) passwordInput.value = '';
-            setAuthStatus(messages.authSaved, false);
+            setAuthStatus(t.authSaved, false);
             await loadOrders();
-        } catch {
-            setAuthStatus(messages.authFailed, true);
-        }
+        } catch { setAuthStatus(t.authFailed, true); }
     });
 
     clearAuthButton?.addEventListener('click', async () => {
-        await fetch('/api/admin/session', {
-            method: 'DELETE',
-            credentials: 'same-origin'
-        }).catch(() => {});
+        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
         if (passwordInput) passwordInput.value = '';
-        setAuthStatus(messages.authCleared, false);
-        currentEntries = [];
+        setAuthStatus(t.authCleared, false);
+        currentOrders = [];
         selectedOrderId = null;
-        activeStatusPopover = null;
-        renderOrders([]);
+        selectedOrderDetail = null;
+        if (stockBar) stockBar.hidden = true;
+        renderOrderList([]);
+        renderDetail(null);
     });
 
-    ordersList?.addEventListener('click', async (event) => {
-        const statusButton = event.target.closest('[data-status-button]');
-        if (statusButton) {
-            event.stopPropagation();
-            const key = statusButton.getAttribute('data-status-key');
-            activeStatusPopover = activeStatusPopover === key ? null : key;
-            refreshOrdersView();
-            return;
-        }
-
-        const saveButton = event.target.closest('[data-save-order-detail-allocation]');
-        if (saveButton) {
-            const form = saveButton.closest('[data-admin-order-detail-form]');
-            if (!form) return;
-
-            try {
-                const orderId = form.getAttribute('data-allocation-id');
-                const payload = Object.fromEntries(Array.from(form.querySelectorAll('[name]')).map((field) => [field.name, field.value]));
-                await adminFetch(`/api/order-allocations/${encodeURIComponent(orderId)}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload)
-                });
-                setFeedback(messages.allocationSaved, false);
-                await loadOrders();
-            } catch (error) {
-                setFeedback(error.message || messages.orderLoadFailed, true);
-            }
-            return;
-        }
-
+    ordersList?.addEventListener('click', (event) => {
         const row = event.target.closest('[data-order-row]');
         if (!row) return;
-        activeStatusPopover = null;
-        selectedOrderId = row.getAttribute('data-order-id') === selectedOrderId ? null : row.getAttribute('data-order-id');
-        refreshOrdersView();
+        const id = row.getAttribute('data-order-id');
+        if (id === selectedOrderId) {
+            selectedOrderId = null;
+            selectedOrderDetail = null;
+            refreshList();
+            renderDetail(null);
+        } else {
+            selectedOrderId = id;
+            refreshList();
+            loadOrderDetail(id);
+        }
     });
 
-    searchInput?.addEventListener('input', () => {
-        selectedOrderId = null;
-        activeStatusPopover = null;
-        refreshOrdersView();
-    });
-
-    paymentFilter?.addEventListener('change', () => {
-        selectedOrderId = null;
-        activeStatusPopover = null;
-        refreshOrdersView();
-    });
-
-    fulfilmentFilter?.addEventListener('change', () => {
-        selectedOrderId = null;
-        activeStatusPopover = null;
-        refreshOrdersView();
-    });
-
-    reloadButton?.addEventListener('click', () => {
-        loadOrders();
-    });
-
-    loadAuthState().then((authenticated) => {
-        if (authenticated) {
-            loadOrders();
+    detailPane?.addEventListener('click', async (event) => {
+        const workflowBtn = event.target.closest('[data-workflow-step]');
+        if (workflowBtn) {
+            const section = workflowBtn.closest('[data-admin-workflow-section]');
+            if (!section) return;
+            const orderId = section.getAttribute('data-allocation-id');
+            const newStatus = workflowBtn.getAttribute('data-workflow-step');
+            const fields = Object.fromEntries(Array.from(section.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            fields.status = newStatus;
+            await saveAllocation(orderId, fields);
             return;
         }
-        renderOrders([]);
+
+        const saveBtn = event.target.closest('[data-save-allocation]');
+        if (saveBtn) {
+            const section = saveBtn.closest('[data-admin-workflow-section]');
+            if (!section) return;
+            const orderId = section.getAttribute('data-allocation-id');
+            const fields = Object.fromEntries(Array.from(section.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            await saveAllocation(orderId, fields);
+            return;
+        }
+
+        const releaseBtn = event.target.closest('[data-release-allocation]');
+        if (releaseBtn) {
+            const section = releaseBtn.closest('[data-admin-workflow-section]');
+            if (!section) return;
+            const orderId = section.getAttribute('data-allocation-id');
+            const fields = Object.fromEntries(Array.from(section.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            fields.status = 'released';
+            await saveAllocation(orderId, fields);
+            return;
+        }
+
+        const cancelBtn = event.target.closest('[data-cancel-allocation]');
+        if (cancelBtn) {
+            const section = cancelBtn.closest('[data-admin-workflow-section]');
+            if (!section) return;
+            const orderId = section.getAttribute('data-allocation-id');
+            const fields = Object.fromEntries(Array.from(section.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            fields.status = 'cancelled';
+            await saveAllocation(orderId, fields);
+            return;
+        }
+
+        const infoToggle = event.target.closest('[data-info-toggle]');
+        if (infoToggle) {
+            const targetId = infoToggle.getAttribute('data-info-toggle');
+            const target = detailPane.querySelector(`[data-info-target="${targetId}"]`);
+            if (target) target.classList.toggle('is-visible');
+            return;
+        }
+
+        const archiveBtn = event.target.closest('[data-archive-order]');
+        if (archiveBtn) {
+            if (!confirm(t.archiveConfirm)) return;
+            const orderId = archiveBtn.getAttribute('data-order-id');
+            try {
+                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/archive`, { method: 'POST' });
+                selectedOrderId = null;
+                setFeedback(t.archived, false);
+                await loadOrders();
+            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+        }
+    });
+
+    detailPane?.addEventListener('click', async (event) => {
+        const orderDeviceToggle = event.target.closest('[data-order-device-toggle]');
+        if (orderDeviceToggle) {
+            const form = detailPane.querySelector('[data-order-device-form]');
+            if (form) form.hidden = !form.hidden;
+            return;
+        }
+
+        const submitOrderDevice = event.target.closest('[data-submit-order-device]');
+        if (submitOrderDevice) {
+            const form = detailPane.querySelector('[data-order-device-form]');
+            if (!form) return;
+            const orderId = form.getAttribute('data-order-id');
+            const productKey = form.getAttribute('data-product-key');
+            const supplierName = form.querySelector('[name="od_supplierName"]')?.value?.trim();
+            const expectedDeliveryAt = form.querySelector('[name="od_expectedDeliveryAt"]')?.value || null;
+            const quantity = Number.parseInt(form.querySelector('[name="od_quantity"]')?.value || '1', 10);
+            if (!supplierName) { setFeedback(locale === 'en' ? 'Supplier name is required.' : 'Lieferantenname ist erforderlich.', true); return; }
+            try {
+                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/order-device`, {
+                    method: 'POST',
+                    body: JSON.stringify({ productKey, supplierName, expectedDeliveryAt, quantity })
+                });
+                setFeedback(locale === 'en' ? 'Device order created.' : 'Gerätebestellung angelegt.', false);
+                await loadOrderDetail(orderId);
+            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+            return;
+        }
+    });
+
+    detailPane?.addEventListener('change', (event) => {
+        if (event.target.matches('[data-device-picker]')) {
+            // deviceId is collected by saveAllocation via [name] inputs - no extra action needed
+        }
+    });
+
+    searchInput?.addEventListener('input', () => { refreshList(); });
+    paymentFilter?.addEventListener('change', () => { refreshList(); });
+    fulfilmentFilter?.addEventListener('change', () => { refreshList(); });
+    reloadButton?.addEventListener('click', () => { loadOrders(); });
+
+    loadAuthState().then((authenticated) => {
+        if (authenticated) { loadOrders(); return; }
+        renderOrderList([]);
+        renderDetail(null);
     });
 }
 

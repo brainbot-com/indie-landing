@@ -14,11 +14,15 @@
 <body class="docs-page admin-page">
     <header class="admin-header">
         <div class="container admin-header__inner">
-            <div class="admin-header__brand">
-                <p class="admin-header__kicker">Indiebox Admin</p>
-                <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox</a>
-            </div>
+            <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox Admin</a>
             <div class="admin-header__actions">
+                <form class="admin-header-auth" data-admin-auth-form>
+                    <input class="admin-header-auth__input" id="admin-password" type="password" autocomplete="current-password" placeholder="Passwort" data-admin-password-input>
+                    <button class="admin-header-auth__hint" type="button" title="Passwort: Server .env → ADMIN_LOGIN_HASH (gehashtes Passwort). Plain-Text im eigenen Passwort-Manager.">i</button>
+                    <button class="button button--plain-light button--pill button--sm" type="submit">Anmelden</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Abmelden</button>
+                </form>
+                <span class="admin-header-auth__status" data-admin-auth-status></span>
                 <a href="../en/admin/inventory.html" class="button button--plain-light button--pill button--sm">EN</a>
             </div>
         </div>
@@ -34,140 +38,149 @@
 
     <main class="admin-shell">
         <div class="container admin-layout" data-admin-inventory data-locale="de" data-product-key="indiebox-ai-workstation">
-            <header class="docs-article">
-                <p class="docs-page-kicker">Admin</p>
-                <h1 class="docs-page-title">Bestand und Beschaffung</h1>
-                <p class="docs-page-lead">Diese Seite trennt öffentliche Verfügbarkeit, Systemdefinition und Lieferantenbestellungen sauber voneinander.</p>
-            </header>
 
-            <section class="admin-card admin-auth">
-                <div>
-                    <h2>Admin-Zugriff</h2>
-                    <p>Die Anmeldung bleibt bis zu 30 Tage aktiv. Ohne aktive Admin-Sitzung bleiben die internen Endpunkte gesperrt.</p>
+            <nav class="admin-tabs" role="tablist" aria-label="Inventory-Bereiche">
+                <button class="admin-tab" role="tab" aria-selected="true" data-tab="devices">Geräte</button>
+                <button class="admin-tab" role="tab" aria-selected="false" data-tab="procurement">Beschaffung</button>
+                <button class="admin-tab" role="tab" aria-selected="false" data-tab="articles">Artikel</button>
+            </nav>
+
+            <!-- Tab: Geräte -->
+            <div class="admin-tab-panel" data-tab-panel="devices">
+                <div class="admin-grid">
+                    <article class="admin-card">
+                        <h2>Gerät hinzufügen</h2>
+                        <form class="admin-section-stack" data-admin-device-form>
+                            <div class="form-row">
+                                <label class="form-label" for="device-serial">Seriennummer</label>
+                                <input class="form-input" id="device-serial" name="serialNumber" type="text" required>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-row">
+                                    <label class="form-label" for="device-username">Benutzername</label>
+                                    <input class="form-input" id="device-username" name="deviceUsername" type="text">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="device-password">Passwort</label>
+                                    <input class="form-input" id="device-password" name="devicePassword" type="text">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="form-label" for="device-notes">Notizen</label>
+                                <textarea class="form-textarea" id="device-notes" name="notes" rows="2"></textarea>
+                            </div>
+                            <button class="button button--plain-dark button--pill button--sm" type="submit">Gerät hinzufügen</button>
+                        </form>
+                    </article>
                 </div>
-                <form class="admin-auth-row" data-admin-auth-form>
-                    <div class="form-row">
-                        <label class="form-label" for="admin-password">Admin-Passwort</label>
-                        <input class="form-input" id="admin-password" type="password" autocomplete="current-password" data-admin-password-input>
-                    </div>
-                    <button class="button button--plain-dark button--pill button--sm" type="submit">Anmelden</button>
-                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Abmelden</button>
-                </form>
-                <p class="admin-auth-status" data-admin-auth-status>Anmelden, um die internen Bestandsdaten zu laden.</p>
-            </section>
+                <section class="admin-card" style="margin-top:1rem">
+                    <h2>Geräte im Lager</h2>
+                    <div class="admin-section-stack" data-admin-devices-list></div>
+                </section>
+            </div>
 
-            <section class="admin-grid">
-                <article class="admin-card">
-                    <h2>Öffentliche Verfügbarkeit</h2>
-                    <div class="admin-overview">
-                        <div class="admin-metric">
-                            <span class="admin-metric-label">Status</span>
-                            <span class="admin-metric-value" data-admin-overview-status>–</span>
-                        </div>
-                        <div class="admin-metric">
-                            <span class="admin-metric-label">Lieferzeit</span>
-                            <span class="admin-metric-value" data-admin-overview-lead-time>–</span>
-                        </div>
-                    </div>
-                </article>
+            <!-- Tab: Beschaffung -->
+            <div class="admin-tab-panel" data-tab-panel="procurement" hidden>
+                <div class="admin-grid">
+                    <article class="admin-card">
+                        <h2>Neue Lieferantenbestellung</h2>
+                        <form class="admin-section-stack" data-admin-procurement-form>
+                            <div class="form-grid">
+                                <div class="form-row form-row--full">
+                                    <label class="form-label" for="article-key">Artikel</label>
+                                    <select class="form-input" id="article-key" name="productKey" data-article-select required>
+                                        <option value="">— Artikel wählen —</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="supplier-name">Lieferant</label>
+                                    <input class="form-input" id="supplier-name" name="supplierName" type="text" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="supplier-reference">Referenz</label>
+                                    <input class="form-input" id="supplier-reference" name="supplierReference" type="text">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="quantity">Menge</label>
+                                    <input class="form-input" id="quantity" name="quantity" type="number" min="1" value="1" required>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="supplier-status">Status</label>
+                                    <select class="form-input" id="supplier-status" name="status">
+                                        <option value="ordered">Bestellt</option>
+                                        <option value="in_transit">Unterwegs</option>
+                                        <option value="received">Geliefert</option>
+                                        <option value="in_stock">Auf Lager</option>
+                                        <option value="cancelled">Storniert</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="price-per-item">Preis pro Stück (€)</label>
+                                    <input class="form-input" id="price-per-item" name="pricePerItem" type="text" placeholder="0.00">
+                                </div>
+                                <div class="form-row" style="align-items:center;display:flex;gap:0.5rem">
+                                    <input type="checkbox" id="price-includes-vat" name="priceIncludesVat" value="true" style="width:auto;flex:none">
+                                    <label class="form-label" for="price-includes-vat" style="margin:0">Preis inkl. MwSt.</label>
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="ordered-at">Bestellt am</label>
+                                    <input class="form-input" id="ordered-at" name="orderedAt" type="date">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="expected-delivery">Erwartete Lieferung</label>
+                                    <input class="form-input" id="expected-delivery" name="expectedDeliveryAt" type="date">
+                                </div>
+                                <div class="form-row">
+                                    <label class="form-label" for="received-at">Geliefert am</label>
+                                    <input class="form-input" id="received-at" name="receivedAt" type="date">
+                                </div>
+                                <div class="form-row form-row--full">
+                                    <label class="form-label" for="supplier-notes">Notizen</label>
+                                    <textarea class="form-textarea" id="supplier-notes" name="notes" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <button class="button button--plain-dark button--pill button--sm" type="submit">Lieferantenbestellung anlegen</button>
+                        </form>
+                    </article>
+                </div>
+                <section class="admin-card" style="margin-top:1rem">
+                    <h2>Bestehende Lieferantenbestellungen</h2>
+                    <div class="admin-section-stack" data-admin-procurement-list></div>
+                </section>
+            </div>
 
-                <article class="admin-card">
-                    <h2>Systemdefinition</h2>
-                    <form class="admin-section-stack" data-admin-model-form>
-                        <div class="form-row">
-                            <label class="form-label" for="product-name">Produktname</label>
-                            <input class="form-input" id="product-name" name="productName" type="text" required>
-                        </div>
-                        <div class="form-row">
-                            <label class="form-label" for="system-spec">Systembezeichnung</label>
-                            <textarea class="form-textarea" id="system-spec" name="systemSpec" rows="4" placeholder="z. B. AMD Ryzen AI Max+ 395, Radeon 8060S, 128 GB RAM, 2 TB SSD"></textarea>
-                        </div>
-                        <button class="button button--plain-dark button--pill button--sm" type="submit">Systemdaten speichern</button>
-                    </form>
-                </article>
-            </section>
-
-            <section class="admin-grid">
-                <article class="admin-card">
-                    <h2>Öffentliches Lieferfenster</h2>
-                    <form class="admin-section-stack" data-admin-inventory-form>
-                        <div class="form-grid">
+            <!-- Tab: Artikel -->
+            <div class="admin-tab-panel" data-tab-panel="articles" hidden>
+                <div class="admin-grid">
+                    <article class="admin-card">
+                        <h2>Neuen Artikel anlegen</h2>
+                        <form class="admin-section-stack" data-admin-article-form>
                             <div class="form-row">
-                                <label class="form-label" for="available-units">Verfügbare Geräte</label>
-                                <input class="form-input" id="available-units" name="availableUnits" type="number" min="0" required>
+                                <label class="form-label" for="article-manufacturer">Hersteller</label>
+                                <input class="form-input" id="article-manufacturer" name="manufacturer" type="text" placeholder="z. B. ASUS, Minisforum">
                             </div>
                             <div class="form-row">
-                                <label class="form-label" for="lead-time-min">Min. Werktage</label>
-                                <input class="form-input" id="lead-time-min" name="leadTimeMinBusinessDays" type="number" min="1" required>
+                                <label class="form-label" for="article-product-name">Artikelname *</label>
+                                <input class="form-input" id="article-product-name" name="productName" type="text" required placeholder="z. B. NUC 14 Pro AI">
                             </div>
                             <div class="form-row">
-                                <label class="form-label" for="lead-time-max">Max. Werktage</label>
-                                <input class="form-input" id="lead-time-max" name="leadTimeMaxBusinessDays" type="number" min="1" required>
+                                <label class="form-label" for="article-system-spec">Spezifikation</label>
+                                <textarea class="form-textarea" id="article-system-spec" name="systemSpec" rows="3" placeholder="z. B. AMD Ryzen AI Max+ 395, 128 GB RAM, 2 TB SSD"></textarea>
                             </div>
-                        </div>
-                        <button class="button button--plain-dark button--pill button--sm" type="submit">Öffentliche Verfügbarkeit speichern</button>
-                    </form>
-                </article>
-
-                <article class="admin-card">
-                    <h2>Neue Lieferantenbestellung</h2>
-                    <form class="admin-section-stack" data-admin-procurement-form>
-                        <div class="form-grid">
-                            <div class="form-row">
-                                <label class="form-label" for="supplier-name">Lieferant</label>
-                                <input class="form-input" id="supplier-name" name="supplierName" type="text" required>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="supplier-reference">Referenz</label>
-                                <input class="form-input" id="supplier-reference" name="supplierReference" type="text">
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="quantity">Menge</label>
-                                <input class="form-input" id="quantity" name="quantity" type="number" min="1" value="1" required>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="supplier-status">Status</label>
-                                <select class="form-input" id="supplier-status" name="status">
-                                    <option value="ordered">Bestellt</option>
-                                    <option value="in_transit">Unterwegs</option>
-                                    <option value="received">Geliefert</option>
-                                    <option value="in_stock">Auf Lager</option>
-                                    <option value="cancelled">Storniert</option>
-                                </select>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="ordered-at">Bestellt am</label>
-                                <input class="form-input" id="ordered-at" name="orderedAt" type="date">
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="expected-delivery">Erwartete Lieferung</label>
-                                <input class="form-input" id="expected-delivery" name="expectedDeliveryAt" type="date">
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="received-at">Geliefert am</label>
-                                <input class="form-input" id="received-at" name="receivedAt" type="date">
-                            </div>
-                            <div class="form-row form-row--full">
-                                <label class="form-label" for="supplier-notes">Notizen</label>
-                                <textarea class="form-textarea" id="supplier-notes" name="notes" rows="3"></textarea>
-                            </div>
-                        </div>
-                        <button class="button button--plain-dark button--pill button--sm" type="submit">Lieferantenbestellung anlegen</button>
-                    </form>
-                </article>
-            </section>
-
-            <section class="admin-card">
-                <h2>Bestehende Lieferantenbestellungen</h2>
-                <p>Hier liegen ausschließlich Beschaffungsdaten. Kundenbestellungen werden separat im Order-System geführt.</p>
-                <div class="admin-section-stack" data-admin-procurement-list></div>
-            </section>
-
-            <section class="admin-card">
-                <h2>Reservierte Kundenbestellungen</h2>
-                <p>Bezahlte Bestellungen reservieren automatisch verfügbaren Bestand. Diese Liste zeigt nur die Kopplung zwischen Order und Bestand.</p>
-                <div class="admin-section-stack" data-admin-allocations-list></div>
-            </section>
+                            <button class="button button--plain-dark button--pill button--sm" type="submit">Artikel anlegen</button>
+                        </form>
+                    </article>
+                    <article class="admin-card">
+                        <h2>Reservierte Kundenbestellungen</h2>
+                        <p class="admin-card-lead">Bezahlte Bestellungen reservieren automatisch verfügbaren Bestand.</p>
+                        <div class="admin-section-stack" data-admin-allocations-list></div>
+                    </article>
+                </div>
+                <section class="admin-card" style="margin-top:1rem">
+                    <h2>Artikel im Katalog</h2>
+                    <div class="admin-section-stack" data-admin-articles-list></div>
+                </section>
+            </div>
 
             <div class="form-alert" data-admin-feedback hidden></div>
         </div>

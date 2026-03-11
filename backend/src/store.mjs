@@ -193,6 +193,7 @@ function mapDeviceModelRow(row) {
   return {
     productKey: row.product_key,
     productName: row.product_name,
+    manufacturer: row.manufacturer || '',
     systemSpec: row.system_spec || legacyParts.join(', '),
     updatedAt: row.updated_at
   };
@@ -207,10 +208,34 @@ function mapSupplierOrderRow(row) {
     supplierName: row.supplier_name,
     supplierReference: row.supplier_reference || '',
     quantity: row.quantity,
+    pricePerItem: row.price_per_item || '',
+    priceIncludesVat: row.price_includes_vat === 1,
     orderedAt: row.ordered_at,
     expectedDeliveryAt: row.expected_delivery_at,
     receivedAt: row.received_at,
     status: row.status,
+    notes: row.notes || '',
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+function mapStockDeviceRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    productKey: row.product_key,
+    modelName: row.model_name || '',
+    manufacturer: row.manufacturer || '',
+    serialNumber: row.serial_number || '',
+    deviceUsername: row.device_username || '',
+    devicePassword: row.device_password || '',
+    status: row.status || 'available',
+    assignedOrderId: row.assigned_order_id || null,
+    supplierName: row.supplier_name || '',
+    orderedAt: row.ordered_at || null,
+    expectedDeliveryAt: row.expected_delivery_at || null,
+    receivedAt: row.received_at || null,
     notes: row.notes || '',
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -228,6 +253,15 @@ function mapOrderAllocationRow(row) {
     allocatedAt: row.allocated_at,
     fulfilledAt: row.fulfilled_at,
     releasedAt: row.released_at,
+    serialNumber: row.serial_number || '',
+    deviceUsername: row.device_username || '',
+    devicePassword: row.device_password || '',
+    trackingNumber: row.tracking_number || '',
+    trackingCarrier: row.tracking_carrier || '',
+    installedAt: row.installed_at || null,
+    packedAt: row.packed_at || null,
+    shippedAt: row.shipped_at || null,
+    deliveredAt: row.delivered_at || null,
     notes: row.notes || '',
     createdAt: row.created_at,
     updatedAt: row.updated_at
@@ -356,6 +390,22 @@ export async function createStore({ dataDir, logger = console }) {
 
     CREATE INDEX IF NOT EXISTS idx_order_allocations_product_key ON order_allocations(product_key, updated_at DESC);
     CREATE INDEX IF NOT EXISTS idx_order_allocations_status ON order_allocations(status, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS stock_devices (
+      id TEXT PRIMARY KEY,
+      product_key TEXT NOT NULL,
+      serial_number TEXT NOT NULL,
+      device_username TEXT,
+      device_password TEXT,
+      status TEXT NOT NULL DEFAULT 'available',
+      assigned_order_id TEXT,
+      notes TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(product_key) REFERENCES device_models(product_key) ON DELETE CASCADE
+    );
+    CREATE INDEX IF NOT EXISTS idx_stock_devices_product_key ON stock_devices(product_key, status);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_stock_devices_serial ON stock_devices(serial_number);
   `);
 
   function ensureColumn(tableName, columnName, columnSql) {
@@ -366,8 +416,25 @@ export async function createStore({ dataDir, logger = console }) {
   }
 
   ensureColumn('device_models', 'system_spec', 'system_spec TEXT');
+  ensureColumn('device_models', 'manufacturer', 'manufacturer TEXT');
+  ensureColumn('stock_devices', 'supplier_name', 'supplier_name TEXT');
+  ensureColumn('stock_devices', 'ordered_at', 'ordered_at TEXT');
+  ensureColumn('stock_devices', 'expected_delivery_at', 'expected_delivery_at TEXT');
+  ensureColumn('stock_devices', 'received_at', 'received_at TEXT');
+  ensureColumn('supplier_orders', 'price_per_item', 'price_per_item TEXT');
+  ensureColumn('supplier_orders', 'price_includes_vat', 'price_includes_vat INTEGER NOT NULL DEFAULT 0');
   ensureColumn('orders', 'status_token', 'status_token TEXT');
   ensureColumn('orders', 'order_number', 'order_number INTEGER');
+  ensureColumn('orders', 'is_archived', 'is_archived INTEGER NOT NULL DEFAULT 0');
+  ensureColumn('order_allocations', 'serial_number', 'serial_number TEXT');
+  ensureColumn('order_allocations', 'device_username', 'device_username TEXT');
+  ensureColumn('order_allocations', 'device_password', 'device_password TEXT');
+  ensureColumn('order_allocations', 'tracking_number', 'tracking_number TEXT');
+  ensureColumn('order_allocations', 'tracking_carrier', 'tracking_carrier TEXT');
+  ensureColumn('order_allocations', 'installed_at', 'installed_at TEXT');
+  ensureColumn('order_allocations', 'packed_at', 'packed_at TEXT');
+  ensureColumn('order_allocations', 'shipped_at', 'shipped_at TEXT');
+  ensureColumn('order_allocations', 'delivered_at', 'delivered_at TEXT');
   db.exec('CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number DESC)');
 
   const upsertOrderStatement = db.prepare(`
@@ -522,7 +589,40 @@ export async function createStore({ dataDir, logger = console }) {
       customer_last_name,
       product
     FROM orders
+    WHERE COALESCE(is_archived, 0) = 0
     ORDER BY datetime(created_at) DESC
+    LIMIT ?
+  `);
+  const listOrdersOverviewStatement = db.prepare(`
+    SELECT
+      o.id,
+      o.order_number,
+      o.created_at,
+      o.updated_at,
+      o.status,
+      o.payment_status,
+      o.payment_method,
+      o.payment_method_requested,
+      o.amount,
+      o.currency,
+      o.customer_email,
+      o.customer_first_name,
+      o.customer_last_name,
+      o.customer_company,
+      o.product,
+      o.billing_address_json,
+      o.shipping_address_json,
+      a.status AS allocation_status,
+      a.serial_number AS allocation_serial_number,
+      a.installed_at AS allocation_installed_at,
+      a.packed_at AS allocation_packed_at,
+      a.shipped_at AS allocation_shipped_at,
+      a.delivered_at AS allocation_delivered_at,
+      a.tracking_number AS allocation_tracking_number
+    FROM orders o
+    LEFT JOIN order_allocations a ON a.order_id = o.id
+    WHERE COALESCE(o.is_archived, 0) = 0
+    ORDER BY datetime(o.created_at) DESC
     LIMIT ?
   `);
 	  const listPaymentEventsStatement = db.prepare(`
@@ -546,6 +646,7 @@ export async function createStore({ dataDir, logger = console }) {
     SET payload_json = @payload_json
     WHERE id = @id
   `);
+  const archiveOrderStatement = db.prepare(`UPDATE orders SET is_archived = 1, updated_at = @updated_at WHERE id = @id`);
   const orderExistsStatement = db.prepare('SELECT 1 FROM orders WHERE id = ? LIMIT 1');
   const getInventoryStatement = db.prepare('SELECT * FROM inventory WHERE product_key = ?');
   const getDeviceModelStatement = db.prepare('SELECT * FROM device_models WHERE product_key = ?');
@@ -554,6 +655,7 @@ export async function createStore({ dataDir, logger = console }) {
     INSERT INTO device_models (
       product_key,
       product_name,
+      manufacturer,
       system_spec,
       cpu,
       gpu,
@@ -564,6 +666,7 @@ export async function createStore({ dataDir, logger = console }) {
     ) VALUES (
       @product_key,
       @product_name,
+      @manufacturer,
       @system_spec,
       @cpu,
       @gpu,
@@ -574,6 +677,7 @@ export async function createStore({ dataDir, logger = console }) {
     )
     ON CONFLICT(product_key) DO UPDATE SET
       product_name = excluded.product_name,
+      manufacturer = excluded.manufacturer,
       system_spec = excluded.system_spec,
       cpu = excluded.cpu,
       gpu = excluded.gpu,
@@ -605,6 +709,8 @@ export async function createStore({ dataDir, logger = console }) {
       supplier_name,
       supplier_reference,
       quantity,
+      price_per_item,
+      price_includes_vat,
       ordered_at,
       expected_delivery_at,
       received_at,
@@ -618,6 +724,8 @@ export async function createStore({ dataDir, logger = console }) {
       @supplier_name,
       @supplier_reference,
       @quantity,
+      @price_per_item,
+      @price_includes_vat,
       @ordered_at,
       @expected_delivery_at,
       @received_at,
@@ -631,6 +739,8 @@ export async function createStore({ dataDir, logger = console }) {
       supplier_name = excluded.supplier_name,
       supplier_reference = excluded.supplier_reference,
       quantity = excluded.quantity,
+      price_per_item = excluded.price_per_item,
+      price_includes_vat = excluded.price_includes_vat,
       ordered_at = excluded.ordered_at,
       expected_delivery_at = excluded.expected_delivery_at,
       received_at = excluded.received_at,
@@ -647,7 +757,7 @@ export async function createStore({ dataDir, logger = console }) {
   const sumAllocatedUnitsStatement = db.prepare(`
     SELECT COALESCE(SUM(quantity), 0) AS allocated_units
     FROM order_allocations
-    WHERE product_key = ? AND status IN ('reserved', 'fulfilled')
+    WHERE product_key = ? AND status IN ('reserved', 'fulfilled', 'installed', 'packed', 'shipped', 'delivered')
   `);
   const getOrderAllocationStatement = db.prepare('SELECT * FROM order_allocations WHERE order_id = ?');
   const listOrderAllocationsStatement = db.prepare(`
@@ -665,6 +775,15 @@ export async function createStore({ dataDir, logger = console }) {
       allocated_at,
       fulfilled_at,
       released_at,
+      serial_number,
+      device_username,
+      device_password,
+      tracking_number,
+      tracking_carrier,
+      installed_at,
+      packed_at,
+      shipped_at,
+      delivered_at,
       notes,
       created_at,
       updated_at
@@ -676,6 +795,15 @@ export async function createStore({ dataDir, logger = console }) {
       @allocated_at,
       @fulfilled_at,
       @released_at,
+      @serial_number,
+      @device_username,
+      @device_password,
+      @tracking_number,
+      @tracking_carrier,
+      @installed_at,
+      @packed_at,
+      @shipped_at,
+      @delivered_at,
       @notes,
       @created_at,
       @updated_at
@@ -687,10 +815,51 @@ export async function createStore({ dataDir, logger = console }) {
       allocated_at = excluded.allocated_at,
       fulfilled_at = excluded.fulfilled_at,
       released_at = excluded.released_at,
+      serial_number = excluded.serial_number,
+      device_username = excluded.device_username,
+      device_password = excluded.device_password,
+      tracking_number = excluded.tracking_number,
+      tracking_carrier = excluded.tracking_carrier,
+      installed_at = excluded.installed_at,
+      packed_at = excluded.packed_at,
+      shipped_at = excluded.shipped_at,
+      delivered_at = excluded.delivered_at,
       notes = excluded.notes,
       created_at = excluded.created_at,
       updated_at = excluded.updated_at
   `);
+  const stockDeviceSelect = `
+    SELECT sd.*, dm.product_name AS model_name, dm.manufacturer AS manufacturer
+    FROM stock_devices sd
+    LEFT JOIN device_models dm ON dm.product_key = sd.product_key
+  `;
+  const getStockDeviceStatement = db.prepare(`${stockDeviceSelect} WHERE sd.id = ?`);
+  const getDevicesByOrderIdStatement = db.prepare(`${stockDeviceSelect} WHERE sd.assigned_order_id = ? ORDER BY sd.created_at ASC`);
+  const listStockDevicesStatement = db.prepare(`${stockDeviceSelect} WHERE sd.product_key = ? ORDER BY sd.status ASC, sd.serial_number ASC`);
+  const upsertStockDeviceStatement = db.prepare(`
+    INSERT INTO stock_devices (
+      id, product_key, serial_number, device_username, device_password,
+      status, assigned_order_id, supplier_name, ordered_at, expected_delivery_at,
+      received_at, notes, created_at, updated_at
+    ) VALUES (
+      @id, @product_key, @serial_number, @device_username, @device_password,
+      @status, @assigned_order_id, @supplier_name, @ordered_at, @expected_delivery_at,
+      @received_at, @notes, @created_at, @updated_at
+    )
+    ON CONFLICT(id) DO UPDATE SET
+      serial_number = excluded.serial_number,
+      device_username = excluded.device_username,
+      device_password = excluded.device_password,
+      status = excluded.status,
+      assigned_order_id = excluded.assigned_order_id,
+      supplier_name = excluded.supplier_name,
+      ordered_at = excluded.ordered_at,
+      expected_delivery_at = excluded.expected_delivery_at,
+      received_at = excluded.received_at,
+      notes = excluded.notes,
+      updated_at = excluded.updated_at
+  `);
+
   const upsertInventoryStatement = db.prepare(`
     INSERT INTO inventory (
       product_key,
@@ -788,6 +957,38 @@ export async function createStore({ dataDir, logger = console }) {
     }));
   }
 
+  function listOrdersOverview(limit = 200) {
+    return listOrdersOverviewStatement.all(limit).map((row) => ({
+      id: row.id,
+      orderNumber: row.order_number,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      status: row.status,
+      paymentStatus: row.payment_status,
+      paymentMethod: row.payment_method,
+      paymentMethodRequested: row.payment_method_requested,
+      amount: row.amount,
+      currency: row.currency,
+      customerEmail: row.customer_email,
+      customerName: `${row.customer_first_name} ${row.customer_last_name}`.trim(),
+      customerCompany: row.customer_company || '',
+      product: row.product,
+      billingAddress: parseJson(row.billing_address_json, {}),
+      shippingAddress: parseJson(row.shipping_address_json, {}),
+      allocationStatus: row.allocation_status || null,
+      allocationSerialNumber: row.allocation_serial_number || '',
+      allocationInstalledAt: row.allocation_installed_at || null,
+      allocationPackedAt: row.allocation_packed_at || null,
+      allocationShippedAt: row.allocation_shipped_at || null,
+      allocationDeliveredAt: row.allocation_delivered_at || null,
+      allocationTrackingNumber: row.allocation_tracking_number || ''
+    }));
+  }
+
+  function archiveOrder(orderId) {
+    archiveOrderStatement.run({ id: orderId, updated_at: new Date().toISOString() });
+  }
+
   function listPaymentEvents(orderId) {
     return listPaymentEventsStatement.all(orderId).map(mapEventRow);
   }
@@ -845,6 +1046,7 @@ export async function createStore({ dataDir, logger = console }) {
     upsertDeviceModelStatement.run({
       product_key: item.productKey,
       product_name: item.productName,
+      manufacturer: item.manufacturer || null,
       system_spec: item.systemSpec || null,
       cpu: null,
       gpu: null,
@@ -873,6 +1075,8 @@ export async function createStore({ dataDir, logger = console }) {
       supplierName: order.supplierName,
       supplierReference: order.supplierReference || null,
       quantity: Math.max(1, Number.parseInt(order.quantity || '1', 10) || 1),
+      pricePerItem: order.pricePerItem || null,
+      priceIncludesVat: order.priceIncludesVat ? 1 : 0,
       orderedAt: order.orderedAt || null,
       expectedDeliveryAt: order.expectedDeliveryAt || null,
       receivedAt: order.receivedAt || null,
@@ -888,6 +1092,8 @@ export async function createStore({ dataDir, logger = console }) {
       supplier_name: normalized.supplierName,
       supplier_reference: normalized.supplierReference,
       quantity: normalized.quantity,
+      price_per_item: normalized.pricePerItem,
+      price_includes_vat: normalized.priceIncludesVat,
       ordered_at: normalized.orderedAt,
       expected_delivery_at: normalized.expectedDeliveryAt,
       received_at: normalized.receivedAt,
@@ -919,6 +1125,15 @@ export async function createStore({ dataDir, logger = console }) {
       allocatedAt: allocation.allocatedAt || null,
       fulfilledAt: allocation.fulfilledAt || null,
       releasedAt: allocation.releasedAt || null,
+      serialNumber: allocation.serialNumber || null,
+      deviceUsername: allocation.deviceUsername || null,
+      devicePassword: allocation.devicePassword || null,
+      trackingNumber: allocation.trackingNumber || null,
+      trackingCarrier: allocation.trackingCarrier || null,
+      installedAt: allocation.installedAt || null,
+      packedAt: allocation.packedAt || null,
+      shippedAt: allocation.shippedAt || null,
+      deliveredAt: allocation.deliveredAt || null,
       notes: allocation.notes || null,
       createdAt: allocation.createdAt || now,
       updatedAt: now
@@ -932,6 +1147,15 @@ export async function createStore({ dataDir, logger = console }) {
       allocated_at: normalized.allocatedAt,
       fulfilled_at: normalized.fulfilledAt,
       released_at: normalized.releasedAt,
+      serial_number: normalized.serialNumber,
+      device_username: normalized.deviceUsername,
+      device_password: normalized.devicePassword,
+      tracking_number: normalized.trackingNumber,
+      tracking_carrier: normalized.trackingCarrier,
+      installed_at: normalized.installedAt,
+      packed_at: normalized.packedAt,
+      shipped_at: normalized.shippedAt,
+      delivered_at: normalized.deliveredAt,
       notes: normalized.notes,
       created_at: normalized.createdAt,
       updated_at: normalized.updatedAt
@@ -947,6 +1171,50 @@ export async function createStore({ dataDir, logger = console }) {
 
   function listOrderAllocations(productKey = null) {
     return listOrderAllocationsStatement.all({ product_key: productKey || null }).map(mapOrderAllocationRow);
+  }
+
+  function getStockDevice(id) {
+    return mapStockDeviceRow(getStockDeviceStatement.get(id));
+  }
+
+  function listStockDevices(productKey) {
+    return listStockDevicesStatement.all(productKey).map(mapStockDeviceRow);
+  }
+
+  function listDevicesByOrderId(orderId) {
+    return getDevicesByOrderIdStatement.all(orderId).map(mapStockDeviceRow);
+  }
+
+  const deleteDeviceModelStatement = db.prepare('DELETE FROM device_models WHERE product_key = ?');
+  const deleteStockDeviceStatement = db.prepare('DELETE FROM stock_devices WHERE id = ?');
+
+  function deleteDeviceModel(productKey) {
+    deleteDeviceModelStatement.run(productKey);
+  }
+
+  function deleteStockDevice(id) {
+    deleteStockDeviceStatement.run(id);
+  }
+
+  function saveStockDevice(device) {
+    const now = new Date().toISOString();
+    upsertStockDeviceStatement.run({
+      id: device.id,
+      product_key: device.productKey,
+      serial_number: device.serialNumber,
+      device_username: device.deviceUsername || null,
+      device_password: device.devicePassword || null,
+      status: device.status || 'available',
+      assigned_order_id: device.assignedOrderId || null,
+      supplier_name: device.supplierName || null,
+      ordered_at: device.orderedAt || null,
+      expected_delivery_at: device.expectedDeliveryAt || null,
+      received_at: device.receivedAt || null,
+      notes: device.notes || null,
+      created_at: device.createdAt || now,
+      updated_at: now
+    });
+    return getStockDevice(device.id);
   }
 
 	  async function migrateLegacyJsonOrders() {
@@ -1056,6 +1324,7 @@ export async function createStore({ dataDir, logger = console }) {
     getOrder,
     getOrderByPaymentId,
     listOrders,
+    listOrdersOverview,
     listPaymentEvents,
     recordPaymentEvent,
     getInventory,
@@ -1068,6 +1337,13 @@ export async function createStore({ dataDir, logger = console }) {
     listSupplierOrders,
     getOrderAllocation,
     saveOrderAllocation,
-    listOrderAllocations
+    listOrderAllocations,
+    archiveOrder,
+    getStockDevice,
+    listStockDevices,
+    listDevicesByOrderId,
+    saveStockDevice,
+    deleteDeviceModel,
+    deleteStockDevice
   };
 }
