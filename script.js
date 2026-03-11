@@ -1257,7 +1257,9 @@ function setupAdminOrders() {
     const paymentFilter = app.querySelector('[data-admin-payment-filter]');
     const fulfilmentFilter = app.querySelector('[data-admin-fulfilment-filter]');
     const orderCount = app.querySelector('[data-admin-order-count]');
+    const reloadButton = app.querySelector('[data-admin-reload-orders]');
     const feedback = app.querySelector('[data-admin-feedback]');
+    const localePrefix = (loc) => loc === 'en' ? '/en/' : '/';
     let currentEntries = [];
     let selectedOrderId = null;
     let activeStatusPopover = null;
@@ -1498,43 +1500,84 @@ function setupAdminOrders() {
         `;
     };
 
+    const isoDateOnly = (value) => {
+        if (!value) return '';
+        const s = String(value);
+        return s.length >= 10 ? s.slice(0, 10) : s;
+    };
+
     const renderOrderDetail = (entry) => {
         if (!entry) return '';
-        const { order, allocation } = entry;
+        const { order, allocation, events } = entry;
         const showAllocationForm = Boolean(allocation) || order.status === 'paid';
-        const shipping = order.shippingAddress?.street
-            ? `${order.shippingAddress.street}, ${order.shippingAddress.zip} ${order.shippingAddress.city}`
-            : '–';
-        const billing = `${order.billingAddress.street}, ${order.billingAddress.zip} ${order.billingAddress.city}`;
+        const hasShipping = Boolean(order.shippingAddress?.street);
+        const billingLines = [
+            order.billingAddress.street,
+            `${order.billingAddress.zip} ${order.billingAddress.city}`,
+            order.billingAddress.country || 'DE'
+        ].filter(Boolean);
+        const shippingLines = hasShipping ? [
+            order.shippingAddress.careOf ? `c/o ${order.shippingAddress.careOf}` : '',
+            order.shippingAddress.street,
+            `${order.shippingAddress.zip} ${order.shippingAddress.city}`,
+            order.shippingAddress.country || 'DE'
+        ].filter(Boolean) : null;
+
+        const paymentIcon = paymentStatusIcon(order.paymentStatus || order.status);
+        const allocIcon = allocationStatusIcon(allocation?.status || '');
+
+        const statusUrl = order.statusToken
+            ? `${localePrefix(order.locale)}checkout-status.html?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}`
+            : null;
+
+        const recentEvents = Array.isArray(events) ? events.slice(-5).reverse() : [];
 
         return `
             <div class="admin-detail-grid">
                 <article class="admin-detail-block">
                     <h3>${locale === 'en' ? 'Order' : 'Bestellung'}</h3>
                     <div class="admin-detail-meta">
-                        <p><strong>${locale === 'en' ? 'Short ID' : 'Kurz-ID'}:</strong> ${escapeHtml(shortOrderId(order.id))}</p>
-                        <p><strong>ID:</strong> ${escapeHtml(order.id)}</p>
+                        <p><strong>${locale === 'en' ? 'Number' : 'Nr.'}:</strong> ${escapeHtml(displayOrderNumber(order))}</p>
+                        <p><strong>ID:</strong> <span class="admin-mono">${escapeHtml(order.id)}</span></p>
                         <p><strong>${locale === 'en' ? 'Created' : 'Angelegt'}:</strong> ${escapeHtml(formatDateTime(order.createdAt))}</p>
-                        <p><strong>${locale === 'en' ? 'Payment status' : 'Zahlungsstatus'}:</strong> ${escapeHtml(order.paymentStatus || order.status)}</p>
+                        ${order.paidAt ? `<p><strong>${locale === 'en' ? 'Paid at' : 'Bezahlt am'}:</strong> ${escapeHtml(formatDateTime(order.paidAt))}</p>` : ''}
+                        <p><strong>${locale === 'en' ? 'Payment' : 'Zahlung'}:</strong>
+                            <span class="admin-status-inline admin-status-inline--${paymentIcon.tone}">${escapeHtml(paymentIcon.label)}</span>
+                        </p>
+                        <p><strong>${locale === 'en' ? 'Fulfilment' : 'Fulfillment'}:</strong>
+                            <span class="admin-status-inline admin-status-inline--${allocIcon.tone}">${escapeHtml(allocIcon.label)}</span>
+                        </p>
+                        ${order.paymentMethod ? `<p><strong>${escapeHtml(messages.paymentMethodLabel)}:</strong> ${escapeHtml(order.paymentMethod)}</p>` : ''}
+                        ${order.paymentId ? `<p><strong>${escapeHtml(messages.paymentReferenceLabel)}:</strong> <span class="admin-mono">${escapeHtml(order.paymentId)}</span></p>` : ''}
+                        ${statusUrl ? `<p><a href="${escapeHtml(statusUrl)}" target="_blank" rel="noopener" class="admin-detail-link">${locale === 'en' ? 'Open customer status page ↗' : 'Kundenstatusseite öffnen ↗'}</a></p>` : ''}
                     </div>
                 </article>
                 <article class="admin-detail-block">
                     <h3>${locale === 'en' ? 'Customer' : 'Kunde'}</h3>
                     <div class="admin-detail-meta">
                         <p><strong>${locale === 'en' ? 'Name' : 'Name'}:</strong> ${escapeHtml(order.customer.firstName)} ${escapeHtml(order.customer.lastName)}</p>
-                        <p><strong>${locale === 'en' ? 'Email' : 'E-Mail'}:</strong> ${escapeHtml(order.customer.email)}</p>
-                        <p><strong>${locale === 'en' ? 'Phone' : 'Telefon'}:</strong> ${escapeHtml(order.customer.phone || '–')}</p>
-                        <p><strong>${locale === 'en' ? 'Company' : 'Firma'}:</strong> ${escapeHtml(order.customer.company || '–')}</p>
-                        <p><strong>${locale === 'en' ? 'VAT ID' : 'USt-ID'}:</strong> ${escapeHtml(order.customer.vatId || '–')}</p>
+                        ${order.customer.company ? `<p><strong>${locale === 'en' ? 'Company' : 'Firma'}:</strong> ${escapeHtml(order.customer.company)}</p>` : ''}
+                        ${order.customer.vatId ? `<p><strong>${locale === 'en' ? 'VAT ID' : 'USt-ID'}:</strong> ${escapeHtml(order.customer.vatId)}</p>` : ''}
+                        <p><strong>${locale === 'en' ? 'Email' : 'E-Mail'}:</strong> <a href="mailto:${escapeHtml(order.customer.email)}" class="admin-detail-link">${escapeHtml(order.customer.email)}</a></p>
+                        ${order.customer.phone ? `<p><strong>${locale === 'en' ? 'Phone' : 'Telefon'}:</strong> ${escapeHtml(order.customer.phone)}</p>` : ''}
                     </div>
                 </article>
                 <article class="admin-detail-block">
                     <h3>${locale === 'en' ? 'Addresses' : 'Adressen'}</h3>
                     <div class="admin-detail-meta">
-                        <p><strong>${locale === 'en' ? 'Billing' : 'Rechnung'}:</strong> ${escapeHtml(billing)}</p>
-                        <p><strong>${locale === 'en' ? 'Shipping' : 'Lieferung'}:</strong> ${escapeHtml(shipping)}</p>
+                        <p><strong>${locale === 'en' ? 'Billing' : 'Rechnung'}:</strong><br>${billingLines.map(escapeHtml).join('<br>')}</p>
+                        ${shippingLines
+                            ? `<p><strong>${locale === 'en' ? 'Shipping' : 'Lieferung'}:</strong><br>${shippingLines.map(escapeHtml).join('<br>')}</p>`
+                            : `<p class="admin-meta-dim">${locale === 'en' ? 'Shipping = billing' : 'Lieferung = Rechnung'}</p>`}
                     </div>
                 </article>
+                ${order.notes ? `
+                <article class="admin-detail-block admin-detail-block--full">
+                    <h3>${locale === 'en' ? 'Customer notes' : 'Kundennotizen'}</h3>
+                    <div class="admin-detail-meta">
+                        <p class="admin-detail-notes">${escapeHtml(order.notes)}</p>
+                    </div>
+                </article>` : ''}
             </div>
             <div class="admin-detail-form"${showAllocationForm ? ` data-admin-order-detail-form data-allocation-id="${escapeHtml(order.id)}"` : ''}>
                 <h3>${locale === 'en' ? 'Fulfilment' : 'Fulfillment'}</h3>
@@ -1546,14 +1589,14 @@ function setupAdminOrders() {
                         </div>
                         <div class="form-row">
                             <label class="form-label">${locale === 'en' ? 'Fulfilled at' : 'Erfüllt am'}</label>
-                            <input class="form-input" type="text" name="fulfilledAt" value="${escapeHtml(allocation?.fulfilledAt || '')}">
+                            <input class="form-input" type="date" name="fulfilledAt" value="${escapeHtml(isoDateOnly(allocation?.fulfilledAt))}">
                         </div>
                         <div class="form-row">
                             <label class="form-label">${locale === 'en' ? 'Released at' : 'Freigegeben am'}</label>
-                            <input class="form-input" type="text" name="releasedAt" value="${escapeHtml(allocation?.releasedAt || '')}">
+                            <input class="form-input" type="date" name="releasedAt" value="${escapeHtml(isoDateOnly(allocation?.releasedAt))}">
                         </div>
                         <div class="form-row form-row--full">
-                            <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                            <label class="form-label">${locale === 'en' ? 'Internal notes' : 'Interne Notizen'}</label>
                             <textarea class="form-textarea" name="notes" rows="3">${escapeHtml(allocation?.notes || '')}</textarea>
                         </div>
                     </div>
@@ -1562,6 +1605,19 @@ function setupAdminOrders() {
                     </div>
                 ` : `<p class="admin-empty">${messages.noReservation}</p>`}
             </div>
+            ${recentEvents.length ? `
+            <div class="admin-detail-events">
+                <h3>${locale === 'en' ? 'Recent events' : 'Letzte Ereignisse'}</h3>
+                <ul class="admin-events-list">
+                    ${recentEvents.map((ev) => `
+                        <li class="admin-event-item">
+                            <span class="admin-event-time">${escapeHtml(formatDateTime(ev.createdAt))}</span>
+                            <span class="admin-event-type">${escapeHtml(ev.eventType || ev.source || '')}</span>
+                            ${ev.paymentStatus ? `<span class="admin-event-status">${escapeHtml(ev.paymentStatus)}</span>` : ''}
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>` : ''}
         `;
     };
 
@@ -1612,8 +1668,18 @@ function setupAdminOrders() {
                                         <span class="admin-cell-secondary">${escapeHtml(order.customer.company || '')}</span>
                                     </div>
                                 </td>
-                                <td>${renderStatusIcon(order.paymentStatus || order.status, 'payment', order, allocation)}</td>
-                                <td>${renderStatusIcon(allocation?.status || '', 'allocation', order, allocation)}</td>
+                                <td>
+                                    <div class="admin-cell-stack">
+                                        ${renderStatusIcon(order.paymentStatus || order.status, 'payment', order, allocation)}
+                                        <span class="admin-cell-secondary">${escapeHtml(paymentStatusIcon(order.paymentStatus || order.status).label)}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="admin-cell-stack">
+                                        ${renderStatusIcon(allocation?.status || '', 'allocation', order, allocation)}
+                                        <span class="admin-cell-secondary">${escapeHtml(allocationStatusIcon(allocation?.status || '').label)}</span>
+                                    </div>
+                                </td>
                                 <td>${escapeHtml(deliveryLabel)}</td>
                             </tr>
                             ${detailMarkup}
@@ -1808,6 +1874,10 @@ function setupAdminOrders() {
         selectedOrderId = null;
         activeStatusPopover = null;
         refreshOrdersView();
+    });
+
+    reloadButton?.addEventListener('click', () => {
+        loadOrders();
     });
 
     loadAuthState().then((authenticated) => {

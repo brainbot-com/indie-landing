@@ -3647,6 +3647,111 @@ ul {
     border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
+.admin-detail-block--full {
+    grid-column: 1 / -1;
+}
+
+.admin-detail-notes {
+    white-space: pre-wrap;
+    font: var(--t-body-sm);
+    color: rgba(15, 23, 42, 0.78);
+}
+
+.admin-detail-link {
+    color: #1a5fb4;
+    text-decoration: none;
+}
+.admin-detail-link:hover {
+    text-decoration: underline;
+}
+
+.admin-meta-dim {
+    color: rgba(15, 23, 42, 0.4) !important;
+    font-style: italic;
+}
+
+.admin-mono {
+    font-family: ui-monospace, monospace;
+    font-size: 0.8em;
+    letter-spacing: 0;
+}
+
+.admin-status-inline {
+    display: inline-block;
+    padding: 0.1em 0.5em;
+    border-radius: 999px;
+    font: var(--t-small);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.admin-status-inline--success { background: rgba(21, 128, 61, 0.12); color: #15803d; }
+.admin-status-inline--warning  { background: rgba(180, 120, 0, 0.12); color: #92400e; }
+.admin-status-inline--danger   { background: rgba(185, 28, 28, 0.12); color: #b91c1c; }
+.admin-status-inline--neutral  { background: rgba(15, 23, 42, 0.07); color: rgba(15, 23, 42, 0.6); }
+
+.admin-detail-events {
+    margin-top: 0.9rem;
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.88);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.admin-detail-events h3 {
+    margin: 0 0 0.55rem;
+    font: var(--t-ui);
+    color: #0a2a4a;
+}
+
+.admin-events-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+}
+
+.admin-event-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font: var(--t-body-sm);
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.admin-event-time {
+    color: rgba(15, 23, 42, 0.45);
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.admin-event-type {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.admin-event-status {
+    font-size: 0.72rem;
+    padding: 0.05em 0.4em;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.07);
+    color: rgba(15, 23, 42, 0.6);
+}
+
+.admin-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-card-header h2 {
+    margin: 0;
+}
+
 .admin-chip {
     display: inline-flex;
     align-items: center;
