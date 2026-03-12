@@ -14,3 +14,10 @@ Checklist per section:
 - Add a suitable detail layer for those points (one extra sentence or a compact info element).
 - Keep the main surface concise; details stay optional and discoverable without searching.
 - Ensure consistency: no contradictions across pages/sections (specs, privacy, checkout, overlays).
+
+## Active Technologies
+- Node.js 22 (ES modules), Express.js 4, vanilla JavaScript frontend, HTML5, CSS3 + `express@^4.21.2` (only npm dependency), `node:sqlite` (built-in), `node:crypto` (built-in) (001-user-management)
+- SQLite via `node:sqlite` — new `users` table added to existing `indiebox.sqlite` database (001-user-management)
+
+## Recent Changes
+- 001-user-management: Added Node.js 22 (ES modules), Express.js 4, vanilla JavaScript frontend, HTML5, CSS3 + `express@^4.21.2` (only npm dependency), `node:sqlite` (built-in), `node:crypto` (built-in)

@@ -71,6 +71,14 @@ indiebox.ai, www.indiebox.ai {
   import security_headers
   import tls_security_headers
 
+  @adminPages path /admin* /en/admin*
+  handle @adminPages {
+    import admin_basic_auth
+    root * /srv/site
+    encode zstd gzip
+    file_server
+  }
+
   handle /api/* {
     reverse_proxy backend-live:8080
   }

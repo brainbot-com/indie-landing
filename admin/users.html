@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Benutzer</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="description" content="Interne Verwaltungsseite für Benutzerkonten und Rollen der Indiebox.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="docs-page admin-page">
+    <header class="admin-header">
+        <div class="container admin-header__inner">
+            <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox Admin</a>
+            <div class="admin-header__actions">
+                <form class="admin-header-auth" data-admin-users-auth-form>
+                    <input class="admin-header-auth__input" id="admin-users-username" type="text" autocomplete="username" placeholder="Benutzer" data-admin-username-input>
+                    <input class="admin-header-auth__input" id="admin-users-password" type="password" autocomplete="current-password" placeholder="Passwort" data-admin-password-input>
+                    <button class="button button--plain-light button--pill button--sm" type="submit">Anmelden</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-admin-clear-auth>Abmelden</button>
+                </form>
+                <span class="admin-header-auth__status" data-admin-auth-status></span>
+                <a href="../en/admin/users.html" class="button button--plain-light button--pill button--sm">EN</a>
+            </div>
+        </div>
+        <div class="container">
+            <nav class="admin-subnav" aria-label="Admin-Bereiche">
+                <a href="./inventory.html">Bestand</a>
+                <a href="./orders.html">Bestellungen</a>
+                <a href="./users.html" aria-current="page">Benutzer</a>
+                <a href="../checkout.html">Checkout ansehen</a>
+                <a href="../index.html">Website</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-shell">
+        <div class="container admin-layout" data-admin-users data-locale="de">
+
+            <section class="admin-card">
+                <div class="admin-card-header">
+                    <h2>Benutzer</h2>
+                    <div class="admin-card-header__actions">
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-reload-users>Neu laden</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-create-user>+ Benutzer anlegen</button>
+                    </div>
+                </div>
+                <div class="admin-toolbar" data-admin-users-toolbar>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-user-role-filter">Rolle</label>
+                        <select class="form-input" id="admin-user-role-filter" data-admin-user-role-filter>
+                            <option value="all">Alle</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">Benutzer</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-user-status-filter">Status</label>
+                        <select class="form-input" id="admin-user-status-filter" data-admin-user-status-filter>
+                            <option value="all">Alle</option>
+                            <option value="active">Aktiv</option>
+                            <option value="disabled">Deaktiviert</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="admin-toolbar-meta">
+                    <p class="admin-result-count" data-admin-user-count>0 Benutzer</p>
+                </div>
+
+                <div class="admin-orders-split">
+                    <div class="admin-orders-list-pane">
+                        <div class="admin-section-stack" data-admin-users-list></div>
+                    </div>
+                    <div class="admin-orders-detail-pane" data-admin-users-detail>
+                        <div class="admin-detail-placeholder">
+                            <p>Einen Benutzer auswählen, um Details zu bearbeiten.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="admin-toast" data-admin-feedback hidden></div>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>

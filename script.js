@@ -933,6 +933,7 @@ function setupAdminInventory() {
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
     const productKey = app.getAttribute('data-product-key') || 'indiebox-ai-workstation';
+    const usernameInput = document.querySelector('[data-admin-username-input]');
     const passwordInput = document.querySelector('[data-admin-password-input]');
     const authStatus = document.querySelector('[data-admin-auth-status]');
     const authForm = document.querySelector('[data-admin-auth-form]');
@@ -1419,7 +1420,11 @@ function setupAdminInventory() {
             if (!response.ok) { setAuthStatus(m.authMissing, false); return false; }
             const payload = await response.json().catch(() => null);
             const authenticated = Boolean(payload?.authenticated);
-            setAuthStatus(authenticated ? m.authSaved : m.authMissing, false);
+            if (authenticated && payload?.user) {
+                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
+            } else {
+                setAuthStatus(authenticated ? m.authSaved : m.authMissing, false);
+            }
             return authenticated;
         } catch {
             setAuthStatus(m.authMissing, false);
@@ -1430,22 +1435,28 @@ function setupAdminInventory() {
     authForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
+            const username = usernameInput?.value || '';
             const password = passwordInput?.value || '';
             const response = await fetch('/api/admin/session', {
                 method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                credentials: 'same-origin', body: JSON.stringify({ password })
+                credentials: 'same-origin', body: JSON.stringify({ username, password })
             });
-            if (!response.ok) throw new Error(m.authFailed);
+            if (!response.ok) {
+                const err = await response.json().catch(() => null);
+                throw new Error(err?.error || m.authFailed);
+            }
+            if (usernameInput) usernameInput.value = '';
             if (passwordInput) passwordInput.value = '';
             setAuthStatus(m.authSaved, false);
             await loadAdminData();
-        } catch {
-            setAuthStatus(m.authFailed, true);
+        } catch (e) {
+            setAuthStatus(e.message || m.authFailed, true);
         }
     });
 
     clearAuthButton?.addEventListener('click', async () => {
         await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+        if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
         renderArticles([]);
         renderSupplierOrders([], []);
@@ -1704,6 +1715,7 @@ function setupAdminOrders() {
     if (!app) return;
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const usernameInput = document.querySelector('[data-admin-username-input]');
     const passwordInput = document.querySelector('[data-admin-password-input]');
     const authStatus = document.querySelector('[data-admin-auth-status]');
     const authForm = document.querySelector('[data-admin-orders-auth-form]');
@@ -2278,31 +2290,39 @@ function setupAdminOrders() {
             const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
             if (!response.ok) { setAuthStatus(t.authMissing, false); return false; }
             const payload = await response.json().catch(() => null);
-            const ok = Boolean(payload?.authenticated);
-            setAuthStatus(ok ? t.authSaved : t.authMissing, false);
-            return ok;
+            const authenticated = Boolean(payload?.authenticated);
+            if (authenticated && payload?.user) {
+                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
+            } else {
+                setAuthStatus(authenticated ? t.authSaved : t.authMissing, false);
+            }
+            return authenticated;
         } catch { setAuthStatus(t.authMissing, false); return false; }
     };
 
     authForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         try {
+            const username = usernameInput?.value || '';
             const password = passwordInput?.value || '';
             const response = await fetch('/api/admin/session', {
-                method: 'POST',
-                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify({ password })
+                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin', body: JSON.stringify({ username, password })
             });
-            if (!response.ok) throw new Error(t.authFailed);
+            if (!response.ok) {
+                const err = await response.json().catch(() => null);
+                throw new Error(err?.error || t.authFailed);
+            }
+            if (usernameInput) usernameInput.value = '';
             if (passwordInput) passwordInput.value = '';
             setAuthStatus(t.authSaved, false);
             await loadOrders();
-        } catch { setAuthStatus(t.authFailed, true); }
+        } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
     });
 
     clearAuthButton?.addEventListener('click', async () => {
         await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+        if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
         setAuthStatus(t.authCleared, false);
         currentOrders = [];
@@ -2414,6 +2434,603 @@ function setupAdminOrders() {
     });
 }
 
+function setupAdminUsers() {
+    const app = document.querySelector('[data-admin-users]');
+    if (!app) return;
+
+    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const usernameInput = document.querySelector('[data-admin-username-input]');
+    const passwordInput = document.querySelector('[data-admin-password-input]');
+    const authStatus = document.querySelector('[data-admin-auth-status]');
+    const authForm = document.querySelector('[data-admin-users-auth-form]');
+    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
+    const usersList = app.querySelector('[data-admin-users-list]');
+    const detailPane = app.querySelector('[data-admin-users-detail]');
+    const roleFilter = app.querySelector('[data-admin-user-role-filter]');
+    const statusFilter = app.querySelector('[data-admin-user-status-filter]');
+    const userCount = app.querySelector('[data-admin-user-count]');
+    const reloadButton = app.querySelector('[data-admin-reload-users]');
+    const createButton = app.querySelector('[data-admin-create-user]');
+    const feedback = app.querySelector('[data-admin-feedback]');
+
+    let allUsers = [];
+    let selectedUserId = null;
+    let currentUser = null; // logged-in user
+
+    const t = locale === 'en'
+        ? {
+            authMissing: 'Sign in to manage users.',
+            authSaved: 'Admin session is active.',
+            authCleared: 'Admin session was ended.',
+            authFailed: 'Admin sign-in failed.',
+            loadFailed: 'User data could not be loaded.',
+            noUsers: 'No users found.',
+            userCreated: 'User created.',
+            userUpdated: 'User updated.',
+            userDeleted: 'User deleted.',
+            passwordReset: 'Password has been reset.',
+            statusToggled: 'User status changed.',
+            countLabel: (n) => `${n} ${n === 1 ? 'user' : 'users'}`,
+            createTitle: 'Create User',
+            editTitle: 'Edit User',
+            username: 'Username',
+            displayName: 'Display Name',
+            role: 'Role',
+            password: 'Password',
+            status: 'Status',
+            active: 'Active',
+            disabled: 'Disabled',
+            admin: 'Admin',
+            user: 'User',
+            save: 'Save',
+            cancel: 'Cancel',
+            create: 'Create',
+            deleteUser: 'Delete',
+            confirmDelete: 'Delete this user? This cannot be undone.',
+            confirmYes: 'Delete',
+            confirmNo: 'Cancel',
+            disable: 'Disable',
+            enable: 'Enable',
+            resetPassword: 'Reset Password',
+            newPassword: 'New Password',
+            reset: 'Reset',
+            lastLogin: 'Last login',
+            createdAt: 'Created',
+            never: 'Never',
+            you: '(you)',
+            notAuthorized: 'You do not have access to this area.',
+            changePassword: 'Change Password',
+            currentPassword: 'Current Password',
+            changePwSave: 'Change',
+            changePwSuccess: 'Password changed.',
+        }
+        : {
+            authMissing: 'Anmelden, um Benutzer zu verwalten.',
+            authSaved: 'Admin-Sitzung ist aktiv.',
+            authCleared: 'Admin-Sitzung beendet.',
+            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
+            loadFailed: 'Benutzerdaten konnten nicht geladen werden.',
+            noUsers: 'Keine Benutzer gefunden.',
+            userCreated: 'Benutzer erstellt.',
+            userUpdated: 'Benutzer aktualisiert.',
+            userDeleted: 'Benutzer gelöscht.',
+            passwordReset: 'Passwort wurde zurückgesetzt.',
+            statusToggled: 'Benutzerstatus geändert.',
+            countLabel: (n) => `${n} ${n === 1 ? 'Benutzer' : 'Benutzer'}`,
+            createTitle: 'Benutzer anlegen',
+            editTitle: 'Benutzer bearbeiten',
+            username: 'Benutzername',
+            displayName: 'Anzeigename',
+            role: 'Rolle',
+            password: 'Passwort',
+            status: 'Status',
+            active: 'Aktiv',
+            disabled: 'Deaktiviert',
+            admin: 'Admin',
+            user: 'Benutzer',
+            save: 'Speichern',
+            cancel: 'Abbrechen',
+            create: 'Anlegen',
+            deleteUser: 'Löschen',
+            confirmDelete: 'Benutzer wirklich löschen? Dies kann nicht rückgängig gemacht werden.',
+            confirmYes: 'Löschen',
+            confirmNo: 'Abbrechen',
+            disable: 'Deaktivieren',
+            enable: 'Aktivieren',
+            resetPassword: 'Passwort zurücksetzen',
+            newPassword: 'Neues Passwort',
+            reset: 'Zurücksetzen',
+            lastLogin: 'Letzte Anmeldung',
+            createdAt: 'Erstellt',
+            never: 'Nie',
+            you: '(du)',
+            notAuthorized: 'Kein Zugriff auf diesen Bereich.',
+            changePassword: 'Passwort ändern',
+            currentPassword: 'Aktuelles Passwort',
+            changePwSave: 'Ändern',
+            changePwSuccess: 'Passwort geändert.',
+        };
+
+    const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    const setFeedback = (msg, isError) => {
+        if (!feedback) return;
+        feedback.textContent = msg;
+        feedback.hidden = !msg;
+        feedback.classList.toggle('admin-toast--error', Boolean(isError));
+        if (msg) setTimeout(() => { feedback.hidden = true; }, 4000);
+    };
+
+    const setAuthStatus = (message, isError) => {
+        if (!authStatus) return;
+        authStatus.textContent = message;
+        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
+        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
+    };
+
+    const adminFetch = async (url, options = {}) => {
+        const headers = new Headers(options.headers || {});
+        headers.set('Accept', 'application/json');
+        if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+            const error = new Error(payload?.error || payload?.message || response.statusText);
+            error.status = response.status;
+            throw error;
+        }
+        return payload;
+    };
+
+    const fmtDate = (iso) => {
+        if (!iso) return t.never;
+        try { return new Date(iso).toLocaleString(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }); }
+        catch { return iso; }
+    };
+
+    const getFiltered = () => {
+        let list = allUsers;
+        const r = roleFilter?.value;
+        const s = statusFilter?.value;
+        if (r && r !== 'all') list = list.filter((u) => u.role === r);
+        if (s && s !== 'all') list = list.filter((u) => u.status === s);
+        return list;
+    };
+
+    const renderUserList = (users) => {
+        if (!usersList) return;
+        if (!users.length) {
+            usersList.innerHTML = `<p class="admin-empty">${t.noUsers}</p>`;
+            return;
+        }
+        usersList.innerHTML = users.map((u) => {
+            const isYou = currentUser && u.id === currentUser.id;
+            const selected = u.id === selectedUserId ? ' admin-row--selected' : '';
+            const statusDot = u.status === 'active' ? 'admin-dot--success' : 'admin-dot--danger';
+            return `<div class="admin-row${selected}" data-user-row data-user-id="${esc(u.id)}">
+                <span class="admin-dot ${statusDot}"></span>
+                <span class="admin-row__title">${esc(u.displayName)}${isYou ? ` <em>${t.you}</em>` : ''}</span>
+                <span class="admin-row__meta">${esc(u.username)} · ${u.role === 'admin' ? t.admin : t.user}</span>
+            </div>`;
+        }).join('');
+    };
+
+    const refreshList = () => {
+        const filtered = getFiltered();
+        renderUserList(filtered);
+        if (userCount) userCount.textContent = t.countLabel(filtered.length);
+    };
+
+    const renderDetailPlaceholder = () => {
+        if (!detailPane) return;
+        detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select a user to view details and manage their account.' : 'Einen Benutzer auswählen, um Details zu bearbeiten.'}</p></div>`;
+    };
+
+    const renderUserDetail = (user) => {
+        if (!detailPane || !user) { renderDetailPlaceholder(); return; }
+        const isYou = currentUser && user.id === currentUser.id;
+        const statusLabel = user.status === 'active' ? t.active : t.disabled;
+        const statusDot = user.status === 'active' ? 'admin-dot--success' : 'admin-dot--danger';
+        detailPane.innerHTML = `
+            <div class="admin-user-detail-section">
+                <h3>${esc(user.displayName)}${isYou ? ` <em>${t.you}</em>` : ''}</h3>
+                <div class="admin-user-detail-grid">
+                    <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">${t.username}</span>
+                        <span class="admin-user-detail-value">${esc(user.username)}</span>
+                    </div>
+                    <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">${t.role}</span>
+                        <span class="admin-user-detail-value">${user.role === 'admin' ? t.admin : t.user}</span>
+                    </div>
+                    <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">${t.status}</span>
+                        <span class="admin-user-detail-value"><span class="admin-dot ${statusDot}"></span> ${statusLabel}</span>
+                    </div>
+                    <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">${t.lastLogin}</span>
+                        <span class="admin-user-detail-value">${fmtDate(user.lastLoginAt)}</span>
+                    </div>
+                    <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">${t.createdAt}</span>
+                        <span class="admin-user-detail-value">${fmtDate(user.createdAt)}</span>
+                    </div>
+                </div>
+                <div class="admin-user-actions">
+                    <button class="button button--plain-dark button--pill button--sm" type="button" data-edit-user="${esc(user.id)}">${t.editTitle}</button>
+                    <button class="button button--plain-dark button--pill button--sm" type="button" data-toggle-status="${esc(user.id)}">${user.status === 'active' ? t.disable : t.enable}</button>
+                    <button class="button button--plain-dark button--pill button--sm" type="button" data-reset-pw="${esc(user.id)}">${t.resetPassword}</button>
+                    <button class="button button--plain-dark button--pill button--sm button--danger" type="button" data-delete-user="${esc(user.id)}">${t.deleteUser}</button>
+                </div>
+            </div>`;
+    };
+
+    const renderCreateForm = () => {
+        if (!detailPane) return;
+        detailPane.innerHTML = `
+            <div class="admin-user-detail-section">
+                <h3>${t.createTitle}</h3>
+                <form class="admin-user-form" data-user-create-form>
+                    <div class="form-row"><label class="form-label" for="create-username">${t.username}</label>
+                        <input class="form-input" id="create-username" name="username" type="text" required minlength="3" maxlength="50" pattern="[a-zA-Z0-9._\\-]+" autocomplete="off"></div>
+                    <div class="form-row"><label class="form-label" for="create-displayName">${t.displayName}</label>
+                        <input class="form-input" id="create-displayName" name="displayName" type="text" required maxlength="100"></div>
+                    <div class="form-row"><label class="form-label" for="create-role">${t.role}</label>
+                        <select class="form-input" id="create-role" name="role">
+                            <option value="user">${t.user}</option>
+                            <option value="admin">${t.admin}</option>
+                        </select></div>
+                    <div class="form-row"><label class="form-label" for="create-password">${t.password}</label>
+                        <input class="form-input" id="create-password" name="password" type="password" required minlength="8" autocomplete="new-password"></div>
+                    <div class="admin-user-actions">
+                        <button class="button button--primary button--pill button--sm" type="submit">${t.create}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
+                    </div>
+                    <p class="form-error" data-form-error hidden></p>
+                </form>
+            </div>`;
+    };
+
+    const renderEditForm = (user) => {
+        if (!detailPane || !user) return;
+        detailPane.innerHTML = `
+            <div class="admin-user-detail-section">
+                <h3>${t.editTitle}: ${esc(user.displayName)}</h3>
+                <form class="admin-user-form" data-user-edit-form data-user-edit-id="${esc(user.id)}">
+                    <div class="form-row"><label class="form-label" for="edit-displayName">${t.displayName}</label>
+                        <input class="form-input" id="edit-displayName" name="displayName" type="text" required maxlength="100" value="${esc(user.displayName)}"></div>
+                    <div class="form-row"><label class="form-label" for="edit-role">${t.role}</label>
+                        <select class="form-input" id="edit-role" name="role">
+                            <option value="user" ${user.role === 'user' ? 'selected' : ''}>${t.user}</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>${t.admin}</option>
+                        </select></div>
+                    <div class="admin-user-actions">
+                        <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
+                    </div>
+                    <p class="form-error" data-form-error hidden></p>
+                </form>
+            </div>`;
+    };
+
+    const renderResetPasswordForm = (user) => {
+        if (!detailPane || !user) return;
+        detailPane.innerHTML = `
+            <div class="admin-user-detail-section">
+                <h3>${t.resetPassword}: ${esc(user.displayName)}</h3>
+                <form class="admin-user-form" data-user-resetpw-form data-user-resetpw-id="${esc(user.id)}">
+                    <div class="form-row"><label class="form-label" for="resetpw-new">${t.newPassword}</label>
+                        <input class="form-input" id="resetpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+                    <div class="admin-user-actions">
+                        <button class="button button--primary button--pill button--sm" type="submit">${t.reset}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
+                    </div>
+                    <p class="form-error" data-form-error hidden></p>
+                </form>
+            </div>`;
+    };
+
+    const setFormError = (form, msg) => {
+        const el = form?.querySelector('[data-form-error]');
+        if (!el) return;
+        el.textContent = msg || '';
+        el.hidden = !msg;
+    };
+
+    const loadUsers = async () => {
+        try {
+            const data = await adminFetch('/api/admin/users');
+            allUsers = data.users || [];
+            refreshList();
+            if (selectedUserId) {
+                const u = allUsers.find((u) => u.id === selectedUserId);
+                if (u) renderUserDetail(u); else { selectedUserId = null; renderDetailPlaceholder(); }
+            }
+            setAuthStatus(currentUser ? `${currentUser.displayName} (${currentUser.role})` : t.authSaved, false);
+        } catch (error) {
+            allUsers = [];
+            renderUserList([]);
+            renderDetailPlaceholder();
+            setAuthStatus(error.status === 401 ? t.authFailed : t.loadFailed, true);
+        }
+    };
+
+    const loadAuthState = async () => {
+        try {
+            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+            if (!response.ok) { setAuthStatus(t.authMissing, false); return false; }
+            const payload = await response.json().catch(() => null);
+            const authenticated = Boolean(payload?.authenticated);
+            if (authenticated && payload?.user) {
+                currentUser = payload.user;
+                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
+            } else {
+                currentUser = null;
+                setAuthStatus(authenticated ? t.authSaved : t.authMissing, false);
+            }
+            return authenticated;
+        } catch { setAuthStatus(t.authMissing, false); return false; }
+    };
+
+    // Auth form
+    authForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            const username = usernameInput?.value || '';
+            const password = passwordInput?.value || '';
+            const response = await fetch('/api/admin/session', {
+                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin', body: JSON.stringify({ username, password })
+            });
+            if (!response.ok) {
+                const err = await response.json().catch(() => null);
+                throw new Error(err?.error || t.authFailed);
+            }
+            const data = await response.json().catch(() => null);
+            if (data?.user) currentUser = data.user;
+            if (usernameInput) usernameInput.value = '';
+            if (passwordInput) passwordInput.value = '';
+            setAuthStatus(t.authSaved, false);
+            await loadUsers();
+        } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
+    });
+
+    clearAuthButton?.addEventListener('click', async () => {
+        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+        if (usernameInput) usernameInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+        currentUser = null;
+        allUsers = [];
+        selectedUserId = null;
+        renderUserList([]);
+        renderDetailPlaceholder();
+        setAuthStatus(t.authCleared, false);
+    });
+
+    // User list click
+    usersList?.addEventListener('click', (event) => {
+        const row = event.target.closest('[data-user-row]');
+        if (!row) return;
+        const id = row.getAttribute('data-user-id');
+        if (id === selectedUserId) {
+            selectedUserId = null;
+            refreshList();
+            renderDetailPlaceholder();
+        } else {
+            selectedUserId = id;
+            refreshList();
+            const u = allUsers.find((u) => u.id === id);
+            renderUserDetail(u);
+        }
+    });
+
+    // Detail pane interactions
+    detailPane?.addEventListener('click', async (event) => {
+        // Cancel form
+        if (event.target.closest('[data-cancel-form]')) {
+            const u = allUsers.find((u) => u.id === selectedUserId);
+            if (u) renderUserDetail(u); else renderDetailPlaceholder();
+            return;
+        }
+
+        // Edit button
+        const editBtn = event.target.closest('[data-edit-user]');
+        if (editBtn) {
+            const u = allUsers.find((u) => u.id === editBtn.getAttribute('data-edit-user'));
+            if (u) renderEditForm(u);
+            return;
+        }
+
+        // Toggle status
+        const toggleBtn = event.target.closest('[data-toggle-status]');
+        if (toggleBtn) {
+            const userId = toggleBtn.getAttribute('data-toggle-status');
+            try {
+                await adminFetch(`/api/admin/users/${userId}/toggle-status`, { method: 'POST' });
+                setFeedback(t.statusToggled, false);
+                await loadUsers();
+            } catch (e) { setFeedback(e.message || t.loadFailed, true); }
+            return;
+        }
+
+        // Reset password button
+        const resetBtn = event.target.closest('[data-reset-pw]');
+        if (resetBtn) {
+            const u = allUsers.find((u) => u.id === resetBtn.getAttribute('data-reset-pw'));
+            if (u) renderResetPasswordForm(u);
+            return;
+        }
+
+        // Delete button
+        const deleteBtn = event.target.closest('[data-delete-user]');
+        if (deleteBtn) {
+            showInlineConfirm(deleteBtn, async () => {
+                const userId = deleteBtn.getAttribute('data-delete-user');
+                try {
+                    await adminFetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
+                    setFeedback(t.userDeleted, false);
+                    selectedUserId = null;
+                    renderDetailPlaceholder();
+                    await loadUsers();
+                } catch (e) { setFeedback(e.message || t.loadFailed, true); }
+            }, t.confirmYes, t.confirmNo);
+            return;
+        }
+    });
+
+    // Form submissions (delegated)
+    detailPane?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.target;
+
+        // Create form
+        if (form.hasAttribute('data-user-create-form')) {
+            const fd = Object.fromEntries(new FormData(form).entries());
+            try {
+                const data = await adminFetch('/api/admin/users', { method: 'POST', body: JSON.stringify(fd) });
+                setFeedback(t.userCreated, false);
+                selectedUserId = data.user?.id || null;
+                await loadUsers();
+            } catch (e) { setFormError(form, e.message); }
+            return;
+        }
+
+        // Edit form
+        if (form.hasAttribute('data-user-edit-form')) {
+            const userId = form.getAttribute('data-user-edit-id');
+            const fd = Object.fromEntries(new FormData(form).entries());
+            try {
+                await adminFetch(`/api/admin/users/${userId}`, { method: 'PUT', body: JSON.stringify(fd) });
+                setFeedback(t.userUpdated, false);
+                await loadUsers();
+            } catch (e) { setFormError(form, e.message); }
+            return;
+        }
+
+        // Reset password form
+        if (form.hasAttribute('data-user-resetpw-form')) {
+            const userId = form.getAttribute('data-user-resetpw-id');
+            const fd = Object.fromEntries(new FormData(form).entries());
+            try {
+                await adminFetch(`/api/admin/users/${userId}/reset-password`, { method: 'POST', body: JSON.stringify(fd) });
+                setFeedback(t.passwordReset, false);
+                const u = allUsers.find((u) => u.id === userId);
+                if (u) renderUserDetail(u);
+            } catch (e) { setFormError(form, e.message); }
+            return;
+        }
+    });
+
+    // Filters and reload
+    roleFilter?.addEventListener('change', () => refreshList());
+    statusFilter?.addEventListener('change', () => refreshList());
+    reloadButton?.addEventListener('click', () => loadUsers());
+    createButton?.addEventListener('click', () => {
+        selectedUserId = null;
+        refreshList();
+        renderCreateForm();
+    });
+
+    // Init
+    loadAuthState().then((authenticated) => {
+        if (authenticated) { loadUsers(); return; }
+        renderUserList([]);
+        renderDetailPlaceholder();
+    });
+}
+
+function setupChangePasswordPopover() {
+    // Attach to all admin pages — clicking on the auth status opens a password change popover
+    const statusEl = document.querySelector('[data-admin-auth-status]');
+    if (!statusEl) return;
+
+    const locale = document.querySelector('[data-locale]')?.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const t = locale === 'en'
+        ? { title: 'Change Password', current: 'Current Password', newPw: 'New Password', save: 'Change', cancel: 'Cancel', success: 'Password changed.', failed: 'Password change failed.' }
+        : { title: 'Passwort ändern', current: 'Aktuelles Passwort', newPw: 'Neues Passwort', save: 'Ändern', cancel: 'Abbrechen', success: 'Passwort geändert.', failed: 'Passwort-Änderung fehlgeschlagen.' };
+
+    statusEl.style.cursor = 'pointer';
+    statusEl.title = t.title;
+
+    statusEl.addEventListener('click', () => {
+        if (document.querySelector('.admin-change-password-popover')) return;
+        if (!statusEl.classList.contains('admin-header-auth__status--ok')) return;
+
+        const pop = document.createElement('div');
+        pop.className = 'admin-change-password-popover';
+        pop.innerHTML = `<form class="admin-user-form" data-change-pw-form>
+            <h4>${t.title}</h4>
+            <div class="form-row"><label class="form-label" for="chpw-current">${t.current}</label>
+                <input class="form-input" id="chpw-current" name="currentPassword" type="password" required autocomplete="current-password"></div>
+            <div class="form-row"><label class="form-label" for="chpw-new">${t.newPw}</label>
+                <input class="form-input" id="chpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+            <div class="admin-user-actions">
+                <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
+                <button class="button button--plain-dark button--pill button--sm" type="button" data-chpw-cancel>${t.cancel}</button>
+            </div>
+            <p class="form-error" data-form-error hidden></p>
+        </form>`;
+        statusEl.parentElement.appendChild(pop);
+
+        pop.querySelector('[data-chpw-cancel]').addEventListener('click', () => pop.remove());
+
+        pop.querySelector('[data-change-pw-form]').addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const errEl = pop.querySelector('[data-form-error]');
+            const fd = Object.fromEntries(new FormData(ev.target).entries());
+            try {
+                const res = await fetch('/api/admin/change-password', {
+                    method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                    credentials: 'same-origin', body: JSON.stringify(fd)
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => null);
+                    throw new Error(err?.error || t.failed);
+                }
+                pop.remove();
+                const toast = document.querySelector('[data-admin-feedback]');
+                if (toast) { toast.textContent = t.success; toast.hidden = false; toast.classList.remove('admin-toast--error'); setTimeout(() => { toast.hidden = true; }, 4000); }
+            } catch (e) {
+                if (errEl) { errEl.textContent = e.message; errEl.hidden = false; }
+            }
+        });
+
+        // Close on outside click
+        const outsideHandler = (ev) => {
+            if (!pop.contains(ev.target) && ev.target !== statusEl) { pop.remove(); document.removeEventListener('click', outsideHandler); }
+        };
+        setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+    });
+}
+
+function setupAdminRoleGuard() {
+    // On any admin page: after session check, if user is not admin, hide admin content and show message
+    const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users]');
+    if (!adminContainers.length) return;
+
+    const locale = document.querySelector('[data-locale]')?.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const msg = locale === 'en' ? 'You do not have access to this area.' : 'Kein Zugriff auf diesen Bereich.';
+
+    fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+            if (!data?.authenticated || !data?.user) return;
+            if (data.user.role === 'admin') return;
+            // Non-admin user: hide admin content
+            adminContainers.forEach((c) => {
+                c.innerHTML = `<div class="admin-not-authorized"><p>${msg}</p></div>`;
+            });
+            // Hide admin nav links
+            document.querySelectorAll('.admin-subnav a').forEach((link) => {
+                const href = link.getAttribute('href') || '';
+                if (href.includes('inventory') || href.includes('orders') || href.includes('users')) {
+                    link.style.display = 'none';
+                }
+            });
+        })
+        .catch(() => {});
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -2431,4 +3048,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCheckoutTestFill();
     setupAdminInventory();
     setupAdminOrders();
+    setupAdminUsers();
+    setupChangePasswordPopover();
+    setupAdminRoleGuard();
 });
