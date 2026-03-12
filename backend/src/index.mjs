@@ -27,6 +27,8 @@ const config = {
   adminApiToken: process.env.ADMIN_API_TOKEN || '',
   proxyInternalToken: process.env.PROXY_INTERNAL_TOKEN || '',
   adminLoginHash: process.env.ADMIN_LOGIN_HASH || '',
+  adminLoginPassword: process.env.ADMIN_LOGIN_PASSWORD || '',
+  adminDefaultUsername: process.env.ADMIN_DEFAULT_USERNAME || 'admin',
   adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
   adminSessionCookieName: process.env.ADMIN_SESSION_COOKIE_NAME || 'indiebox_admin_session',
   adminSessionTtlSeconds: Number.parseInt(process.env.ADMIN_SESSION_TTL_SECONDS || '2592000', 10),
@@ -276,49 +278,63 @@ function parseCookies(req) {
     }, {});
 }
 
-function signAdminSession(expiresAt) {
-  return crypto
-    .createHmac('sha256', config.adminSessionSecret)
-    .update(`admin:${expiresAt}`)
-    .digest('hex');
+// ── Password hashing (T003) ──
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(32).toString('hex');
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${derived}`;
 }
 
-function verifyAdminPassword(password) {
-  if (!config.adminLoginHash || !password) return false;
-  const [salt, storedHash] = config.adminLoginHash.split(':');
-  if (!salt || !storedHash) return false;
+function verifyPassword(password, storedHash) {
+  if (!storedHash || !password) return false;
+  const [salt, hash] = storedHash.split(':');
+  if (!salt || !hash) return false;
   const derived = crypto.scryptSync(password, salt, 64).toString('hex');
   const left = Buffer.from(derived, 'utf8');
-  const right = Buffer.from(storedHash, 'utf8');
+  const right = Buffer.from(hash, 'utf8');
   return left.length === right.length && crypto.timingSafeEqual(left, right);
 }
 
-function getAdminSession(req) {
+// ── Session cookie (T005) — format: {userId}:{expiresAt}.{hmac(userId:expiresAt)} ──
+
+function signSession(userId, expiresAt) {
+  return crypto
+    .createHmac('sha256', config.adminSessionSecret)
+    .update(`${userId}:${expiresAt}`)
+    .digest('hex');
+}
+
+function getSessionFromCookie(req) {
   if (!config.adminSessionSecret) return { authenticated: false };
   const cookies = parseCookies(req);
   const raw = cookies[config.adminSessionCookieName];
   if (!raw) return { authenticated: false };
 
-  const [expiresAtRaw, signature] = raw.split('.');
-  const expiresAt = Number.parseInt(expiresAtRaw || '', 10);
-  if (!expiresAt || !signature) return { authenticated: false };
+  const dotIndex = raw.lastIndexOf('.');
+  if (dotIndex === -1) return { authenticated: false };
+  const payload = raw.slice(0, dotIndex);
+  const signature = raw.slice(dotIndex + 1);
+  const colonIndex = payload.indexOf(':');
+  if (colonIndex === -1) return { authenticated: false };
+  const userId = payload.slice(0, colonIndex);
+  const expiresAt = Number.parseInt(payload.slice(colonIndex + 1), 10);
+  if (!userId || !expiresAt || !signature) return { authenticated: false };
   if (Date.now() >= expiresAt) return { authenticated: false };
-  const expectedSignature = signAdminSession(expiresAt);
+
+  const expectedSignature = signSession(userId, expiresAt);
   const left = Buffer.from(signature, 'utf8');
   const right = Buffer.from(expectedSignature, 'utf8');
   if (left.length !== right.length || !crypto.timingSafeEqual(left, right)) {
     return { authenticated: false };
   }
 
-  return {
-    authenticated: true,
-    expiresAt
-  };
+  return { authenticated: true, userId, expiresAt };
 }
 
-function setAdminSessionCookie(res) {
+function setSessionCookie(res, userId) {
   const expiresAt = Date.now() + (config.adminSessionTtlSeconds * 1000);
-  const value = `${expiresAt}.${signAdminSession(expiresAt)}`;
+  const value = `${userId}:${expiresAt}.${signSession(userId, expiresAt)}`;
   const parts = [
     `${config.adminSessionCookieName}=${encodeURIComponent(value)}`,
     'Path=/',
@@ -355,7 +371,9 @@ function readAdminToken(req) {
   return req.get('x-admin-token') || '';
 }
 
-function requireAdmin(req, res, next) {
+// ── Two-tier auth middleware (T006) ──
+
+function requireAuth(req, res, next) {
   if (!adminAuthEnabled()) {
     return res.status(404).json({ error: 'not_found' });
   }
@@ -367,19 +385,35 @@ function requireAdmin(req, res, next) {
     }
   }
 
-  if (getAdminSession(req).authenticated) {
+  // API token path — admin-level access, no specific user
+  if (config.adminApiToken && readAdminToken(req) === config.adminApiToken) {
+    req.user = null;
+    req.authMethod = 'api_token';
     return next();
   }
 
-  if (!config.adminApiToken) {
-    return res.status(401).json({ error: 'admin_auth_required' });
+  // Cookie session path — look up user, check active
+  const session = getSessionFromCookie(req);
+  if (session.authenticated) {
+    const user = store.findUserById(session.userId);
+    if (user && user.status === 'active') {
+      req.user = { id: user.id, username: user.username, displayName: user.displayName, role: user.role };
+      req.authMethod = 'session';
+      return next();
+    }
   }
 
-  if (readAdminToken(req) !== config.adminApiToken) {
-    return res.status(401).json({ error: 'admin_auth_required' });
-  }
+  return res.status(401).json({ error: 'admin_auth_required' });
+}
 
-  return next();
+function requireAdmin(req, res, next) {
+  requireAuth(req, res, () => {
+    // API token grants admin access
+    if (req.authMethod === 'api_token') return next();
+    // Session user must be admin
+    if (req.user && req.user.role === 'admin') return next();
+    return res.status(403).json({ error: 'admin_role_required' });
+  });
 }
 
 function summarizeOrder(order) {
@@ -741,6 +775,18 @@ function bootstrapOrderAllocations() {
 
 bootstrapOrderAllocations();
 
+// ── Bootstrap admin user (T007 / US4) ──
+{
+  let bootstrapHash = config.adminLoginHash;
+  if (!bootstrapHash && config.adminLoginPassword) {
+    bootstrapHash = hashPassword(config.adminLoginPassword);
+  }
+  store.bootstrapAdminUser({
+    loginHash: bootstrapHash,
+    defaultUsername: config.adminDefaultUsername
+  });
+}
+
 async function syncOrderPaymentStatus(order, source = 'status_check') {
   if (!config.mollieApiKey || !order?.paymentId) {
     return order;
@@ -799,38 +845,202 @@ app.get('/api/version', (_req, res) => {
   });
 });
 
+// ── Auth endpoints (T008, T009, T010) ──
+
 app.get('/api/admin/session', (req, res) => {
   if (!adminAuthEnabled()) {
     return res.status(404).json({ error: 'not_found' });
   }
 
-  const session = getAdminSession(req);
-  return res.json({
-    authenticated: session.authenticated,
-    expiresAt: session.expiresAt || null
-  });
+  // API token check
+  if (config.adminApiToken && readAdminToken(req) === config.adminApiToken) {
+    return res.json({ authenticated: true, user: null });
+  }
+
+  // Cookie session check
+  const session = getSessionFromCookie(req);
+  if (session.authenticated) {
+    const user = store.findUserById(session.userId);
+    if (user && user.status === 'active') {
+      return res.json({
+        authenticated: true,
+        user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role }
+      });
+    }
+  }
+
+  return res.json({ authenticated: false });
 });
 
 app.post('/api/admin/session', adminRateLimit, (req, res) => {
   if (!adminAuthEnabled()) {
     return res.status(404).json({ error: 'not_found' });
   }
-  if (!config.adminLoginHash || !config.adminSessionSecret) {
-    return res.status(503).json({ error: 'admin_login_not_configured' });
-  }
 
+  const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
-  if (!verifyAdminPassword(password)) {
-    return res.status(401).json({ error: 'admin_login_failed' });
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password required' });
   }
 
-  setAdminSessionCookie(res);
-  return res.status(204).end();
+  const user = store.findUserByUsername(username);
+  if (!user || !verifyPassword(password, user.passwordHash)) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  if (user.status === 'disabled') {
+    return res.status(401).json({ error: 'Account disabled' });
+  }
+
+  store.updateUserLastLogin(user.id);
+  setSessionCookie(res, user.id);
+  return res.json({
+    authenticated: true,
+    user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role }
+  });
 });
 
 app.delete('/api/admin/session', (req, res) => {
   clearAdminSessionCookie(res);
-  return res.status(204).end();
+  return res.status(200).json({ success: true });
+});
+
+// ── User management endpoints (T014-T018) ──
+
+function userPayload(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName,
+    role: user.role,
+    status: user.status,
+    lastLoginAt: user.lastLoginAt,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt
+  };
+}
+
+app.get('/api/admin/users', adminRateLimit, requireAdmin, (req, res) => {
+  const role = req.query.role && ['admin', 'user'].includes(req.query.role) ? req.query.role : undefined;
+  const status = req.query.status && ['active', 'disabled'].includes(req.query.status) ? req.query.status : undefined;
+  const users = store.getAllUsers({ role, status });
+  return res.json({ users: users.map(userPayload) });
+});
+
+app.get('/api/admin/users/:userId', adminRateLimit, requireAdmin, (req, res) => {
+  const user = store.findUserById(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  return res.json({ user: userPayload(user) });
+});
+
+app.post('/api/admin/users', adminRateLimit, requireAdmin, (req, res) => {
+  const username = typeof req.body.username === 'string' ? req.body.username.trim() : '';
+  const displayName = typeof req.body.displayName === 'string' ? req.body.displayName.trim() : '';
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+  const role = typeof req.body.role === 'string' ? req.body.role : 'user';
+
+  if (!username) return res.status(400).json({ error: 'Username is required' });
+  if (!/^[a-zA-Z0-9._-]+$/.test(username)) return res.status(400).json({ error: 'Invalid username format' });
+  if (username.length < 3 || username.length > 50) return res.status(400).json({ error: 'Username must be 3-50 characters' });
+  if (!displayName) return res.status(400).json({ error: 'Display name is required' });
+  if (displayName.length > 100) return res.status(400).json({ error: 'Display name must be at most 100 characters' });
+  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  if (!['admin', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+  const existing = store.findUserByUsername(username);
+  if (existing) return res.status(409).json({ error: 'Username already exists' });
+
+  const user = store.createUser({ username, displayName, passwordHash: hashPassword(password), role });
+  return res.status(201).json({ user: userPayload(user) });
+});
+
+app.put('/api/admin/users/:userId', adminRateLimit, requireAdmin, (req, res) => {
+  const user = store.findUserById(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const displayName = typeof req.body.displayName === 'string' ? req.body.displayName.trim() : user.displayName;
+  const role = typeof req.body.role === 'string' ? req.body.role : user.role;
+
+  if (!['admin', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+  if (displayName.length > 100) return res.status(400).json({ error: 'Display name must be at most 100 characters' });
+
+  // Last admin protection: demoting admin → user
+  if (user.role === 'admin' && role === 'user' && user.status === 'active') {
+    if (store.countActiveAdminsExcluding(user.id) === 0) {
+      return res.status(409).json({ error: 'Cannot demote the last active admin' });
+    }
+  }
+
+  const updated = store.updateUser(user.id, { displayName, role });
+  return res.json({ user: userPayload(updated) });
+});
+
+app.delete('/api/admin/users/:userId', adminRateLimit, requireAdmin, (req, res) => {
+  const user = store.findUserById(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  // Self-deletion prevention
+  if (req.user && req.user.id === user.id) {
+    return res.status(409).json({ error: 'Cannot delete your own account' });
+  }
+
+  // Last admin protection
+  if (user.role === 'admin' && user.status === 'active') {
+    if (store.countActiveAdminsExcluding(user.id) === 0) {
+      return res.status(409).json({ error: 'Cannot delete the last active admin' });
+    }
+  }
+
+  store.deleteUser(user.id);
+  return res.json({ success: true });
+});
+
+app.post('/api/admin/users/:userId/reset-password', adminRateLimit, requireAdmin, (req, res) => {
+  const user = store.findUserById(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const newPassword = typeof req.body.newPassword === 'string' ? req.body.newPassword : '';
+  if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+
+  store.updateUserPassword(user.id, hashPassword(newPassword));
+  return res.json({ success: true });
+});
+
+app.post('/api/admin/users/:userId/toggle-status', adminRateLimit, requireAdmin, (req, res) => {
+  const user = store.findUserById(req.params.userId);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  // Last admin protection: disabling an active admin
+  if (user.role === 'admin' && user.status === 'active') {
+    if (store.countActiveAdminsExcluding(user.id) === 0) {
+      return res.status(409).json({ error: 'Cannot disable the last active admin' });
+    }
+  }
+
+  const updated = store.toggleUserStatus(user.id);
+  return res.json({ user: { id: updated.id, status: updated.status } });
+});
+
+// ── Self-service password change (T025 / US5) ──
+
+app.post('/api/admin/change-password', adminRateLimit, requireAuth, (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Session required' });
+
+  const currentPassword = typeof req.body.currentPassword === 'string' ? req.body.currentPassword : '';
+  const newPassword = typeof req.body.newPassword === 'string' ? req.body.newPassword : '';
+
+  const user = store.findUserById(req.user.id);
+  if (!user) return res.status(401).json({ error: 'User not found' });
+
+  if (!verifyPassword(currentPassword, user.passwordHash)) {
+    return res.status(401).json({ error: 'Current password is incorrect' });
+  }
+
+  if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+
+  store.updateUserPassword(user.id, hashPassword(newPassword));
+  return res.json({ success: true });
 });
 
 app.get('/api/payment-methods', async (req, res) => {
@@ -1464,6 +1674,15 @@ app.put('/api/admin/stock-devices/:deviceId', adminRateLimit, requireAdmin, (req
     if (allocation && !['fulfilled', 'released', 'cancelled'].includes(allocation.status)) {
       store.saveOrderAllocation({ ...allocation, serialNumber });
       saved = store.saveStockDevice({ ...saved, status: 'assigned' });
+    }
+  }
+
+  // Sync allocation to installed when device is marked installed
+  if (status === 'installed' && saved.assignedOrderId) {
+    const allocation = store.getOrderAllocation(saved.assignedOrderId);
+    if (allocation && !['packed', 'shipped', 'delivered', 'fulfilled', 'released', 'cancelled'].includes(allocation.status)) {
+      const now = new Date().toISOString();
+      store.saveOrderAllocation({ ...allocation, status: 'installed', installedAt: allocation.installedAt || now });
     }
   }
 
