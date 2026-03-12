@@ -931,35 +931,48 @@ app.get('/api/admin/orders-overview', adminRateLimit, requireAdmin, (req, res) =
   const productKey = config.checkoutProductKey;
   const supplierOrders = store.listSupplierOrders(productKey);
   const allDevices = store.listAllStockDevices();
-  const deviceCounts = { ordered: 0, free: 0, reserved: 0 };
+  const pendingSupplierOrders = supplierOrders.filter((s) => ['ordered', 'in_transit'].includes(s.status));
+  const orderedUnits = pendingSupplierOrders.reduce((sum, s) => sum + s.quantity, 0);
+  let freeDevices = 0;
+  let reservedDevices = 0;
   for (const d of allDevices) {
-    if (d.status === 'ordered') deviceCounts.ordered++;
-    else if (d.status === 'in_stock' || d.status === 'available') deviceCounts.free++;
-    else if (d.status === 'reserved' || d.status === 'assigned') deviceCounts.reserved++;
+    if (d.status === 'in_stock' || d.status === 'available') freeDevices++;
+    else if (d.status === 'reserved' || d.status === 'assigned') reservedDevices++;
   }
-  const pendingSupplierOrders = supplierOrders
-    .filter((s) => ['ordered', 'in_transit'].includes(s.status))
-    .map((s) => ({
-      id: s.id,
-      supplierName: s.supplierName,
-      quantity: s.quantity,
-      status: s.status,
-      expectedDeliveryAt: s.expectedDeliveryAt,
-      orderedAt: s.orderedAt
-    }));
 
   return res.json({
     runtime: config.appRuntimeName,
     orders: store.listOrdersOverview(limit),
     stock: {
       productKey,
-      ordered: deviceCounts.ordered,
-      free: deviceCounts.free,
-      reserved: deviceCounts.reserved
+      ordered: orderedUnits,
+      free: freeDevices,
+      reserved: reservedDevices
     },
-    pendingSupplierOrders,
+    pendingSupplierOrders: pendingSupplierOrders.map((s) => ({
+      id: s.id, supplierName: s.supplierName, quantity: s.quantity,
+      status: s.status, expectedDeliveryAt: s.expectedDeliveryAt, orderedAt: s.orderedAt
+    })),
     availableDevices: allDevices.filter((d) => ['available', 'in_stock', 'installed'].includes(d.status)).map((d) => ({ id: d.id, serialNumber: d.serialNumber, status: d.status }))
   });
+});
+
+let cachedMollieOrgId = null;
+
+app.get('/api/admin/mollie-info', adminRateLimit, requireAdmin, async (req, res) => {
+  if (!config.mollieApiKey) {
+    return res.status(503).json({ error: 'mollie_not_configured' });
+  }
+  if (!cachedMollieOrgId) {
+    try {
+      const org = await mollieRequest('https://api.mollie.com/v2/organizations/me');
+      cachedMollieOrgId = org.id;
+    } catch (err) {
+      return res.status(502).json({ error: 'mollie_org_fetch_failed', message: err.message });
+    }
+  }
+  const isLive = config.mollieApiKey.startsWith('live_');
+  return res.json({ orgId: cachedMollieOrgId, mode: isLive ? 'live' : 'test' });
 });
 
 app.post('/api/admin/orders/:orderId/archive', adminRateLimit, requireAdmin, (req, res) => {

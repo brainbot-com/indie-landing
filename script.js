@@ -1722,6 +1722,7 @@ function setupAdminOrders() {
     let availableDevices = [];
     let selectedOrderId = null;
     let selectedOrderDetail = null;
+    let mollieOrgId = null;
 
     const t = locale === 'en'
         ? {
@@ -1757,7 +1758,8 @@ function setupAdminOrders() {
             confirmYes: 'Archive', confirmNo: 'Cancel',
             orderDevice: 'Order device', assignFromStock: 'Assign from stock',
             supplier: 'Supplier', linkedDevice: 'Linked device', quantity: 'Qty',
-            deviceOrdered: 'On order', deviceReserved: 'Reserved'
+            deviceOrdered: 'On order', deviceReserved: 'Reserved',
+            molliePayment: 'Mollie payment ↗'
         }
         : {
             authMissing: 'Anmelden, um Kundenbestellungen zu laden.',
@@ -1792,7 +1794,8 @@ function setupAdminOrders() {
             confirmYes: 'Archivieren', confirmNo: 'Abbrechen',
             orderDevice: 'Gerät bestellen', assignFromStock: 'Aus Lager zuweisen',
             supplier: 'Lieferant', linkedDevice: 'Verknüpftes Gerät', quantity: 'Anzahl',
-            deviceOrdered: 'Bestellt', deviceReserved: 'Reserviert'
+            deviceOrdered: 'Bestellt', deviceReserved: 'Reserviert',
+            molliePayment: 'Mollie-Zahlung ↗'
         };
 
     const workflowSteps = [
@@ -2154,6 +2157,7 @@ function setupAdminOrders() {
                 <div class="admin-detail-actions" style="margin-top:0.5rem">
                     <a href="${mailTo}" class="admin-mailto-link">${t.mailCustomer} ↗</a>
                     ${statusUrl ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
+                    ${order.paymentId && mollieOrgId ? `<a href="https://my.mollie.com/dashboard/${esc(mollieOrgId)}/payments/${esc(order.paymentId)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.molliePayment}</a>` : ''}
                 </div>
             </div>
 
@@ -2243,7 +2247,10 @@ function setupAdminOrders() {
 
     const loadOrders = async () => {
         try {
-            const data = await adminFetch('/api/admin/orders-overview?limit=200');
+            const [data] = await Promise.all([
+                adminFetch('/api/admin/orders-overview?limit=200'),
+                mollieOrgId ? Promise.resolve() : adminFetch('/api/admin/mollie-info').then((info) => { mollieOrgId = info.orgId || null; }).catch(() => {})
+            ]);
             currentOrders = data.orders || [];
             availableDevices = data.availableDevices || [];
             renderStockBar(data);
