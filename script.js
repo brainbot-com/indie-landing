@@ -1448,6 +1448,7 @@ function setupAdminInventory() {
             if (usernameInput) usernameInput.value = '';
             if (passwordInput) passwordInput.value = '';
             setAuthStatus(m.authSaved, false);
+            setAdminVisible(true);
             await loadAdminData();
         } catch (e) {
             setAuthStatus(e.message || m.authFailed, true);
@@ -1458,6 +1459,7 @@ function setupAdminInventory() {
         await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
         if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
+        setAdminVisible(false);
         renderArticles([]);
         renderSupplierOrders([], []);
         renderAllocations([]);
@@ -1701,8 +1703,11 @@ function setupAdminInventory() {
         } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+
     loadAuthState().then((authenticated) => {
         if (authenticated) { loadAdminData(); return; }
+        setAdminVisible(false);
         renderArticles([]);
         renderSupplierOrders([], []);
         renderAllocations([]);
@@ -2316,6 +2321,7 @@ function setupAdminOrders() {
             if (usernameInput) usernameInput.value = '';
             if (passwordInput) passwordInput.value = '';
             setAuthStatus(t.authSaved, false);
+            setAdminVisible(true);
             await loadOrders();
         } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
     });
@@ -2324,6 +2330,7 @@ function setupAdminOrders() {
         await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
         if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
+        setAdminVisible(false);
         setAuthStatus(t.authCleared, false);
         currentOrders = [];
         selectedOrderId = null;
@@ -2427,8 +2434,11 @@ function setupAdminOrders() {
     fulfilmentFilter?.addEventListener('change', () => { refreshList(); });
     reloadButton?.addEventListener('click', () => { loadOrders(); });
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+
     loadAuthState().then((authenticated) => {
         if (authenticated) { loadOrders(); return; }
+        setAdminVisible(false);
         renderOrderList([]);
         renderDetail(null);
     });
@@ -2791,6 +2801,7 @@ function setupAdminUsers() {
             if (usernameInput) usernameInput.value = '';
             if (passwordInput) passwordInput.value = '';
             setAuthStatus(t.authSaved, false);
+            setAdminVisible(true);
             await loadUsers();
         } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
     });
@@ -2799,6 +2810,7 @@ function setupAdminUsers() {
         await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
         if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
+        setAdminVisible(false);
         currentUser = null;
         allUsers = [];
         selectedUserId = null;
@@ -2931,9 +2943,12 @@ function setupAdminUsers() {
         renderCreateForm();
     });
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+
     // Init
     loadAuthState().then((authenticated) => {
         if (authenticated) { loadUsers(); return; }
+        setAdminVisible(false);
         renderUserList([]);
         renderDetailPlaceholder();
     });
