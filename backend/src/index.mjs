@@ -953,7 +953,7 @@ app.get('/api/admin/orders-overview', adminRateLimit, requireAdmin, (req, res) =
       id: s.id, supplierName: s.supplierName, quantity: s.quantity,
       status: s.status, expectedDeliveryAt: s.expectedDeliveryAt, orderedAt: s.orderedAt
     })),
-    availableDevices: allDevices.filter((d) => ['available', 'in_stock', 'installed'].includes(d.status)).map((d) => ({ id: d.id, serialNumber: d.serialNumber, status: d.status }))
+    availableDevices: allDevices.filter((d) => ['available', 'in_stock', 'ordered'].includes(d.status)).map((d) => ({ id: d.id, serialNumber: d.serialNumber, status: d.status }))
   });
 });
 
@@ -1199,7 +1199,7 @@ app.put('/api/order-allocations/:orderId', adminRateLimit, requireAdmin, (req, r
   let deviceToAssign = null;
   if (req.body.deviceId) {
     deviceToAssign = store.getStockDevice(req.body.deviceId);
-    if (!deviceToAssign || !['available', 'reserved'].includes(deviceToAssign.status)) {
+    if (!deviceToAssign || !['available', 'reserved', 'in_stock', 'ordered'].includes(deviceToAssign.status)) {
       return res.status(400).json({ error: 'device_not_available' });
     }
   }

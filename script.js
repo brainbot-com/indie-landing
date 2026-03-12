@@ -2105,7 +2105,7 @@ function setupAdminOrders() {
                                 <label class="form-label">${t.assignFromStock}</label>
                                 <select class="form-input" name="deviceId" data-device-picker>
                                     <option value="">—</option>
-                                    ${availableDevices.map((d) => `<option value="${esc(d.id)}">${esc(d.serialNumber)}</option>`).join('')}
+                                    ${availableDevices.map((d) => `<option value="${esc(d.id)}">${esc(d.status === 'ordered' ? `(Bestellt) ${d.serialNumber}` : d.serialNumber)}</option>`).join('')}
                                 </select>
                             </div>
                         </div>` : ''}
