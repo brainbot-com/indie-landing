@@ -5974,3 +5974,231 @@ button.box-cta.combi-pill {
 .hero-overlay.hero-seq-on[data-hero-seq="cinematic"].hero-seq-cta .hero-actions-top-anim {
     opacity: 1;
 }
+
+/* ── User management (T022) ── */
+
+.admin-card-header__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.admin-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font: var(--t-body);
+    font-size: 0.82rem;
+}
+
+.admin-users-table th,
+.admin-users-table td {
+    padding: 0.5rem 0.65rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    white-space: nowrap;
+}
+
+.admin-users-table th {
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(15, 23, 42, 0.5);
+    background: rgba(248, 250, 252, 0.95);
+    position: sticky;
+    top: 0;
+}
+
+.admin-users-table tbody tr {
+    cursor: pointer;
+    transition: background 120ms;
+}
+
+.admin-users-table tbody tr:hover {
+    background: rgba(15, 23, 42, 0.03);
+}
+
+.admin-users-table tbody tr.is-selected {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.admin-user-detail-section {
+    margin-bottom: 1rem;
+}
+
+.admin-user-detail-section h3 {
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: rgba(15, 23, 42, 0.65);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-user-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+}
+
+.admin-user-detail-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.admin-user-detail-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.admin-user-detail-value {
+    font-size: 0.85rem;
+    color: #0a2a4a;
+}
+
+.admin-user-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.admin-user-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.admin-user-form .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.admin-user-form .form-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+}
+
+.admin-confirm-dialog {
+    background: rgba(252, 165, 165, 0.08);
+    border: 1px solid rgba(252, 165, 165, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.admin-confirm-dialog p {
+    margin: 0 0 0.5rem;
+    font-size: 0.82rem;
+    color: rgba(15, 23, 42, 0.78);
+}
+
+.admin-confirm-dialog .form-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-change-password-popover {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 100;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    min-width: 240px;
+}
+
+.admin-session-user {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: transparent;
+    font-family: var(--font-main);
+    transition: border-color 150ms;
+}
+
+.admin-session-user:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.admin-not-authorized {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    color: rgba(15, 23, 42, 0.5);
+    font: var(--t-body);
+    text-align: center;
+}
+
+.admin-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.2rem 0.5rem;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    cursor: pointer;
+    transition: background-color 160ms ease;
+}
+.admin-row:last-child { border-bottom: 0; }
+.admin-row:hover { background: rgba(15, 23, 42, 0.03); }
+.admin-row--selected { background: rgba(255, 193, 77, 0.12); border-color: rgba(255, 193, 77, 0.2); }
+.admin-row__title { font: var(--t-ui); color: #0a2a4a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-row__title em { font-style: normal; font-size: 0.75rem; color: rgba(15, 23, 42, 0.45); }
+.admin-row__meta { font: var(--t-body-sm); font-size: 0.78rem; color: rgba(15, 23, 42, 0.55); grid-column: 2 / -1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.form-error {
+    font-size: 0.82rem;
+    color: #b91c1c;
+    margin: 0.25rem 0 0;
+}
+
+.button--danger {
+    color: #b91c1c;
+    border-color: rgba(185, 28, 28, 0.25);
+}
+.button--danger:hover {
+    background: rgba(185, 28, 28, 0.06);
+}
+
+.admin-change-password-popover h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0 0 0.65rem;
+    color: #0a2a4a;
+}
+
+@media (max-width: 768px) {
+    .admin-user-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-change-password-popover {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 12px 12px 0 0;
+    }
+}

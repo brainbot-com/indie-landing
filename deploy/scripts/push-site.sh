@@ -57,6 +57,10 @@ RSYNC_BASE_ARGS=(
   --exclude
   "CNAME"
   --exclude
+  "*.yml"
+  --exclude
+  "*.yaml"
+  --exclude
   "*.md"
   --exclude
   "AGENTS.md"

@@ -407,6 +407,20 @@ export async function createStore({ dataDir, logger = console }) {
     );
     CREATE INDEX IF NOT EXISTS idx_stock_devices_product_key ON stock_devices(product_key, status);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_stock_devices_serial ON stock_devices(serial_number);
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+      display_name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('admin', 'user')),
+      status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'disabled')),
+      last_login_at TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);
   `);
 
   function ensureColumn(tableName, columnName, columnSql) {
@@ -1339,6 +1353,130 @@ export async function createStore({ dataDir, logger = console }) {
     refreshInventoryAvailability('indiebox-ai-workstation');
   }
 
+  // ── User management queries (T002/T004) ──
+
+  const findUserByUsernameStatement = db.prepare('SELECT * FROM users WHERE username = :username');
+  const findUserByIdStatement = db.prepare('SELECT * FROM users WHERE id = :id');
+  const countActiveAdminsStatement = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND status = 'active'");
+  const countActiveAdminsExcludingStatement = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND status = 'active' AND id != :excludeId");
+  const countUsersStatement = db.prepare('SELECT COUNT(*) as count FROM users');
+  const insertUserStatement = db.prepare(`
+    INSERT INTO users (id, username, display_name, password_hash, role, status, created_at, updated_at)
+    VALUES (:id, :username, :display_name, :password_hash, :role, :status, :created_at, :updated_at)
+  `);
+  const updateUserStatement = db.prepare(`
+    UPDATE users SET display_name = :display_name, role = :role, updated_at = :updated_at WHERE id = :id
+  `);
+  const updateUserPasswordStatement = db.prepare('UPDATE users SET password_hash = :password_hash, updated_at = :updated_at WHERE id = :id');
+  const updateUserLastLoginStatement = db.prepare('UPDATE users SET last_login_at = :last_login_at WHERE id = :id');
+  const updateUserStatusStatement = db.prepare('UPDATE users SET status = :status, updated_at = :updated_at WHERE id = :id');
+  const deleteUserStatement = db.prepare('DELETE FROM users WHERE id = :id');
+
+  function mapUserRow(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      username: row.username,
+      displayName: row.display_name,
+      passwordHash: row.password_hash,
+      role: row.role,
+      status: row.status,
+      lastLoginAt: row.last_login_at || null,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+
+  function findUserByUsername(username) {
+    return mapUserRow(findUserByUsernameStatement.get({ username }));
+  }
+
+  function findUserById(id) {
+    return mapUserRow(findUserByIdStatement.get({ id }));
+  }
+
+  function getAllUsers({ role, status } = {}) {
+    let sql = 'SELECT * FROM users WHERE 1=1';
+    const params = {};
+    if (role) { sql += ' AND role = :role'; params.role = role; }
+    if (status) { sql += ' AND status = :status'; params.status = status; }
+    sql += ' ORDER BY created_at ASC';
+    return db.prepare(sql).all(params).map(mapUserRow);
+  }
+
+  function createUser({ username, displayName, passwordHash, role = 'user', status = 'active' }) {
+    const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    insertUserStatement.run({
+      id,
+      username,
+      display_name: displayName,
+      password_hash: passwordHash,
+      role,
+      status,
+      created_at: now,
+      updated_at: now
+    });
+    return findUserById(id);
+  }
+
+  function updateUser(id, { displayName, role }) {
+    const now = new Date().toISOString();
+    updateUserStatement.run({ id, display_name: displayName, role, updated_at: now });
+    return findUserById(id);
+  }
+
+  function updateUserPassword(id, passwordHash) {
+    updateUserPasswordStatement.run({ id, password_hash: passwordHash, updated_at: new Date().toISOString() });
+  }
+
+  function updateUserLastLogin(id) {
+    updateUserLastLoginStatement.run({ id, last_login_at: new Date().toISOString() });
+  }
+
+  function toggleUserStatus(id) {
+    const user = findUserById(id);
+    if (!user) return null;
+    const newStatus = user.status === 'active' ? 'disabled' : 'active';
+    updateUserStatusStatement.run({ id, status: newStatus, updated_at: new Date().toISOString() });
+    return findUserById(id);
+  }
+
+  function deleteUser(id) {
+    deleteUserStatement.run({ id });
+  }
+
+  function countActiveAdmins() {
+    return countActiveAdminsStatement.get().count;
+  }
+
+  function countActiveAdminsExcluding(excludeId) {
+    return countActiveAdminsExcludingStatement.get({ excludeId }).count;
+  }
+
+  function countUsers() {
+    return countUsersStatement.get().count;
+  }
+
+  // ── Bootstrap admin (T007 / US4) ──
+
+  function bootstrapAdminUser({ loginHash, defaultUsername = 'admin' }) {
+    if (countUsers() > 0) return null;
+    if (!loginHash) {
+      logger.warn('No ADMIN_LOGIN_HASH set — cannot bootstrap admin user');
+      return null;
+    }
+    const user = createUser({
+      username: defaultUsername,
+      displayName: defaultUsername.charAt(0).toUpperCase() + defaultUsername.slice(1),
+      passwordHash: loginHash,
+      role: 'admin',
+      status: 'active'
+    });
+    logger.log(JSON.stringify({ msg: 'bootstrap admin created', username: user.username, id: user.id }));
+    return user;
+  }
+
   return {
     dbPath,
     saveOrder,
@@ -1368,6 +1506,19 @@ export async function createStore({ dataDir, logger = console }) {
     deleteDeviceModel,
     deleteStockDevice,
     deleteSupplierOrder,
-    listDevicesBySupplierOrder
+    listDevicesBySupplierOrder,
+    findUserByUsername,
+    findUserById,
+    getAllUsers,
+    createUser,
+    updateUser,
+    updateUserPassword,
+    updateUserLastLogin,
+    toggleUserStatus,
+    deleteUser,
+    countActiveAdmins,
+    countActiveAdminsExcluding,
+    countUsers,
+    bootstrapAdminUser
   };
 }
