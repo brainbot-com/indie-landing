@@ -3121,50 +3121,6 @@ function setupAdminNotifications() {
             close: 'Schließen'
         };
 
-    const TOKEN_REFERENCE = [
-        { group: 'customer', tokens: [
-            { token: '{{customer.firstName}}', desc: locale === 'en' ? 'First name' : 'Vorname' },
-            { token: '{{customer.lastName}}', desc: locale === 'en' ? 'Last name' : 'Nachname' },
-            { token: '{{customer.fullName}}', desc: locale === 'en' ? 'Full name' : 'Voller Name' },
-            { token: '{{customer.email}}', desc: 'E-Mail' },
-            { token: '{{customer.phone}}', desc: locale === 'en' ? 'Phone' : 'Telefon' },
-            { token: '{{customer.company}}', desc: locale === 'en' ? 'Company' : 'Firma' },
-            { token: '{{customer.phoneLine}}', desc: locale === 'en' ? '"Phone: 123" or empty' : '„Telefon: 123" oder leer' },
-            { token: '{{customer.companyLine}}', desc: locale === 'en' ? '"Company: Acme" or empty' : '„Firma: Acme" oder leer' }
-        ] },
-        { group: 'order', tokens: [
-            { token: '{{order.orderNumber}}', desc: locale === 'en' ? 'Sequential order number' : 'Laufende Bestellnummer' },
-            { token: '{{order.id}}', desc: locale === 'en' ? 'Internal order ID' : 'Interne Bestell-ID' },
-            { token: '{{order.product}}', desc: locale === 'en' ? 'Product name' : 'Produktname' },
-            { token: '{{order.amount}}', desc: locale === 'en' ? 'Amount (numeric)' : 'Betrag (Zahl)' },
-            { token: '{{order.currency}}', desc: locale === 'en' ? 'Currency (EUR)' : 'Währung (EUR)' },
-            { token: '{{order.paymentMethod}}', desc: locale === 'en' ? 'Payment method used' : 'Genutzte Zahlungsart' },
-            { token: '{{order.paidAt}}', desc: locale === 'en' ? 'Paid timestamp' : 'Zahlungszeitpunkt' },
-            { token: '{{order.createdAt}}', desc: locale === 'en' ? 'Created timestamp' : 'Erstellungszeitpunkt' },
-            { token: '{{order.notes}}', desc: locale === 'en' ? 'Customer notes (plain)' : 'Kundennotizen (Plain)' },
-            { token: '{{order.notesHtml}}', desc: locale === 'en' ? 'Customer notes (HTML, pre-escaped)' : 'Kundennotizen (HTML, pre-escaped)' },
-            { token: '{{order.adminUrl}}', desc: locale === 'en' ? 'Deeplink into admin' : 'Deeplink in Admin' },
-            { token: '{{order.statusUrl}}', desc: locale === 'en' ? 'Customer status page link' : 'Status-Link für Kunden' }
-        ] },
-        { group: 'billingAddress / shippingAddress', tokens: [
-            { token: '{{billingAddress.street}}', desc: locale === 'en' ? 'Street' : 'Straße' },
-            { token: '{{billingAddress.zip}}', desc: 'PLZ / ZIP' },
-            { token: '{{billingAddress.city}}', desc: locale === 'en' ? 'City' : 'Stadt' },
-            { token: '{{billingAddress.country}}', desc: locale === 'en' ? 'Country' : 'Land' },
-            { token: '{{billingAddress.block}}', desc: locale === 'en' ? 'Full address (newlines)' : 'Volle Adresse (Zeilenumbrüche)' },
-            { token: '{{billingAddress.blockHtml}}', desc: locale === 'en' ? 'Full address (<br>, HTML-safe)' : 'Volle Adresse (<br>, HTML-safe)' },
-            { token: '{{shippingAddress.careOf}}', desc: 'c/o' },
-            { token: '{{shippingAddress.block}}', desc: locale === 'en' ? 'Shipping address (newlines)' : 'Lieferadresse (Zeilenumbrüche)' },
-            { token: '{{shippingAddress.blockHtml}}', desc: locale === 'en' ? 'Shipping address (<br>)' : 'Lieferadresse (<br>)' }
-        ] },
-        { group: 'brand', tokens: [
-            { token: '{{brand.name}}', desc: 'Indiebox' },
-            { token: '{{brand.email}}', desc: locale === 'en' ? 'Support email' : 'Support-Adresse' },
-            { token: '{{brand.websiteUrl}}', desc: 'https://indiebox.ai' },
-            { token: '{{brand.websiteDomain}}', desc: 'indiebox.ai' }
-        ] }
-    ];
-
     let templates = [];
     let assets = [];
     let meta = { mailEnabled: true, triggers: ['order.paid'], recipientTypes: ['admin','customer','custom'], adminRecipient: '' };
@@ -3276,19 +3232,6 @@ function setupAdminNotifications() {
                 }
             });
         });
-    };
-
-    const renderTokensHelp = () => {
-        return TOKEN_REFERENCE.map((group) => {
-            const rows = group.tokens.map((item) => `
-                <tr>
-                    <td><button type="button" class="admin-notif-token" data-notif-copy-token data-token="${esc(item.token)}" title="${esc(locale === 'en' ? 'Copy' : 'Kopieren')}">${esc(item.token)}</button></td>
-                    <td>${esc(item.desc)}</td>
-                </tr>
-            `).join('');
-            return `<details class="admin-notif-help-group"><summary>${esc(group.group)}</summary>
-                <table class="admin-notif-token-table"><tbody>${rows}</tbody></table></details>`;
-        }).join('');
     };
 
     const PREVIEW_CONTEXT = {
@@ -3510,12 +3453,6 @@ function setupAdminNotifications() {
                         <div data-notif-asset-list>${renderAssets()}</div>
                     </div>
 
-                    <details class="admin-notif-help">
-                        <summary>${esc(t.tokensTitle)}</summary>
-                        <p class="admin-notif-hint">${esc(t.tokensHelp)}</p>
-                        <div class="admin-notif-help__body">${renderTokensHelp()}</div>
-                    </details>
-
                     <div class="admin-notif-actions">
                         <button type="submit" class="button button--plain-dark button--pill button--md" data-notif-save>${esc(t.saveButton)}</button>
                         <button type="button" class="button button--plain-light button--pill button--md" data-notif-test>${esc(t.testButton)}</button>
@@ -3610,13 +3547,6 @@ function setupAdminNotifications() {
             btn.addEventListener('click', () => {
                 if (!confirm(t.confirmDeleteAsset)) return;
                 deleteAsset(btn.getAttribute('data-id'));
-            });
-        });
-
-        form.querySelectorAll('[data-notif-copy-token]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const tok = btn.getAttribute('data-token') || '';
-                navigator.clipboard?.writeText(tok).then(() => setFeedback(t.copied));
             });
         });
 

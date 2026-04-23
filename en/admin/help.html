@@ -67,8 +67,55 @@
                     </ul>
 
                     <h3>Tokens</h3>
-                    <p>Placeholders in the form <code>{{path.to.value}}</code> are replaced with real order data on send. Values inside HTML are automatically HTML-escaped. Keys ending in <code>Html</code> (e.g. <code>{{billingAddress.blockHtml}}</code>) are inserted as raw HTML fragments.</p>
-                    <p>The full token list is available inside the editor under "Available tokens" — click to copy.</p>
+                    <p>Placeholders in the form <code>{{path.to.value}}</code> are replaced with real order data on send. Values inside HTML are automatically HTML-escaped. Keys ending in <code>Html</code> (e.g. <code>{{billingAddress.blockHtml}}</code>) are inserted as raw HTML fragments and are not escaped.</p>
+
+                    <h4>Customer</h4>
+                    <table class="admin-help__tokens">
+                        <tr><td><code>{{customer.firstName}}</code></td><td>First name</td></tr>
+                        <tr><td><code>{{customer.lastName}}</code></td><td>Last name</td></tr>
+                        <tr><td><code>{{customer.fullName}}</code></td><td>Full name</td></tr>
+                        <tr><td><code>{{customer.email}}</code></td><td>Email address</td></tr>
+                        <tr><td><code>{{customer.phone}}</code></td><td>Phone</td></tr>
+                        <tr><td><code>{{customer.company}}</code></td><td>Company</td></tr>
+                        <tr><td><code>{{customer.phoneLine}}</code></td><td>"Phone: 123" — empty when there is no phone</td></tr>
+                        <tr><td><code>{{customer.companyLine}}</code></td><td>"Company: Acme" — empty when there is no company</td></tr>
+                    </table>
+
+                    <h4>Order</h4>
+                    <table class="admin-help__tokens">
+                        <tr><td><code>{{order.orderNumber}}</code></td><td>Sequential order number</td></tr>
+                        <tr><td><code>{{order.id}}</code></td><td>Internal order ID</td></tr>
+                        <tr><td><code>{{order.product}}</code></td><td>Product name</td></tr>
+                        <tr><td><code>{{order.amount}}</code></td><td>Amount (numeric)</td></tr>
+                        <tr><td><code>{{order.currency}}</code></td><td>Currency, typically EUR</td></tr>
+                        <tr><td><code>{{order.paymentMethod}}</code></td><td>Payment method used</td></tr>
+                        <tr><td><code>{{order.paidAt}}</code></td><td>Payment timestamp</td></tr>
+                        <tr><td><code>{{order.createdAt}}</code></td><td>Creation timestamp</td></tr>
+                        <tr><td><code>{{order.notes}}</code></td><td>Customer notes (plain)</td></tr>
+                        <tr><td><code>{{order.notesHtml}}</code></td><td>Customer notes with &lt;br&gt; for HTML context</td></tr>
+                        <tr><td><code>{{order.adminUrl}}</code></td><td>Deeplink into admin</td></tr>
+                        <tr><td><code>{{order.statusUrl}}</code></td><td>Order status link for the customer</td></tr>
+                    </table>
+
+                    <h4>Billing and shipping address</h4>
+                    <p>Both <code>billingAddress</code> and <code>shippingAddress</code> expose the same fields:</p>
+                    <table class="admin-help__tokens">
+                        <tr><td><code>{{billingAddress.street}}</code></td><td>Street</td></tr>
+                        <tr><td><code>{{billingAddress.zip}}</code></td><td>ZIP / postal code</td></tr>
+                        <tr><td><code>{{billingAddress.city}}</code></td><td>City</td></tr>
+                        <tr><td><code>{{billingAddress.country}}</code></td><td>Country</td></tr>
+                        <tr><td><code>{{billingAddress.block}}</code></td><td>Full address with newlines (plaintext)</td></tr>
+                        <tr><td><code>{{billingAddress.blockHtml}}</code></td><td>Full address with &lt;br&gt; (HTML context)</td></tr>
+                        <tr><td><code>{{shippingAddress.careOf}}</code></td><td>c/o line (only meaningful on shipping)</td></tr>
+                    </table>
+
+                    <h4>Brand</h4>
+                    <table class="admin-help__tokens">
+                        <tr><td><code>{{brand.name}}</code></td><td>Indiebox</td></tr>
+                        <tr><td><code>{{brand.email}}</code></td><td>Support address</td></tr>
+                        <tr><td><code>{{brand.websiteUrl}}</code></td><td>https://indiebox.ai</td></tr>
+                        <tr><td><code>{{brand.websiteDomain}}</code></td><td>indiebox.ai</td></tr>
+                    </table>
 
                     <h3>Editing HTML and Preview</h3>
                     <p>Toggle between <strong>Edit</strong> and <strong>Preview</strong> at the top of the HTML section. Preview renders the template with sample data so you can see what the recipient will get.</p>
