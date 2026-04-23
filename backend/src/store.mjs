@@ -408,6 +408,35 @@ export async function createStore({ dataDir, logger = console }) {
     CREATE INDEX IF NOT EXISTS idx_stock_devices_product_key ON stock_devices(product_key, status);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_stock_devices_serial ON stock_devices(serial_number);
 
+    CREATE TABLE IF NOT EXISTS email_assets (
+      id TEXT PRIMARY KEY,
+      filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      extension TEXT NOT NULL,
+      size INTEGER NOT NULL,
+      data BLOB NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_email_assets_created_at ON email_assets(created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS notification_templates (
+      id TEXT PRIMARY KEY,
+      key TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      description TEXT,
+      trigger_event TEXT NOT NULL,
+      recipient_type TEXT NOT NULL CHECK(recipient_type IN ('admin','customer','custom')),
+      recipient_override TEXT,
+      locale TEXT,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      subject_template TEXT NOT NULL,
+      text_template TEXT NOT NULL,
+      html_template TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_notification_templates_trigger ON notification_templates(trigger_event, enabled);
+
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -1458,6 +1487,191 @@ export async function createStore({ dataDir, logger = console }) {
     return countUsersStatement.get().count;
   }
 
+  // ── Email assets (content-addressed) ──
+
+  const getEmailAssetStatement = db.prepare('SELECT * FROM email_assets WHERE id = ?');
+  const listEmailAssetsStatement = db.prepare(`
+    SELECT id, filename, mime_type, extension, size, created_at
+    FROM email_assets
+    ORDER BY datetime(created_at) DESC
+  `);
+  const insertEmailAssetStatement = db.prepare(`
+    INSERT OR IGNORE INTO email_assets (id, filename, mime_type, extension, size, data, created_at)
+    VALUES (@id, @filename, @mime_type, @extension, @size, @data, @created_at)
+  `);
+  const deleteEmailAssetStatement = db.prepare('DELETE FROM email_assets WHERE id = ?');
+
+  function mapEmailAssetMetaRow(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      filename: row.filename,
+      mimeType: row.mime_type,
+      extension: row.extension,
+      size: row.size,
+      createdAt: row.created_at
+    };
+  }
+
+  function saveEmailAsset({ id, filename, mimeType, extension, data }) {
+    insertEmailAssetStatement.run({
+      id,
+      filename,
+      mime_type: mimeType,
+      extension,
+      size: data.length,
+      data: Buffer.isBuffer(data) ? data : Buffer.from(data),
+      created_at: new Date().toISOString()
+    });
+    return getEmailAssetMeta(id);
+  }
+
+  function getEmailAssetMeta(id) {
+    const row = getEmailAssetStatement.get(id);
+    return mapEmailAssetMetaRow(row);
+  }
+
+  function getEmailAssetData(id) {
+    const row = getEmailAssetStatement.get(id);
+    if (!row) return null;
+    return {
+      id: row.id,
+      filename: row.filename,
+      mimeType: row.mime_type,
+      extension: row.extension,
+      size: row.size,
+      data: Buffer.isBuffer(row.data) ? row.data : Buffer.from(row.data),
+      createdAt: row.created_at
+    };
+  }
+
+  function listEmailAssets() {
+    return listEmailAssetsStatement.all().map(mapEmailAssetMetaRow);
+  }
+
+  function deleteEmailAsset(id) {
+    const result = deleteEmailAssetStatement.run(id);
+    return Number(result.changes || 0) > 0;
+  }
+
+  // ── Notification templates ──
+
+  const insertNotificationTemplateStatement = db.prepare(`
+    INSERT INTO notification_templates (
+      id, key, name, description, trigger_event, recipient_type, recipient_override, locale,
+      enabled, subject_template, text_template, html_template, created_at, updated_at
+    ) VALUES (
+      @id, @key, @name, @description, @trigger_event, @recipient_type, @recipient_override, @locale,
+      @enabled, @subject_template, @text_template, @html_template, @created_at, @updated_at
+    )
+  `);
+
+  const updateNotificationTemplateStatement = db.prepare(`
+    UPDATE notification_templates SET
+      name = @name,
+      description = @description,
+      trigger_event = @trigger_event,
+      recipient_type = @recipient_type,
+      recipient_override = @recipient_override,
+      locale = @locale,
+      enabled = @enabled,
+      subject_template = @subject_template,
+      text_template = @text_template,
+      html_template = @html_template,
+      updated_at = @updated_at
+    WHERE id = @id
+  `);
+
+  const getNotificationTemplateByIdStatement = db.prepare('SELECT * FROM notification_templates WHERE id = ?');
+  const getNotificationTemplateByKeyStatement = db.prepare('SELECT * FROM notification_templates WHERE key = ?');
+  const listNotificationTemplatesStatement = db.prepare(`
+    SELECT * FROM notification_templates
+    ORDER BY trigger_event ASC, recipient_type ASC, COALESCE(locale, '') ASC, name ASC
+  `);
+  const listNotificationTemplatesForTriggerStatement = db.prepare(`
+    SELECT * FROM notification_templates
+    WHERE trigger_event = ? AND enabled = 1
+    ORDER BY recipient_type ASC, COALESCE(locale, '') ASC
+  `);
+
+  function mapNotificationTemplateRow(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      key: row.key,
+      name: row.name,
+      description: row.description || '',
+      triggerEvent: row.trigger_event,
+      recipientType: row.recipient_type,
+      recipientOverride: row.recipient_override || '',
+      locale: row.locale || '',
+      enabled: row.enabled === 1,
+      subjectTemplate: row.subject_template,
+      textTemplate: row.text_template,
+      htmlTemplate: row.html_template || '',
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+
+  function listNotificationTemplates() {
+    return listNotificationTemplatesStatement.all().map(mapNotificationTemplateRow);
+  }
+
+  function listNotificationTemplatesForTrigger(triggerEvent) {
+    return listNotificationTemplatesForTriggerStatement.all(triggerEvent).map(mapNotificationTemplateRow);
+  }
+
+  function getNotificationTemplate(id) {
+    return mapNotificationTemplateRow(getNotificationTemplateByIdStatement.get(id));
+  }
+
+  function getNotificationTemplateByKey(key) {
+    return mapNotificationTemplateRow(getNotificationTemplateByKeyStatement.get(key));
+  }
+
+  function updateNotificationTemplate(id, patch) {
+    const existing = getNotificationTemplate(id);
+    if (!existing) return null;
+    const next = { ...existing, ...patch };
+    updateNotificationTemplateStatement.run({
+      id,
+      name: next.name,
+      description: next.description || null,
+      trigger_event: next.triggerEvent,
+      recipient_type: next.recipientType,
+      recipient_override: next.recipientOverride || null,
+      locale: next.locale || null,
+      enabled: next.enabled ? 1 : 0,
+      subject_template: next.subjectTemplate,
+      text_template: next.textTemplate,
+      html_template: next.htmlTemplate || null,
+      updated_at: new Date().toISOString()
+    });
+    return getNotificationTemplate(id);
+  }
+
+  function ensureNotificationTemplate(template) {
+    if (getNotificationTemplateByKey(template.key)) return;
+    const now = new Date().toISOString();
+    insertNotificationTemplateStatement.run({
+      id: crypto.randomUUID(),
+      key: template.key,
+      name: template.name,
+      description: template.description || null,
+      trigger_event: template.triggerEvent,
+      recipient_type: template.recipientType,
+      recipient_override: template.recipientOverride || null,
+      locale: template.locale || null,
+      enabled: template.enabled === false ? 0 : 1,
+      subject_template: template.subjectTemplate,
+      text_template: template.textTemplate,
+      html_template: template.htmlTemplate || null,
+      created_at: now,
+      updated_at: now
+    });
+  }
+
   // ── Bootstrap admin (T007 / US4) ──
 
   function bootstrapAdminUser({ loginHash, defaultUsername = 'admin' }) {
@@ -1519,6 +1733,17 @@ export async function createStore({ dataDir, logger = console }) {
     countActiveAdmins,
     countActiveAdminsExcluding,
     countUsers,
-    bootstrapAdminUser
+    bootstrapAdminUser,
+    listNotificationTemplates,
+    listNotificationTemplatesForTrigger,
+    getNotificationTemplate,
+    getNotificationTemplateByKey,
+    updateNotificationTemplate,
+    ensureNotificationTemplate,
+    saveEmailAsset,
+    getEmailAssetMeta,
+    getEmailAssetData,
+    listEmailAssets,
+    deleteEmailAsset
   };
 }

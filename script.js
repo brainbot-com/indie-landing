@@ -927,17 +927,201 @@ function showInlineConfirm(btn, onConfirm, yesLabel, noLabel) {
     });
 }
 
+function showAdminChangePasswordPopover(anchorEl, locale, onSuccess) {
+    if (!anchorEl) return;
+    const existing = document.querySelector('.admin-change-password-popover');
+    if (existing) {
+        existing.remove();
+    }
+
+    const t = locale === 'en'
+        ? { title: 'Change Password', current: 'Current Password', newPw: 'New Password', save: 'Change', cancel: 'Cancel', success: 'Password changed.', failed: 'Password change failed.' }
+        : { title: 'Passwort ändern', current: 'Aktuelles Passwort', newPw: 'Neues Passwort', save: 'Ändern', cancel: 'Abbrechen', success: 'Passwort geändert.', failed: 'Passwort-Änderung fehlgeschlagen.' };
+
+    const pop = document.createElement('div');
+    pop.className = 'admin-change-password-popover';
+    pop.innerHTML = `<form class="admin-user-form" data-change-pw-form>
+        <h4>${t.title}</h4>
+        <div class="form-row"><label class="form-label" for="chpw-current">${t.current}</label>
+            <input class="form-input" id="chpw-current" name="currentPassword" type="password" required autocomplete="current-password"></div>
+        <div class="form-row"><label class="form-label" for="chpw-new">${t.newPw}</label>
+            <input class="form-input" id="chpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
+        <div class="admin-user-actions">
+            <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
+            <button class="button button--plain-dark button--pill button--sm" type="button" data-chpw-cancel>${t.cancel}</button>
+        </div>
+        <p class="form-error" data-form-error hidden></p>
+    </form>`;
+
+    anchorEl.parentElement?.appendChild(pop);
+
+    const close = () => {
+        pop.remove();
+        document.removeEventListener('click', outsideHandler);
+    };
+
+    const outsideHandler = (ev) => {
+        if (!pop.contains(ev.target) && !anchorEl.contains(ev.target)) {
+            close();
+        }
+    };
+
+    pop.querySelector('[data-chpw-cancel]')?.addEventListener('click', close);
+    pop.querySelector('[data-change-pw-form]')?.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const errEl = pop.querySelector('[data-form-error]');
+        const fd = Object.fromEntries(new FormData(ev.target).entries());
+        try {
+            const res = await fetch('/api/admin/change-password', {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(fd)
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                throw new Error(err?.error || t.failed);
+            }
+            close();
+            onSuccess?.(t.success);
+        } catch (e) {
+            if (errEl) {
+                errEl.textContent = e.message;
+                errEl.hidden = false;
+            }
+        }
+    });
+
+    setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+}
+
+function setupAdminAuthShell({ locale, authFailed, authMissing, onAuthenticated, onUnauthenticated, onPasswordChanged }) {
+    const body = document.body;
+    const authForm = document.querySelector('[data-admin-auth-form]');
+    const usernameInput = document.querySelector('[data-admin-username-input]');
+    const passwordInput = document.querySelector('[data-admin-password-input]');
+    const loginError = document.querySelector('[data-admin-login-error]');
+    const userBar = document.querySelector('[data-admin-userbar]');
+    const userToggle = document.querySelector('[data-admin-user-toggle]');
+    const userMenu = document.querySelector('[data-admin-user-menu]');
+    const userLabel = document.querySelector('[data-admin-user-label]');
+    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
+    const changePasswordButton = document.querySelector('[data-admin-change-password]');
+    let currentUser = null;
+
+    const setPageState = (state) => {
+        body.dataset.adminAuthState = state;
+    };
+
+    const setLoginError = (message) => {
+        if (!loginError) return;
+        loginError.textContent = message || '';
+        loginError.hidden = !message;
+    };
+
+    const closeMenu = () => {
+        if (userMenu) userMenu.hidden = true;
+        if (userToggle) userToggle.setAttribute('aria-expanded', 'false');
+    };
+
+    const setCurrentUser = (user) => {
+        currentUser = user || null;
+        if (userBar) userBar.hidden = !currentUser;
+        if (userLabel) userLabel.textContent = currentUser ? currentUser.displayName : '';
+        closeMenu();
+    };
+
+    const handleAuthenticated = async (user) => {
+        setCurrentUser(user);
+        setLoginError('');
+        setPageState('authenticated');
+        await onAuthenticated?.(user);
+    };
+
+    const handleUnauthenticated = async (message = '') => {
+        setCurrentUser(null);
+        if (usernameInput) usernameInput.value = '';
+        if (passwordInput) passwordInput.value = '';
+        setLoginError(message);
+        setPageState('unauthenticated');
+        await onUnauthenticated?.();
+    };
+
+    authForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            const username = usernameInput?.value || '';
+            const password = passwordInput?.value || '';
+            const response = await fetch('/api/admin/session', {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ username, password })
+            });
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || !payload?.authenticated || !payload?.user) {
+                throw new Error(payload?.error || authFailed);
+            }
+            await handleAuthenticated(payload.user);
+        } catch (error) {
+            setLoginError(error.message || authFailed);
+        }
+    });
+
+    clearAuthButton?.addEventListener('click', async () => {
+        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+        await handleUnauthenticated('');
+    });
+
+    userToggle?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const nextHidden = !userMenu || !userMenu.hidden ? true : false;
+        if (userMenu) userMenu.hidden = nextHidden;
+        userToggle.setAttribute('aria-expanded', String(!nextHidden));
+    });
+
+    changePasswordButton?.addEventListener('click', (event) => {
+        event.preventDefault();
+        closeMenu();
+        showAdminChangePasswordPopover(userToggle, locale, onPasswordChanged);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!userMenu || userMenu.hidden) return;
+        if (userMenu.contains(event.target) || userToggle?.contains(event.target)) return;
+        closeMenu();
+    });
+
+    const loadAuthState = async () => {
+        setPageState('loading');
+        try {
+            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
+            const payload = response.ok ? await response.json().catch(() => null) : null;
+            if (payload?.authenticated && payload?.user) {
+                await handleAuthenticated(payload.user);
+                return true;
+            }
+            await handleUnauthenticated('');
+            return false;
+        } catch {
+            await handleUnauthenticated(authMissing);
+            return false;
+        }
+    };
+
+    return {
+        loadAuthState,
+        handleUnauthenticated,
+        getCurrentUser: () => currentUser
+    };
+}
+
 function setupAdminInventory() {
     const app = document.querySelector('[data-admin-inventory]');
     if (!app) return;
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
     const productKey = app.getAttribute('data-product-key') || 'indiebox-ai-workstation';
-    const usernameInput = document.querySelector('[data-admin-username-input]');
-    const passwordInput = document.querySelector('[data-admin-password-input]');
-    const authStatus = document.querySelector('[data-admin-auth-status]');
-    const authForm = document.querySelector('[data-admin-auth-form]');
-    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
     const articleForm = app.querySelector('[data-admin-article-form]');
     const articlesList = app.querySelector('[data-admin-articles-list]');
     const procurementList = app.querySelector('[data-admin-procurement-list]');
@@ -1023,13 +1207,6 @@ function setupAdminInventory() {
         if (message && !isError) {
             feedbackTimer = setTimeout(() => { feedback.hidden = true; }, 4000);
         }
-    };
-
-    const setAuthStatus = (message, isError = false) => {
-        if (!authStatus) return;
-        authStatus.textContent = message;
-        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
-        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
     };
 
     const adminFetch = async (url, options = {}) => {
@@ -1390,6 +1567,25 @@ function setupAdminInventory() {
             </div>`;
     };
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+    const authShell = setupAdminAuthShell({
+        locale,
+        authFailed: m.authFailed,
+        authMissing: m.authMissing,
+        onAuthenticated: async () => {
+            setAdminVisible(true);
+            await loadAdminData();
+        },
+        onUnauthenticated: () => {
+            setAdminVisible(false);
+            renderArticles([]);
+            renderSupplierOrders([], []);
+            renderAllocations([]);
+            renderDevices([]);
+        },
+        onPasswordChanged: (message) => setFeedback(message, false)
+    });
+
     const loadAdminData = async () => {
         try {
             const [deviceModelsResponse, supplierOrdersResponse, allocationsResponse, devicesResponse] = await Promise.all([
@@ -1404,68 +1600,16 @@ function setupAdminInventory() {
             renderAllocations(allocationsResponse.allocations || []);
             renderDevices(devicesResponse.devices || []);
             setFeedback('', false);
-            setAuthStatus(m.authSaved, false);
         } catch (error) {
             renderArticles([]);
             renderSupplierOrders([], []);
             renderAllocations([]);
             renderDevices([]);
-            setAuthStatus(error.status === 401 ? m.authFailed : m.loadFailed, true);
+            if (error.status === 401) {
+                await authShell.handleUnauthenticated(m.authFailed);
+            }
         }
     };
-
-    const loadAuthState = async () => {
-        try {
-            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
-            if (!response.ok) { setAuthStatus(m.authMissing, false); return false; }
-            const payload = await response.json().catch(() => null);
-            const authenticated = Boolean(payload?.authenticated);
-            if (authenticated && payload?.user) {
-                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
-            } else {
-                setAuthStatus(authenticated ? m.authSaved : m.authMissing, false);
-            }
-            return authenticated;
-        } catch {
-            setAuthStatus(m.authMissing, false);
-            return false;
-        }
-    };
-
-    authForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-            const username = usernameInput?.value || '';
-            const password = passwordInput?.value || '';
-            const response = await fetch('/api/admin/session', {
-                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                credentials: 'same-origin', body: JSON.stringify({ username, password })
-            });
-            if (!response.ok) {
-                const err = await response.json().catch(() => null);
-                throw new Error(err?.error || m.authFailed);
-            }
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            setAuthStatus(m.authSaved, false);
-            setAdminVisible(true);
-            await loadAdminData();
-        } catch (e) {
-            setAuthStatus(e.message || m.authFailed, true);
-        }
-    });
-
-    clearAuthButton?.addEventListener('click', async () => {
-        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
-        if (usernameInput) usernameInput.value = '';
-        if (passwordInput) passwordInput.value = '';
-        setAdminVisible(false);
-        renderArticles([]);
-        renderSupplierOrders([], []);
-        renderAllocations([]);
-        renderDevices([]);
-        setAuthStatus(m.authCleared, false);
-    });
 
     articleForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -1703,16 +1847,7 @@ function setupAdminInventory() {
         } catch (error) { setFeedback(error.message || m.loadFailed, true); }
     });
 
-    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
-
-    loadAuthState().then((authenticated) => {
-        if (authenticated) { loadAdminData(); return; }
-        setAdminVisible(false);
-        renderArticles([]);
-        renderSupplierOrders([], []);
-        renderAllocations([]);
-        renderDevices([]);
-    });
+    authShell.loadAuthState();
 }
 
 function setupAdminOrders() {
@@ -1720,11 +1855,6 @@ function setupAdminOrders() {
     if (!app) return;
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
-    const usernameInput = document.querySelector('[data-admin-username-input]');
-    const passwordInput = document.querySelector('[data-admin-password-input]');
-    const authStatus = document.querySelector('[data-admin-auth-status]');
-    const authForm = document.querySelector('[data-admin-orders-auth-form]');
-    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
     const ordersList = app.querySelector('[data-admin-orders-list]');
     const detailPane = app.querySelector('[data-admin-orders-detail]');
     const searchInput = app.querySelector('[data-admin-order-search]');
@@ -1828,13 +1958,6 @@ function setupAdminOrders() {
         feedback.hidden = !message;
         feedback.textContent = message || '';
         feedback.classList.toggle('form-alert--error', Boolean(isError));
-    };
-
-    const setAuthStatus = (message, isError = false) => {
-        if (!authStatus) return;
-        authStatus.textContent = message;
-        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
-        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
     };
 
     const adminFetch = async (url, options = {}) => {
@@ -2262,6 +2385,27 @@ function setupAdminOrders() {
         }
     };
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+    const authShell = setupAdminAuthShell({
+        locale,
+        authFailed: t.authFailed,
+        authMissing: t.authMissing,
+        onAuthenticated: async () => {
+            setAdminVisible(true);
+            await loadOrders();
+        },
+        onUnauthenticated: () => {
+            setAdminVisible(false);
+            currentOrders = [];
+            selectedOrderId = null;
+            selectedOrderDetail = null;
+            if (stockBar) stockBar.hidden = true;
+            renderOrderList([]);
+            renderDetail(null);
+        },
+        onPasswordChanged: (message) => setFeedback(message, false)
+    });
+
     const loadOrders = async () => {
         try {
             const [data] = await Promise.all([
@@ -2278,67 +2422,19 @@ function setupAdminOrders() {
             }
             refreshList();
             setFeedback('', false);
-            setAuthStatus(t.authSaved, false);
         } catch (error) {
             currentOrders = [];
             selectedOrderId = null;
             selectedOrderDetail = null;
             renderOrderList([]);
             renderDetail(null);
-            setAuthStatus(error.status === 401 ? t.authFailed : t.loadFailed, true);
+            if (error.status === 401) {
+                await authShell.handleUnauthenticated(t.authFailed);
+                return;
+            }
             setFeedback(t.loadFailed, true);
         }
     };
-
-    const loadAuthState = async () => {
-        try {
-            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
-            if (!response.ok) { setAuthStatus(t.authMissing, false); return false; }
-            const payload = await response.json().catch(() => null);
-            const authenticated = Boolean(payload?.authenticated);
-            if (authenticated && payload?.user) {
-                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
-            } else {
-                setAuthStatus(authenticated ? t.authSaved : t.authMissing, false);
-            }
-            return authenticated;
-        } catch { setAuthStatus(t.authMissing, false); return false; }
-    };
-
-    authForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-            const username = usernameInput?.value || '';
-            const password = passwordInput?.value || '';
-            const response = await fetch('/api/admin/session', {
-                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                credentials: 'same-origin', body: JSON.stringify({ username, password })
-            });
-            if (!response.ok) {
-                const err = await response.json().catch(() => null);
-                throw new Error(err?.error || t.authFailed);
-            }
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            setAuthStatus(t.authSaved, false);
-            setAdminVisible(true);
-            await loadOrders();
-        } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
-    });
-
-    clearAuthButton?.addEventListener('click', async () => {
-        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
-        if (usernameInput) usernameInput.value = '';
-        if (passwordInput) passwordInput.value = '';
-        setAdminVisible(false);
-        setAuthStatus(t.authCleared, false);
-        currentOrders = [];
-        selectedOrderId = null;
-        selectedOrderDetail = null;
-        if (stockBar) stockBar.hidden = true;
-        renderOrderList([]);
-        renderDetail(null);
-    });
 
     ordersList?.addEventListener('click', (event) => {
         const row = event.target.closest('[data-order-row]');
@@ -2434,14 +2530,7 @@ function setupAdminOrders() {
     fulfilmentFilter?.addEventListener('change', () => { refreshList(); });
     reloadButton?.addEventListener('click', () => { loadOrders(); });
 
-    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
-
-    loadAuthState().then((authenticated) => {
-        if (authenticated) { loadOrders(); return; }
-        setAdminVisible(false);
-        renderOrderList([]);
-        renderDetail(null);
-    });
+    authShell.loadAuthState();
 }
 
 function setupAdminUsers() {
@@ -2449,11 +2538,6 @@ function setupAdminUsers() {
     if (!app) return;
 
     const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
-    const usernameInput = document.querySelector('[data-admin-username-input]');
-    const passwordInput = document.querySelector('[data-admin-password-input]');
-    const authStatus = document.querySelector('[data-admin-auth-status]');
-    const authForm = document.querySelector('[data-admin-users-auth-form]');
-    const clearAuthButton = document.querySelector('[data-admin-clear-auth]');
     const usersList = app.querySelector('[data-admin-users-list]');
     const detailPane = app.querySelector('[data-admin-users-detail]');
     const roleFilter = app.querySelector('[data-admin-user-role-filter]');
@@ -2569,13 +2653,6 @@ function setupAdminUsers() {
         feedback.hidden = !msg;
         feedback.classList.toggle('admin-toast--error', Boolean(isError));
         if (msg) setTimeout(() => { feedback.hidden = true; }, 4000);
-    };
-
-    const setAuthStatus = (message, isError) => {
-        if (!authStatus) return;
-        authStatus.textContent = message;
-        authStatus.classList.toggle('admin-header-auth__status--error', Boolean(isError));
-        authStatus.classList.toggle('admin-header-auth__status--ok', !isError && Boolean(message));
     };
 
     const adminFetch = async (url, options = {}) => {
@@ -2747,6 +2824,27 @@ function setupAdminUsers() {
         el.hidden = !msg;
     };
 
+    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
+    const authShell = setupAdminAuthShell({
+        locale,
+        authFailed: t.authFailed,
+        authMissing: t.authMissing,
+        onAuthenticated: async (user) => {
+            currentUser = user;
+            setAdminVisible(true);
+            await loadUsers();
+        },
+        onUnauthenticated: () => {
+            currentUser = null;
+            allUsers = [];
+            selectedUserId = null;
+            setAdminVisible(false);
+            renderUserList([]);
+            renderDetailPlaceholder();
+        },
+        onPasswordChanged: (message) => setFeedback(message, false)
+    });
+
     const loadUsers = async () => {
         try {
             const data = await adminFetch('/api/admin/users');
@@ -2756,68 +2854,15 @@ function setupAdminUsers() {
                 const u = allUsers.find((u) => u.id === selectedUserId);
                 if (u) renderUserDetail(u); else { selectedUserId = null; renderDetailPlaceholder(); }
             }
-            setAuthStatus(currentUser ? `${currentUser.displayName} (${currentUser.role})` : t.authSaved, false);
         } catch (error) {
             allUsers = [];
             renderUserList([]);
             renderDetailPlaceholder();
-            setAuthStatus(error.status === 401 ? t.authFailed : t.loadFailed, true);
+            if (error.status === 401) {
+                await authShell.handleUnauthenticated(t.authFailed);
+            }
         }
     };
-
-    const loadAuthState = async () => {
-        try {
-            const response = await fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' });
-            if (!response.ok) { setAuthStatus(t.authMissing, false); return false; }
-            const payload = await response.json().catch(() => null);
-            const authenticated = Boolean(payload?.authenticated);
-            if (authenticated && payload?.user) {
-                currentUser = payload.user;
-                setAuthStatus(`${payload.user.displayName} (${payload.user.role})`, false);
-            } else {
-                currentUser = null;
-                setAuthStatus(authenticated ? t.authSaved : t.authMissing, false);
-            }
-            return authenticated;
-        } catch { setAuthStatus(t.authMissing, false); return false; }
-    };
-
-    // Auth form
-    authForm?.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        try {
-            const username = usernameInput?.value || '';
-            const password = passwordInput?.value || '';
-            const response = await fetch('/api/admin/session', {
-                method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                credentials: 'same-origin', body: JSON.stringify({ username, password })
-            });
-            if (!response.ok) {
-                const err = await response.json().catch(() => null);
-                throw new Error(err?.error || t.authFailed);
-            }
-            const data = await response.json().catch(() => null);
-            if (data?.user) currentUser = data.user;
-            if (usernameInput) usernameInput.value = '';
-            if (passwordInput) passwordInput.value = '';
-            setAuthStatus(t.authSaved, false);
-            setAdminVisible(true);
-            await loadUsers();
-        } catch (e) { setAuthStatus(e.message || t.authFailed, true); }
-    });
-
-    clearAuthButton?.addEventListener('click', async () => {
-        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
-        if (usernameInput) usernameInput.value = '';
-        if (passwordInput) passwordInput.value = '';
-        setAdminVisible(false);
-        currentUser = null;
-        allUsers = [];
-        selectedUserId = null;
-        renderUserList([]);
-        renderDetailPlaceholder();
-        setAuthStatus(t.authCleared, false);
-    });
 
     // User list click
     usersList?.addEventListener('click', (event) => {
@@ -2943,84 +2988,899 @@ function setupAdminUsers() {
         renderCreateForm();
     });
 
-    const setAdminVisible = (visible) => app.querySelectorAll('.admin-card').forEach((c) => { c.hidden = !visible; });
-
-    // Init
-    loadAuthState().then((authenticated) => {
-        if (authenticated) { loadUsers(); return; }
-        setAdminVisible(false);
-        renderUserList([]);
-        renderDetailPlaceholder();
-    });
+    authShell.loadAuthState();
 }
 
-function setupChangePasswordPopover() {
-    // Attach to all admin pages — clicking on the auth status opens a password change popover
-    const statusEl = document.querySelector('[data-admin-auth-status]');
-    if (!statusEl) return;
+function setupAdminNotifications() {
+    const app = document.querySelector('[data-admin-notifications]');
+    if (!app) return;
 
-    const locale = document.querySelector('[data-locale]')?.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const listEl = app.querySelector('[data-admin-notif-list]');
+    const detailEl = app.querySelector('[data-admin-notif-detail]');
+    const statusEl = app.querySelector('[data-admin-notif-status]');
+    const feedback = app.querySelector('[data-admin-feedback]');
+    const reloadButton = app.querySelector('[data-admin-notif-reload]');
+    const importBundleButton = app.querySelector('[data-admin-notif-import-bundle]');
+
     const t = locale === 'en'
-        ? { title: 'Change Password', current: 'Current Password', newPw: 'New Password', save: 'Change', cancel: 'Cancel', success: 'Password changed.', failed: 'Password change failed.' }
-        : { title: 'Passwort ändern', current: 'Aktuelles Passwort', newPw: 'Neues Passwort', save: 'Ändern', cancel: 'Abbrechen', success: 'Passwort geändert.', failed: 'Passwort-Änderung fehlgeschlagen.' };
+        ? {
+            authMissing: 'Sign in to manage templates.',
+            authFailed: 'Admin sign-in failed.',
+            loadFailed: 'Could not load templates.',
+            pickTemplate: 'Pick a template from the list to edit its content.',
+            mailNotConfigured: 'Mailgun is not configured yet. Mails will not go out.',
+            saveButton: 'Save template',
+            saveOk: 'Template saved.',
+            saveFailed: 'Saving failed.',
+            testButton: 'Send test',
+            testPromptTo: 'Send test to:',
+            testOk: 'Test sent.',
+            testFailed: 'Sending failed.',
+            exportButton: 'Export template',
+            uploadButton: 'Upload image',
+            uploadFailed: 'Upload failed.',
+            uploadOk: 'Image saved.',
+            deleteAsset: 'Delete',
+            confirmDeleteAsset: 'Delete this image? References in templates will break.',
+            importHtmlButton: 'Import HTML',
+            importHtmlHint: 'Paste the exported HTML from your email editor. External images will be downloaded and stored.',
+            importHtmlOk: (n) => `HTML imported. ${n} image(s) stored.`,
+            importHtmlFailures: (n) => `${n} image(s) could not be imported — see browser console.`,
+            importHtmlFailed: 'Import failed.',
+            importBundleButton: 'Import template',
+            importBundleHint: 'Upload an exported mail template (.json) from another environment.',
+            importBundleOk: 'Template imported.',
+            importBundleFailed: 'Template import failed.',
+            tokensTitle: 'Available tokens',
+            tokensHelp: 'Copy tokens into subject / text / HTML. They are replaced with real order data at send time.',
+            imagesTitle: 'Images for this template',
+            imagesEmpty: 'No images uploaded yet. Upload or import HTML to add some.',
+            imagesHint: 'To embed an image in HTML: <img src="/mail/ID.png" alt="…">',
+            copyUrl: 'Copy URL',
+            copied: 'Copied.',
+            tplName: 'Name',
+            tplDescription: 'Description',
+            tplTrigger: 'Trigger',
+            tplRecipient: 'Recipient',
+            tplRecipientAdmin: 'Admin (ORDER_NOTIFICATION_TO)',
+            tplRecipientCustomer: 'Customer (from the order)',
+            tplRecipientCustom: 'Custom address',
+            tplRecipientOverride: 'Custom recipient address',
+            tplLocale: 'Order locale filter',
+            tplLocaleAny: 'Any',
+            tplEnabled: 'Enabled',
+            tplSubject: 'Subject',
+            tplTextBody: 'Plain-text version',
+            tplHtmlBody: 'HTML version',
+            tplActions: 'Actions',
+            trashOk: 'Image deleted.',
+            triggerLabels: { 'order.paid': 'Order paid' },
+            confirm: 'Confirm',
+            cancel: 'Cancel',
+            send: 'Send',
+            submit: 'Submit',
+            close: 'Close'
+        }
+        : {
+            authMissing: 'Anmelden, um Templates zu verwalten.',
+            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
+            loadFailed: 'Templates konnten nicht geladen werden.',
+            pickTemplate: 'Ein Template aus der Liste wählen, um Inhalte zu bearbeiten.',
+            mailNotConfigured: 'Mailgun ist nicht konfiguriert. Mails werden nicht verschickt.',
+            saveButton: 'Template speichern',
+            saveOk: 'Template gespeichert.',
+            saveFailed: 'Speichern fehlgeschlagen.',
+            testButton: 'Test-Mail senden',
+            testPromptTo: 'Test-Mail senden an:',
+            testOk: 'Test-Mail gesendet.',
+            testFailed: 'Versand fehlgeschlagen.',
+            exportButton: 'Mail-Template exportieren',
+            uploadButton: 'Bild hochladen',
+            uploadFailed: 'Upload fehlgeschlagen.',
+            uploadOk: 'Bild gespeichert.',
+            deleteAsset: 'Löschen',
+            confirmDeleteAsset: 'Dieses Bild löschen? Referenzen in Templates werden ungültig.',
+            importHtmlButton: 'HTML importieren',
+            importHtmlHint: 'Das exportierte HTML aus deinem E-Mail-Editor hier einfügen. Externe Bilder werden heruntergeladen und abgelegt.',
+            importHtmlOk: (n) => `HTML importiert. ${n} Bild(er) gespeichert.`,
+            importHtmlFailures: (n) => `${n} Bild(er) konnten nicht importiert werden — siehe Browser-Konsole.`,
+            importHtmlFailed: 'Import fehlgeschlagen.',
+            importBundleButton: 'Mail-Template importieren',
+            importBundleHint: 'Exportiertes Mail-Template (.json) aus einem anderen Environment hochladen.',
+            importBundleOk: 'Mail-Template importiert.',
+            importBundleFailed: 'Import fehlgeschlagen.',
+            tokensTitle: 'Verfügbare Tokens',
+            tokensHelp: 'Tokens in Betreff, Text oder HTML einfügen. Beim Versand werden sie durch echte Bestelldaten ersetzt.',
+            imagesTitle: 'Bilder für dieses Template',
+            imagesEmpty: 'Noch keine Bilder hochgeladen. Bild hochladen oder HTML importieren.',
+            imagesHint: 'Einbindung im HTML: <img src="/mail/ID.png" alt="…">',
+            copyUrl: 'URL kopieren',
+            copied: 'Kopiert.',
+            tplName: 'Name',
+            tplDescription: 'Beschreibung',
+            tplTrigger: 'Auslöser',
+            tplRecipient: 'Empfänger',
+            tplRecipientAdmin: 'Admin (ORDER_NOTIFICATION_TO)',
+            tplRecipientCustomer: 'Kunde (aus Bestellung)',
+            tplRecipientCustom: 'Feste Adresse',
+            tplRecipientOverride: 'Feste Empfängeradresse',
+            tplLocale: 'Sprachfilter der Bestellung',
+            tplLocaleAny: 'Alle',
+            tplEnabled: 'Aktiv',
+            tplSubject: 'Betreff',
+            tplTextBody: 'Plain-Text-Version',
+            tplHtmlBody: 'HTML-Version',
+            tplActions: 'Aktionen',
+            trashOk: 'Bild gelöscht.',
+            triggerLabels: { 'order.paid': 'Bestellung bezahlt' },
+            confirm: 'Bestätigen',
+            cancel: 'Abbrechen',
+            send: 'Senden',
+            submit: 'Übernehmen',
+            close: 'Schließen'
+        };
 
-    statusEl.style.cursor = 'pointer';
-    statusEl.title = t.title;
+    const TOKEN_REFERENCE = [
+        { group: 'customer', tokens: [
+            { token: '{{customer.firstName}}', desc: locale === 'en' ? 'First name' : 'Vorname' },
+            { token: '{{customer.lastName}}', desc: locale === 'en' ? 'Last name' : 'Nachname' },
+            { token: '{{customer.fullName}}', desc: locale === 'en' ? 'Full name' : 'Voller Name' },
+            { token: '{{customer.email}}', desc: 'E-Mail' },
+            { token: '{{customer.phone}}', desc: locale === 'en' ? 'Phone' : 'Telefon' },
+            { token: '{{customer.company}}', desc: locale === 'en' ? 'Company' : 'Firma' },
+            { token: '{{customer.phoneLine}}', desc: locale === 'en' ? '"Phone: 123" or empty' : '„Telefon: 123" oder leer' },
+            { token: '{{customer.companyLine}}', desc: locale === 'en' ? '"Company: Acme" or empty' : '„Firma: Acme" oder leer' }
+        ] },
+        { group: 'order', tokens: [
+            { token: '{{order.orderNumber}}', desc: locale === 'en' ? 'Sequential order number' : 'Laufende Bestellnummer' },
+            { token: '{{order.id}}', desc: locale === 'en' ? 'Internal order ID' : 'Interne Bestell-ID' },
+            { token: '{{order.product}}', desc: locale === 'en' ? 'Product name' : 'Produktname' },
+            { token: '{{order.amount}}', desc: locale === 'en' ? 'Amount (numeric)' : 'Betrag (Zahl)' },
+            { token: '{{order.currency}}', desc: locale === 'en' ? 'Currency (EUR)' : 'Währung (EUR)' },
+            { token: '{{order.paymentMethod}}', desc: locale === 'en' ? 'Payment method used' : 'Genutzte Zahlungsart' },
+            { token: '{{order.paidAt}}', desc: locale === 'en' ? 'Paid timestamp' : 'Zahlungszeitpunkt' },
+            { token: '{{order.createdAt}}', desc: locale === 'en' ? 'Created timestamp' : 'Erstellungszeitpunkt' },
+            { token: '{{order.notes}}', desc: locale === 'en' ? 'Customer notes (plain)' : 'Kundennotizen (Plain)' },
+            { token: '{{order.notesHtml}}', desc: locale === 'en' ? 'Customer notes (HTML, pre-escaped)' : 'Kundennotizen (HTML, pre-escaped)' },
+            { token: '{{order.adminUrl}}', desc: locale === 'en' ? 'Deeplink into admin' : 'Deeplink in Admin' },
+            { token: '{{order.statusUrl}}', desc: locale === 'en' ? 'Customer status page link' : 'Status-Link für Kunden' }
+        ] },
+        { group: 'billingAddress / shippingAddress', tokens: [
+            { token: '{{billingAddress.street}}', desc: locale === 'en' ? 'Street' : 'Straße' },
+            { token: '{{billingAddress.zip}}', desc: 'PLZ / ZIP' },
+            { token: '{{billingAddress.city}}', desc: locale === 'en' ? 'City' : 'Stadt' },
+            { token: '{{billingAddress.country}}', desc: locale === 'en' ? 'Country' : 'Land' },
+            { token: '{{billingAddress.block}}', desc: locale === 'en' ? 'Full address (newlines)' : 'Volle Adresse (Zeilenumbrüche)' },
+            { token: '{{billingAddress.blockHtml}}', desc: locale === 'en' ? 'Full address (<br>, HTML-safe)' : 'Volle Adresse (<br>, HTML-safe)' },
+            { token: '{{shippingAddress.careOf}}', desc: 'c/o' },
+            { token: '{{shippingAddress.block}}', desc: locale === 'en' ? 'Shipping address (newlines)' : 'Lieferadresse (Zeilenumbrüche)' },
+            { token: '{{shippingAddress.blockHtml}}', desc: locale === 'en' ? 'Shipping address (<br>)' : 'Lieferadresse (<br>)' }
+        ] },
+        { group: 'brand', tokens: [
+            { token: '{{brand.name}}', desc: 'Indiebox' },
+            { token: '{{brand.email}}', desc: locale === 'en' ? 'Support email' : 'Support-Adresse' },
+            { token: '{{brand.websiteUrl}}', desc: 'https://indiebox.ai' },
+            { token: '{{brand.websiteDomain}}', desc: 'indiebox.ai' }
+        ] }
+    ];
 
-    statusEl.addEventListener('click', () => {
-        if (document.querySelector('.admin-change-password-popover')) return;
-        if (!statusEl.classList.contains('admin-header-auth__status--ok')) return;
+    let templates = [];
+    let assets = [];
+    let meta = { mailEnabled: true, triggers: ['order.paid'], recipientTypes: ['admin','customer','custom'], adminRecipient: '' };
+    let selectedId = null;
+    let dirty = false;
+    let currentFormValues = null;
 
-        const pop = document.createElement('div');
-        pop.className = 'admin-change-password-popover';
-        pop.innerHTML = `<form class="admin-user-form" data-change-pw-form>
-            <h4>${t.title}</h4>
-            <div class="form-row"><label class="form-label" for="chpw-current">${t.current}</label>
-                <input class="form-input" id="chpw-current" name="currentPassword" type="password" required autocomplete="current-password"></div>
-            <div class="form-row"><label class="form-label" for="chpw-new">${t.newPw}</label>
-                <input class="form-input" id="chpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
-            <div class="admin-user-actions">
-                <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
-                <button class="button button--plain-dark button--pill button--sm" type="button" data-chpw-cancel>${t.cancel}</button>
-            </div>
-            <p class="form-error" data-form-error hidden></p>
-        </form>`;
-        statusEl.parentElement.appendChild(pop);
+    const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-        pop.querySelector('[data-chpw-cancel]').addEventListener('click', () => pop.remove());
+    const setFeedback = (msg, isError) => {
+        if (!feedback) return;
+        feedback.textContent = msg;
+        feedback.hidden = !msg;
+        feedback.classList.toggle('admin-toast--error', Boolean(isError));
+        if (msg) setTimeout(() => { feedback.hidden = true; }, 4000);
+    };
 
-        pop.querySelector('[data-change-pw-form]').addEventListener('submit', async (ev) => {
-            ev.preventDefault();
-            const errEl = pop.querySelector('[data-form-error]');
-            const fd = Object.fromEntries(new FormData(ev.target).entries());
-            try {
-                const res = await fetch('/api/admin/change-password', {
-                    method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-                    credentials: 'same-origin', body: JSON.stringify(fd)
-                });
-                if (!res.ok) {
-                    const err = await res.json().catch(() => null);
-                    throw new Error(err?.error || t.failed);
+    const setStatus = (msg, variant) => {
+        if (!statusEl) return;
+        statusEl.textContent = msg || '';
+        statusEl.hidden = !msg;
+        statusEl.className = 'admin-notif-status';
+        if (variant) statusEl.classList.add(`admin-notif-status--${variant}`);
+    };
+
+    const adminFetch = async (url, options = {}) => {
+        const headers = new Headers(options.headers || {});
+        headers.set('Accept', 'application/json');
+        if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+            const error = new Error(payload?.error || payload?.message || response.statusText);
+            error.status = response.status;
+            error.payload = payload;
+            throw error;
+        }
+        return payload;
+    };
+
+    const formatDate = (iso) => {
+        if (!iso) return '';
+        try { return new Date(iso).toLocaleString(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }); }
+        catch { return iso; }
+    };
+
+    const formatBytes = (bytes) => {
+        if (!bytes) return '0 B';
+        const kb = bytes / 1024;
+        if (kb < 1024) return `${kb.toFixed(0)} KB`;
+        return `${(kb / 1024).toFixed(2)} MB`;
+    };
+
+    const recipientTypeLabel = (type) => ({
+        admin: t.tplRecipientAdmin,
+        customer: t.tplRecipientCustomer,
+        custom: t.tplRecipientCustom
+    }[type] || type);
+
+    const triggerLabel = (trigger) => t.triggerLabels[trigger] || trigger;
+
+    const loadTemplates = async () => {
+        try {
+            const data = await adminFetch('/api/admin/notification-templates');
+            templates = data.templates || [];
+            meta = data.meta || meta;
+            if (!meta.mailEnabled) setStatus(t.mailNotConfigured, 'warn');
+            else setStatus('');
+        } catch (error) {
+            templates = [];
+            setStatus(t.loadFailed, 'error');
+            throw error;
+        }
+    };
+
+    const loadAssets = async () => {
+        try {
+            const data = await adminFetch('/api/admin/email-assets');
+            assets = data.assets || [];
+        } catch {
+            assets = [];
+        }
+    };
+
+    const renderList = () => {
+        if (!listEl) return;
+        if (!templates.length) {
+            listEl.innerHTML = `<p class="admin-empty">${esc(t.loadFailed)}</p>`;
+            return;
+        }
+        listEl.innerHTML = templates.map((tpl) => {
+            const selected = tpl.id === selectedId ? ' is-selected' : '';
+            const dot = tpl.enabled ? 'admin-dot--success' : 'admin-dot--danger';
+            return `<div class="admin-order-item${selected}" data-notif-row data-notif-id="${esc(tpl.id)}" role="button" tabindex="0">
+                <div class="admin-order-item__body">
+                    <span class="admin-order-item__name">${esc(tpl.name)}</span>
+                </div>
+                <span class="admin-dot ${dot}"></span>
+            </div>`;
+        }).join('');
+
+        listEl.querySelectorAll('[data-notif-row]').forEach((row) => {
+            const activate = () => selectTemplate(row.getAttribute('data-notif-id'));
+            row.addEventListener('click', activate);
+            row.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    activate();
                 }
-                pop.remove();
-                const toast = document.querySelector('[data-admin-feedback]');
-                if (toast) { toast.textContent = t.success; toast.hidden = false; toast.classList.remove('admin-toast--error'); setTimeout(() => { toast.hidden = true; }, 4000); }
-            } catch (e) {
-                if (errEl) { errEl.textContent = e.message; errEl.hidden = false; }
+            });
+        });
+    };
+
+    const renderTokensHelp = () => {
+        return TOKEN_REFERENCE.map((group) => {
+            const rows = group.tokens.map((item) => `
+                <tr>
+                    <td><button type="button" class="admin-notif-token" data-notif-copy-token data-token="${esc(item.token)}" title="${esc(locale === 'en' ? 'Copy' : 'Kopieren')}">${esc(item.token)}</button></td>
+                    <td>${esc(item.desc)}</td>
+                </tr>
+            `).join('');
+            return `<details class="admin-notif-help-group"><summary>${esc(group.group)}</summary>
+                <table class="admin-notif-token-table"><tbody>${rows}</tbody></table></details>`;
+        }).join('');
+    };
+
+    const PREVIEW_CONTEXT = {
+        appBaseUrl: window.location.origin,
+        brand: {
+            name: 'Indiebox',
+            email: 'indiebox@brainbot.com',
+            websiteUrl: 'https://indiebox.ai',
+            websiteDomain: 'indiebox.ai'
+        },
+        order: {
+            id: 'preview-order',
+            orderNumber: 999,
+            product: 'Indiebox AI-Workstation',
+            amount: '3999.00',
+            currency: 'EUR',
+            paymentMethod: 'creditcard',
+            paidAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+            createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
+            notes: locale === 'en' ? 'Please ring Mustermann.' : 'Bitte klingeln bei Mustermann.',
+            notesHtml: locale === 'en' ? 'Please ring Mustermann.' : 'Bitte klingeln bei Mustermann.',
+            locale,
+            adminUrl: `${window.location.origin}/admin/orders.html`,
+            statusUrl: `${window.location.origin}/checkout-status.html`
+        },
+        customer: {
+            firstName: 'Alex',
+            lastName: locale === 'en' ? 'Example' : 'Beispiel',
+            fullName: locale === 'en' ? 'Alex Example' : 'Alex Beispiel',
+            email: 'kunde@example.com',
+            phone: '+49 171 0000000',
+            company: locale === 'en' ? 'Example GmbH' : 'Beispiel GmbH',
+            phoneLine: (locale === 'en' ? 'Phone' : 'Telefon') + ': +49 171 0000000',
+            companyLine: (locale === 'en' ? 'Company' : 'Firma') + (locale === 'en' ? ': Example GmbH' : ': Beispiel GmbH')
+        },
+        billingAddress: {
+            careOf: '',
+            street: 'Musterstraße 1',
+            zip: '55116',
+            city: 'Mainz',
+            country: locale === 'en' ? 'Germany' : 'Deutschland',
+            block: `Musterstraße 1\n55116 Mainz\n${locale === 'en' ? 'Germany' : 'Deutschland'}`,
+            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${locale === 'en' ? 'Germany' : 'Deutschland'}`
+        },
+        shippingAddress: {
+            careOf: '',
+            street: 'Musterstraße 1',
+            zip: '55116',
+            city: 'Mainz',
+            country: locale === 'en' ? 'Germany' : 'Deutschland',
+            block: `Musterstraße 1\n55116 Mainz\n${locale === 'en' ? 'Germany' : 'Deutschland'}`,
+            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${locale === 'en' ? 'Germany' : 'Deutschland'}`
+        }
+    };
+
+    const resolvePath = (ctx, path) => path.split('.').reduce((obj, key) => (obj == null ? obj : obj[key]), ctx);
+
+    const renderTemplate = (template, mode) => {
+        if (!template) return '';
+        return template.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (_, path) => {
+            const value = resolvePath(PREVIEW_CONTEXT, path);
+            if (value === undefined || value === null) return '';
+            const stringValue = String(value);
+            if (mode === 'html') {
+                const lastKey = path.split('.').pop() || '';
+                if (lastKey.endsWith('Html')) return stringValue;
+                return esc(stringValue);
             }
+            return stringValue;
+        });
+    };
+
+    const rewriteRelativeMailToAbsolute = (html) => {
+        if (!html) return html;
+        const prefix = `${window.location.origin}/mail/`;
+        return html.replace(
+            /(src|href)(\s*=\s*)(["'])(\/mail\/)([^"']+)(["'])/gi,
+            (_m, a, eq, q1, _rp, path, q2) => `${a}${eq}${q1}${prefix}${path}${q2}`
+        );
+    };
+
+    const buildPreviewHtml = (htmlTemplate) => {
+        const rendered = renderTemplate(htmlTemplate, 'html');
+        const absolute = rewriteRelativeMailToAbsolute(rendered);
+        return `<!doctype html><html><head><meta charset="utf-8"><base href="${window.location.origin}/"></head><body style="margin:0;">${absolute}</body></html>`;
+    };
+
+    const renderAssets = () => {
+        if (!assets.length) {
+            return `<p class="admin-empty">${esc(t.imagesEmpty)}</p>`;
+        }
+        return `<ul class="admin-notif-asset-list">${assets.map((asset) => `
+            <li class="admin-notif-asset">
+                <img class="admin-notif-asset__thumb" src="${esc(asset.url)}" alt="">
+                <div class="admin-notif-asset__info">
+                    <span class="admin-notif-asset__filename">${esc(asset.filename)}</span>
+                    <span class="admin-notif-asset__meta">${esc(asset.mimeType)} · ${esc(formatBytes(asset.size))}</span>
+                    <code class="admin-notif-asset__url">${esc(asset.url)}</code>
+                </div>
+                <div class="admin-notif-asset__actions">
+                    <button type="button" class="button button--plain-light button--pill button--sm" data-notif-copy-url data-url="${esc(asset.url)}">${esc(t.copyUrl)}</button>
+                    <button type="button" class="button button--plain-light button--pill button--sm" data-notif-delete-asset data-id="${esc(asset.id)}">${esc(t.deleteAsset)}</button>
+                </div>
+            </li>
+        `).join('')}</ul>`;
+    };
+
+    let htmlViewMode = 'edit';
+
+    const renderHtmlEditor = (htmlValue) => {
+        if (htmlViewMode === 'preview') {
+            const previewDoc = buildPreviewHtml(htmlValue);
+            const encoded = previewDoc.replace(/"/g, '&quot;');
+            return `<iframe class="admin-notif-preview-frame" data-notif-preview-frame sandbox srcdoc="${encoded}" title="${esc(locale === 'en' ? 'Template preview' : 'Template-Vorschau')}"></iframe>`;
+        }
+        return `<textarea class="form-input admin-notif-textarea admin-notif-textarea--code" data-notif-field="htmlTemplate" rows="20" spellcheck="false">${esc(htmlValue)}</textarea>`;
+    };
+
+    const renderDetail = () => {
+        if (!detailEl) return;
+        const tpl = templates.find((x) => x.id === selectedId);
+        if (!tpl) {
+            detailEl.innerHTML = `<div class="admin-detail-placeholder"><p>${esc(t.pickTemplate)}</p></div>`;
+            return;
+        }
+
+        const form = currentFormValues || tpl;
+        const recipientOptions = meta.recipientTypes
+            .map((type) => `<option value="${esc(type)}"${type === form.recipientType ? ' selected' : ''}>${esc(recipientTypeLabel(type))}</option>`)
+            .join('');
+        const triggerOptions = meta.triggers
+            .map((tr) => `<option value="${esc(tr)}"${tr === form.triggerEvent ? ' selected' : ''}>${esc(triggerLabel(tr))}</option>`)
+            .join('');
+
+        const htmlValue = form.htmlTemplate || '';
+
+        detailEl.innerHTML = `
+            <div class="admin-notif-detail" data-notif-detail>
+                <header class="admin-notif-detail__header">
+                    <div class="admin-notif-detail__title-group">
+                        <h3>${esc(tpl.name)}</h3>
+                        <p class="admin-notif-detail__subtitle">${esc(triggerLabel(tpl.triggerEvent))} · ${esc(recipientTypeLabel(tpl.recipientType))}${tpl.locale ? ' · ' + esc(tpl.locale.toUpperCase()) : ''} · ${esc(locale === 'en' ? 'Updated' : 'Aktualisiert')} ${esc(formatDate(tpl.updatedAt))}</p>
+                    </div>
+                    <label class="admin-notif-switch">
+                        <input type="checkbox" data-notif-field="enabled"${form.enabled ? ' checked' : ''}>
+                        <span class="admin-notif-switch__track"><span class="admin-notif-switch__thumb"></span></span>
+                        <span class="admin-notif-switch__label">${esc(t.tplEnabled)}</span>
+                    </label>
+                </header>
+
+                <form class="admin-notif-form" data-notif-form>
+                    <div class="admin-notif-fieldset">
+                        <div class="admin-notif-field">
+                            <label class="admin-notif-label">${esc(t.tplName)}</label>
+                            <input class="admin-notif-input" type="text" data-notif-field="name" value="${esc(form.name)}" required>
+                        </div>
+                        <div class="admin-notif-field">
+                            <label class="admin-notif-label">${esc(t.tplDescription)}</label>
+                            <input class="admin-notif-input" type="text" data-notif-field="description" value="${esc(form.description || '')}">
+                        </div>
+                        <div class="admin-notif-row-3">
+                            <div class="admin-notif-field">
+                                <label class="admin-notif-label">${esc(t.tplTrigger)}</label>
+                                <select class="admin-notif-input" data-notif-field="triggerEvent">${triggerOptions}</select>
+                            </div>
+                            <div class="admin-notif-field">
+                                <label class="admin-notif-label">${esc(t.tplRecipient)}</label>
+                                <select class="admin-notif-input" data-notif-field="recipientType">${recipientOptions}</select>
+                            </div>
+                            <div class="admin-notif-field">
+                                <label class="admin-notif-label">${esc(t.tplLocale)}</label>
+                                <select class="admin-notif-input" data-notif-field="locale">
+                                    <option value=""${!form.locale ? ' selected' : ''}>${esc(t.tplLocaleAny)}</option>
+                                    <option value="de"${form.locale === 'de' ? ' selected' : ''}>DE</option>
+                                    <option value="en"${form.locale === 'en' ? ' selected' : ''}>EN</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="admin-notif-field" data-notif-recipient-override ${form.recipientType === 'custom' ? '' : 'hidden'}>
+                            <label class="admin-notif-label">${esc(t.tplRecipientOverride)}</label>
+                            <input class="admin-notif-input" type="email" data-notif-field="recipientOverride" value="${esc(form.recipientOverride || '')}" placeholder="name@example.com">
+                        </div>
+                        <div class="admin-notif-field">
+                            <label class="admin-notif-label">${esc(t.tplSubject)}</label>
+                            <input class="admin-notif-input" type="text" data-notif-field="subjectTemplate" value="${esc(form.subjectTemplate)}" required>
+                        </div>
+                    </div>
+
+                    <div class="admin-notif-block">
+                        <div class="admin-notif-block__header">
+                            <h4 class="admin-notif-block__title">${esc(t.tplTextBody)}</h4>
+                        </div>
+                        <textarea class="form-input admin-notif-textarea" data-notif-field="textTemplate" rows="10" spellcheck="false">${esc(form.textTemplate)}</textarea>
+                    </div>
+
+                    <div class="admin-notif-block">
+                        <div class="admin-notif-block__header">
+                            <h4 class="admin-notif-block__title">${esc(t.tplHtmlBody)}</h4>
+                            <div class="admin-notif-block__actions">
+                                <div class="admin-notif-view-toggle" role="tablist">
+                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'edit' ? ' is-active' : ''}" data-notif-html-mode="edit" aria-selected="${htmlViewMode === 'edit'}">${esc(locale === 'en' ? 'Edit' : 'Bearbeiten')}</button>
+                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'preview' ? ' is-active' : ''}" data-notif-html-mode="preview" aria-selected="${htmlViewMode === 'preview'}">${esc(locale === 'en' ? 'Preview' : 'Vorschau')}</button>
+                                </div>
+                                <button type="button" class="button button--plain-light button--pill button--sm" data-notif-import-html>${esc(t.importHtmlButton)}</button>
+                            </div>
+                        </div>
+                        <div class="admin-notif-html-body" data-notif-html-body>${renderHtmlEditor(htmlValue)}</div>
+                        <p class="admin-notif-hint admin-notif-hint--muted">${esc(t.imagesHint)}</p>
+                    </div>
+
+                    <div class="admin-notif-block">
+                        <div class="admin-notif-block__header">
+                            <h4 class="admin-notif-block__title">${esc(t.imagesTitle)}</h4>
+                            <div class="admin-notif-block__actions">
+                                <button type="button" class="button button--plain-light button--pill button--sm" data-notif-upload-asset>${esc(t.uploadButton)}</button>
+                                <input type="file" accept="image/png,image/jpeg,image/gif,image/webp" data-notif-upload-input hidden>
+                            </div>
+                        </div>
+                        <div data-notif-asset-list>${renderAssets()}</div>
+                    </div>
+
+                    <details class="admin-notif-help">
+                        <summary>${esc(t.tokensTitle)}</summary>
+                        <p class="admin-notif-hint">${esc(t.tokensHelp)}</p>
+                        <div class="admin-notif-help__body">${renderTokensHelp()}</div>
+                    </details>
+
+                    <div class="admin-notif-actions">
+                        <button type="submit" class="button button--plain-dark button--pill button--md" data-notif-save>${esc(t.saveButton)}</button>
+                        <button type="button" class="button button--plain-light button--pill button--md" data-notif-test>${esc(t.testButton)}</button>
+                        <button type="button" class="button button--plain-light button--pill button--md" data-notif-export>${esc(t.exportButton)}</button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        bindDetailHandlers();
+    };
+
+    const swapHtmlBody = () => {
+        const bodyEl = detailEl.querySelector('[data-notif-html-body]');
+        if (!bodyEl) return;
+        const currentValue = (currentFormValues?.htmlTemplate)
+            ?? (templates.find((x) => x.id === selectedId)?.htmlTemplate)
+            ?? '';
+        bodyEl.innerHTML = renderHtmlEditor(currentValue);
+        // Re-bind event for the new textarea (if edit mode)
+        const ta = bodyEl.querySelector('textarea[data-notif-field="htmlTemplate"]');
+        if (ta) {
+            ta.addEventListener('input', () => {
+                dirty = true;
+                currentFormValues = collectFormValues();
+            });
+        }
+        // Update toggle button states
+        detailEl.querySelectorAll('[data-notif-html-mode]').forEach((btn) => {
+            const mode = btn.getAttribute('data-notif-html-mode');
+            const active = mode === htmlViewMode;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', String(active));
+        });
+    };
+
+    const collectFormValues = () => {
+        const detail = detailEl.querySelector('[data-notif-detail]');
+        if (!detail) return null;
+        const tpl = templates.find((x) => x.id === selectedId);
+        const values = { ...(currentFormValues || tpl || {}) };
+        detail.querySelectorAll('[data-notif-field]').forEach((el) => {
+            const key = el.getAttribute('data-notif-field');
+            if (el.type === 'checkbox') values[key] = el.checked;
+            else values[key] = el.value;
+        });
+        return values;
+    };
+
+    const bindDetailHandlers = () => {
+        const form = detailEl.querySelector('[data-notif-form]');
+        if (!form) return;
+
+        form.querySelectorAll('[data-notif-field]').forEach((el) => {
+            const evt = (el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+            el.addEventListener(evt, () => {
+                dirty = true;
+                currentFormValues = collectFormValues();
+                const recipientOverride = detailEl.querySelector('[data-notif-recipient-override]');
+                if (el.getAttribute('data-notif-field') === 'recipientType' && recipientOverride) {
+                    if (el.value === 'custom') recipientOverride.removeAttribute('hidden');
+                    else recipientOverride.setAttribute('hidden', '');
+                }
+            });
         });
 
-        // Close on outside click
-        const outsideHandler = (ev) => {
-            if (!pop.contains(ev.target) && ev.target !== statusEl) { pop.remove(); document.removeEventListener('click', outsideHandler); }
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await saveTemplate();
+        });
+
+        form.querySelector('[data-notif-test]')?.addEventListener('click', () => sendTest());
+        form.querySelector('[data-notif-export]')?.addEventListener('click', () => exportTemplate());
+        form.querySelector('[data-notif-import-html]')?.addEventListener('click', () => openImportHtmlDialog());
+
+        const uploadButton = form.querySelector('[data-notif-upload-asset]');
+        const uploadInput = form.querySelector('[data-notif-upload-input]');
+        uploadButton?.addEventListener('click', () => uploadInput?.click());
+        uploadInput?.addEventListener('change', () => {
+            const file = uploadInput.files?.[0];
+            if (file) handleAssetUpload(file).finally(() => { uploadInput.value = ''; });
+        });
+
+        form.querySelectorAll('[data-notif-copy-url]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const url = btn.getAttribute('data-url') || '';
+                navigator.clipboard?.writeText(url).then(() => setFeedback(t.copied));
+            });
+        });
+
+        form.querySelectorAll('[data-notif-delete-asset]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!confirm(t.confirmDeleteAsset)) return;
+                deleteAsset(btn.getAttribute('data-id'));
+            });
+        });
+
+        form.querySelectorAll('[data-notif-copy-token]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const tok = btn.getAttribute('data-token') || '';
+                navigator.clipboard?.writeText(tok).then(() => setFeedback(t.copied));
+            });
+        });
+
+        form.querySelectorAll('[data-notif-html-mode]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const mode = btn.getAttribute('data-notif-html-mode');
+                if (mode !== 'edit' && mode !== 'preview') return;
+                // Save current textarea value before switching
+                currentFormValues = collectFormValues();
+                htmlViewMode = mode;
+                swapHtmlBody();
+            });
+        });
+    };
+
+    const selectTemplate = (id) => {
+        if (dirty && !confirm(locale === 'en' ? 'Discard unsaved changes?' : 'Ungespeicherte Änderungen verwerfen?')) return;
+        selectedId = id;
+        currentFormValues = null;
+        dirty = false;
+        renderList();
+        renderDetail();
+    };
+
+    const saveTemplate = async () => {
+        const tpl = templates.find((x) => x.id === selectedId);
+        if (!tpl) return;
+        const values = collectFormValues();
+        if (!values) return;
+
+        const patch = {
+            name: values.name?.trim(),
+            description: values.description || '',
+            triggerEvent: values.triggerEvent,
+            recipientType: values.recipientType,
+            recipientOverride: values.recipientOverride || '',
+            locale: values.locale || '',
+            enabled: Boolean(values.enabled),
+            subjectTemplate: values.subjectTemplate,
+            textTemplate: values.textTemplate,
+            htmlTemplate: values.htmlTemplate || ''
         };
-        setTimeout(() => document.addEventListener('click', outsideHandler), 0);
+
+        try {
+            const response = await adminFetch(`/api/admin/notification-templates/${encodeURIComponent(tpl.id)}`, {
+                method: 'PATCH',
+                body: JSON.stringify(patch)
+            });
+            const updated = response.template;
+            const idx = templates.findIndex((x) => x.id === tpl.id);
+            if (idx >= 0) templates[idx] = updated;
+            dirty = false;
+            currentFormValues = null;
+            renderList();
+            renderDetail();
+            setFeedback(t.saveOk);
+        } catch (error) {
+            setFeedback(`${t.saveFailed} ${error.message || ''}`, true);
+        }
+    };
+
+    const sendTest = async () => {
+        const tpl = templates.find((x) => x.id === selectedId);
+        if (!tpl) return;
+
+        const defaultTo = meta.adminRecipient || '';
+        const to = prompt(t.testPromptTo, defaultTo);
+        if (to === null) return;
+        const recipient = to.trim();
+        if (!recipient) return;
+
+        try {
+            await adminFetch(`/api/admin/notification-templates/${encodeURIComponent(tpl.id)}/test`, {
+                method: 'POST',
+                body: JSON.stringify({ to: recipient })
+            });
+            setFeedback(`${t.testOk} → ${recipient}`);
+        } catch (error) {
+            setFeedback(`${t.testFailed} ${error.message || ''}`, true);
+        }
+    };
+
+    const exportTemplate = () => {
+        if (!selectedId) return;
+        const url = `/api/admin/notification-templates/${encodeURIComponent(selectedId)}/export`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.rel = 'noopener';
+        a.click();
+    };
+
+    const readFileAsBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result || '';
+            const commaIndex = String(result).indexOf(',');
+            resolve(commaIndex >= 0 ? String(result).slice(commaIndex + 1) : String(result));
+        };
+        reader.onerror = () => reject(reader.error || new Error('read_failed'));
+        reader.readAsDataURL(file);
     });
+
+    const readFileAsText = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(reader.error || new Error('read_failed'));
+        reader.readAsText(file);
+    });
+
+    const handleAssetUpload = async (file) => {
+        try {
+            const base64 = await readFileAsBase64(file);
+            const response = await adminFetch('/api/admin/email-assets', {
+                method: 'POST',
+                body: JSON.stringify({
+                    filename: file.name,
+                    mimeType: file.type,
+                    dataBase64: base64
+                })
+            });
+            const asset = response.asset;
+            if (asset) {
+                const existing = assets.find((x) => x.id === asset.id);
+                if (!existing) assets.unshift(asset);
+                else Object.assign(existing, asset);
+            }
+            refreshAssetList();
+            setFeedback(t.uploadOk);
+        } catch (error) {
+            setFeedback(`${t.uploadFailed} ${error.message || ''}`, true);
+        }
+    };
+
+    const refreshAssetList = () => {
+        const listPane = detailEl.querySelector('[data-notif-asset-list]');
+        if (!listPane) return;
+        listPane.innerHTML = renderAssets();
+        // Re-bind copy/delete handlers on the new nodes
+        listPane.querySelectorAll('[data-notif-copy-url]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                navigator.clipboard?.writeText(btn.getAttribute('data-url') || '').then(() => setFeedback(t.copied));
+            });
+        });
+        listPane.querySelectorAll('[data-notif-delete-asset]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!confirm(t.confirmDeleteAsset)) return;
+                deleteAsset(btn.getAttribute('data-id'));
+            });
+        });
+    };
+
+    const deleteAsset = async (id) => {
+        try {
+            await adminFetch(`/api/admin/email-assets/${encodeURIComponent(id)}`, { method: 'DELETE' });
+            assets = assets.filter((a) => a.id !== id);
+            refreshAssetList();
+            setFeedback(t.trashOk);
+        } catch (error) {
+            setFeedback(error.message || t.uploadFailed, true);
+        }
+    };
+
+    const openImportHtmlDialog = () => {
+        if (!selectedId) return;
+        const value = prompt(t.importHtmlHint, '');
+        if (value === null) return;
+        const html = value.trim();
+        if (!html) return;
+        importHtmlForTemplate(html);
+    };
+
+    const importHtmlForTemplate = async (html) => {
+        const tpl = templates.find((x) => x.id === selectedId);
+        if (!tpl) return;
+        try {
+            const response = await adminFetch(`/api/admin/notification-templates/${encodeURIComponent(tpl.id)}/import-html`, {
+                method: 'POST',
+                body: JSON.stringify({ html })
+            });
+            const updated = response.template;
+            const idx = templates.findIndex((x) => x.id === tpl.id);
+            if (idx >= 0) templates[idx] = updated;
+            currentFormValues = null;
+            dirty = false;
+            await loadAssets();
+            renderDetail();
+            setFeedback(t.importHtmlOk(response.importedImages || 0));
+            if (response.failures?.length) {
+                console.warn('HTML import: some images failed', response.failures);
+                setTimeout(() => setFeedback(t.importHtmlFailures(response.failures.length), true), 1200);
+            }
+        } catch (error) {
+            setFeedback(`${t.importHtmlFailed} ${error.message || ''}`, true);
+        }
+    };
+
+    const importBundleFromText = async (jsonText) => {
+        let parsed;
+        try { parsed = JSON.parse(jsonText); }
+        catch { setFeedback(t.importBundleFailed + ' (JSON)', true); return; }
+
+        try {
+            const response = await adminFetch('/api/admin/notification-templates/import-bundle', {
+                method: 'POST',
+                body: JSON.stringify(parsed)
+            });
+            setFeedback(t.importBundleOk);
+            await Promise.all([loadTemplates(), loadAssets()]);
+            if (response.template?.id) selectedId = response.template.id;
+            renderList();
+            renderDetail();
+        } catch (error) {
+            setFeedback(`${t.importBundleFailed} ${error.message || ''}`, true);
+        }
+    };
+
+    const openImportBundleDialog = () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json,.json';
+        input.addEventListener('change', async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+            const text = await readFileAsText(file);
+            await importBundleFromText(text);
+        });
+        input.click();
+    };
+
+    reloadButton?.addEventListener('click', async () => {
+        await Promise.all([loadTemplates(), loadAssets()]);
+        renderList();
+        if (selectedId && !templates.find((tpl) => tpl.id === selectedId)) {
+            selectedId = null;
+        }
+        renderDetail();
+    });
+
+    importBundleButton?.addEventListener('click', openImportBundleDialog);
+
+    const authShell = setupAdminAuthShell({
+        locale,
+        authFailed: t.authFailed,
+        authMissing: t.authMissing,
+        onAuthenticated: async () => {
+            await Promise.all([loadTemplates(), loadAssets()]);
+            renderList();
+            renderDetail();
+        },
+        onUnauthenticated: () => {
+            templates = [];
+            assets = [];
+            selectedId = null;
+            if (listEl) listEl.innerHTML = '';
+            if (detailEl) detailEl.innerHTML = `<div class="admin-detail-placeholder"><p>${esc(t.pickTemplate)}</p></div>`;
+        }
+    });
+
+    authShell.loadAuthState();
 }
 
 function setupAdminRoleGuard() {
     // On any admin page: after session check, if user is not admin, hide admin content and show message
-    const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users]');
+    const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users], [data-admin-notifications]');
     if (!adminContainers.length) return;
 
     const locale = document.querySelector('[data-locale]')?.getAttribute('data-locale') === 'en' ? 'en' : 'de';
@@ -3038,7 +3898,7 @@ function setupAdminRoleGuard() {
             // Hide admin nav links
             document.querySelectorAll('.admin-subnav a').forEach((link) => {
                 const href = link.getAttribute('href') || '';
-                if (href.includes('inventory') || href.includes('orders') || href.includes('users')) {
+                if (href.includes('inventory') || href.includes('orders') || href.includes('users') || href.includes('notifications')) {
                     link.style.display = 'none';
                 }
             });
@@ -3064,6 +3924,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupAdminInventory();
     setupAdminOrders();
     setupAdminUsers();
-    setupChangePasswordPopover();
+    setupAdminNotifications();
     setupAdminRoleGuard();
 });

@@ -48,6 +48,10 @@ staging.indiebox.ai {
     reverse_proxy backend-staging:8080
   }
 
+  handle /mail/* {
+    reverse_proxy backend-staging:8080
+  }
+
   root * /srv/staging.indiebox/site
   encode zstd gzip
   file_server
@@ -80,6 +84,10 @@ indiebox.ai, www.indiebox.ai {
   }
 
   handle /api/* {
+    reverse_proxy backend-live:8080
+  }
+
+  handle /mail/* {
     reverse_proxy backend-live:8080
   }
 

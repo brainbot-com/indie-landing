@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin – Hilfe</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="docs-page admin-page admin-help-page" data-admin-auth-state="authenticated">
+    <header class="admin-header">
+        <div class="container admin-header__inner">
+            <a class="admin-header__logo" href="./inventory.html" aria-label="Indiebox Admin">Indiebox Admin</a>
+            <div class="admin-header__actions">
+                <a href="../en/admin/help.html" class="button button--plain-light button--pill button--sm">EN</a>
+            </div>
+        </div>
+        <div class="container">
+            <nav class="admin-subnav" aria-label="Admin-Bereiche">
+                <a href="./inventory.html">Bestand</a>
+                <a href="./orders.html">Bestellungen</a>
+                <a href="./users.html">Benutzer</a>
+                <a href="./notifications.html">Benachrichtigungen</a>
+                <a href="./help.html" aria-current="page">Hilfe</a>
+                <a href="../checkout.html">Checkout ansehen</a>
+                <a href="../index.html">Website</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-shell">
+        <div class="container admin-help">
+            <aside class="admin-help__nav" aria-label="Abschnitte">
+                <a href="#notifications">Benachrichtigungen</a>
+                <a href="#inventory">Bestand</a>
+                <a href="#orders">Bestellungen</a>
+                <a href="#users">Benutzer</a>
+            </aside>
+
+            <article class="admin-help__content">
+                <header class="admin-help__hero">
+                    <p class="admin-help__kicker">Hilfe</p>
+                    <h1>Indiebox Admin</h1>
+                    <p class="admin-help__lead">Kurze Erklärungen zu den wichtigsten Abläufen im Admin-Bereich.</p>
+                </header>
+
+                <section id="notifications" class="admin-help__section">
+                    <h2>Benachrichtigungen</h2>
+                    <p>Auf der Seite <a href="./notifications.html">Benachrichtigungen</a> verwaltest du E-Mail-Templates, die automatisch bei Statusänderungen versendet werden.</p>
+
+                    <h3>Auslöser</h3>
+                    <p>Aktuell gibt es einen Auslöser: <code>order.paid</code> — wenn eine Bestellung von Mollie als bezahlt bestätigt wird. Zu diesem Auslöser laufen alle aktiven Templates mit passendem Sprachfilter.</p>
+
+                    <h3>Aufbau eines Templates</h3>
+                    <ul>
+                        <li><strong>Name</strong> — interne Bezeichnung, nur im Admin sichtbar.</li>
+                        <li><strong>Beschreibung</strong> — kurze Notiz, wofür das Template genutzt wird.</li>
+                        <li><strong>Auslöser</strong> — an welches Ereignis es gebunden ist.</li>
+                        <li><strong>Empfänger</strong> — <em>Admin</em> (interne Mail an die konfigurierte <code>ORDER_NOTIFICATION_TO</code>-Adresse), <em>Kunde</em> (Adresse aus der Bestellung) oder <em>feste Adresse</em>.</li>
+                        <li><strong>Sprachfilter</strong> — wenn gesetzt, läuft das Template nur bei Bestellungen mit genau dieser Sprache. „Alle" ignoriert die Sprache.</li>
+                        <li><strong>Betreff</strong> — Subject-Zeile, darf Tokens enthalten.</li>
+                        <li><strong>Plain-Text-Version</strong> — fällt für Mail-Clients ohne HTML-Support zurück.</li>
+                        <li><strong>HTML-Version</strong> — die eigentliche visuelle E-Mail.</li>
+                        <li><strong>Aktiv</strong> — deaktivierte Templates werden beim Auslöser übersprungen.</li>
+                    </ul>
+
+                    <h3>Tokens</h3>
+                    <p>Platzhalter im Format <code>{{pfad.zum.wert}}</code> werden beim Versand durch echte Bestelldaten ersetzt. Im HTML werden Werte automatisch HTML-escaped. Keys mit der Endung <code>Html</code> (z. B. <code>{{billingAddress.blockHtml}}</code>) werden als fertiges HTML-Fragment eingesetzt.</p>
+                    <p>Die vollständige Tokenliste findest du im Editor unter „Verfügbare Tokens" — mit Klick kopierbar.</p>
+
+                    <h3>HTML bearbeiten und Vorschau</h3>
+                    <p>Im HTML-Editor wechselst du oben rechts zwischen <strong>Bearbeiten</strong> und <strong>Vorschau</strong>. Die Vorschau rendert das Template mit Beispieldaten und zeigt, wie die Mail beim Empfänger ankommt.</p>
+
+                    <h3>Bilder</h3>
+                    <p>Bilder liegen content-adressiert unter <code>/mail/&lt;hash&gt;.&lt;ext&gt;</code> und sind öffentlich erreichbar. Im Editor lädst du sie hoch und bekommst eine relative URL, die du im HTML als <code>&lt;img src="/mail/…"&gt;</code> einfügst.</p>
+                    <p>Beim Versand wird die relative URL automatisch zur vollen Domain erweitert — das gleiche Template funktioniert deshalb unverändert auf Staging und Live.</p>
+                    <p>Erlaubt sind PNG, JPEG, GIF, WebP, maximal 3 MB pro Datei.</p>
+
+                    <h3>Template aus externem Editor importieren</h3>
+                    <p>Tools wie Stripo oder BeeFree exportieren fertige HTML-Mails. Wähle im HTML-Bereich <strong>HTML importieren</strong>, füge den Export-Code ein, bestätige — externe Bildreferenzen werden automatisch heruntergeladen, in <code>/mail/</code> abgelegt und der HTML-Code entsprechend umgeschrieben. Danach Tokens wie <code>{{customer.firstName}}</code> an den gewünschten Stellen einsetzen.</p>
+
+                    <h3>Test-Versand</h3>
+                    <p>Der Button <strong>Test-Mail senden</strong> verschickt die aktuell gespeicherte Version mit Beispielbestelldaten an eine Adresse deiner Wahl. Der Betreff wird mit <code>[TEST]</code> vorangestellt.</p>
+
+                    <h3>Transport Staging → Live</h3>
+                    <p>Auf Staging fertigstellen und testen, dann <strong>Mail-Template exportieren</strong> — es lädt eine <code>.json</code>-Datei herunter, die das Template und alle verwendeten Bilder enthält.</p>
+                    <p>Auf Live oben rechts in der Kartenleiste <strong>Mail-Template importieren</strong>, die Datei wählen — Template und Bilder werden übernommen. Relative Bild-URLs bleiben gültig.</p>
+
+                    <h3>Mailgun-Konfiguration</h3>
+                    <p>Damit Mails tatsächlich versendet werden, müssen auf dem Server in der Laufzeit-Env folgende Variablen gesetzt sein:</p>
+                    <pre><code>MAILGUN_API_KEY=…
+MAILGUN_DOMAIN=mg.indiebox.ai
+MAILGUN_REGION=eu
+ORDER_NOTIFICATION_FROM=Indiebox &lt;indiebox@brainbot.com&gt;
+ORDER_NOTIFICATION_TO=indiebox@brainbot.com</code></pre>
+                    <p>Fehlt eine der ersten drei, überspringt der Backend-Versand still — Templates lassen sich aber trotzdem bearbeiten und in der Vorschau prüfen.</p>
+                </section>
+
+                <section id="inventory" class="admin-help__section">
+                    <h2>Bestand</h2>
+                    <p>Unter <a href="./inventory.html">Bestand</a> werden Gerätemodelle, Lieferantenbestellungen und einzelne Geräte verwaltet. Jeder Indiebox-Workflow (bestellt → im Lager → bereitgestellt → versendet → installiert) wird hier nachvollzogen.</p>
+                </section>
+
+                <section id="orders" class="admin-help__section">
+                    <h2>Bestellungen</h2>
+                    <p>Unter <a href="./orders.html">Bestellungen</a> siehst du alle eingehenden Kundenbestellungen mit Zahlstatus und Fulfillment-Fortschritt. Eine bezahlte Bestellung lässt sich einem konkreten Gerät aus dem Bestand zuordnen und durch die Versand- und Installationsschritte führen.</p>
+                </section>
+
+                <section id="users" class="admin-help__section">
+                    <h2>Benutzer</h2>
+                    <p>Unter <a href="./users.html">Benutzer</a> legst du Admin-Konten an und verwaltest Rollen. Nur Konten mit der Rolle <em>admin</em> sehen die internen Admin-Bereiche.</p>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <script src="../script.js"></script>
+</body>
+</html>

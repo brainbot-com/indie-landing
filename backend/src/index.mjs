@@ -32,6 +32,11 @@ const config = {
   adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
   adminSessionCookieName: process.env.ADMIN_SESSION_COOKIE_NAME || 'indiebox_admin_session',
   adminSessionTtlSeconds: Number.parseInt(process.env.ADMIN_SESSION_TTL_SECONDS || '2592000', 10),
+  mailgunApiKey: process.env.MAILGUN_API_KEY || '',
+  mailgunDomain: process.env.MAILGUN_DOMAIN || '',
+  mailgunRegion: (process.env.MAILGUN_REGION || 'eu').toLowerCase(),
+  orderNotificationTo: process.env.ORDER_NOTIFICATION_TO || '',
+  orderNotificationFrom: process.env.ORDER_NOTIFICATION_FROM || '',
   dataDir: process.env.DATA_DIR || '/app/data',
   enableAdminApi: process.env.ENABLE_ADMIN_API === 'true' || (process.env.APP_ENV || 'development') === 'development',
   port: Number.parseInt(process.env.PORT || '8080', 10)
@@ -75,6 +80,7 @@ const supportedPaymentMethods = {
 
 const store = await createStore({ dataDir: config.dataDir, logger: console });
 const rateLimitBuckets = new Map();
+seedNotificationTemplates();
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -471,6 +477,757 @@ function inventoryPayload(item, locale) {
   };
 }
 
+function mailNotificationsEnabled() {
+  return Boolean(
+    config.mailgunApiKey &&
+      config.mailgunDomain &&
+      config.orderNotificationFrom &&
+      config.orderNotificationTo
+  );
+}
+
+function mailgunApiBaseUrl() {
+  const host = config.mailgunRegion === 'us' ? 'api.mailgun.net' : 'api.eu.mailgun.net';
+  return `https://${host}/v3/${encodeURIComponent(config.mailgunDomain)}/messages`;
+}
+
+const MAIL_ASSET_URL_PREFIX = '/mail/';
+const MAIL_ASSET_MIME_BY_EXT = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp'
+};
+const MAIL_ASSET_EXT_BY_MIME = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/gif': '.gif',
+  'image/webp': '.webp'
+};
+const MAIL_ASSET_MAX_BYTES = 3 * 1024 * 1024;
+const MAIL_ASSET_MAX_PER_IMPORT = 20;
+const MAIL_ASSET_FETCH_TIMEOUT_MS = 10000;
+
+function isAllowedImageMime(mime) {
+  return Boolean(mime && Object.prototype.hasOwnProperty.call(MAIL_ASSET_EXT_BY_MIME, mime.toLowerCase()));
+}
+
+function extensionForMime(mime) {
+  return MAIL_ASSET_EXT_BY_MIME[(mime || '').toLowerCase()] || '';
+}
+
+function mimeForExtension(ext) {
+  return MAIL_ASSET_MIME_BY_EXT[(ext || '').toLowerCase()] || '';
+}
+
+function hashBufferToId(buffer) {
+  return crypto.createHash('sha256').update(buffer).digest('hex').slice(0, 16);
+}
+
+function relativeMailUrl(asset) {
+  return `${MAIL_ASSET_URL_PREFIX}${asset.id}${asset.extension}`;
+}
+
+function rewriteRelativeMailUrlsToAbsolute(html) {
+  if (!html) return html;
+  const base = config.appBaseUrl;
+  if (!base) return html;
+  const prefix = `${base.replace(/\/$/, '')}${MAIL_ASSET_URL_PREFIX}`;
+  return html.replace(
+    /(src|href)(\s*=\s*)(["'])(\/mail\/)([^"']+)(["'])/gi,
+    (_match, attr, eq, openQuote, _relPrefix, path, closeQuote) =>
+      `${attr}${eq}${openQuote}${prefix}${path}${closeQuote}`
+  );
+}
+
+function decodeDataUri(dataUri) {
+  const match = /^data:([^;]+);base64,(.+)$/i.exec(dataUri.trim());
+  if (!match) return null;
+  const mime = match[1].toLowerCase();
+  try {
+    const buffer = Buffer.from(match[2], 'base64');
+    return { mime, buffer };
+  } catch {
+    return null;
+  }
+}
+
+function isBlockedHostname(hostname) {
+  if (!hostname) return true;
+  const host = hostname.toLowerCase();
+  if (host === 'localhost' || host.endsWith('.localhost')) return true;
+  // IPv4 private ranges and loopback
+  if (/^127\./.test(host)) return true;
+  if (/^10\./.test(host)) return true;
+  if (/^192\.168\./.test(host)) return true;
+  if (/^172\.(1[6-9]|2\d|3[01])\./.test(host)) return true;
+  if (/^169\.254\./.test(host)) return true;
+  if (/^0\./.test(host)) return true;
+  // IPv6 loopback/private
+  if (host === '::1' || host === '[::1]') return true;
+  if (host.startsWith('fc') || host.startsWith('fd')) return true;
+  if (host.startsWith('fe80')) return true;
+  return false;
+}
+
+async function fetchExternalImage(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error('invalid_url');
+  }
+  if (parsed.protocol !== 'https:') throw new Error('not_https');
+  if (isBlockedHostname(parsed.hostname)) throw new Error('blocked_host');
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), MAIL_ASSET_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(parsed, { redirect: 'follow', signal: controller.signal });
+    if (!response.ok) throw new Error(`fetch_status_${response.status}`);
+    const mime = (response.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+    if (!isAllowedImageMime(mime)) throw new Error('unsupported_mime');
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    if (buffer.length > MAIL_ASSET_MAX_BYTES) throw new Error('too_large');
+    return { mime, buffer };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function saveImportedAsset(buffer, mime, originalFilename) {
+  const id = hashBufferToId(buffer);
+  const extension = extensionForMime(mime);
+  if (!extension) throw new Error('unsupported_mime');
+  const safeName = (originalFilename || `image${extension}`).replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
+  const existing = store.getEmailAssetMeta(id);
+  if (existing) return existing;
+  return store.saveEmailAsset({
+    id,
+    filename: safeName,
+    mimeType: mime,
+    extension,
+    data: buffer
+  });
+}
+
+async function rewriteHtmlImages(html) {
+  if (!html) return { html: html || '', imported: 0, failures: [] };
+
+  const imgSrcRegex = /<img\b[^>]*?\bsrc\s*=\s*(["'])([^"']+)\1/gi;
+  const matches = [];
+  let match;
+  while ((match = imgSrcRegex.exec(html)) !== null) {
+    matches.push({
+      fullQuoted: `${match[1]}${match[2]}${match[1]}`,
+      quote: match[1],
+      src: match[2]
+    });
+    if (matches.length > MAIL_ASSET_MAX_PER_IMPORT) break;
+  }
+
+  let importedCount = 0;
+  const failures = [];
+  const replacements = new Map();
+
+  for (const entry of matches) {
+    if (replacements.has(entry.src)) continue;
+    const rawSrc = entry.src.trim();
+
+    if (rawSrc.startsWith(MAIL_ASSET_URL_PREFIX)) {
+      continue;
+    }
+
+    try {
+      let asset;
+      if (rawSrc.startsWith('data:')) {
+        const decoded = decodeDataUri(rawSrc);
+        if (!decoded) throw new Error('invalid_data_uri');
+        if (!isAllowedImageMime(decoded.mime)) throw new Error('unsupported_mime');
+        if (decoded.buffer.length > MAIL_ASSET_MAX_BYTES) throw new Error('too_large');
+        asset = saveImportedAsset(decoded.buffer, decoded.mime, null);
+      } else if (/^https?:\/\//i.test(rawSrc)) {
+        const fetched = await fetchExternalImage(rawSrc);
+        const nameHint = (() => {
+          try {
+            const parsed = new URL(rawSrc);
+            return parsed.pathname.split('/').pop() || null;
+          } catch {
+            return null;
+          }
+        })();
+        asset = saveImportedAsset(fetched.buffer, fetched.mime, nameHint);
+      } else {
+        continue;
+      }
+
+      replacements.set(entry.src, relativeMailUrl(asset));
+      importedCount += 1;
+    } catch (error) {
+      failures.push({ src: rawSrc.slice(0, 200), reason: error.message });
+    }
+  }
+
+  const rewritten = html.replace(imgSrcRegex, (full, quote, src) => {
+    const replacement = replacements.get(src);
+    if (!replacement) return full;
+    return full.replace(`${quote}${src}${quote}`, `${quote}${replacement}${quote}`);
+  });
+
+  return { html: rewritten, imported: importedCount, failures };
+}
+
+async function sendViaMailgun({ from, to, subject, text, html }) {
+  const body = new URLSearchParams();
+  body.set('from', from);
+  body.set('to', to);
+  body.set('subject', subject);
+  body.set('text', text);
+  if (html) body.set('html', html);
+
+  const authHeader = `Basic ${Buffer.from(`api:${config.mailgunApiKey}`).toString('base64')}`;
+
+  const response = await fetch(mailgunApiBaseUrl(), {
+    method: 'POST',
+    headers: {
+      Authorization: authHeader,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: body.toString()
+  });
+
+  if (!response.ok) {
+    const responseText = await response.text().catch(() => '');
+    throw new Error(
+      `Mailgun request failed: ${response.status} ${response.statusText} ${responseText}`.trim()
+    );
+  }
+
+  return response.json().catch(() => ({}));
+}
+
+function formatAddressLines(address = {}, { includeCareOf = false } = {}) {
+  const lines = [];
+  if (includeCareOf && address.careOf) lines.push(`c/o ${address.careOf}`);
+  if (address.street) lines.push(address.street);
+
+  const cityLine = [address.zip, address.city].filter(Boolean).join(' ');
+  if (cityLine) lines.push(cityLine);
+  if (address.country) lines.push(address.country);
+
+  return lines;
+}
+
+function htmlEscape(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildAddressContext(address = {}, { includeCareOf = false } = {}) {
+  const lines = formatAddressLines(address, { includeCareOf });
+  return {
+    careOf: address.careOf || '',
+    street: address.street || '',
+    zip: address.zip || '',
+    city: address.city || '',
+    country: address.country || '',
+    block: lines.length > 0 ? lines.join('\n') : '',
+    blockHtml: lines.length > 0 ? lines.map(htmlEscape).join('<br>') : ''
+  };
+}
+
+function buildNotificationContext(order) {
+  const firstName = order.customer?.firstName || '';
+  const lastName = order.customer?.lastName || '';
+  const fullName = [firstName, lastName].filter(Boolean).join(' ');
+  const phone = order.customer?.phone || '';
+  const company = order.customer?.company || '';
+  const paymentMethod = order.paymentMethod || order.paymentMethodRequested || '';
+  const paidAt = order.paidAt || order.updatedAt || order.createdAt || '';
+  const adminUrl = `${config.appBaseUrl}/admin/orders.html?order=${encodeURIComponent(order.id)}`;
+  const statusUrl = order.statusToken
+    ? `${config.appBaseUrl}/checkout-status.html?order=${encodeURIComponent(order.id)}&token=${encodeURIComponent(order.statusToken)}`
+    : `${config.appBaseUrl}/checkout-status.html`;
+  const notesText = order.notes || '';
+  const notesHtml = notesText ? htmlEscape(notesText).replace(/\n/g, '<br>') : '';
+
+  return {
+    appBaseUrl: config.appBaseUrl,
+    brand: {
+      name: 'Indiebox',
+      email: config.orderNotificationTo || 'indiebox@brainbot.com',
+      websiteUrl: 'https://indiebox.ai',
+      websiteDomain: 'indiebox.ai'
+    },
+    order: {
+      id: order.id,
+      orderNumber: order.orderNumber ?? '',
+      product: order.product || config.checkoutProductName,
+      amount: order.amount || '',
+      currency: order.currency || 'EUR',
+      paymentMethod,
+      paidAt,
+      createdAt: order.createdAt || '',
+      updatedAt: order.updatedAt || '',
+      notes: notesText,
+      notesHtml,
+      locale: order.locale || 'de',
+      runtime: order.runtime || '',
+      adminUrl,
+      statusUrl
+    },
+    customer: {
+      firstName,
+      lastName,
+      fullName: fullName || 'n/a',
+      email: order.customer?.email || '',
+      phone,
+      company,
+      phoneLine: phone ? `Telefon: ${phone}` : '',
+      companyLine: company ? `Firma: ${company}` : ''
+    },
+    billingAddress: buildAddressContext(order.billingAddress),
+    shippingAddress: buildAddressContext(order.shippingAddress, { includeCareOf: true })
+  };
+}
+
+function resolveContextPath(context, path) {
+  const parts = path.split('.');
+  let value = context;
+  for (const part of parts) {
+    if (value === null || value === undefined) return undefined;
+    value = value[part];
+  }
+  return value;
+}
+
+function renderTemplateString(templateString, context, { mode = 'text' } = {}) {
+  if (!templateString) return '';
+  return templateString.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (_match, path) => {
+    const value = resolveContextPath(context, path);
+    if (value === undefined || value === null) return '';
+    const stringValue = String(value);
+    if (mode === 'html') {
+      // Keys ending with "Html" are considered pre-escaped HTML fragments.
+      const lastKey = path.split('.').pop() || '';
+      if (lastKey.endsWith('Html')) return stringValue;
+      return htmlEscape(stringValue);
+    }
+    return stringValue;
+  });
+}
+
+function resolveTemplateRecipient(template, order) {
+  if (template.recipientType === 'admin') {
+    return config.orderNotificationTo || '';
+  }
+  if (template.recipientType === 'customer') {
+    return order.customer?.email || '';
+  }
+  if (template.recipientType === 'custom') {
+    return template.recipientOverride || '';
+  }
+  return '';
+}
+
+function templateMatchesOrderLocale(template, order) {
+  if (!template.locale) return true;
+  const orderLocale = (order.locale || 'de').toLowerCase();
+  return template.locale.toLowerCase() === orderLocale;
+}
+
+async function sendTemplatedMail(template, order, context) {
+  const recipient = resolveTemplateRecipient(template, order);
+  if (!recipient) {
+    return { delivered: false, skipped: 'no_recipient' };
+  }
+
+  const subject = renderTemplateString(template.subjectTemplate, context, { mode: 'text' }).trim();
+  const text = renderTemplateString(template.textTemplate, context, { mode: 'text' });
+  const renderedHtml = template.htmlTemplate
+    ? renderTemplateString(template.htmlTemplate, context, { mode: 'html' })
+    : '';
+  const html = rewriteRelativeMailUrlsToAbsolute(renderedHtml);
+
+  await sendViaMailgun({
+    from: config.orderNotificationFrom,
+    to: recipient,
+    subject: subject || `Indiebox · Bestellung ${order.orderNumber || order.id}`,
+    text,
+    html
+  });
+
+  return { delivered: true, recipient };
+}
+
+async function triggerNotificationEvent(event, order, source) {
+  if (!mailNotificationsEnabled()) {
+    return { delivered: 0, skipped: 'mail_not_configured' };
+  }
+
+  const templates = store.listNotificationTemplatesForTrigger(event);
+  if (templates.length === 0) {
+    return { delivered: 0, skipped: 'no_templates' };
+  }
+
+  const context = buildNotificationContext(order);
+  const existingEvents = store.listPaymentEvents(order.id);
+  const alreadySentKeys = new Set(
+    existingEvents
+      .filter((item) => item.eventType === 'order_notification_sent')
+      .map((item) => item.idempotencyKey)
+  );
+
+  let delivered = 0;
+
+  for (const template of templates) {
+    if (!templateMatchesOrderLocale(template, order)) continue;
+
+    const idempotencyKey = `notification_sent:${template.key}:${order.id}`;
+    if (alreadySentKeys.has(idempotencyKey)) continue;
+
+    try {
+      const result = await sendTemplatedMail(template, order, context);
+      if (!result.delivered) {
+        store.recordPaymentEvent({
+          orderId: order.id,
+          paymentId: order.paymentId,
+          source,
+          eventType: 'order_notification_skipped',
+          paymentStatus: order.paymentStatus,
+          idempotencyKey: `notification_skipped:${template.key}:${order.id}:${Date.now()}`,
+          payload: { templateKey: template.key, reason: result.skipped }
+        });
+        continue;
+      }
+
+      store.recordPaymentEvent({
+        orderId: order.id,
+        paymentId: order.paymentId,
+        source,
+        eventType: 'order_notification_sent',
+        paymentStatus: order.paymentStatus,
+        idempotencyKey,
+        payload: {
+          templateKey: template.key,
+          recipientType: template.recipientType,
+          recipient: result.recipient,
+          locale: template.locale || null
+        }
+      });
+      delivered += 1;
+    } catch (error) {
+      console.error('Failed to send notification email', {
+        orderId: order.id,
+        paymentId: order.paymentId,
+        templateKey: template.key,
+        message: error.message
+      });
+      store.recordPaymentEvent({
+        orderId: order.id,
+        paymentId: order.paymentId,
+        source,
+        eventType: 'order_notification_failed',
+        paymentStatus: order.paymentStatus,
+        idempotencyKey: `notification_failed:${template.key}:${order.id}:${Date.now()}`,
+        payload: { templateKey: template.key, message: error.message }
+      });
+    }
+  }
+
+  return { delivered };
+}
+
+function notificationTemplatePayload(template) {
+  if (!template) return null;
+  return {
+    id: template.id,
+    key: template.key,
+    name: template.name,
+    description: template.description,
+    triggerEvent: template.triggerEvent,
+    recipientType: template.recipientType,
+    recipientOverride: template.recipientOverride,
+    locale: template.locale,
+    enabled: template.enabled,
+    subjectTemplate: template.subjectTemplate,
+    textTemplate: template.textTemplate,
+    htmlTemplate: template.htmlTemplate,
+    createdAt: template.createdAt,
+    updatedAt: template.updatedAt
+  };
+}
+
+function seedNotificationTemplates() {
+  for (const template of defaultNotificationTemplates()) {
+    store.ensureNotificationTemplate(template);
+  }
+}
+
+function defaultNotificationTemplates() {
+  const adminTextTemplate = [
+    'Eine neue Indiebox-Bestellung wurde bezahlt.',
+    '',
+    'Bestellnummer: #{{order.orderNumber}}',
+    'Bestell-ID: {{order.id}}',
+    'Produkt: {{order.product}}',
+    'Betrag: {{order.amount}} {{order.currency}}',
+    'Zahlungsart: {{order.paymentMethod}}',
+    'Bezahlt am: {{order.paidAt}}',
+    '',
+    'Kunde',
+    '{{customer.fullName}}',
+    '{{customer.email}}',
+    '{{customer.phoneLine}}',
+    '{{customer.companyLine}}',
+    '',
+    'Rechnungsadresse',
+    '{{billingAddress.block}}',
+    '',
+    'Lieferadresse',
+    '{{shippingAddress.block}}',
+    '',
+    'Notizen',
+    '{{order.notes}}',
+    '',
+    'Bestellung öffnen: {{order.adminUrl}}'
+  ].join('\n');
+
+  const adminHtmlTemplate = `
+<div style="font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0A2540;line-height:1.5;max-width:620px;">
+  <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#FF4D00;font-weight:600;">Indiebox · Bestellung bezahlt</p>
+  <h2 style="margin:0 0 20px;font-size:20px;color:#0A2540;">Neue Bestellung #{{order.orderNumber}}</h2>
+  <table role="presentation" style="border-collapse:collapse;margin:0 0 20px;width:100%;">
+    <tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;width:40%;">Bestell-ID</td><td style="padding:4px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;">{{order.id}}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;">Produkt</td><td style="padding:4px 0;">{{order.product}}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;">Betrag</td><td style="padding:4px 0;font-weight:600;">{{order.amount}} {{order.currency}}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;">Zahlungsart</td><td style="padding:4px 0;">{{order.paymentMethod}}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;">Bezahlt am</td><td style="padding:4px 0;">{{order.paidAt}}</td></tr>
+  </table>
+  <h3 style="margin:24px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;">Kunde</h3>
+  <p style="margin:0 0 16px;line-height:1.6;">
+    <strong style="color:#0A2540;">{{customer.fullName}}</strong><br>
+    <a href="mailto:{{customer.email}}" style="color:#FF4D00;text-decoration:none;">{{customer.email}}</a><br>
+    {{customer.phoneLine}}<br>
+    {{customer.companyLine}}
+  </p>
+  <h3 style="margin:24px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;">Rechnungsadresse</h3>
+  <p style="margin:0 0 16px;line-height:1.6;">{{billingAddress.blockHtml}}</p>
+  <h3 style="margin:24px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;">Lieferadresse</h3>
+  <p style="margin:0 0 16px;line-height:1.6;">{{shippingAddress.blockHtml}}</p>
+  <h3 style="margin:24px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;">Notizen</h3>
+  <p style="margin:0 0 28px;line-height:1.6;">{{order.notesHtml}}</p>
+  <p style="margin:28px 0 0;">
+    <a href="{{order.adminUrl}}" style="display:inline-block;background:#FF4D00;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:999px;font-weight:600;font-size:14px;">Bestellung im Admin öffnen</a>
+  </p>
+</div>`.trim();
+
+  const customerTextDe = [
+    'Hallo {{customer.firstName}},',
+    '',
+    'vielen Dank für Ihre Bestellung bei Indiebox! Wir haben Ihre Zahlung erhalten und kümmern uns ab jetzt um alles Weitere.',
+    '',
+    'Ihre Bestellung',
+    '{{order.product}}',
+    'Bestellnummer: #{{order.orderNumber}}',
+    'Betrag: {{order.amount}} {{order.currency}}',
+    '',
+    'So geht es weiter:',
+    '• Wir bereiten Ihre Indiebox persönlich für Sie vor.',
+    '• Sobald sie versandbereit ist, erhalten Sie eine E-Mail mit den Versanddetails.',
+    '• Nach der Lieferung begleiten wir Sie auf Wunsch bei der Inbetriebnahme.',
+    '',
+    'Sie können den Bestellstatus jederzeit hier einsehen:',
+    '{{order.statusUrl}}',
+    '',
+    'Falls Sie Fragen haben oder etwas anpassen möchten, melden Sie sich gerne bei uns – wir antworten werktags zügig.',
+    '',
+    'E-Mail: {{brand.email}}',
+    '',
+    'Wir freuen uns, Sie als Kundin bzw. Kunden begrüßen zu dürfen.',
+    '',
+    'Herzliche Grüße',
+    'Das Indiebox-Team',
+    '{{brand.websiteUrl}}'
+  ].join('\n');
+
+  const customerHtmlDe = `
+<!doctype html>
+<html lang="de">
+<body style="margin:0;padding:0;background:#f3f5f8;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0A2540;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Ihre Indiebox-Bestellung ist eingegangen – wir kümmern uns um alles Weitere.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5f8;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(10,37,64,0.06);">
+        <tr><td style="background:#0A2540;padding:28px 36px;">
+          <p style="margin:0;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#FF4D00;font-weight:700;">Indiebox</p>
+          <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:0.02em;">Einmal kaufen. Für immer besitzen.</p>
+        </td></tr>
+        <tr><td style="padding:36px 36px 8px;">
+          <h1 style="margin:0;font-size:26px;line-height:1.25;color:#0A2540;font-weight:700;">Vielen Dank, {{customer.firstName}}.</h1>
+        </td></tr>
+        <tr><td style="padding:12px 36px 0;color:#3b4b5e;line-height:1.65;font-size:16px;">
+          <p style="margin:0;">Ihre Bestellung ist bei uns angekommen und die Zahlung ist bestätigt. Ab jetzt kümmern wir uns um alles Weitere — Sie müssen nichts tun.</p>
+        </td></tr>
+        <tr><td style="padding:28px 36px 0;">
+          <div style="background:#f8f9fb;border:1px solid rgba(10,37,64,0.06);border-radius:14px;padding:22px 22px 18px;">
+            <p style="margin:0;color:#5b6b7e;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Ihre Bestellung</p>
+            <p style="margin:10px 0 0;font-size:19px;font-weight:600;color:#0A2540;">{{order.product}}</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;font-size:14px;color:#3b4b5e;">
+              <tr><td style="padding:3px 0;color:#5b6b7e;">Bestellnummer</td><td align="right" style="padding:3px 0;font-weight:600;color:#0A2540;">#{{order.orderNumber}}</td></tr>
+              <tr><td style="padding:3px 0;color:#5b6b7e;">Betrag</td><td align="right" style="padding:3px 0;font-weight:600;color:#0A2540;">{{order.amount}} {{order.currency}}</td></tr>
+            </table>
+          </div>
+        </td></tr>
+        <tr><td style="padding:30px 36px 0;color:#3b4b5e;line-height:1.65;font-size:16px;">
+          <h2 style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;font-weight:700;">So geht es weiter</h2>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td style="padding:0 0 10px;vertical-align:top;width:28px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">1</span></td><td style="padding:0 0 10px;">Wir bereiten Ihre Indiebox persönlich für Sie vor.</td></tr>
+            <tr><td style="padding:0 0 10px;vertical-align:top;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">2</span></td><td style="padding:0 0 10px;">Sobald sie versandbereit ist, erhalten Sie eine E-Mail mit den Versanddetails.</td></tr>
+            <tr><td style="padding:0;vertical-align:top;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">3</span></td><td style="padding:0;">Nach der Lieferung begleiten wir Sie auf Wunsch bei der Inbetriebnahme.</td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:30px 36px 0;">
+          <a href="{{order.statusUrl}}" style="display:inline-block;background:#FF4D00;color:#ffffff;text-decoration:none;padding:13px 26px;border-radius:999px;font-weight:600;font-size:15px;">Bestellstatus ansehen</a>
+        </td></tr>
+        <tr><td style="padding:28px 36px 0;color:#5b6b7e;line-height:1.65;font-size:15px;">
+          <p style="margin:0;">Fragen oder Wünsche? Antworten Sie einfach auf diese E-Mail oder schreiben Sie an <a href="mailto:{{brand.email}}" style="color:#FF4D00;text-decoration:none;font-weight:600;">{{brand.email}}</a> — wir melden uns werktags zügig zurück.</p>
+        </td></tr>
+        <tr><td style="padding:32px 36px 36px;">
+          <p style="margin:0;color:#0A2540;font-size:15px;line-height:1.6;">Herzliche Grüße<br><strong>Das Indiebox-Team</strong></p>
+          <p style="margin:14px 0 0;font-size:12px;color:#8895a6;letter-spacing:0.02em;"><a href="{{brand.websiteUrl}}" style="color:#8895a6;text-decoration:none;">{{brand.websiteDomain}}</a> · Private KI. Komplett lokal.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`.trim();
+
+  const customerTextEn = [
+    'Hi {{customer.firstName}},',
+    '',
+    'Thank you for your Indiebox order! We have received your payment and are now taking care of the rest.',
+    '',
+    'Your order',
+    '{{order.product}}',
+    'Order number: #{{order.orderNumber}}',
+    'Total: {{order.amount}} {{order.currency}}',
+    '',
+    'What happens next:',
+    '• We personally prepare your Indiebox for you.',
+    '• As soon as it ships, you will receive an email with the shipping details.',
+    '• After delivery, we can support you with the initial setup if you like.',
+    '',
+    'You can check the status of your order anytime here:',
+    '{{order.statusUrl}}',
+    '',
+    'If you have any questions or want to change anything, just reply to this email – we get back to you quickly on weekdays.',
+    '',
+    'Email: {{brand.email}}',
+    '',
+    'We look forward to having you on board.',
+    '',
+    'Warm regards',
+    'The Indiebox team',
+    '{{brand.websiteUrl}}'
+  ].join('\n');
+
+  const customerHtmlEn = `
+<!doctype html>
+<html lang="en">
+<body style="margin:0;padding:0;background:#f3f5f8;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0A2540;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your Indiebox order has arrived – we are taking care of everything from here.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5f8;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 1px 3px rgba(10,37,64,0.06);">
+        <tr><td style="background:#0A2540;padding:28px 36px;">
+          <p style="margin:0;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#FF4D00;font-weight:700;">Indiebox</p>
+          <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:0.02em;">Buy once. Own forever.</p>
+        </td></tr>
+        <tr><td style="padding:36px 36px 8px;">
+          <h1 style="margin:0;font-size:26px;line-height:1.25;color:#0A2540;font-weight:700;">Thank you, {{customer.firstName}}.</h1>
+        </td></tr>
+        <tr><td style="padding:12px 36px 0;color:#3b4b5e;line-height:1.65;font-size:16px;">
+          <p style="margin:0;">Your order has arrived and your payment is confirmed. We are now taking care of everything — nothing more to do on your side.</p>
+        </td></tr>
+        <tr><td style="padding:28px 36px 0;">
+          <div style="background:#f8f9fb;border:1px solid rgba(10,37,64,0.06);border-radius:14px;padding:22px 22px 18px;">
+            <p style="margin:0;color:#5b6b7e;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Your order</p>
+            <p style="margin:10px 0 0;font-size:19px;font-weight:600;color:#0A2540;">{{order.product}}</p>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;font-size:14px;color:#3b4b5e;">
+              <tr><td style="padding:3px 0;color:#5b6b7e;">Order number</td><td align="right" style="padding:3px 0;font-weight:600;color:#0A2540;">#{{order.orderNumber}}</td></tr>
+              <tr><td style="padding:3px 0;color:#5b6b7e;">Total</td><td align="right" style="padding:3px 0;font-weight:600;color:#0A2540;">{{order.amount}} {{order.currency}}</td></tr>
+            </table>
+          </div>
+        </td></tr>
+        <tr><td style="padding:30px 36px 0;color:#3b4b5e;line-height:1.65;font-size:16px;">
+          <h2 style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:#5b6b7e;font-weight:700;">What happens next</h2>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr><td style="padding:0 0 10px;vertical-align:top;width:28px;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">1</span></td><td style="padding:0 0 10px;">We personally prepare your Indiebox for you.</td></tr>
+            <tr><td style="padding:0 0 10px;vertical-align:top;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">2</span></td><td style="padding:0 0 10px;">As soon as it ships, you will receive an email with the shipping details.</td></tr>
+            <tr><td style="padding:0;vertical-align:top;"><span style="display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;border-radius:50%;background:#FF4D00;color:#ffffff;font-size:12px;font-weight:700;">3</span></td><td style="padding:0;">After delivery, we can support you with the initial setup if you like.</td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:30px 36px 0;">
+          <a href="{{order.statusUrl}}" style="display:inline-block;background:#FF4D00;color:#ffffff;text-decoration:none;padding:13px 26px;border-radius:999px;font-weight:600;font-size:15px;">View order status</a>
+        </td></tr>
+        <tr><td style="padding:28px 36px 0;color:#5b6b7e;line-height:1.65;font-size:15px;">
+          <p style="margin:0;">Questions or requests? Just reply to this email or write to <a href="mailto:{{brand.email}}" style="color:#FF4D00;text-decoration:none;font-weight:600;">{{brand.email}}</a> — we get back to you quickly on weekdays.</p>
+        </td></tr>
+        <tr><td style="padding:32px 36px 36px;">
+          <p style="margin:0;color:#0A2540;font-size:15px;line-height:1.6;">Warm regards<br><strong>The Indiebox team</strong></p>
+          <p style="margin:14px 0 0;font-size:12px;color:#8895a6;letter-spacing:0.02em;"><a href="{{brand.websiteUrl}}" style="color:#8895a6;text-decoration:none;">{{brand.websiteDomain}}</a> · Private AI. Fully local.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`.trim();
+
+  return [
+    {
+      key: 'order_paid_admin',
+      name: 'Admin: Neue bezahlte Bestellung',
+      description: 'Interne Benachrichtigung mit Kundendaten und Deeplink, sobald eine Bestellung als bezahlt markiert wurde.',
+      triggerEvent: 'order.paid',
+      recipientType: 'admin',
+      locale: null,
+      subjectTemplate: 'Neue Indiebox-Bestellung · #{{order.orderNumber}}',
+      textTemplate: adminTextTemplate,
+      htmlTemplate: adminHtmlTemplate
+    },
+    {
+      key: 'order_paid_customer_de',
+      name: 'Kunde: Bestellbestätigung (DE)',
+      description: 'Warme Eingangsbestätigung an deutschsprachige Kundinnen und Kunden mit klaren nächsten Schritten.',
+      triggerEvent: 'order.paid',
+      recipientType: 'customer',
+      locale: 'de',
+      subjectTemplate: 'Vielen Dank für Ihre Bestellung · Indiebox #{{order.orderNumber}}',
+      textTemplate: customerTextDe,
+      htmlTemplate: customerHtmlDe
+    },
+    {
+      key: 'order_paid_customer_en',
+      name: 'Customer: Order confirmation (EN)',
+      description: 'Warm order confirmation for English-speaking customers with clear next steps.',
+      triggerEvent: 'order.paid',
+      recipientType: 'customer',
+      locale: 'en',
+      subjectTemplate: 'Thank you for your order · Indiebox #{{order.orderNumber}}',
+      textTemplate: customerTextEn,
+      htmlTemplate: customerHtmlEn
+    }
+  ];
+}
+
 function deviceModelPayload(model) {
   if (!model) return null;
 
@@ -817,6 +1574,19 @@ async function syncOrderPaymentStatus(order, source = 'status_check') {
 
   const savedOrder = store.saveOrder(nextOrder);
   syncOrderAllocation(savedOrder);
+
+  if (savedOrder.status === 'paid') {
+    try {
+      await triggerNotificationEvent('order.paid', savedOrder, source);
+    } catch (error) {
+      console.error('Failed to dispatch order.paid notifications', {
+        orderId: savedOrder.id,
+        paymentId: savedOrder.paymentId,
+        message: error.message
+      });
+    }
+  }
+
   return savedOrder;
 }
 
@@ -1021,6 +1791,400 @@ app.post('/api/admin/users/:userId/toggle-status', adminRateLimit, requireAdmin,
   const updated = store.toggleUserStatus(user.id);
   return res.json({ user: { id: updated.id, status: updated.status } });
 });
+
+// ── Notification templates (admin) ──
+
+const NOTIFICATION_TRIGGERS = ['order.paid'];
+const NOTIFICATION_RECIPIENT_TYPES = ['admin', 'customer', 'custom'];
+
+function parseNotificationPatch(body = {}) {
+  const patch = {};
+
+  if (typeof body.name === 'string' && body.name.trim()) patch.name = body.name.trim();
+  if (typeof body.description === 'string') patch.description = body.description;
+
+  if (typeof body.triggerEvent === 'string' && NOTIFICATION_TRIGGERS.includes(body.triggerEvent)) {
+    patch.triggerEvent = body.triggerEvent;
+  }
+
+  if (typeof body.recipientType === 'string' && NOTIFICATION_RECIPIENT_TYPES.includes(body.recipientType)) {
+    patch.recipientType = body.recipientType;
+  }
+
+  if (typeof body.recipientOverride === 'string') patch.recipientOverride = body.recipientOverride.trim();
+  if (typeof body.locale === 'string') patch.locale = body.locale.trim().toLowerCase();
+  if (typeof body.enabled === 'boolean') patch.enabled = body.enabled;
+  if (typeof body.subjectTemplate === 'string') patch.subjectTemplate = body.subjectTemplate;
+  if (typeof body.textTemplate === 'string') patch.textTemplate = body.textTemplate;
+  if (typeof body.htmlTemplate === 'string') patch.htmlTemplate = body.htmlTemplate;
+
+  return patch;
+}
+
+function sampleOrderForPreview(order) {
+  if (order) return order;
+
+  const now = new Date().toISOString();
+  return {
+    id: 'preview-order',
+    orderNumber: 999,
+    locale: 'de',
+    runtime: config.appRuntimeName,
+    status: 'paid',
+    product: config.checkoutProductName,
+    amount: config.checkoutPriceEur,
+    currency: 'EUR',
+    customer: {
+      firstName: 'Alex',
+      lastName: 'Beispiel',
+      email: 'kunde@example.com',
+      phone: '+49 171 0000000',
+      company: 'Beispiel GmbH',
+      vatId: ''
+    },
+    billingAddress: {
+      street: 'Musterstraße 1',
+      zip: '55116',
+      city: 'Mainz',
+      country: 'Deutschland'
+    },
+    shippingAddress: {
+      careOf: '',
+      street: 'Musterstraße 1',
+      zip: '55116',
+      city: 'Mainz',
+      country: 'Deutschland'
+    },
+    notes: 'Bitte klingeln bei Mustermann.',
+    paymentMethod: 'creditcard',
+    paymentStatus: 'paid',
+    paymentId: 'tr_sample',
+    statusToken: 'sample-status-token',
+    createdAt: now,
+    updatedAt: now,
+    paidAt: now
+  };
+}
+
+app.get('/api/admin/notification-templates', adminRateLimit, requireAdmin, (_req, res) => {
+  const templates = store.listNotificationTemplates();
+  return res.json({
+    templates: templates.map(notificationTemplatePayload),
+    meta: {
+      triggers: NOTIFICATION_TRIGGERS,
+      recipientTypes: NOTIFICATION_RECIPIENT_TYPES,
+      mailEnabled: mailNotificationsEnabled(),
+      adminRecipient: config.orderNotificationTo,
+      from: config.orderNotificationFrom
+    }
+  });
+});
+
+app.get('/api/admin/notification-templates/:id', adminRateLimit, requireAdmin, (req, res) => {
+  const template = store.getNotificationTemplate(req.params.id);
+  if (!template) return res.status(404).json({ error: 'template_not_found' });
+  return res.json({ template: notificationTemplatePayload(template) });
+});
+
+app.patch('/api/admin/notification-templates/:id', adminRateLimit, requireAdmin, (req, res) => {
+  const template = store.getNotificationTemplate(req.params.id);
+  if (!template) return res.status(404).json({ error: 'template_not_found' });
+
+  const patch = parseNotificationPatch(req.body || {});
+  if (Object.keys(patch).length === 0) {
+    return res.status(400).json({ error: 'empty_patch' });
+  }
+
+  const updated = store.updateNotificationTemplate(template.id, patch);
+  return res.json({ template: notificationTemplatePayload(updated) });
+});
+
+app.post('/api/admin/notification-templates/:id/test', adminRateLimit, requireAdmin, async (req, res) => {
+  const template = store.getNotificationTemplate(req.params.id);
+  if (!template) return res.status(404).json({ error: 'template_not_found' });
+
+  if (!mailNotificationsEnabled()) {
+    return res.status(503).json({ error: 'mail_not_configured' });
+  }
+
+  const recipient = typeof req.body?.to === 'string' && req.body.to.trim()
+    ? req.body.to.trim()
+    : (config.orderNotificationTo || config.orderNotificationFrom);
+
+  if (!recipient) {
+    return res.status(400).json({ error: 'no_recipient' });
+  }
+
+  const order = typeof req.body?.orderId === 'string' && req.body.orderId
+    ? store.getOrder(req.body.orderId)
+    : null;
+
+  const previewOrder = sampleOrderForPreview(order);
+  const context = buildNotificationContext(previewOrder);
+  const subject = `[TEST] ${renderTemplateString(template.subjectTemplate, context, { mode: 'text' }).trim()}`;
+  const text = renderTemplateString(template.textTemplate, context, { mode: 'text' });
+  const renderedHtml = template.htmlTemplate
+    ? renderTemplateString(template.htmlTemplate, context, { mode: 'html' })
+    : '';
+  const html = rewriteRelativeMailUrlsToAbsolute(renderedHtml);
+
+  try {
+    await sendViaMailgun({
+      from: config.orderNotificationFrom,
+      to: recipient,
+      subject,
+      text,
+      html
+    });
+    return res.json({ success: true, recipient });
+  } catch (error) {
+    return res.status(502).json({ error: 'mail_send_failed', message: error.message });
+  }
+});
+
+// ── Email assets (public serve + admin CRUD) ──
+
+const largeJsonParser = express.json({ limit: '6mb' });
+
+app.get('/mail/:filename', (req, res) => {
+  const filename = req.params.filename || '';
+  const match = /^([a-f0-9]{16})(\.[a-z0-9]+)$/i.exec(filename);
+  if (!match) return res.status(404).send('not found');
+
+  const id = match[1].toLowerCase();
+  const extension = match[2].toLowerCase();
+
+  const asset = store.getEmailAssetData(id);
+  if (!asset) return res.status(404).send('not found');
+  if (asset.extension.toLowerCase() !== extension) return res.status(404).send('not found');
+
+  res.set('Content-Type', asset.mimeType);
+  res.set('Content-Length', String(asset.size));
+  res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('Content-Disposition', 'inline');
+  return res.send(asset.data);
+});
+
+app.get('/api/admin/email-assets', adminRateLimit, requireAdmin, (_req, res) => {
+  const assets = store.listEmailAssets();
+  return res.json({
+    assets: assets.map((asset) => ({
+      id: asset.id,
+      filename: asset.filename,
+      mimeType: asset.mimeType,
+      extension: asset.extension,
+      size: asset.size,
+      url: relativeMailUrl(asset),
+      createdAt: asset.createdAt
+    }))
+  });
+});
+
+app.post('/api/admin/email-assets', adminRateLimit, requireAdmin, largeJsonParser, (req, res) => {
+  const { filename, mimeType, dataBase64 } = req.body || {};
+
+  if (typeof dataBase64 !== 'string' || !dataBase64) {
+    return res.status(400).json({ error: 'missing_data' });
+  }
+  if (!isAllowedImageMime(mimeType)) {
+    return res.status(400).json({ error: 'unsupported_mime' });
+  }
+
+  let buffer;
+  try {
+    buffer = Buffer.from(dataBase64, 'base64');
+  } catch {
+    return res.status(400).json({ error: 'invalid_base64' });
+  }
+  if (buffer.length === 0) return res.status(400).json({ error: 'empty_data' });
+  if (buffer.length > MAIL_ASSET_MAX_BYTES) return res.status(413).json({ error: 'too_large' });
+
+  try {
+    const asset = saveImportedAsset(buffer, mimeType.toLowerCase(), filename);
+    return res.json({
+      asset: {
+        id: asset.id,
+        filename: asset.filename,
+        mimeType: asset.mimeType,
+        extension: asset.extension,
+        size: asset.size,
+        url: relativeMailUrl(asset),
+        createdAt: asset.createdAt
+      }
+    });
+  } catch (error) {
+    return res.status(400).json({ error: 'save_failed', message: error.message });
+  }
+});
+
+app.delete('/api/admin/email-assets/:id', adminRateLimit, requireAdmin, (req, res) => {
+  const removed = store.deleteEmailAsset(req.params.id);
+  if (!removed) return res.status(404).json({ error: 'asset_not_found' });
+  return res.json({ success: true });
+});
+
+app.post(
+  '/api/admin/notification-templates/:id/import-html',
+  adminRateLimit,
+  requireAdmin,
+  largeJsonParser,
+  async (req, res) => {
+    const template = store.getNotificationTemplate(req.params.id);
+    if (!template) return res.status(404).json({ error: 'template_not_found' });
+
+    const html = typeof req.body?.html === 'string' ? req.body.html : '';
+    if (!html.trim()) return res.status(400).json({ error: 'empty_html' });
+    if (html.length > 1_000_000) return res.status(413).json({ error: 'html_too_large' });
+
+    let result;
+    try {
+      result = await rewriteHtmlImages(html);
+    } catch (error) {
+      return res.status(500).json({ error: 'import_failed', message: error.message });
+    }
+
+    const updated = store.updateNotificationTemplate(template.id, { htmlTemplate: result.html });
+    return res.json({
+      template: notificationTemplatePayload(updated),
+      importedImages: result.imported,
+      failures: result.failures
+    });
+  }
+);
+
+app.get('/api/admin/notification-templates/:id/export', adminRateLimit, requireAdmin, (req, res) => {
+  const template = store.getNotificationTemplate(req.params.id);
+  if (!template) return res.status(404).json({ error: 'template_not_found' });
+
+  const referencedIds = new Set();
+  const html = template.htmlTemplate || '';
+  const assetRegex = /\/mail\/([a-f0-9]{16})\.[a-z0-9]+/gi;
+  let match;
+  while ((match = assetRegex.exec(html)) !== null) {
+    referencedIds.add(match[1].toLowerCase());
+  }
+
+  const assets = [];
+  for (const id of referencedIds) {
+    const asset = store.getEmailAssetData(id);
+    if (!asset) continue;
+    assets.push({
+      id: asset.id,
+      filename: asset.filename,
+      mimeType: asset.mimeType,
+      extension: asset.extension,
+      size: asset.size,
+      dataBase64: asset.data.toString('base64')
+    });
+  }
+
+  res.set('Content-Type', 'application/json');
+  res.set(
+    'Content-Disposition',
+    `attachment; filename="${template.key}.indiebox-notification.json"`
+  );
+  return res.json({
+    bundleVersion: 1,
+    exportedAt: new Date().toISOString(),
+    source: {
+      appBaseUrl: config.appBaseUrl,
+      runtime: config.appRuntimeName
+    },
+    template: notificationTemplatePayload(template),
+    assets
+  });
+});
+
+app.post(
+  '/api/admin/notification-templates/import-bundle',
+  adminRateLimit,
+  requireAdmin,
+  largeJsonParser,
+  (req, res) => {
+    const body = req.body || {};
+    if (body.bundleVersion !== 1 || !body.template) {
+      return res.status(400).json({ error: 'invalid_bundle' });
+    }
+
+    const tpl = body.template;
+    if (typeof tpl.key !== 'string' || !tpl.key.trim()) {
+      return res.status(400).json({ error: 'bundle_missing_key' });
+    }
+
+    const importedAssets = [];
+    if (Array.isArray(body.assets)) {
+      for (const asset of body.assets) {
+        if (
+          typeof asset?.dataBase64 !== 'string' ||
+          typeof asset?.mimeType !== 'string' ||
+          !isAllowedImageMime(asset.mimeType)
+        ) continue;
+        try {
+          const buffer = Buffer.from(asset.dataBase64, 'base64');
+          if (buffer.length === 0 || buffer.length > MAIL_ASSET_MAX_BYTES) continue;
+          const saved = saveImportedAsset(buffer, asset.mimeType.toLowerCase(), asset.filename);
+          importedAssets.push(saved.id);
+        } catch {
+          // skip broken asset entries
+        }
+      }
+    }
+
+    const existing = store.getNotificationTemplateByKey(tpl.key);
+    const patchFields = {
+      name: typeof tpl.name === 'string' && tpl.name.trim() ? tpl.name.trim() : undefined,
+      description: typeof tpl.description === 'string' ? tpl.description : undefined,
+      triggerEvent: typeof tpl.triggerEvent === 'string' && NOTIFICATION_TRIGGERS.includes(tpl.triggerEvent)
+        ? tpl.triggerEvent
+        : undefined,
+      recipientType: typeof tpl.recipientType === 'string' && NOTIFICATION_RECIPIENT_TYPES.includes(tpl.recipientType)
+        ? tpl.recipientType
+        : undefined,
+      recipientOverride: typeof tpl.recipientOverride === 'string' ? tpl.recipientOverride : undefined,
+      locale: typeof tpl.locale === 'string' ? tpl.locale.toLowerCase() : undefined,
+      enabled: typeof tpl.enabled === 'boolean' ? tpl.enabled : undefined,
+      subjectTemplate: typeof tpl.subjectTemplate === 'string' ? tpl.subjectTemplate : undefined,
+      textTemplate: typeof tpl.textTemplate === 'string' ? tpl.textTemplate : undefined,
+      htmlTemplate: typeof tpl.htmlTemplate === 'string' ? tpl.htmlTemplate : undefined
+    };
+
+    let target = existing;
+    if (!target) {
+      const required = ['name', 'triggerEvent', 'recipientType', 'subjectTemplate', 'textTemplate'];
+      for (const field of required) {
+        if (!patchFields[field]) return res.status(400).json({ error: `bundle_missing_${field}` });
+      }
+      store.ensureNotificationTemplate({
+        key: tpl.key.trim(),
+        name: patchFields.name,
+        description: patchFields.description || '',
+        triggerEvent: patchFields.triggerEvent,
+        recipientType: patchFields.recipientType,
+        recipientOverride: patchFields.recipientOverride || '',
+        locale: patchFields.locale || null,
+        enabled: patchFields.enabled ?? true,
+        subjectTemplate: patchFields.subjectTemplate,
+        textTemplate: patchFields.textTemplate,
+        htmlTemplate: patchFields.htmlTemplate || ''
+      });
+      target = store.getNotificationTemplateByKey(tpl.key.trim());
+    } else {
+      const cleanPatch = Object.fromEntries(
+        Object.entries(patchFields).filter(([, value]) => value !== undefined)
+      );
+      if (Object.keys(cleanPatch).length > 0) {
+        store.updateNotificationTemplate(target.id, cleanPatch);
+      }
+      target = store.getNotificationTemplate(target.id);
+    }
+
+    return res.json({
+      template: notificationTemplatePayload(target),
+      importedAssets: importedAssets.length
+    });
+  }
+);
 
 // ── Self-service password change (T025 / US5) ──
 
