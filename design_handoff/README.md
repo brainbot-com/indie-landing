@@ -278,6 +278,8 @@ Gestapelte Feature-Karten mit UPPERCASE Display-Text und Combi-Pill-CTAs. Jede B
 
 | Datei | Zweck |
 |---|---|
+| `MOTION.md` | **Motion-Regeln** — 3 Ebenen (Entry-Reveal, Signature, Mikro), Tokens, Reduced-Motion-Pflicht, Performance |
+| `DISCIPLINE.md` | **Verbindliche Gestaltungsregeln** — Orange-Nutzung, Closed-Set-Gradienten, Button-Naming, Typografie-Tokens, Animationstrennung, Layout-Klassen |
 | `colors_and_type.css` | **Single Source of Truth** — alle Tokens |
 | `fonts/InterVariable.woff2` | Self-hosted Inter Variable |
 | `fonts/InterVariable-Italic.woff2` | Italic Variant |
@@ -301,12 +303,16 @@ Füge diese Anweisung in deine `CLAUDE.md` im Repo ein:
 ```markdown
 ## Design System
 Das Indie.box Design System liegt im Ordner `design_handoff/`.
+- Motion-Regeln (3 Ebenen, Tokens): `design_handoff/MOTION.md`
+- Disziplin-Regeln (verbindlich): `design_handoff/DISCIPLINE.md`
 - Token-Quelle: `design_handoff/colors_and_type.css`
 - Schriften: `design_handoff/fonts/`
 - Favicon: `design_handoff/assets/favicon.svg`
 - Komponenten-Referenz: `design_handoff/preview/`
 - Wortmarke: Inter 700, Punkt immer in #FF4D00
 - Primärfarbe: #0A2540 (Navy), Akzent: #FF4D00 (Orange)
+- Orange ist Signature-Akzent, KEINE Button-Füllfarbe
+- Alle Schriftgrößen über CSS-Tokens (keine ad-hoc px-Werte)
 ```
 
 Dann kann Claude Code jederzeit auf die Tokens und Komponenten referenzieren, ohne dass du es jedes Mal neu erklären musst.

@@ -1,13 +1,12 @@
 # Agent Briefing (Indie.Box)
 
 ## Design System
-Das Indie.box Design System liegt im Ordner `design_handoff/`.
-- Token-Quelle: `design_handoff/colors_and_type.css`
-- Schriften: `design_handoff/fonts/`
+- Disziplin: `design_handoff/DISCIPLINE.md`
+- Motion: `design_handoff/MOTION.md`
+- Tokens: `design_handoff/colors_and_type.css`
+- Komponenten: `design_handoff/preview/`
 - Favicon: `design_handoff/assets/favicon.svg`
-- Komponenten-Referenz: `design_handoff/preview/`
-- Wortmarke: Inter 700, Punkt immer in #FF4D00
-- Primärfarbe: #0A2540 (Navy), Akzent: #FF4D00 (Orange)
+- Schriften: `design_handoff/fonts/`
 
 Translation workflow lives in `TRANSLATION.md`. Agents must follow it when creating or updating copy.
 Always generate matching English pages for any new or updated HTML pages (e.g. `en/index.html`, `en/checkout.html`, `en/terms.html`, `en/impressum.html`).
