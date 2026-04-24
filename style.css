@@ -3956,11 +3956,14 @@ ul {
     width: 1.55rem;
     height: 1.55rem;
     border-radius: 0.5rem;
-    font-size: 0.78rem;
-    font-weight: 800;
     line-height: 1;
     cursor: default;
     flex-shrink: 0;
+}
+
+.admin-pay-icon svg {
+    width: 0.9rem;
+    height: 0.9rem;
 }
 
 .admin-pay-icon--success { background: rgba(21, 128, 61, 0.16); color: #15803d; }
@@ -4299,6 +4302,14 @@ ul {
 .admin-workflow-step__icon {
     font-size: 1rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-workflow-step__icon svg {
+    width: 0.95rem;
+    height: 0.95rem;
 }
 
 /* Detail form grid */

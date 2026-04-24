@@ -1950,6 +1950,22 @@ function setupAdminOrders() {
 
     const isoDate = (v) => { if (!v) return ''; const s = String(v); return s.length >= 10 ? s.slice(0, 10) : s; };
 
+    // Lucide-style inline SVG icons. Stroke 2 for small badge contexts (8–16px
+    // render size) where the default 1.8 becomes too thin. See
+    // design_handoff/MIGRATION.md.
+    const icon = (name) => {
+        const s = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+        const icons = {
+            'check':      `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>`,
+            'x':          `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+            'clock':      `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+            'rotate-ccw': `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`,
+            'ellipsis':   `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
+            'circle':     `<svg viewBox="0 0 24 24" ${s} aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>`
+        };
+        return icons[name] || '';
+    };
+
     const paymentBadge = (status) => {
         switch (status) {
             case 'paid': return { tone: 'success', label: 'Paid' };
@@ -2029,13 +2045,13 @@ function setupAdminOrders() {
 
     const paymentIcon = (status) => {
         switch (status) {
-            case 'paid': return { symbol: '✓', tone: 'success', label: 'Paid' };
-            case 'failed': return { symbol: '✕', tone: 'danger', label: 'Failed' };
-            case 'expired': return { symbol: '⏱', tone: 'danger', label: 'Expired' };
-            case 'canceled': case 'cancelled': return { symbol: '↺', tone: 'danger', label: 'Cancelled' };
+            case 'paid': return { symbol: icon('check'), tone: 'success', label: 'Paid' };
+            case 'failed': return { symbol: icon('x'), tone: 'danger', label: 'Failed' };
+            case 'expired': return { symbol: icon('clock'), tone: 'danger', label: 'Expired' };
+            case 'canceled': case 'cancelled': return { symbol: icon('rotate-ccw'), tone: 'danger', label: 'Cancelled' };
             case 'authorized': case 'pending': case 'open': case 'payment_created':
-                return { symbol: '…', tone: 'warning', label: 'Open' };
-            default: return { symbol: '·', tone: 'neutral', label: (status || 'draft').toUpperCase() };
+                return { symbol: icon('ellipsis'), tone: 'warning', label: 'Open' };
+            default: return { symbol: icon('circle'), tone: 'neutral', label: (status || 'draft').toUpperCase() };
         }
     };
 
@@ -2100,7 +2116,7 @@ function setupAdminOrders() {
             else if (i === activeIdx) cls = 'admin-workflow-step--active';
             else cls = 'admin-workflow-step--next';
             return `<button type="button" class="admin-workflow-step ${cls}" data-workflow-step="${step.key}">
-                <span class="admin-workflow-step__icon">${i < activeIdx ? '✓' : step.icon}</span>
+                <span class="admin-workflow-step__icon">${i < activeIdx ? icon('check') : step.icon}</span>
                 ${esc(step.label)}
             </button>`;
         }).join('')}</div>`;
