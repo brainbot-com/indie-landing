@@ -355,7 +355,7 @@ ul {
 }
 
 .button--solid:hover {
-    background-color: #e64600;
+    background-color: var(--color-accent-hover);
     transform: translateY(-2px);
     box-shadow: 0 8px 15px rgba(255, 77, 0, 0.3);
 }
@@ -832,7 +832,7 @@ ul {
 }
 
 .nav-cta:hover {
-    background-color: #E64600;
+    background-color: var(--color-accent-hover);
 }
 
 .nav-buy {
@@ -843,7 +843,7 @@ ul {
 }
 
 .nav-buy:hover {
-    background-color: #e64600;
+    background-color: var(--color-accent-hover);
     transform: translateY(-1px);
 }
 
@@ -6851,7 +6851,7 @@ button.box-cta.combi-pill {
 .admin-help__nav a:target,
 .admin-help__nav a:active {
     color: #0a2a4a;
-    border-left-color: #FF4D00;
+    border-left-color: var(--color-accent);
 }
 .admin-help__content {
     max-width: 720px;
@@ -6865,7 +6865,7 @@ button.box-cta.combi-pill {
     font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #FF4D00;
+    color: var(--color-accent);
     font-weight: 700;
 }
 .admin-help__hero h1 {
@@ -6894,7 +6894,7 @@ button.box-cta.combi-pill {
 .admin-help__section p { margin: 0 0 0.85rem; font-size: 0.95rem; color: rgba(15, 23, 42, 0.8); }
 .admin-help__section ul { margin: 0 0 1rem; padding-left: 1.25rem; }
 .admin-help__section li { margin: 0.25rem 0; font-size: 0.92rem; color: rgba(15, 23, 42, 0.8); }
-.admin-help__section a { color: #FF4D00; text-decoration: none; font-weight: 500; }
+.admin-help__section a { color: var(--color-accent); text-decoration: none; font-weight: 500; }
 .admin-help__section a:hover { text-decoration: underline; }
 .admin-help__section code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
