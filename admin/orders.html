@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin – Bestellungen</title>
+    <title>Admin – Orders</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-    <meta name="description" content="Interne Verwaltungsseite für Kundenbestellungen, Zahlungsstatus und Fulfillment der Indiebox.">
+    <meta name="description" content="Internal admin page for Indiebox customer orders, payment status, and fulfilment.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,23 +27,22 @@
                         <span class="admin-userbar__label" data-admin-user-label></span>
                     </button>
                     <div class="admin-userbar__menu" data-admin-user-menu hidden>
-                        <button type="button" data-admin-change-password>Passwort ändern</button>
-                        <button type="button" data-admin-clear-auth>Abmelden</button>
+                        <button type="button" data-admin-change-password>Change password</button>
+                        <button type="button" data-admin-clear-auth>Sign out</button>
                     </div>
                 </div>
-                <a href="./help.html#orders" class="admin-header__help" title="Hilfe" aria-label="Hilfe">
+                <a href="./help.html#orders" class="admin-header__help" title="Help" aria-label="Help">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 5.8 1c0 2-3 2-3 4"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 </a>
-                <a href="../en/admin/orders.html" class="button button--plain-light button--pill button--sm">EN</a>
             </div>
         </div>
         <div class="container">
-            <nav class="admin-subnav" aria-label="Admin-Bereiche">
-                <a href="./inventory.html">Bestand</a>
-                <a href="./orders.html" aria-current="page">Bestellungen</a>
-                <a href="./users.html">Benutzer</a>
-                <a href="./notifications.html">Benachrichtigungen</a>
-                <a href="../checkout.html">Checkout ansehen</a>
+            <nav class="admin-subnav" aria-label="Admin sections">
+                <a href="./inventory.html">Inventory</a>
+                <a href="./orders.html" aria-current="page">Orders</a>
+                <a href="./users.html">Users</a>
+                <a href="./notifications.html">Notifications</a>
+                <a href="../checkout.html">View checkout</a>
                 <a href="../index.html">Website</a>
             </nav>
         </div>
@@ -52,88 +51,88 @@
     <main class="admin-shell">
         <section class="container admin-login-screen" data-admin-login-screen>
             <div class="admin-login-card">
-                <p class="admin-login-kicker">Interner Bereich</p>
-                <h1>Admin-Anmeldung</h1>
-                <p>Mit einem aktiven Konto anmelden, um Kundenbestellungen, Gerätezuweisung und Fulfillment zu verwalten.</p>
+                <p class="admin-login-kicker">Internal Area</p>
+                <h1>Admin Sign In</h1>
+                <p>Sign in with an active account to manage customer orders, device assignment, and fulfilment.</p>
                 <form class="admin-login-form" data-admin-auth-form>
                     <div class="form-row">
-                        <label class="form-label" for="admin-orders-username">Benutzer</label>
-                        <input class="form-input" id="admin-orders-username" type="text" autocomplete="username" placeholder="Benutzername" data-admin-username-input>
+                        <label class="form-label" for="admin-orders-username">Username</label>
+                        <input class="form-input" id="admin-orders-username" type="text" autocomplete="username" placeholder="Username" data-admin-username-input>
                     </div>
                     <div class="form-row">
-                        <label class="form-label" for="admin-orders-password">Passwort</label>
-                        <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" placeholder="Passwort" data-admin-password-input>
+                        <label class="form-label" for="admin-orders-password">Password</label>
+                        <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" placeholder="Password" data-admin-password-input>
                     </div>
-                    <button class="button button--plain-dark button--pill button--md" type="submit">Anmelden</button>
+                    <button class="button button--plain-dark button--pill button--md" type="submit">Sign in</button>
                     <p class="admin-login-error" data-admin-login-error hidden></p>
                 </form>
             </div>
         </section>
-        <div class="container admin-layout" data-admin-orders data-locale="de">
+        <div class="container admin-layout" data-admin-orders data-locale="en">
 
             <section class="admin-stock-bar admin-card" data-admin-stock-bar hidden>
                 <div class="admin-stock-bar__warning" data-no-stock-warning hidden>
-                    ⚠ Kein freies Gerät auf Lager – neue bezahlte Bestellungen können nicht sofort zugewiesen werden.
+                    ⚠ No free device in stock – new paid orders cannot be fulfilled immediately.
                 </div>
                 <div class="admin-stock-bar__metrics">
                     <div class="admin-metric">
-                        <span class="admin-metric-label">Bestellt</span>
+                        <span class="admin-metric-label">On order</span>
                         <span class="admin-metric-value" data-stock-ordered>–</span>
                     </div>
                     <div class="admin-metric">
-                        <span class="admin-metric-label">Frei</span>
+                        <span class="admin-metric-label">Free</span>
                         <span class="admin-metric-value" data-stock-free>–</span>
                     </div>
                     <div class="admin-metric">
-                        <span class="admin-metric-label">Reserviert</span>
+                        <span class="admin-metric-label">Reserved</span>
                         <span class="admin-metric-value" data-stock-reserved>–</span>
                     </div>
                 </div>
                 <div class="admin-stock-bar__pending" data-stock-pending-orders hidden>
-                    <h3>Offene Lieferantenbestellungen</h3>
+                    <h3>Pending supplier orders</h3>
                     <div class="admin-stock-bar__pending-list" data-stock-pending-list></div>
                 </div>
             </section>
 
             <section class="admin-card">
                 <div class="admin-card-header">
-                    <h2>Bestellungen</h2>
-                    <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-reload-orders>Neu laden</button>
+                    <h2>Orders</h2>
+                    <button class="button button--plain-dark button--pill button--sm" type="button" data-admin-reload-orders>Reload</button>
                 </div>
                 <div class="admin-toolbar" data-admin-orders-toolbar>
                     <div class="form-row admin-toolbar__search">
-                        <label class="form-label" for="admin-order-search">Suche</label>
-                        <input class="form-input" id="admin-order-search" type="search" placeholder="Bestellnr., Name, Firma, Ort" data-admin-order-search>
+                        <label class="form-label" for="admin-order-search">Search</label>
+                        <input class="form-input" id="admin-order-search" type="search" placeholder="Order number, name, company, city" data-admin-order-search>
                     </div>
                     <div class="form-row">
-                        <label class="form-label" for="admin-payment-filter">Zahlung</label>
+                        <label class="form-label" for="admin-payment-filter">Payment</label>
                         <select class="form-input" id="admin-payment-filter" data-admin-payment-filter>
-                            <option value="all">Alle</option>
-                            <option value="paid">Bezahlt</option>
-                            <option value="open">Offen</option>
-                            <option value="failed">Fehlgeschlagen</option>
-                            <option value="expired">Abgelaufen</option>
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="open">Open</option>
+                            <option value="failed">Failed</option>
+                            <option value="expired">Expired</option>
                         </select>
                     </div>
                     <div class="form-row">
-                        <label class="form-label" for="admin-fulfilment-filter">Fulfillment</label>
+                        <label class="form-label" for="admin-fulfilment-filter">Fulfilment</label>
                         <select class="form-input" id="admin-fulfilment-filter" data-admin-fulfilment-filter>
-                            <option value="all">Alle</option>
-                            <option value="new">Neu (bezahlt, offen)</option>
-                            <option value="none">Keine Reservierung</option>
-                            <option value="reserved">Reserviert</option>
-                            <option value="installed">Installiert</option>
-                            <option value="packed">Verpackt</option>
-                            <option value="shipped">Versendet</option>
-                            <option value="delivered">Zugestellt</option>
-                            <option value="fulfilled">Abgeschlossen</option>
-                            <option value="released">Freigegeben</option>
-                            <option value="cancelled">Storniert</option>
+                            <option value="all">All</option>
+                            <option value="new">New (paid, open)</option>
+                            <option value="none">No reservation</option>
+                            <option value="reserved">Reserved</option>
+                            <option value="installed">Installed</option>
+                            <option value="packed">Packed</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="fulfilled">Fulfilled</option>
+                            <option value="released">Released</option>
+                            <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
                 </div>
                 <div class="admin-toolbar-meta">
-                    <p class="admin-result-count" data-admin-order-count>0 Bestellungen</p>
+                    <p class="admin-result-count" data-admin-order-count>0 orders</p>
                 </div>
 
                 <div class="admin-orders-split">
@@ -142,7 +141,7 @@
                     </div>
                     <div class="admin-orders-detail-pane" data-admin-orders-detail>
                         <div class="admin-detail-placeholder">
-                            <p>Eine Bestellung auswählen, um Details und Fulfillment zu bearbeiten.</p>
+                            <p>Select an order to view and edit details.</p>
                         </div>
                     </div>
                 </div>

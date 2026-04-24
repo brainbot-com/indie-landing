@@ -934,9 +934,7 @@ function showAdminChangePasswordPopover(anchorEl, locale, onSuccess) {
         existing.remove();
     }
 
-    const t = locale === 'en'
-        ? { title: 'Change Password', current: 'Current Password', newPw: 'New Password', save: 'Change', cancel: 'Cancel', success: 'Password changed.', failed: 'Password change failed.' }
-        : { title: 'Passwort ändern', current: 'Aktuelles Passwort', newPw: 'Neues Passwort', save: 'Ändern', cancel: 'Abbrechen', success: 'Passwort geändert.', failed: 'Passwort-Änderung fehlgeschlagen.' };
+    const t = { title: 'Change Password', current: 'Current Password', newPw: 'New Password', save: 'Change', cancel: 'Cancel', success: 'Password changed.', failed: 'Password change failed.' };
 
     const pop = document.createElement('div');
     pop.className = 'admin-change-password-popover';
@@ -1120,7 +1118,7 @@ function setupAdminInventory() {
     const app = document.querySelector('[data-admin-inventory]');
     if (!app) return;
 
-    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const locale = 'en';
     const productKey = app.getAttribute('data-product-key') || 'indiebox-ai-workstation';
     const articleForm = app.querySelector('[data-admin-article-form]');
     const articlesList = app.querySelector('[data-admin-articles-list]');
@@ -1139,8 +1137,7 @@ function setupAdminInventory() {
     let allSupplierOrdersCache = [];
     let allDeviceModelsCache = [];
 
-    const m = locale === 'en'
-        ? {
+    const m = {
             authMissing: 'Sign in to load internal inventory data.',
             authSaved: 'Admin session is active.',
             authCleared: 'Admin session was ended.',
@@ -1167,34 +1164,6 @@ function setupAdminInventory() {
             confirmDeleteArticle: 'Delete this article? This cannot be undone.',
             confirmYes: 'Delete', confirmNo: 'Cancel',
             vatIncl: 'incl. VAT', vatExcl: 'excl. VAT'
-        }
-        : {
-            authMissing: 'Anmelden, um die internen Bestandsdaten zu laden.',
-            authSaved: 'Admin-Sitzung ist aktiv.',
-            authCleared: 'Admin-Sitzung wurde beendet.',
-            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
-            loadFailed: 'Die internen Bestandsdaten konnten nicht geladen werden.',
-            saved: 'Änderungen gespeichert.',
-            created: 'Lieferantenbestellung angelegt.',
-            deviceAdded: 'Gerät hinzugefügt.',
-            deviceSaved: 'Gerät gespeichert.',
-            articleCreated: 'Artikel angelegt.',
-            articleSaved: 'Artikel gespeichert.',
-            articleDeleted: 'Artikel gelöscht.',
-            noOrders: 'Es wurden noch keine Lieferantenbestellungen erfasst.',
-            noAllocations: 'Es wurden noch keine Kundenbestellungen gegen den Bestand reserviert.',
-            noDevices: 'Noch keine Geräte im Lager.',
-            noArticles: 'Noch keine Artikel im Katalog.',
-            allocationSaved: 'Reservierung gespeichert.',
-            statusAvailable: 'Verfügbar', statusAssigned: 'Zugewiesen', statusRetired: 'Ausgemustert', statusUnavailable: 'Nicht verfügbar',
-            statusOrdered: 'Bestellt', statusReserved: 'Reserviert für Bestellung', statusInStock: 'Auf Lager', statusInstalled: 'Installiert',
-            markUnavailable: 'Sperren', markAvailable: 'Freigeben',
-            markInStock: 'Erhalten – Seriennr. eingeben', markInstalled: 'Als installiert markieren',
-            save: 'Speichern', retire: 'Ausmustern',
-            deleteArticle: 'Löschen',
-            confirmDeleteArticle: 'Diesen Artikel löschen? Das kann nicht rückgängig gemacht werden.',
-            confirmYes: 'Löschen', confirmNo: 'Abbrechen',
-            vatIncl: 'inkl. MwSt.', vatExcl: 'zzgl. MwSt.'
         };
 
     let feedbackTimer = null;
@@ -1269,7 +1238,7 @@ function setupAdminInventory() {
         // Group by manufacturer
         const groups = new Map();
         for (const model of deviceModels) {
-            const mfr = model.manufacturer || (locale === 'en' ? 'No manufacturer' : 'Kein Hersteller');
+            const mfr = model.manufacturer || ('No manufacturer');
             if (!groups.has(mfr)) groups.set(mfr, []);
             groups.get(mfr).push(model);
         }
@@ -1279,9 +1248,9 @@ function setupAdminInventory() {
                 ${models.map((model) => `
                 <div class="admin-article-row" data-article-row data-product-key="${esc(model.productKey)}">
                     <div class="admin-article-row__main">
-                        <input class="form-input admin-table-input" type="text" name="productName" value="${esc(model.productName)}" placeholder="${locale === 'en' ? 'Article name' : 'Artikelname'}">
-                        <input class="form-input admin-table-input" type="text" name="manufacturer" value="${esc(model.manufacturer || '')}" placeholder="${locale === 'en' ? 'Manufacturer' : 'Hersteller'}">
-                        <input class="form-input admin-table-input" type="text" name="systemSpec" value="${esc(model.systemSpec || '')}" placeholder="${locale === 'en' ? 'Specification' : 'Spezifikation'}">
+                        <input class="form-input admin-table-input" type="text" name="productName" value="${esc(model.productName)}" placeholder="${'Article name'}">
+                        <input class="form-input admin-table-input" type="text" name="manufacturer" value="${esc(model.manufacturer || '')}" placeholder="${'Manufacturer'}">
+                        <input class="form-input admin-table-input" type="text" name="systemSpec" value="${esc(model.systemSpec || '')}" placeholder="${'Specification'}">
                     </div>
                     <div class="admin-article-row__actions">
                         <button type="button" class="button button--plain-dark button--pill button--sm" data-save-article>${esc(m.save)}</button>
@@ -1305,11 +1274,11 @@ function setupAdminInventory() {
 
     const supplierStatusBadge = (status) => {
         switch (status) {
-            case 'ordered': return { cls: 'ordered', label: locale === 'en' ? 'Ordered' : 'Bestellt' };
-            case 'in_transit': return { cls: 'neutral', label: locale === 'en' ? 'In transit' : 'Unterwegs' };
-            case 'received': return { cls: 'info', label: locale === 'en' ? 'Received' : 'Geliefert' };
-            case 'in_stock': return { cls: 'available', label: locale === 'en' ? 'In stock' : 'Auf Lager' };
-            case 'cancelled': return { cls: 'danger', label: locale === 'en' ? 'Cancelled' : 'Storniert' };
+            case 'ordered': return { cls: 'ordered', label: 'Ordered' };
+            case 'in_transit': return { cls: 'neutral', label: 'In transit' };
+            case 'received': return { cls: 'info', label: 'Received' };
+            case 'in_stock': return { cls: 'available', label: 'In stock' };
+            case 'cancelled': return { cls: 'danger', label: 'Cancelled' };
             default: return { cls: 'neutral', label: status || '–' };
         }
     };
@@ -1317,7 +1286,7 @@ function setupAdminInventory() {
     const renderDeviceDetail = (device) => {
         if (!devicesDetail) return;
         if (!device) {
-            devicesDetail.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select a device to view and edit details.' : 'Gerät auswählen, um Details zu bearbeiten.'}</p></div>`;
+            devicesDetail.innerHTML = `<div class="admin-detail-placeholder"><p>${'Select a device to view and edit details.'}</p></div>`;
             return;
         }
         const d = device;
@@ -1328,10 +1297,10 @@ function setupAdminInventory() {
             <div class="admin-detail-body" data-device-detail data-device-id="${esc(d.id)}">
                 ${d.assignedOrderId ? `
                     <div class="admin-detail-section admin-detail-section--compact admin-detail-section--highlight">
-                        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#92400e;margin-bottom:0.35rem">${locale === 'en' ? 'Assigned to customer' : 'Zugewiesen an Kunde'}</div>
+                        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:#92400e;margin-bottom:0.35rem">${'Assigned to customer'}</div>
                         <div style="font-weight:500">${esc(d.customerName || d.customerCompany || '–')}</div>
                         ${d.customerCompany && d.customerName ? `<div style="font-size:0.85rem;color:rgba(15,23,42,0.6)">${esc(d.customerCompany)}</div>` : ''}
-                        <a href="./orders.html" class="admin-detail-link" style="font-size:0.82rem">${locale === 'en' ? 'Order' : 'Bestellung'} #${esc(d.orderNumber || d.assignedOrderId.slice(-8))} →</a>
+                        <a href="./orders.html" class="admin-detail-link" style="font-size:0.82rem">${'Order'} #${esc(d.orderNumber || d.assignedOrderId.slice(-8))} →</a>
                     </div>
                 ` : ''}
                 <div class="admin-detail-section admin-detail-section--compact">
@@ -1339,27 +1308,27 @@ function setupAdminInventory() {
                         <strong>Status</strong>
                         <span class="admin-device-status admin-device-status--${esc(st.cls)}">${esc(st.label)}</span>
                     </div>
-                    ${modelInfo ? `<div class="admin-detail-row-pair"><strong>${locale === 'en' ? 'Model' : 'Modell'}</strong><span>${esc(modelInfo)}</span></div>` : ''}
-                    ${d.supplierName ? `<div class="admin-detail-row-pair"><strong>${locale === 'en' ? 'Supplier' : 'Lieferant'}</strong><span>${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${locale === 'en' ? 'exp.' : 'erw.'} ${esc(d.expectedDeliveryAt)}` : ''}${d.supplierOrderId ? ` · <button type="button" class="admin-detail-link" style="background:none;border:none;padding:0;cursor:pointer" data-goto-supplier-order="${esc(d.supplierOrderId)}">${locale === 'en' ? 'View order →' : 'Zur Bestellung →'}</button>` : ''}</span></div>` : ''}
-                    ${d.status === 'ordered' ? `<div style="font-size:0.8rem;color:rgba(15,23,42,0.55);margin-top:0.25rem">${locale === 'en' ? 'Mark as received via the supplier order or use the button below.' : 'Status über die Lieferantenbestellung setzen oder unten direkt.'}</div>` : ''}
+                    ${modelInfo ? `<div class="admin-detail-row-pair"><strong>${'Model'}</strong><span>${esc(modelInfo)}</span></div>` : ''}
+                    ${d.supplierName ? `<div class="admin-detail-row-pair"><strong>${'Supplier'}</strong><span>${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${'exp.'} ${esc(d.expectedDeliveryAt)}` : ''}${d.supplierOrderId ? ` · <button type="button" class="admin-detail-link" style="background:none;border:none;padding:0;cursor:pointer" data-goto-supplier-order="${esc(d.supplierOrderId)}">${'View order →'}</button>` : ''}</span></div>` : ''}
+                    ${d.status === 'ordered' ? `<div style="font-size:0.8rem;color:rgba(15,23,42,0.55);margin-top:0.25rem">${'Mark as received via the supplier order or use the button below.'}</div>` : ''}
                 </div>
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="form-row">
-                        <label class="form-label">${locale === 'en' ? 'Serial number' : 'Seriennummer'}</label>
-                        <input class="form-input" type="text" name="serialNumber" value="${esc(d.serialNumber.startsWith('PENDING-') ? '' : d.serialNumber)}" placeholder="${d.serialNumber.startsWith('PENDING-') ? (locale === 'en' ? 'Enter when received' : 'Bei Lieferung eintragen') : ''}" ${editable ? '' : 'disabled'}>
+                        <label class="form-label">${'Serial number'}</label>
+                        <input class="form-input" type="text" name="serialNumber" value="${esc(d.serialNumber.startsWith('PENDING-') ? '' : d.serialNumber)}" placeholder="${d.serialNumber.startsWith('PENDING-') ? ('Enter when received') : ''}" ${editable ? '' : 'disabled'}>
                     </div>
                     <div class="form-grid">
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Username' : 'Benutzername'}</label>
+                            <label class="form-label">${'Username'}</label>
                             <input class="form-input" type="text" name="deviceUsername" value="${esc(d.deviceUsername || '')}" ${editable ? '' : 'disabled'}>
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Password' : 'Passwort'}</label>
+                            <label class="form-label">${'Password'}</label>
                             <input class="form-input" type="text" name="devicePassword" value="${esc(d.devicePassword || '')}" ${editable ? '' : 'disabled'}>
                         </div>
                     </div>
                     <div class="form-row">
-                        <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                        <label class="form-label">${'Notes'}</label>
                         <textarea class="form-textarea" name="notes" rows="3" ${editable ? '' : 'disabled'}>${esc(d.notes || '')}</textarea>
                     </div>
                 </div>
@@ -1391,8 +1360,8 @@ function setupAdminInventory() {
             const shortLabel = (() => {
                 switch (d.status) {
                     case 'available': case 'in_stock': case 'installed': return { label: deviceStatusLabel(d.status).label, cls: 'available' };
-                    case 'reserved': case 'assigned': return { label: locale === 'en' ? 'Reserved' : 'Reserviert', cls: 'reserved' };
-                    case 'unavailable': return { label: locale === 'en' ? 'Blocked' : 'Gesperrt', cls: 'unavailable' };
+                    case 'reserved': case 'assigned': return { label: 'Reserved', cls: 'reserved' };
+                    case 'unavailable': return { label: 'Blocked', cls: 'unavailable' };
                     default: return deviceStatusLabel(d.status);
                 }
             })();
@@ -1416,11 +1385,11 @@ function setupAdminInventory() {
 
     const supplierStatusOptions = (currentValue) => {
         const options = [
-            ['ordered', locale === 'en' ? 'Ordered' : 'Bestellt'],
-            ['in_transit', locale === 'en' ? 'In transit' : 'Unterwegs'],
-            ['received', locale === 'en' ? 'Received' : 'Geliefert'],
-            ['in_stock', locale === 'en' ? 'In stock' : 'Auf Lager'],
-            ['cancelled', locale === 'en' ? 'Cancelled' : 'Storniert']
+            ['ordered', 'Ordered'],
+            ['in_transit', 'In transit'],
+            ['received', 'Received'],
+            ['in_stock', 'In stock'],
+            ['cancelled', 'Cancelled']
         ];
         return options.map(([value, label]) => `<option value="${esc(value)}"${value === currentValue ? ' selected' : ''}>${esc(label)}</option>`).join('');
     };
@@ -1439,21 +1408,21 @@ function setupAdminInventory() {
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="form-grid">
                         <div class="form-row form-row--full">
-                            <label class="form-label">${locale === 'en' ? 'Article' : 'Artikel'}</label>
+                            <label class="form-label">${'Article'}</label>
                             <select class="form-input" name="productKey">
                                 ${allDeviceModelsCache.length ? articleOptions(currentProductKey) : `<option value="${esc(currentProductKey)}">${esc(currentProductKey)}</option>`}
                             </select>
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Supplier' : 'Lieferant'}</label>
+                            <label class="form-label">${'Supplier'}</label>
                             <input class="form-input" type="text" name="supplierName" value="${esc(o.supplierName || '')}" required>
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Reference' : 'Referenz'}</label>
+                            <label class="form-label">${'Reference'}</label>
                             <input class="form-input" type="text" name="supplierReference" value="${esc(o.supplierReference || '')}">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Qty' : 'Menge'}</label>
+                            <label class="form-label">${'Qty'}</label>
                             <input class="form-input" type="number" min="1" name="quantity" value="${esc(String(o.quantity || 1))}">
                         </div>
                         <div class="form-row">
@@ -1461,7 +1430,7 @@ function setupAdminInventory() {
                             <select class="form-input" name="status">${supplierStatusOptions(o.status || 'ordered')}</select>
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Price/unit (€)' : 'Preis/Stk. (€)'}</label>
+                            <label class="form-label">${'Price/unit (€)'}</label>
                             <input class="form-input" type="text" name="pricePerItem" value="${esc(o.pricePerItem || '')}" placeholder="0.00">
                         </div>
                         <div class="form-row" style="align-items:center;display:flex;gap:0.5rem">
@@ -1469,19 +1438,19 @@ function setupAdminInventory() {
                             <label class="form-label" style="margin:0">${esc(m.vatIncl)}</label>
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Ordered' : 'Bestellt am'}</label>
+                            <label class="form-label">${'Ordered'}</label>
                             <input class="form-input" type="date" name="orderedAt" value="${esc(o.orderedAt || '')}">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Expected delivery' : 'Erwartete Lieferung'}</label>
+                            <label class="form-label">${'Expected delivery'}</label>
                             <input class="form-input" type="date" name="expectedDeliveryAt" value="${esc(o.expectedDeliveryAt || '')}">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Received' : 'Geliefert am'}</label>
+                            <label class="form-label">${'Received'}</label>
                             <input class="form-input" type="date" name="receivedAt" value="${esc(o.receivedAt || '')}">
                         </div>
                         <div class="form-row form-row--full">
-                            <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                            <label class="form-label">${'Notes'}</label>
                             <textarea class="form-textarea" name="notes" rows="2">${esc(o.notes || '')}</textarea>
                         </div>
                     </div>
@@ -1489,9 +1458,9 @@ function setupAdminInventory() {
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="admin-detail-actions">
                         ${isNew
-                            ? `<button type="button" class="button button--solid button--pill button--sm" data-create-supplier-order>${locale === 'en' ? 'Create supplier order' : 'Lieferantenbestellung anlegen'}</button>`
+                            ? `<button type="button" class="button button--solid button--pill button--sm" data-create-supplier-order>${'Create supplier order'}</button>`
                             : `<button type="button" class="button button--solid button--pill button--sm" data-save-supplier-order>${esc(m.save)}</button>
-                               <button type="button" class="button button--pill button--sm" data-delete-supplier-order style="color:#dc2626">${locale === 'en' ? 'Delete' : 'Löschen'}</button>`
+                               <button type="button" class="button button--pill button--sm" data-delete-supplier-order style="color:#dc2626">${'Delete'}</button>`
                         }
                     </div>
                 </div>
@@ -1534,10 +1503,10 @@ function setupAdminInventory() {
             return;
         }
         const allocationStatusOptions = [
-            ['reserved', locale === 'en' ? 'Reserved' : 'Reserviert'],
-            ['fulfilled', locale === 'en' ? 'Fulfilled' : 'Erfüllt'],
-            ['released', locale === 'en' ? 'Released' : 'Freigegeben'],
-            ['cancelled', locale === 'en' ? 'Cancelled' : 'Storniert']
+            ['reserved', 'Reserved'],
+            ['fulfilled', 'Fulfilled'],
+            ['released', 'Released'],
+            ['cancelled', 'Cancelled']
         ];
         const optionsMarkup = (currentValue) => allocationStatusOptions
             .map(([value, label]) => `<option value="${esc(value)}"${value === currentValue ? ' selected' : ''}>${esc(label)}</option>`)
@@ -1546,11 +1515,11 @@ function setupAdminInventory() {
             <div class="admin-table-wrap">
                 <table class="admin-table">
                     <thead><tr>
-                        <th>${locale === 'en' ? 'Order' : 'Bestellung'}</th>
+                        <th>${'Order'}</th>
                         <th>Status</th>
-                        <th>${locale === 'en' ? 'Qty' : 'Menge'}</th>
-                        <th>${locale === 'en' ? 'Allocated' : 'Reserviert'}</th>
-                        <th>${locale === 'en' ? 'Notes' : 'Notizen'}</th>
+                        <th>${'Qty'}</th>
+                        <th>${'Allocated'}</th>
+                        <th>${'Notes'}</th>
                         <th></th>
                     </tr></thead>
                     <tbody>${allocations.map((allocation) => `
@@ -1560,7 +1529,7 @@ function setupAdminInventory() {
                             <td><input class="form-input admin-table-input" type="number" value="${esc(allocation.quantity)}" disabled aria-disabled="true"></td>
                             <td><input class="form-input admin-table-input" type="text" value="${esc(allocation.allocatedAt || '')}" disabled aria-disabled="true"></td>
                             <td><textarea class="form-textarea admin-table-textarea" name="notes" rows="2">${esc(allocation.notes || '')}</textarea></td>
-                            <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-allocation>${locale === 'en' ? 'Save' : 'Speichern'}</button></td>
+                            <td class="admin-table-action"><button type="button" class="button button--plain-dark button--pill button--sm" data-save-allocation>${'Save'}</button></td>
                         </tr>`).join('')}
                     </tbody>
                 </table>
@@ -1697,7 +1666,7 @@ function setupAdminInventory() {
                 if (!form) return;
                 const payload = Object.fromEntries(Array.from(form.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
                 payload.productKey = productKey;
-                if (!payload.serialNumber) { setFeedback(locale === 'en' ? 'Serial number required.' : 'Seriennummer erforderlich.', true); return; }
+                if (!payload.serialNumber) { setFeedback('Serial number required.', true); return; }
                 await adminFetch('/api/admin/stock-devices', { method: 'POST', body: JSON.stringify(payload) });
                 setFeedback(m.deviceAdded, false);
                 await loadAdminData();
@@ -1712,7 +1681,7 @@ function setupAdminInventory() {
             if (inStockBtn) {
                 const serial = payload.serialNumber || '';
                 if (!serial || serial.startsWith('PENDING-')) {
-                    setFeedback(locale === 'en' ? 'Please enter the real serial number first.' : 'Bitte zuerst eine echte Seriennummer eingeben.', true);
+                    setFeedback('Please enter the real serial number first.', true);
                     return;
                 }
                 payload.status = 'in_stock';
@@ -1733,27 +1702,27 @@ function setupAdminInventory() {
             <div class="admin-detail-body" data-new-device-form>
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="form-row">
-                        <label class="form-label">${locale === 'en' ? 'Serial number' : 'Seriennummer'}</label>
+                        <label class="form-label">${'Serial number'}</label>
                         <input class="form-input" type="text" name="serialNumber" required>
                     </div>
                     <div class="form-grid">
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Username' : 'Benutzername'}</label>
+                            <label class="form-label">${'Username'}</label>
                             <input class="form-input" type="text" name="deviceUsername">
                         </div>
                         <div class="form-row">
-                            <label class="form-label">${locale === 'en' ? 'Password' : 'Passwort'}</label>
+                            <label class="form-label">${'Password'}</label>
                             <input class="form-input" type="text" name="devicePassword">
                         </div>
                     </div>
                     <div class="form-row">
-                        <label class="form-label">${locale === 'en' ? 'Notes' : 'Notizen'}</label>
+                        <label class="form-label">${'Notes'}</label>
                         <textarea class="form-textarea" name="notes" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="admin-detail-actions">
-                        <button type="button" class="button button--solid button--pill button--sm" data-create-device>${locale === 'en' ? 'Add device' : 'Gerät hinzufügen'}</button>
+                        <button type="button" class="button button--solid button--pill button--sm" data-create-device>${'Add device'}</button>
                     </div>
                 </div>
             </div>`;
@@ -1782,20 +1751,20 @@ function setupAdminInventory() {
             const supplierOrderId = detailEl?.getAttribute('data-supplier-order-id');
             if (!supplierOrderId) return;
             showConfirmModal(
-                locale === 'en' ? 'Delete supplier order?' : 'Bestellung löschen?',
-                locale === 'en' ? 'This will also delete all linked devices that are still in "ordered" status.' : 'Dabei werden alle verknüpften Geräte im Status „Bestellt" ebenfalls gelöscht.',
+                'Delete supplier order?',
+                'This will also delete all linked devices that are still in "ordered" status.',
                 async () => {
                     try {
                         await adminFetch(`/api/supplier-orders/${encodeURIComponent(supplierOrderId)}`, { method: 'DELETE' });
                         selectedSupplierOrderId = null;
                         await loadAdminData();
-                        setFeedback(locale === 'en' ? 'Deleted.' : 'Gelöscht.', false);
+                        setFeedback('Deleted.', false);
                     } catch (error) {
                         setFeedback(error.message || m.loadFailed, true);
                     }
                 },
-                locale === 'en' ? 'Delete' : 'Löschen',
-                locale === 'en' ? 'Cancel' : 'Abbrechen'
+                'Delete',
+                'Cancel'
             );
             return;
         }
@@ -1812,9 +1781,9 @@ function setupAdminInventory() {
                 selectedSupplierOrderId = result.supplierOrder?.id || null;
                 await loadAdminData();
                 if (result.deviceCreateError) {
-                    setFeedback(`${m.created} – Gerät-Fehler: ${result.deviceCreateError}`, true);
+                    setFeedback(`${m.created} – Device error: ${result.deviceCreateError}`, true);
                 } else {
-                    setFeedback(`${m.created} (${result.devicesCreated ?? 0} ${locale === 'en' ? 'devices created' : 'Geräte angelegt'})`, false);
+                    setFeedback(`${m.created} (${result.devicesCreated ?? 0} ${'devices created'})`, false);
                 }
                 return;
             } else {
@@ -1854,7 +1823,7 @@ function setupAdminOrders() {
     const app = document.querySelector('[data-admin-orders]');
     if (!app) return;
 
-    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const locale = 'en';
     const ordersList = app.querySelector('[data-admin-orders-list]');
     const detailPane = app.querySelector('[data-admin-orders-detail]');
     const searchInput = app.querySelector('[data-admin-order-search]');
@@ -1871,8 +1840,7 @@ function setupAdminOrders() {
     let selectedOrderDetail = null;
     let mollieOrgId = null;
 
-    const t = locale === 'en'
-        ? {
+    const t = {
             authMissing: 'Sign in to load customer orders.',
             authSaved: 'Admin session is active.',
             authCleared: 'Admin session was ended.',
@@ -1907,42 +1875,6 @@ function setupAdminOrders() {
             supplier: 'Supplier', linkedDevice: 'Linked device', quantity: 'Qty',
             deviceOrdered: 'On order', deviceReserved: 'Reserved',
             molliePayment: 'Mollie payment ↗'
-        }
-        : {
-            authMissing: 'Anmelden, um Kundenbestellungen zu laden.',
-            authSaved: 'Admin-Sitzung ist aktiv.',
-            authCleared: 'Admin-Sitzung wurde beendet.',
-            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
-            loadFailed: 'Die Bestelldaten konnten nicht geladen werden.',
-            noOrders: 'Es sind noch keine Kundenbestellungen vorhanden.',
-            allocationSaved: 'Fulfillment-Status gespeichert.',
-            orderLoadFailed: 'Bestelldetails konnten nicht geladen werden.',
-            noReservation: 'Keine Reservierung',
-            save: 'Speichern',
-            countLabel: (n) => `${n} ${n === 1 ? 'Bestellung' : 'Bestellungen'}`,
-            statusReserved: 'Reserviert', statusInstalled: 'Installiert', statusPacked: 'Verpackt',
-            statusShipped: 'Versendet', statusDelivered: 'Zugestellt', statusFulfilled: 'Abgeschlossen',
-            statusReleased: 'Freigegeben', statusCancelled: 'Storniert',
-            order: 'Bestellung', customer: 'Kunde', addresses: 'Adressen',
-            billing: 'Rechnung', shipping: 'Lieferung', shippingEqualsBilling: 'Lieferung = Rechnung',
-            created: 'Angelegt', paidAt: 'Bezahlt am', payment: 'Zahlung', fulfilment: 'Fulfillment',
-            method: 'Zahlart', reference: 'Referenz', customerNotes: 'Kundennotizen',
-            fulfillmentWorkflow: 'Fulfillment-Workflow', serialNumber: 'Seriennummer',
-            deviceUser: 'Benutzername', devicePassword: 'Geräte-Passwort',
-            trackingNumber: 'Sendungsnummer', trackingCarrier: 'Versanddienstleister',
-            internalNotes: 'Interne Notizen', statusPage: 'Kundenstatusseite',
-            sectionDevice: 'Gerät', sectionShipping: 'Versand', sectionDeviceConfig: 'Gerätekonfiguration',
-            recentEvents: 'Letzte Ereignisse', name: 'Name', company: 'Firma',
-            email: 'E-Mail', phone: 'Telefon', vatId: 'USt-ID',
-            mailCustomer: 'Kunde anschreiben', pendingSupplier: 'Offene Lieferantenbestellungen',
-            units: 'Stück', expectedDelivery: 'erwartet',
-            badgeNew: 'Neu', archive: 'Bestellung archivieren', archiveConfirm: 'Bestellung archivieren? Sie erscheint dann nicht mehr in der Liste.',
-            archived: 'Bestellung archiviert.',
-            confirmYes: 'Archivieren', confirmNo: 'Abbrechen',
-            orderDevice: 'Gerät bestellen', assignFromStock: 'Aus Lager zuweisen',
-            supplier: 'Lieferant', linkedDevice: 'Verknüpftes Gerät', quantity: 'Anzahl',
-            deviceOrdered: 'Bestellt', deviceReserved: 'Reserviert',
-            molliePayment: 'Mollie-Zahlung ↗'
         };
 
     const workflowSteps = [
@@ -1990,14 +1922,14 @@ function setupAdminOrders() {
         if (!value) return '–';
         const d = new Date(value);
         if (Number.isNaN(d.getTime())) return value;
-        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+        return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
     };
 
     const fmtDate = (value) => {
         if (!value) return '–';
         const d = new Date(value);
         if (Number.isNaN(d.getTime())) return value;
-        return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium' }).format(d);
+        return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(d);
     };
 
     const fmtRelative = (value) => {
@@ -2009,10 +1941,10 @@ function setupAdminOrders() {
         const mins  = Math.floor(diffMs / 60000);
         const hours = Math.floor(diffMs / 3600000);
         const days  = Math.floor(diffMs / 86400000);
-        if (mins  < 2)  return locale === 'en' ? 'just now' : 'gerade eben';
-        if (mins  < 60) return locale === 'en' ? `${mins}m ago`  : `vor ${mins}m`;
-        if (hours < 24) return locale === 'en' ? `${hours}h ago` : `vor ${hours}h`;
-        if (days  < 7)  return locale === 'en' ? `${days}d ago`  : `vor ${days}d`;
+        if (mins  < 2)  return 'just now';
+        if (mins  < 60) return `${mins}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days  < 7)  return `${days}d ago`;
         return fmtDate(value);
     };
 
@@ -2020,12 +1952,12 @@ function setupAdminOrders() {
 
     const paymentBadge = (status) => {
         switch (status) {
-            case 'paid': return { tone: 'success', label: locale === 'en' ? 'Paid' : 'Bezahlt' };
-            case 'failed': return { tone: 'danger', label: locale === 'en' ? 'Failed' : 'Fehlgeschl.' };
-            case 'expired': return { tone: 'danger', label: locale === 'en' ? 'Expired' : 'Abgelaufen' };
-            case 'canceled': case 'cancelled': return { tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Abgebr.' };
+            case 'paid': return { tone: 'success', label: 'Paid' };
+            case 'failed': return { tone: 'danger', label: 'Failed' };
+            case 'expired': return { tone: 'danger', label: 'Expired' };
+            case 'canceled': case 'cancelled': return { tone: 'danger', label: 'Cancelled' };
             case 'authorized': case 'pending': case 'open': case 'payment_created':
-                return { tone: 'warning', label: locale === 'en' ? 'Open' : 'Offen' };
+                return { tone: 'warning', label: 'Open' };
             default: return { tone: 'neutral', label: (status || 'draft').toUpperCase() };
         }
     };
@@ -2085,7 +2017,7 @@ function setupAdminOrders() {
                     <div class="admin-stock-bar__pending-item">
                         <strong>${esc(s.supplierName)}</strong>
                         <span>${s.quantity} ${t.units}</span>
-                        <span class="admin-badge admin-badge--warning">${esc({ ordered: locale === 'en' ? 'Ordered' : 'Bestellt', in_transit: locale === 'en' ? 'In transit' : 'Unterwegs', received: locale === 'en' ? 'Received' : 'Geliefert', in_stock: locale === 'en' ? 'In stock' : 'Auf Lager', cancelled: locale === 'en' ? 'Cancelled' : 'Storniert' }[s.status] || s.status)}</span>
+                        <span class="admin-badge admin-badge--warning">${esc({ ordered: 'Ordered', in_transit: 'In transit', received: 'Received', in_stock: 'In stock', cancelled: 'Cancelled' }[s.status] || s.status)}</span>
                         ${s.expectedDeliveryAt ? `<span>${t.expectedDelivery}: ${esc(fmtDate(s.expectedDeliveryAt))}</span>` : ''}
                     </div>
                 `).join('');
@@ -2097,12 +2029,12 @@ function setupAdminOrders() {
 
     const paymentIcon = (status) => {
         switch (status) {
-            case 'paid': return { symbol: '✓', tone: 'success', label: locale === 'en' ? 'Paid' : 'Bezahlt' };
-            case 'failed': return { symbol: '✕', tone: 'danger', label: locale === 'en' ? 'Failed' : 'Fehlgeschlagen' };
-            case 'expired': return { symbol: '⏱', tone: 'danger', label: locale === 'en' ? 'Expired' : 'Abgelaufen' };
-            case 'canceled': case 'cancelled': return { symbol: '↺', tone: 'danger', label: locale === 'en' ? 'Cancelled' : 'Abgebrochen' };
+            case 'paid': return { symbol: '✓', tone: 'success', label: 'Paid' };
+            case 'failed': return { symbol: '✕', tone: 'danger', label: 'Failed' };
+            case 'expired': return { symbol: '⏱', tone: 'danger', label: 'Expired' };
+            case 'canceled': case 'cancelled': return { symbol: '↺', tone: 'danger', label: 'Cancelled' };
             case 'authorized': case 'pending': case 'open': case 'payment_created':
-                return { symbol: '…', tone: 'warning', label: locale === 'en' ? 'Open' : 'Offen' };
+                return { symbol: '…', tone: 'warning', label: 'Open' };
             default: return { symbol: '·', tone: 'neutral', label: (status || 'draft').toUpperCase() };
         }
     };
@@ -2184,7 +2116,7 @@ function setupAdminOrders() {
     const renderDetail = (order, allocation, events, devices = []) => {
         if (!detailPane) return;
         if (!order) {
-            detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select an order to view and edit details.' : 'Eine Bestellung auswählen, um Details und Fulfillment zu bearbeiten.'}</p></div>`;
+            detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${'Select an order to view and edit details.'}</p></div>`;
             return;
         }
 
@@ -2194,7 +2126,7 @@ function setupAdminOrders() {
         const billingLines = [order.billingAddress?.street, `${order.billingAddress?.zip || ''} ${order.billingAddress?.city || ''}`.trim(), order.billingAddress?.country || 'DE'].filter(Boolean);
         const shippingLines = hasShipping ? [order.shippingAddress.careOf ? `c/o ${order.shippingAddress.careOf}` : '', order.shippingAddress.street, `${order.shippingAddress.zip} ${order.shippingAddress.city}`, order.shippingAddress.country || 'DE'].filter(Boolean) : null;
         const statusUrl = order.statusToken ? `${lpfx(order.locale)}checkout-status.html?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}` : null;
-        const mailSubject = encodeURIComponent(`${locale === 'en' ? 'Your Indiebox order' : 'Ihre Indiebox-Bestellung'} ${displayOrderNumber(order)}`);
+        const mailSubject = encodeURIComponent(`${'Your Indiebox order'} ${displayOrderNumber(order)}`);
         const mailTo = `mailto:${encodeURIComponent(order.customer?.email || order.customerEmail || '')}?subject=${mailSubject}`;
         const recentEvents = Array.isArray(events) ? events.slice(0, 4) : [];
         const allocStatus = allocation?.status || (isPaid ? 'reserved' : '');
@@ -2245,7 +2177,7 @@ function setupAdminOrders() {
                                 <label class="form-label">${t.assignFromStock}</label>
                                 <select class="form-input" name="deviceId" data-device-picker>
                                     <option value="">—</option>
-                                    ${availableDevices.map((d) => `<option value="${esc(d.id)}">${esc(d.status === 'ordered' ? `(Bestellt) ${d.serialNumber}` : d.serialNumber)}</option>`).join('')}
+                                    ${availableDevices.map((d) => `<option value="${esc(d.id)}">${esc(d.status === 'ordered' ? `(Ordered) ${d.serialNumber}` : d.serialNumber)}</option>`).join('')}
                                 </select>
                             </div>
                         </div>` : ''}
@@ -2537,7 +2469,7 @@ function setupAdminUsers() {
     const app = document.querySelector('[data-admin-users]');
     if (!app) return;
 
-    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const locale = 'en';
     const usersList = app.querySelector('[data-admin-users-list]');
     const detailPane = app.querySelector('[data-admin-users-detail]');
     const roleFilter = app.querySelector('[data-admin-user-role-filter]');
@@ -2551,8 +2483,7 @@ function setupAdminUsers() {
     let selectedUserId = null;
     let currentUser = null; // logged-in user
 
-    const t = locale === 'en'
-        ? {
+    const t = {
             authMissing: 'Sign in to manage users.',
             authSaved: 'Admin session is active.',
             authCleared: 'Admin session was ended.',
@@ -2597,52 +2528,6 @@ function setupAdminUsers() {
             currentPassword: 'Current Password',
             changePwSave: 'Change',
             changePwSuccess: 'Password changed.',
-        }
-        : {
-            authMissing: 'Anmelden, um Benutzer zu verwalten.',
-            authSaved: 'Admin-Sitzung ist aktiv.',
-            authCleared: 'Admin-Sitzung beendet.',
-            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
-            loadFailed: 'Benutzerdaten konnten nicht geladen werden.',
-            noUsers: 'Keine Benutzer gefunden.',
-            userCreated: 'Benutzer erstellt.',
-            userUpdated: 'Benutzer aktualisiert.',
-            userDeleted: 'Benutzer gelöscht.',
-            passwordReset: 'Passwort wurde zurückgesetzt.',
-            statusToggled: 'Benutzerstatus geändert.',
-            countLabel: (n) => `${n} ${n === 1 ? 'Benutzer' : 'Benutzer'}`,
-            createTitle: 'Benutzer anlegen',
-            editTitle: 'Benutzer bearbeiten',
-            username: 'Benutzername',
-            displayName: 'Anzeigename',
-            role: 'Rolle',
-            password: 'Passwort',
-            status: 'Status',
-            active: 'Aktiv',
-            disabled: 'Deaktiviert',
-            admin: 'Admin',
-            user: 'Benutzer',
-            save: 'Speichern',
-            cancel: 'Abbrechen',
-            create: 'Anlegen',
-            deleteUser: 'Löschen',
-            confirmDelete: 'Benutzer wirklich löschen? Dies kann nicht rückgängig gemacht werden.',
-            confirmYes: 'Löschen',
-            confirmNo: 'Abbrechen',
-            disable: 'Deaktivieren',
-            enable: 'Aktivieren',
-            resetPassword: 'Passwort zurücksetzen',
-            newPassword: 'Neues Passwort',
-            reset: 'Zurücksetzen',
-            lastLogin: 'Letzte Anmeldung',
-            createdAt: 'Erstellt',
-            never: 'Nie',
-            you: '(du)',
-            notAuthorized: 'Kein Zugriff auf diesen Bereich.',
-            changePassword: 'Passwort ändern',
-            currentPassword: 'Aktuelles Passwort',
-            changePwSave: 'Ändern',
-            changePwSuccess: 'Passwort geändert.',
         };
 
     const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -2671,7 +2556,7 @@ function setupAdminUsers() {
 
     const fmtDate = (iso) => {
         if (!iso) return t.never;
-        try { return new Date(iso).toLocaleString(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }); }
+        try { return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }); }
         catch { return iso; }
     };
 
@@ -2710,7 +2595,7 @@ function setupAdminUsers() {
 
     const renderDetailPlaceholder = () => {
         if (!detailPane) return;
-        detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${locale === 'en' ? 'Select a user to view details and manage their account.' : 'Einen Benutzer auswählen, um Details zu bearbeiten.'}</p></div>`;
+        detailPane.innerHTML = `<div class="admin-detail-placeholder"><p>${'Select a user to view details and manage their account.'}</p></div>`;
     };
 
     const renderUserDetail = (user) => {
@@ -2995,7 +2880,7 @@ function setupAdminNotifications() {
     const app = document.querySelector('[data-admin-notifications]');
     if (!app) return;
 
-    const locale = app.getAttribute('data-locale') === 'en' ? 'en' : 'de';
+    const locale = 'en';
     const listEl = app.querySelector('[data-admin-notif-list]');
     const detailEl = app.querySelector('[data-admin-notif-detail]');
     const statusEl = app.querySelector('[data-admin-notif-status]');
@@ -3003,8 +2888,7 @@ function setupAdminNotifications() {
     const reloadButton = app.querySelector('[data-admin-notif-reload]');
     const importBundleButton = app.querySelector('[data-admin-notif-import-bundle]');
 
-    const t = locale === 'en'
-        ? {
+    const t = {
             authMissing: 'Sign in to manage templates.',
             authFailed: 'Admin sign-in failed.',
             loadFailed: 'Could not load templates.',
@@ -3061,64 +2945,6 @@ function setupAdminNotifications() {
             send: 'Send',
             submit: 'Submit',
             close: 'Close'
-        }
-        : {
-            authMissing: 'Anmelden, um Templates zu verwalten.',
-            authFailed: 'Admin-Anmeldung fehlgeschlagen.',
-            loadFailed: 'Templates konnten nicht geladen werden.',
-            pickTemplate: 'Ein Template aus der Liste wählen, um Inhalte zu bearbeiten.',
-            mailNotConfigured: 'Mailgun ist nicht konfiguriert. Mails werden nicht verschickt.',
-            saveButton: 'Template speichern',
-            saveOk: 'Template gespeichert.',
-            saveFailed: 'Speichern fehlgeschlagen.',
-            testButton: 'Test-Mail senden',
-            testPromptTo: 'Test-Mail senden an:',
-            testOk: 'Test-Mail gesendet.',
-            testFailed: 'Versand fehlgeschlagen.',
-            exportButton: 'Mail-Template exportieren',
-            uploadButton: 'Bild hochladen',
-            uploadFailed: 'Upload fehlgeschlagen.',
-            uploadOk: 'Bild gespeichert.',
-            deleteAsset: 'Löschen',
-            confirmDeleteAsset: 'Dieses Bild löschen? Referenzen in Templates werden ungültig.',
-            importHtmlButton: 'HTML importieren',
-            importHtmlHint: 'Das exportierte HTML aus deinem E-Mail-Editor hier einfügen. Externe Bilder werden heruntergeladen und abgelegt.',
-            importHtmlOk: (n) => `HTML importiert. ${n} Bild(er) gespeichert.`,
-            importHtmlFailures: (n) => `${n} Bild(er) konnten nicht importiert werden — siehe Browser-Konsole.`,
-            importHtmlFailed: 'Import fehlgeschlagen.',
-            importBundleButton: 'Mail-Template importieren',
-            importBundleHint: 'Exportiertes Mail-Template (.json) aus einem anderen Environment hochladen.',
-            importBundleOk: 'Mail-Template importiert.',
-            importBundleFailed: 'Import fehlgeschlagen.',
-            tokensTitle: 'Verfügbare Tokens',
-            tokensHelp: 'Tokens in Betreff, Text oder HTML einfügen. Beim Versand werden sie durch echte Bestelldaten ersetzt.',
-            imagesTitle: 'Bilder für dieses Template',
-            imagesEmpty: 'Noch keine Bilder hochgeladen. Bild hochladen oder HTML importieren.',
-            imagesHint: 'Einbindung im HTML: <img src="/mail/ID.png" alt="…">',
-            copyUrl: 'URL kopieren',
-            copied: 'Kopiert.',
-            tplName: 'Name',
-            tplDescription: 'Beschreibung',
-            tplTrigger: 'Auslöser',
-            tplRecipient: 'Empfänger',
-            tplRecipientAdmin: 'Admin (ORDER_NOTIFICATION_TO)',
-            tplRecipientCustomer: 'Kunde (aus Bestellung)',
-            tplRecipientCustom: 'Feste Adresse',
-            tplRecipientOverride: 'Feste Empfängeradresse',
-            tplLocale: 'Sprachfilter der Bestellung',
-            tplLocaleAny: 'Alle',
-            tplEnabled: 'Aktiv',
-            tplSubject: 'Betreff',
-            tplTextBody: 'Plain-Text-Version',
-            tplHtmlBody: 'HTML-Version',
-            tplActions: 'Aktionen',
-            trashOk: 'Bild gelöscht.',
-            triggerLabels: { 'order.paid': 'Bestellung bezahlt' },
-            confirm: 'Bestätigen',
-            cancel: 'Abbrechen',
-            send: 'Senden',
-            submit: 'Übernehmen',
-            close: 'Schließen'
         };
 
     let templates = [];
@@ -3163,7 +2989,7 @@ function setupAdminNotifications() {
 
     const formatDate = (iso) => {
         if (!iso) return '';
-        try { return new Date(iso).toLocaleString(locale === 'en' ? 'en-GB' : 'de-DE', { dateStyle: 'medium', timeStyle: 'short' }); }
+        try { return new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }); }
         catch { return iso; }
     };
 
@@ -3251,39 +3077,39 @@ function setupAdminNotifications() {
             paymentMethod: 'creditcard',
             paidAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
             createdAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
-            notes: locale === 'en' ? 'Please ring Mustermann.' : 'Bitte klingeln bei Mustermann.',
-            notesHtml: locale === 'en' ? 'Please ring Mustermann.' : 'Bitte klingeln bei Mustermann.',
+            notes: 'Please ring Mustermann.',
+            notesHtml: 'Please ring Mustermann.',
             locale,
             adminUrl: `${window.location.origin}/admin/orders.html`,
             statusUrl: `${window.location.origin}/checkout-status.html`
         },
         customer: {
             firstName: 'Alex',
-            lastName: locale === 'en' ? 'Example' : 'Beispiel',
-            fullName: locale === 'en' ? 'Alex Example' : 'Alex Beispiel',
+            lastName: 'Example',
+            fullName: 'Alex Example',
             email: 'kunde@example.com',
             phone: '+49 171 0000000',
-            company: locale === 'en' ? 'Example GmbH' : 'Beispiel GmbH',
-            phoneLine: (locale === 'en' ? 'Phone' : 'Telefon') + ': +49 171 0000000',
-            companyLine: (locale === 'en' ? 'Company' : 'Firma') + (locale === 'en' ? ': Example GmbH' : ': Beispiel GmbH')
+            company: 'Example GmbH',
+            phoneLine: ('Phone') + ': +49 171 0000000',
+            companyLine: ('Company') + (': Example GmbH')
         },
         billingAddress: {
             careOf: '',
             street: 'Musterstraße 1',
             zip: '55116',
             city: 'Mainz',
-            country: locale === 'en' ? 'Germany' : 'Deutschland',
-            block: `Musterstraße 1\n55116 Mainz\n${locale === 'en' ? 'Germany' : 'Deutschland'}`,
-            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${locale === 'en' ? 'Germany' : 'Deutschland'}`
+            country: 'Germany',
+            block: `Musterstraße 1\n55116 Mainz\n${'Germany'}`,
+            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${'Germany'}`
         },
         shippingAddress: {
             careOf: '',
             street: 'Musterstraße 1',
             zip: '55116',
             city: 'Mainz',
-            country: locale === 'en' ? 'Germany' : 'Deutschland',
-            block: `Musterstraße 1\n55116 Mainz\n${locale === 'en' ? 'Germany' : 'Deutschland'}`,
-            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${locale === 'en' ? 'Germany' : 'Deutschland'}`
+            country: 'Germany',
+            block: `Musterstraße 1\n55116 Mainz\n${'Germany'}`,
+            blockHtml: `Musterstraße 1<br>55116 Mainz<br>${'Germany'}`
         }
     };
 
@@ -3345,7 +3171,7 @@ function setupAdminNotifications() {
         if (htmlViewMode === 'preview') {
             const previewDoc = buildPreviewHtml(htmlValue);
             const encoded = previewDoc.replace(/"/g, '&quot;');
-            return `<iframe class="admin-notif-preview-frame" data-notif-preview-frame sandbox srcdoc="${encoded}" title="${esc(locale === 'en' ? 'Template preview' : 'Template-Vorschau')}"></iframe>`;
+            return `<iframe class="admin-notif-preview-frame" data-notif-preview-frame sandbox srcdoc="${encoded}" title="${esc('Template preview')}"></iframe>`;
         }
         return `<textarea class="form-input admin-notif-textarea admin-notif-textarea--code" data-notif-field="htmlTemplate" rows="20" spellcheck="false">${esc(htmlValue)}</textarea>`;
     };
@@ -3373,7 +3199,7 @@ function setupAdminNotifications() {
                 <header class="admin-notif-detail__header">
                     <div class="admin-notif-detail__title-group">
                         <h3>${esc(tpl.name)}</h3>
-                        <p class="admin-notif-detail__subtitle">${esc(triggerLabel(tpl.triggerEvent))} · ${esc(recipientTypeLabel(tpl.recipientType))}${tpl.locale ? ' · ' + esc(tpl.locale.toUpperCase()) : ''} · ${esc(locale === 'en' ? 'Updated' : 'Aktualisiert')} ${esc(formatDate(tpl.updatedAt))}</p>
+                        <p class="admin-notif-detail__subtitle">${esc(triggerLabel(tpl.triggerEvent))} · ${esc(recipientTypeLabel(tpl.recipientType))}${tpl.locale ? ' · ' + esc(tpl.locale.toUpperCase()) : ''} · ${esc('Updated')} ${esc(formatDate(tpl.updatedAt))}</p>
                     </div>
                     <label class="admin-notif-switch">
                         <input type="checkbox" data-notif-field="enabled"${form.enabled ? ' checked' : ''}>
@@ -3432,8 +3258,8 @@ function setupAdminNotifications() {
                             <h4 class="admin-notif-block__title">${esc(t.tplHtmlBody)}</h4>
                             <div class="admin-notif-block__actions">
                                 <div class="admin-notif-view-toggle" role="tablist">
-                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'edit' ? ' is-active' : ''}" data-notif-html-mode="edit" aria-selected="${htmlViewMode === 'edit'}">${esc(locale === 'en' ? 'Edit' : 'Bearbeiten')}</button>
-                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'preview' ? ' is-active' : ''}" data-notif-html-mode="preview" aria-selected="${htmlViewMode === 'preview'}">${esc(locale === 'en' ? 'Preview' : 'Vorschau')}</button>
+                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'edit' ? ' is-active' : ''}" data-notif-html-mode="edit" aria-selected="${htmlViewMode === 'edit'}">${esc('Edit')}</button>
+                                    <button type="button" role="tab" class="admin-notif-view-toggle__btn${htmlViewMode === 'preview' ? ' is-active' : ''}" data-notif-html-mode="preview" aria-selected="${htmlViewMode === 'preview'}">${esc('Preview')}</button>
                                 </div>
                                 <button type="button" class="button button--plain-light button--pill button--sm" data-notif-import-html>${esc(t.importHtmlButton)}</button>
                             </div>
@@ -3563,7 +3389,7 @@ function setupAdminNotifications() {
     };
 
     const selectTemplate = (id) => {
-        if (dirty && !confirm(locale === 'en' ? 'Discard unsaved changes?' : 'Ungespeicherte Änderungen verwerfen?')) return;
+        if (dirty && !confirm('Discard unsaved changes?')) return;
         selectedId = id;
         currentFormValues = null;
         dirty = false;
@@ -3813,8 +3639,8 @@ function setupAdminRoleGuard() {
     const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users], [data-admin-notifications]');
     if (!adminContainers.length) return;
 
-    const locale = document.querySelector('[data-locale]')?.getAttribute('data-locale') === 'en' ? 'en' : 'de';
-    const msg = locale === 'en' ? 'You do not have access to this area.' : 'Kein Zugriff auf diesen Bereich.';
+    const locale = 'en';
+    const msg = 'You do not have access to this area.';
 
     fetch('/api/admin/session', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
         .then((r) => r.ok ? r.json() : null)

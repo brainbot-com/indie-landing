@@ -5,6 +5,8 @@ Use `STYLE_GUIDE.md` as the single source of truth for typography, gradients, ba
 Translation workflow lives in `TRANSLATION.md`. Agents must follow it when creating or updating copy.
 Always generate matching English pages for any new or updated HTML pages (e.g. `en/index.html`, `en/checkout.html`, `en/terms.html`, `en/impressum.html`).
 
+**Admin/backend pages are English-only.** The `/admin/` directory and all backend-facing pages must be written in English only. Do not create German versions or `en/admin/` counterparts.
+
 ## Text & Informationsarchitektur
 
 Keep the current style and strengthen it: positive, self-confident, and clear in positioning. Avoid vague claims: wherever a reasonable user would expect details, provide them either directly in the copy or via easy-to-find optional detail elements (e.g. "Details", "Mehr erfahren", small infoboxes, FAQ, accordions).
