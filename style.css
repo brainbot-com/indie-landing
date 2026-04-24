@@ -91,13 +91,14 @@
 
     /* Colors — Status */
     --color-success: #15803D;
-    --color-success-bg: rgba(21, 128, 61, 0.16);
+    --color-success-bg: rgba(21, 128, 61, 0.12);
     --color-warning: #92400E;
-    --color-warning-bg: rgba(180, 120, 0, 0.16);
+    --color-warning-bg: rgba(180, 120, 0, 0.12);
     --color-danger: #B91C1C;
-    --color-danger-bg: rgba(185, 28, 28, 0.14);
-    --color-info: #0F5FA8;
-    --color-info-bg: rgba(15, 95, 168, 0.12);
+    --color-danger-bg: rgba(185, 28, 28, 0.12);
+    --color-info: #1D4ED8;
+    --color-info-bg: rgba(29, 78, 216, 0.12);
+    --color-neutral-bg: rgba(15, 23, 42, 0.08);
 
     /* Typography — Family */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -3861,10 +3862,10 @@ ul {
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
-.admin-status-inline--success { background: rgba(21, 128, 61, 0.12); color: #15803d; }
-.admin-status-inline--warning  { background: rgba(180, 120, 0, 0.12); color: #92400e; }
-.admin-status-inline--danger   { background: rgba(185, 28, 28, 0.12); color: #b91c1c; }
-.admin-status-inline--neutral  { background: rgba(15, 23, 42, 0.07); color: rgba(15, 23, 42, 0.6); }
+.admin-status-inline--success { background: var(--color-success-bg); color: var(--color-success); }
+.admin-status-inline--warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.admin-status-inline--danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
+.admin-status-inline--neutral { background: var(--color-neutral-bg); color: var(--color-fg-muted); }
 
 .admin-detail-events {
     margin-top: 0.9rem;
@@ -3966,10 +3967,10 @@ ul {
     height: 0.9rem;
 }
 
-.admin-pay-icon--success { background: rgba(21, 128, 61, 0.16); color: #15803d; }
-.admin-pay-icon--warning  { background: rgba(180, 120, 0, 0.16); color: #92400e; }
-.admin-pay-icon--danger   { background: rgba(185, 28, 28, 0.14); color: #b91c1c; }
-.admin-pay-icon--neutral  { background: rgba(15, 23, 42, 0.08);  color: rgba(15, 23, 42, 0.5); }
+.admin-pay-icon--success { background: var(--color-success-bg); color: var(--color-success); }
+.admin-pay-icon--warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.admin-pay-icon--danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
+.admin-pay-icon--neutral { background: var(--color-neutral-bg); color: var(--color-fg-muted); }
 
 /* Fulfillment progress bar */
 .admin-prog {
@@ -4190,11 +4191,11 @@ ul {
     white-space: nowrap;
 }
 
-.admin-badge--success { background: rgba(21, 128, 61, 0.12); color: #15803d; }
-.admin-badge--warning { background: rgba(180, 120, 0, 0.12); color: #92400e; }
-.admin-badge--danger  { background: rgba(185, 28, 28, 0.12); color: #b91c1c; }
-.admin-badge--neutral { background: rgba(15, 23, 42, 0.07); color: rgba(15, 23, 42, 0.6); }
-.admin-badge--info    { background: rgba(29, 78, 216, 0.1); color: #1d4ed8; }
+.admin-badge--success { background: var(--color-success-bg); color: var(--color-success); }
+.admin-badge--warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.admin-badge--danger  { background: var(--color-danger-bg);  color: var(--color-danger); }
+.admin-badge--neutral { background: var(--color-neutral-bg); color: var(--color-fg-muted); }
+.admin-badge--info    { background: var(--color-info-bg);    color: var(--color-info); }
 .admin-badge--new     { background: rgba(234, 88, 12, 0.12); color: #ea580c; vertical-align: middle; }
 
 /* Detail panel sections */
