@@ -69,11 +69,12 @@
 
     /* Colors — Foreground / Text */
     --color-fg: #1A1A1A;
-    --color-fg-muted: var(--color-fg-muted);
-    --color-fg-subtle: var(--color-fg-subtle);
+    --color-fg-strong: rgba(15, 23, 42, 0.82);
+    --color-fg-muted: rgba(15, 23, 42, 0.6);
+    --color-fg-subtle: rgba(15, 23, 42, 0.4);
     --color-fg-on-dark: #F3F7FB;
     --color-fg-on-accent: #FFFFFF;
-    --color-fg-disabled: var(--color-fg-disabled);
+    --color-fg-disabled: rgba(15, 23, 42, 0.35);
 
     /* Colors — Background / Surface */
     --color-bg: #FFFFFF;
@@ -82,12 +83,12 @@
     --color-bg-neutral: #F0F2F5;
     --color-bg-dark: #0B1118;
     --color-bg-dark-metal: radial-gradient(1200px 700px at 20% 30%, rgba(91, 153, 182, 0.18), transparent 60%), #0B1118;
-    --color-bg-disabled: var(--color-bg-disabled);
+    --color-bg-disabled: rgba(15, 23, 42, 0.05);
 
     /* Colors — Border */
     --color-border: #E0E6ED;
-    --color-border-strong: var(--color-border-strong);
-    --color-border-subtle: var(--color-border-subtle);
+    --color-border-strong: rgba(15, 23, 42, 0.16);
+    --color-border-subtle: rgba(15, 23, 42, 0.08);
 
     /* Colors — Status */
     --color-success: #15803D;
@@ -98,7 +99,7 @@
     --color-danger-bg: rgba(185, 28, 28, 0.12);
     --color-info: #1D4ED8;
     --color-info-bg: rgba(29, 78, 216, 0.12);
-    --color-neutral-bg: var(--color-border-subtle);
+    --color-neutral-bg: rgba(15, 23, 42, 0.08);
 
     /* Typography — Family */
     --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -153,7 +154,7 @@
     /* Shadows / Elevation */
     --shadow-none: none;
     --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-    --shadow-md: 0 8px 24px var(--color-border-subtle);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
     --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
     --shadow-glow: 0 0 32px rgba(255, 77, 0, 0.35);
 
@@ -3357,7 +3358,7 @@ ul {
         radial-gradient(circle at 82% 10%, rgba(255, 106, 0, 0.12), transparent 28%),
         var(--bg-dark-metal);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.24);
+    box-shadow: 0 24px 64px var(--color-border-strong);
 }
 
 .admin-header__inner {
@@ -3463,7 +3464,7 @@ ul {
 
 .admin-card p {
     margin: 0;
-    color: rgba(15, 23, 42, 0.72);
+    color: var(--color-fg-strong);
 }
 
 .admin-auth {
@@ -3473,7 +3474,7 @@ ul {
 
 .admin-auth-status {
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.7);
+    color: var(--color-fg-strong);
 }
 
 .admin-auth-status--error {
@@ -3499,14 +3500,14 @@ ul {
 .admin-metric {
     padding: 1rem 1.1rem;
     border-radius: 18px;
-    background: rgba(15, 23, 42, 0.03);
+    background: var(--color-bg-disabled);
 }
 
 .admin-metric-label {
     display: block;
     margin-bottom: 0.35rem;
     font: var(--t-small);
-    color: rgba(15, 23, 42, 0.56);
+    color: var(--color-fg-muted);
     text-transform: uppercase;
     letter-spacing: 0.12em;
 }
@@ -3551,7 +3552,7 @@ ul {
     flex-wrap: wrap;
     gap: 0.9rem 1.25rem;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.68);
+    color: var(--color-fg-muted);
 }
 
 .admin-status-legend span {
@@ -3600,7 +3601,7 @@ ul {
     font: var(--t-small);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(15, 23, 42, 0.62);
+    color: var(--color-fg-muted);
 }
 
 .admin-table tbody tr:last-child td {
@@ -3655,7 +3656,7 @@ ul {
 }
 
 .admin-table tbody tr:hover {
-    background: rgba(15, 23, 42, 0.025);
+    background: var(--color-bg-disabled);
 }
 
 .admin-table tr.is-selected {
@@ -3668,7 +3669,7 @@ ul {
 
 .admin-detail-row td {
     padding: 0 0.9rem 0.9rem;
-    background: rgba(15, 23, 42, 0.035);
+    background: var(--color-bg-disabled);
 }
 
 .admin-status-wrap {
@@ -3692,7 +3693,7 @@ ul {
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 1px 2px var(--color-border-subtle);
 }
 
 .admin-status-icon--success {
@@ -3753,7 +3754,7 @@ ul {
 
 .admin-cell-secondary {
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.62);
+    color: var(--color-fg-muted);
 }
 
 .admin-status-popover {
@@ -3764,16 +3765,16 @@ ul {
     width: 14rem;
     padding: 0.7rem 0.8rem;
     border-radius: 14px;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--color-border-strong);
     background: #fff;
-    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 16px 32px var(--color-border-strong);
     transform: translateX(-50%);
 }
 
 .admin-status-popover p {
     margin: 0;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.82);
+    color: var(--color-fg-strong);
 }
 
 .admin-status-popover p + p {
@@ -3791,7 +3792,7 @@ ul {
     padding: 0.9rem 1rem;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.74);
-    border: 1px solid rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .admin-detail-block h3 {
@@ -3803,7 +3804,7 @@ ul {
 .admin-detail-block p {
     margin: 0;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 
 .admin-detail-meta {
@@ -3831,7 +3832,7 @@ ul {
 .admin-detail-notes {
     white-space: pre-wrap;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 
 .admin-detail-link {
@@ -3894,11 +3895,11 @@ ul {
     align-items: baseline;
     gap: 0.6rem;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.7);
+    color: var(--color-fg-strong);
 }
 
 .admin-event-time {
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     font-size: 0.75rem;
     white-space: nowrap;
 }
@@ -3906,14 +3907,14 @@ ul {
 .admin-event-type {
     font-family: ui-monospace, monospace;
     font-size: 0.75rem;
-    color: rgba(15, 23, 42, 0.7);
+    color: var(--color-fg-strong);
 }
 
 .admin-event-status {
     font-size: 0.72rem;
     padding: 0.05em 0.4em;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.07);
+    background: var(--color-border-subtle);
     color: var(--color-fg-muted);
 }
 
@@ -3945,8 +3946,8 @@ ul {
 .admin-empty {
     padding: 1rem 1.1rem;
     border-radius: 18px;
-    background: rgba(15, 23, 42, 0.04);
-    color: rgba(15, 23, 42, 0.7);
+    background: var(--color-bg-disabled);
+    color: var(--color-fg-strong);
 }
 
 /* Payment icon (list) */
@@ -3998,7 +3999,7 @@ ul {
     transition: background-color 160ms;
 }
 
-.admin-prog__seg--pending { background: rgba(15, 23, 42, 0.14); }
+.admin-prog__seg--pending { background: var(--color-border-strong); }
 .admin-prog__seg--done    { background: #15803d; }
 .admin-prog__seg--active  { background: #d97706; height: 5px; border-radius: 2px; }
 
@@ -4007,7 +4008,7 @@ ul {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: rgba(15, 23, 42, 0.42);
+    color: var(--color-fg-subtle);
     white-space: nowrap;
     line-height: 1;
 }
@@ -4045,9 +4046,9 @@ ul {
     gap: 0.75rem;
     padding: 0.5rem 0.7rem;
     border-radius: 12px;
-    background: rgba(15, 23, 42, 0.03);
+    background: var(--color-bg-disabled);
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 
 .admin-stock-bar__pending-item strong {
@@ -4075,7 +4076,7 @@ ul {
 
 .admin-list-filter-bar {
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+    border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .form-input--sm {
@@ -4098,7 +4099,7 @@ ul {
     align-items: center;
     justify-content: center;
     min-height: 200px;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     font: var(--t-body);
     text-align: center;
 }
@@ -4110,7 +4111,7 @@ ul {
     gap: 0.35rem 0.6rem;
     align-items: center;
     padding: 0.55rem 0.85rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
     cursor: pointer;
     transition: background-color 160ms ease;
 }
@@ -4120,7 +4121,7 @@ ul {
 }
 
 .admin-order-item:hover {
-    background: rgba(15, 23, 42, 0.03);
+    background: var(--color-bg-disabled);
 }
 
 .admin-order-item.is-selected {
@@ -4154,7 +4155,7 @@ ul {
 .admin-order-item__meta {
     font: var(--t-body-sm);
     font-size: 0.78rem;
-    color: rgba(15, 23, 42, 0.55);
+    color: var(--color-fg-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4218,14 +4219,14 @@ ul {
     padding: 0.8rem 0.9rem;
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.74);
-    border: 1px solid rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--color-border-subtle);
 }
 
 .admin-detail-row-pair {
     display: grid;
     gap: 0.35rem;
     font: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 
 .admin-detail-row-pair + .admin-detail-row-pair {
@@ -4244,8 +4245,8 @@ ul {
     margin: 0.6rem 0 0.9rem;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(15, 23, 42, 0.1);
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+    border: 1px solid var(--color-border-strong);
+    box-shadow: 0 1px 4px var(--color-border-subtle);
 }
 
 .admin-workflow-step {
@@ -4257,7 +4258,7 @@ ul {
     gap: 0.25rem;
     padding: 0.65rem 0.3rem;
     background: rgba(248, 250, 252, 0.95);
-    border-right: 1px solid rgba(15, 23, 42, 0.07);
+    border-right: 1px solid var(--color-border-subtle);
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.03em;
@@ -4287,7 +4288,7 @@ ul {
 
 .admin-workflow-step--next {
     background: #fff;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
 }
 
 .admin-workflow-step--next:hover {
@@ -4390,12 +4391,12 @@ ul {
     justify-content: center;
     width: 1.1rem;
     height: 1.1rem;
-    border: 1px solid rgba(15, 23, 42, 0.15);
+    border: 1px solid var(--color-border-strong);
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.04);
+    background: var(--color-bg-disabled);
     font-size: 0.62rem;
     font-weight: 700;
-    color: rgba(15, 23, 42, 0.5);
+    color: var(--color-fg-subtle);
     cursor: pointer;
     vertical-align: middle;
     margin-left: 0.3rem;
@@ -4411,7 +4412,7 @@ ul {
     margin-top: 0.3rem;
     font: var(--t-body-sm);
     font-size: 0.75rem;
-    color: rgba(15, 23, 42, 0.5);
+    color: var(--color-fg-subtle);
     font-family: ui-monospace, monospace;
     word-break: break-all;
 }
@@ -4461,7 +4462,7 @@ ul {
 
 .admin-kv-key {
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     white-space: nowrap;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -4469,7 +4470,7 @@ ul {
 }
 
 .admin-kv-val {
-    color: rgba(15, 23, 42, 0.85);
+    color: var(--color-fg-strong);
     word-break: break-word;
 }
 
@@ -4636,7 +4637,7 @@ ul {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.75rem;
-    color: rgba(15, 23, 42, 0.65);
+    color: var(--color-fg-muted);
 }
 
 .admin-event-time {
@@ -4647,15 +4648,15 @@ ul {
 
 .admin-event-type {
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.7);
+    color: var(--color-fg-strong);
 }
 
 .admin-event-status {
     font-size: 0.7rem;
     padding: 0.1em 0.45em;
     border-radius: 999px;
-    background: rgba(15, 23, 42, 0.07);
-    color: rgba(15, 23, 42, 0.55);
+    background: var(--color-border-subtle);
+    color: var(--color-fg-muted);
 }
 
 /* Auth in header */
@@ -4710,9 +4711,9 @@ ul {
     min-width: 13rem;
     padding: 0.4rem;
     border-radius: 16px;
-    border: 1px solid rgba(15, 23, 42, 0.1);
+    border: 1px solid var(--color-border-strong);
     background: #fff;
-    box-shadow: 0 22px 44px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 22px 44px var(--color-border-strong);
 }
 
 .admin-userbar__menu[hidden] {
@@ -4755,13 +4756,13 @@ ul {
     border-radius: 28px;
     background: #fff;
     border: 1px solid var(--color-border-subtle);
-    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 24px 60px var(--color-border-strong);
 }
 
 .admin-login-kicker {
     margin: 0 0 0.5rem;
     font: var(--t-small);
-    color: rgba(15, 23, 42, 0.48);
+    color: var(--color-fg-subtle);
     text-transform: uppercase;
     letter-spacing: 0.14em;
 }
@@ -4774,7 +4775,7 @@ ul {
 
 .admin-login-card > p {
     margin: 0.7rem 0 1.3rem;
-    color: rgba(15, 23, 42, 0.68);
+    color: var(--color-fg-muted);
     font: var(--t-body);
 }
 
@@ -4822,7 +4823,7 @@ ul {
     padding: 0.6rem 1rem;
     font-size: 0.82rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.5);
+    color: var(--color-fg-subtle);
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
@@ -4848,7 +4849,7 @@ ul {
 /* Admin card lead text */
 .admin-card-lead {
     font-size: var(--t-body-sm);
-    color: rgba(15, 23, 42, 0.55);
+    color: var(--color-fg-muted);
     margin: 0 0 0.75rem;
 }
 
@@ -4864,7 +4865,7 @@ ul {
     padding: 0.4rem 0.6rem;
     font-size: 0.72rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 1px solid var(--color-border-subtle);
@@ -4893,7 +4894,7 @@ ul {
 .admin-device-status--ordered     { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
 .admin-device-status--reserved    { background: rgba(29, 78, 216, 0.1); color: #1d4ed8; }
 .admin-device-status--assigned    { background: rgba(29, 78, 216, 0.1); color: #1d4ed8; }
-.admin-device-status--retired     { background: rgba(15, 23, 42, 0.07); color: rgba(15, 23, 42, 0.45); }
+.admin-device-status--retired     { background: var(--color-border-subtle); color: var(--color-fg-subtle); }
 .admin-device-status--unavailable { background: rgba(194, 65, 12, 0.1); color: #c2410c; }
 
 .admin-device-cards {
@@ -4904,10 +4905,10 @@ ul {
 }
 
 .admin-device-card {
-    border: 1px solid rgba(15, 23, 42, 0.1);
+    border: 1px solid var(--color-border-strong);
     border-radius: 8px;
     padding: 0.6rem 0.75rem;
-    background: rgba(15, 23, 42, 0.02);
+    background: var(--color-bg-disabled);
 }
 
 .admin-device-card__header {
@@ -4920,7 +4921,7 @@ ul {
 .admin-device-card__serial {
     font-family: ui-monospace, monospace;
     font-size: 0.8rem;
-    color: rgba(15, 23, 42, 0.75);
+    color: var(--color-fg-strong);
     font-weight: 600;
 }
 
@@ -4935,7 +4936,7 @@ ul {
 .admin-article-group__label {
     font-size: 0.72rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     text-transform: uppercase;
     letter-spacing: 0.07em;
     padding: 0.2rem 0 0.4rem;
@@ -4948,7 +4949,7 @@ ul {
     align-items: flex-start;
     gap: 0.5rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .admin-article-row:last-child {
@@ -6224,7 +6225,7 @@ button.box-cta.combi-pill {
 .admin-users-table td {
     padding: 0.5rem 0.65rem;
     text-align: left;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
     white-space: nowrap;
 }
 
@@ -6233,7 +6234,7 @@ button.box-cta.combi-pill {
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: rgba(15, 23, 42, 0.5);
+    color: var(--color-fg-subtle);
     background: rgba(248, 250, 252, 0.95);
     position: sticky;
     top: 0;
@@ -6245,7 +6246,7 @@ button.box-cta.combi-pill {
 }
 
 .admin-users-table tbody tr:hover {
-    background: rgba(15, 23, 42, 0.03);
+    background: var(--color-bg-disabled);
 }
 
 .admin-users-table tbody tr.is-selected {
@@ -6260,7 +6261,7 @@ button.box-cta.combi-pill {
     font-size: 0.82rem;
     font-weight: 600;
     margin: 0 0 0.5rem;
-    color: rgba(15, 23, 42, 0.65);
+    color: var(--color-fg-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -6280,7 +6281,7 @@ button.box-cta.combi-pill {
 .admin-user-detail-label {
     font-size: 0.7rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.45);
+    color: var(--color-fg-subtle);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -6328,7 +6329,7 @@ button.box-cta.combi-pill {
 .admin-confirm-dialog p {
     margin: 0 0 0.5rem;
     font-size: 0.82rem;
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 
 .admin-confirm-dialog .form-actions {
@@ -6342,7 +6343,7 @@ button.box-cta.combi-pill {
     right: 0;
     z-index: 100;
     background: #fff;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--color-border-strong);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
@@ -6375,7 +6376,7 @@ button.box-cta.combi-pill {
     align-items: center;
     justify-content: center;
     min-height: 200px;
-    color: rgba(15, 23, 42, 0.5);
+    color: var(--color-fg-subtle);
     font: var(--t-body);
     text-align: center;
 }
@@ -6386,16 +6387,16 @@ button.box-cta.combi-pill {
     gap: 0.2rem 0.5rem;
     align-items: center;
     padding: 0.55rem 0.85rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
     cursor: pointer;
     transition: background-color 160ms ease;
 }
 .admin-row:last-child { border-bottom: 0; }
-.admin-row:hover { background: rgba(15, 23, 42, 0.03); }
+.admin-row:hover { background: var(--color-bg-disabled); }
 .admin-row--selected { background: rgba(255, 193, 77, 0.12); border-color: rgba(255, 193, 77, 0.2); }
 .admin-row__title { font: var(--t-ui); color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.admin-row__title em { font-style: normal; font-size: 0.75rem; color: rgba(15, 23, 42, 0.45); }
-.admin-row__meta { font: var(--t-body-sm); font-size: 0.78rem; color: rgba(15, 23, 42, 0.55); grid-column: 2 / -1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-row__title em { font-style: normal; font-size: 0.75rem; color: var(--color-fg-subtle); }
+.admin-row__meta { font: var(--t-body-sm); font-size: 0.78rem; color: var(--color-fg-muted); grid-column: 2 / -1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .form-error {
     font-size: 0.82rem;
@@ -6438,7 +6439,7 @@ button.box-cta.combi-pill {
 .admin-row__subtitle {
     font: var(--t-body-sm);
     font-size: 0.78rem;
-    color: rgba(15, 23, 42, 0.55);
+    color: var(--color-fg-muted);
     grid-column: 2 / -1;
     white-space: nowrap;
     overflow: hidden;
@@ -6451,7 +6452,7 @@ button.box-cta.combi-pill {
     border-radius: 8px;
     font-size: 0.9rem;
     background: var(--color-bg-disabled);
-    color: rgba(15, 23, 42, 0.75);
+    color: var(--color-fg-strong);
 }
 .admin-notif-status--warn { background: rgba(234, 179, 8, 0.12); color: #8a6d00; }
 .admin-notif-status--error { background: rgba(185, 28, 28, 0.12); color: #b91c1c; }
@@ -6500,7 +6501,7 @@ button.box-cta.combi-pill {
     display: inline-block;
     width: 38px;
     height: 22px;
-    background: rgba(15, 23, 42, 0.18);
+    background: var(--color-border-strong);
     border-radius: 999px;
     transition: background-color 160ms ease;
     flex-shrink: 0;
@@ -6539,13 +6540,13 @@ button.box-cta.combi-pill {
 .admin-notif-label {
     font-size: 0.78rem;
     font-weight: 500;
-    color: rgba(15, 23, 42, 0.62);
+    color: var(--color-fg-muted);
     letter-spacing: 0.02em;
 }
 .admin-notif-input {
     width: 100%;
     padding: 0.55rem 0.75rem;
-    border: 1px solid rgba(15, 23, 42, 0.15);
+    border: 1px solid var(--color-border-strong);
     border-radius: 8px;
     font-size: 0.92rem;
     font-family: inherit;
@@ -6577,7 +6578,7 @@ button.box-cta.combi-pill {
     margin: 0;
     font-size: 0.78rem;
     font-weight: 600;
-    color: rgba(15, 23, 42, 0.62);
+    color: var(--color-fg-muted);
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
@@ -6593,7 +6594,7 @@ button.box-cta.combi-pill {
     font-size: 0.82rem;
     color: var(--color-fg-muted);
 }
-.admin-notif-hint--muted { color: rgba(15, 23, 42, 0.45); font-size: 0.78rem; }
+.admin-notif-hint--muted { color: var(--color-fg-subtle); font-size: 0.78rem; }
 
 .admin-notif-textarea {
     width: 100%;
@@ -6601,7 +6602,7 @@ button.box-cta.combi-pill {
     font-family: inherit;
     line-height: 1.55;
     padding: 0.75rem 0.85rem;
-    border: 1px solid rgba(15, 23, 42, 0.15);
+    border: 1px solid var(--color-border-strong);
     border-radius: 8px;
     background: #fff;
     color: var(--color-primary);
@@ -6622,7 +6623,7 @@ button.box-cta.combi-pill {
 /* HTML edit/preview toggle */
 .admin-notif-view-toggle {
     display: inline-flex;
-    background: rgba(15, 23, 42, 0.06);
+    background: var(--color-border-subtle);
     border-radius: 999px;
     padding: 2px;
     gap: 0;
@@ -6649,7 +6650,7 @@ button.box-cta.combi-pill {
 .admin-notif-preview-frame {
     width: 100%;
     height: 640px;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--color-border-strong);
     border-radius: 10px;
     background: #f3f5f8;
 }
@@ -6670,7 +6671,7 @@ button.box-cta.combi-pill {
 .admin-notif-help__body { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.45rem; }
 .admin-notif-help-group {
     padding: 0.5rem 0.75rem;
-    background: rgba(15, 23, 42, 0.035);
+    background: var(--color-bg-disabled);
     border-radius: 8px;
 }
 .admin-notif-help-group > summary {
@@ -6686,7 +6687,7 @@ button.box-cta.combi-pill {
 }
 .admin-notif-token-table td {
     padding: 0.35rem 0.5rem;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
     font-size: 0.85rem;
     vertical-align: middle;
 }
@@ -6730,7 +6731,7 @@ button.box-cta.combi-pill {
     height: 48px;
     object-fit: cover;
     border-radius: 6px;
-    background: rgba(15, 23, 42, 0.04);
+    background: var(--color-bg-disabled);
 }
 .admin-notif-asset__info {
     display: flex;
@@ -6748,7 +6749,7 @@ button.box-cta.combi-pill {
 }
 .admin-notif-asset__meta {
     font-size: 0.75rem;
-    color: rgba(15, 23, 42, 0.55);
+    color: var(--color-fg-muted);
 }
 .admin-notif-asset__url {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -6837,7 +6838,7 @@ button.box-cta.combi-pill {
 }
 .admin-help__nav a {
     padding: 0.4rem 0.9rem;
-    color: rgba(15, 23, 42, 0.65);
+    color: var(--color-fg-muted);
     text-decoration: none;
     font-size: 0.9rem;
     border-left: 2px solid transparent;
@@ -6846,7 +6847,7 @@ button.box-cta.combi-pill {
 }
 .admin-help__nav a:hover {
     color: var(--color-primary);
-    border-left-color: rgba(15, 23, 42, 0.3);
+    border-left-color: var(--color-fg-disabled);
 }
 .admin-help__nav a:target,
 .admin-help__nav a:active {
@@ -6874,7 +6875,7 @@ button.box-cta.combi-pill {
     color: var(--color-primary);
     line-height: 1.15;
 }
-.admin-help__lead { margin: 0; font-size: 1rem; color: rgba(15, 23, 42, 0.7); line-height: 1.5; }
+.admin-help__lead { margin: 0; font-size: 1rem; color: var(--color-fg-strong); line-height: 1.5; }
 
 .admin-help__section { scroll-margin-top: 1.5rem; color: var(--color-primary); line-height: 1.65; }
 .admin-help__section h2 {
@@ -6891,9 +6892,9 @@ button.box-cta.combi-pill {
     color: var(--color-primary);
     letter-spacing: 0.01em;
 }
-.admin-help__section p { margin: 0 0 0.85rem; font-size: 0.95rem; color: rgba(15, 23, 42, 0.8); }
+.admin-help__section p { margin: 0 0 0.85rem; font-size: 0.95rem; color: var(--color-fg-strong); }
 .admin-help__section ul { margin: 0 0 1rem; padding-left: 1.25rem; }
-.admin-help__section li { margin: 0.25rem 0; font-size: 0.92rem; color: rgba(15, 23, 42, 0.8); }
+.admin-help__section li { margin: 0.25rem 0; font-size: 0.92rem; color: var(--color-fg-strong); }
 .admin-help__section a { color: var(--color-accent); text-decoration: none; font-weight: 500; }
 .admin-help__section a:hover { text-decoration: underline; }
 .admin-help__section code {
@@ -6927,7 +6928,7 @@ button.box-cta.combi-pill {
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(15, 23, 42, 0.55);
+    color: var(--color-fg-muted);
 }
 .admin-help__tokens {
     width: 100%;
@@ -6937,9 +6938,9 @@ button.box-cta.combi-pill {
 }
 .admin-help__tokens td {
     padding: 0.38rem 0.6rem 0.38rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid var(--color-border-subtle);
     vertical-align: top;
-    color: rgba(15, 23, 42, 0.78);
+    color: var(--color-fg-strong);
 }
 .admin-help__tokens tr:last-child td { border-bottom: 0; }
 .admin-help__tokens td:first-child {
