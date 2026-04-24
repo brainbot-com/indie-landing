@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:22px 24px;background:#fff;font-family:var(--font-main)}
+.row{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.sw{position:relative;border-radius:14px;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;line-height:1.3;border:1px solid rgba(10,37,64,0.08);box-sizing:border-box}
+.name{font-size:12.5px;font-weight:700;letter-spacing:-0.01em}
+.hex{font-family:var(--font-mono);font-weight:500;font-size:10px;opacity:.72;margin-top:1px}
+.role{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;opacity:.7;margin-bottom:4px;font-weight:600}
+/* hero group — big */
+.big{width:150px;height:130px}
+/* mid — surfaces */
+.mid{width:112px;height:110px}
+/* small — ink / supporting */
+.sm{width:86px;height:86px}
+.light-ink{color:var(--ib-navy)}
+.white-ink{color:#fff}
+.divider{width:1px;align-self:stretch;background:rgba(10,37,64,0.1);margin:0 4px}
+</style></head><body>
+<div class="row">
+  <!-- ACCENT — signature -->
+  <div class="sw big white-ink" style="background:var(--ib-orange)">
+    <div class="role">Signature accent</div>
+    <div class="name">Orange</div>
+    <div class="hex">#FF4D00 · --ib-orange</div>
+  </div>
+
+  <!-- SURFACES — the actual visual weight -->
+  <div class="sw mid light-ink" style="background:var(--bg-white);box-shadow:inset 0 0 0 1px rgba(10,37,64,0.08)">
+    <div class="role">Default surface</div>
+    <div class="name">White</div>
+    <div class="hex">#FFFFFF</div>
+  </div>
+  <div class="sw mid light-ink" style="background:var(--bg-light)">
+    <div class="role">Soft surface</div>
+    <div class="name">Light</div>
+    <div class="hex">#F7F9FC</div>
+  </div>
+  <div class="sw mid white-ink" style="background:var(--bg-dark)">
+    <div class="role">Dark surface</div>
+    <div class="name">Graphite</div>
+    <div class="hex">#0B1118</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- INK — small; used as TEXT only -->
+  <div class="sw sm white-ink" style="background:var(--ib-navy)">
+    <div class="role">Ink</div>
+    <div class="name">Navy</div>
+    <div class="hex">#0A2540</div>
+  </div>
+  <div class="sw sm light-ink" style="background:var(--bg-neutral)">
+    <div class="role">Divider</div>
+    <div class="name">Neutral</div>
+    <div class="hex">#F0F2F5</div>
+  </div>
+</div>
+<p style="font-family:var(--font-mono);font-size:11px;color:#8a99a6;margin:16px 0 0;line-height:1.5">
+Visual hierarchy = accent &gt; surfaces &gt; ink. <strong style="color:var(--ib-navy)">Navy is text-only</strong> — headings, body, UI labels — never used as a fill.
+</p>
+</body></html>

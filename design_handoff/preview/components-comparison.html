@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:24px;background:#fff;font-family:var(--font-main)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.item{position:relative;display:flex;isolation:isolate}
+.hl{z-index:2;transform:translateY(-6px)}
+.hl::before{content:"";position:absolute;inset:0;border-radius:22px;padding:2px;background:var(--gradient-prism);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:1}
+.hl::after{content:"";position:absolute;inset:-10px;border-radius:30px;background:var(--gradient-prism);filter:blur(20px);opacity:0.22;z-index:-1;pointer-events:none}
+.card{position:relative;display:flex;flex-direction:column;padding:18px 18px 16px;border-radius:22px;background:#fff;border:1px solid rgba(11,34,52,0.08);box-shadow:0 18px 40px rgba(11,34,52,0.08);width:100%}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.head h3{font-size:18px;font-weight:700;color:var(--ib-navy);margin:0;letter-spacing:-0.01em}
+.badge{font-size:9.5px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(11,34,52,0.5);white-space:nowrap}
+.badge.best{color:rgba(10,37,64,0.9)}
+ul{list-style:none;padding:0;margin:0;display:grid;gap:7px}
+li{position:relative;padding-left:22px;font-size:12.5px;color:rgba(11,34,52,0.72);line-height:1.45}
+li::before{content:"";position:absolute;left:0;top:3px;width:13px;height:13px;border-radius:999px}
+.pos li::before{background:rgba(10,37,64,0.8);-webkit-mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8.3L6.4 10.7L12 5.3' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") no-repeat center/78% 78%;mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8.3L6.4 10.7L12 5.3' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") no-repeat center/78% 78%}
+.neg li::before{background:rgba(11,34,52,0.22);-webkit-mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8H12' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/78% 78%;mask:url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 8H12' stroke='black' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/78% 78%}
+</style></head><body>
+<div class="grid">
+  <div class="item"><div class="card neg"><div class="head"><h3>Cloud-KI</h3><span class="badge">Nicht privat</span></div><ul><li>Monatliche Kosten</li><li>Daten auf fremden Servern</li><li>Rate-Limits</li></ul></div></div>
+  <div class="item hl"><div class="card pos"><div class="head"><h3>Indie.box</h3><span class="badge best">Beste Wahl</span></div><ul><li>Einmal kaufen, keine Abos</li><li>Daten bleiben lokal</li><li>Volle Leistung ohne Limits</li></ul></div></div>
+  <div class="item"><div class="card neg"><div class="head"><h3>selbst betreiben</h3><span class="badge">Komplex</span></div><ul><li>Tage oder Wochen Setup</li><li>Expertenwissen nötig</li><li>Treiberprobleme</li></ul></div></div>
+</div>
+</body></html>

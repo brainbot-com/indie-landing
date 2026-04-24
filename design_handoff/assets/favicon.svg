@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="navy-metal" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0" stop-color="#0E2436"></stop>
+      <stop offset="1" stop-color="#0A2540"></stop>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#navy-metal)"></rect>
+  <circle cx="192" cy="115" r="42" fill="#FFFFFF"></circle>
+  <rect x="154" y="185" width="75" height="268" rx="2" fill="#FFFFFF"></rect>
+  <circle cx="320" cy="409" r="42" fill="#FF4D00"></circle>
+</svg>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><link rel="stylesheet" href="../colors_and_type.css">
+<style>
+body{margin:0;padding:28px;background:#fff;font-family:var(--font-main)}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:0.95rem;border:2px solid transparent;border-radius:999px;cursor:pointer;line-height:1;transition:all 0.2s ease}
+.btn--sm{padding:0.45rem 1rem;font-size:0.85rem;min-height:32px}
+.btn--md{padding:0.8rem 1.5rem;min-height:40px}
+.btn--lg{padding:0.7rem 1.5rem;font-size:1rem;min-height:44px}
+.btn--solid{background:var(--ib-orange);color:#fff;box-shadow:0 4px 6px rgba(255,77,0,0.2)}
+.btn--plain-light{background:rgba(10,37,64,0.08);color:var(--ib-navy)}
+.btn--plain-dark{background:rgba(255,255,255,0.14);color:rgba(247,250,252,0.95)}
+.dark{background:var(--bg-dark);padding:14px 18px;border-radius:14px}
+.m{font-family:var(--font-mono);font-size:11px;color:#8a99a6;margin:0 0 8px}
+</style></head><body>
+<p class="m">button--solid · accent-filled pill (only gradient-less accent use)</p>
+<div class="row">
+  <button class="btn btn--solid btn--sm">Kaufen</button>
+  <button class="btn btn--solid btn--md">Kaufen</button>
+  <button class="btn btn--solid btn--lg">Jetzt starten</button>
+</div>
+<p class="m">button--plain-light · low-contrast on light surfaces</p>
+<div class="row">
+  <button class="btn btn--plain-light btn--sm">Details</button>
+  <button class="btn btn--plain-light btn--md">Mehr erfahren</button>
+</div>
+<p class="m">button--plain-dark · for dark surfaces (overlay, hero)</p>
+<div class="dark"><div class="row" style="margin:0">
+  <button class="btn btn--plain-dark btn--sm">Zurück</button>
+  <button class="btn btn--plain-dark btn--md">Mehr erfahren</button>
+</div></div>
+</body></html>

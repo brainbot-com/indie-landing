@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Indie.box · Design System Briefing</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<script src="lib/deck-stage.js"></script>
+<style>
+  html, body { background: #000; }
+
+  deck-stage section {
+    width: 1920px; height: 1080px;
+    box-sizing: border-box;
+    padding: 96px 120px;
+    font-family: var(--font-main);
+    color: var(--ib-navy);
+    background: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* --- Shared typography --- */
+  .kicker {
+    font-size: 16px; font-weight: 700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ib-orange);
+    margin: 0 0 28px;
+  }
+  .slide-label {
+    position: absolute; top: 56px; right: 120px;
+    font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.18em;
+    color: rgba(10,37,64,0.4); text-transform: uppercase;
+  }
+  section.dark .slide-label { color: rgba(245,247,251,0.4); }
+  h1 { font-size: 132px; font-weight: 700; letter-spacing: -0.035em; line-height: 0.96; margin: 0; color: var(--ib-navy); }
+  h2 { font-size: 88px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin: 0; color: var(--ib-navy); }
+  h3 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 0; color: var(--ib-navy); }
+  p.lede { font-size: 28px; line-height: 1.5; color: rgba(10,37,64,0.7); max-width: 1100px; font-weight: 400; margin: 0; }
+  .footer-note { position: absolute; bottom: 56px; left: 120px; font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.1em; color: rgba(10,37,64,0.4); }
+  section.dark .footer-note { color: rgba(245,247,251,0.4); }
+
+  /* --- Wordmark style — canonical --- */
+  .wm { font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--ib-navy); }
+  .wm .dot { color: var(--ib-orange); }
+  section.dark .wm { color: #F3F7FB; }
+
+  /* --- Dark slides --- */
+  section.dark {
+    background:
+      radial-gradient(1400px 900px at 80% 20%, rgba(91,153,182,0.12), transparent 60%),
+      var(--bg-dark);
+    color: #F3F7FB;
+  }
+  section.dark h1, section.dark h2, section.dark h3 { color: #F3F7FB; }
+  section.dark p.lede { color: rgba(245,247,251,0.72); }
+
+  /* ============ SLIDE 1 — COVER ============ */
+  .s-cover { justify-content: space-between; padding: 120px; }
+  .s-cover .cover-top { display: flex; align-items: center; justify-content: space-between; }
+  .s-cover .cover-brand { display: flex; align-items: center; gap: 20px; }
+  .s-cover .cover-brand img { width: 56px; height: 56px; border-radius: 14px; }
+  .s-cover .cover-brand span { font-weight: 700; font-size: 24px; letter-spacing: -0.02em; color: #F3F7FB; }
+  .s-cover .cover-brand .dot { color: var(--ib-orange); }
+  .s-cover .cover-date { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.2em; color: rgba(245,247,251,0.6); text-transform: uppercase; }
+  .s-cover .cover-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 40px; }
+  .s-cover .hero-kicker { font-size: 20px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ib-orange); margin: 0; }
+  .s-cover .hero-title { font-size: 200px; font-weight: 700; letter-spacing: -0.04em; line-height: 0.92; color: #F3F7FB; margin: 0; }
+  .s-cover .hero-title .dot { color: var(--ib-orange); }
+  .s-cover .hero-sub { font-size: 32px; font-weight: 400; letter-spacing: -0.01em; color: rgba(245,247,251,0.7); max-width: 1100px; line-height: 1.35; margin: 0; }
+  .s-cover .cover-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; }
+  .s-cover .cover-meta { display: flex; gap: 48px; font-family: var(--font-mono); font-size: 14px; color: rgba(245,247,251,0.55); letter-spacing: 0.12em; text-transform: uppercase; }
+  .s-cover .cover-meta span strong { color: #F3F7FB; font-weight: 500; display: block; margin-top: 6px; letter-spacing: 0.08em; }
+
+  /* ============ SLIDE 2 — BRAND ESSENCE ============ */
+  .s-essence { display: grid; grid-template-columns: 1fr 1.1fr; gap: 120px; align-items: center; }
+  .s-essence .left h2 { font-size: 180px; line-height: 0.94; }
+  .s-essence .left .tag { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.18em; color: rgba(10,37,64,0.45); text-transform: uppercase; margin-top: 40px; display: block; }
+  .s-essence .right { display: flex; flex-direction: column; gap: 40px; }
+  .s-essence .right .statement { font-size: 64px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; color: var(--ib-navy); margin: 0; }
+  .s-essence .right .statement em { font-style: normal; background: var(--gradient-prism); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+  .s-essence .right .desc { font-size: 24px; line-height: 1.55; color: rgba(10,37,64,0.68); max-width: 680px; margin: 0; }
+  .s-essence .right .tone-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .s-essence .right .tone-chip { padding: 12px 22px; border-radius: 999px; border: 1.5px solid rgba(10,37,64,0.15); font-size: 18px; font-weight: 600; color: var(--ib-navy); letter-spacing: -0.01em; }
+
+  /* ============ SLIDE 3 — WORDMARK ============ */
+  .s-wordmark { padding: 96px 120px; }
+  .s-wordmark .content { flex: 1; display: grid; grid-template-columns: 1fr 1.2fr; gap: 100px; align-items: center; margin-top: 40px; }
+  .s-wordmark .family { display: flex; flex-direction: column; gap: 40px; }
+  .s-wordmark .family .mk { font-size: 128px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; color: var(--ib-navy); }
+  .s-wordmark .family .mk .dot { color: var(--ib-orange); }
+  .s-wordmark .family .mk .lbl { display: block; font-size: 16px; font-weight: 500; font-family: var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(10,37,64,0.5); margin-top: 14px; letter-spacing: 0.15em; }
+  .s-wordmark .rules { display: flex; flex-direction: column; gap: 28px; border-left: 2px solid rgba(10,37,64,0.08); padding-left: 52px; }
+  .s-wordmark .rules h3 { font-size: 36px; margin-bottom: 8px; }
+  .s-wordmark .rules .rule { display: flex; gap: 20px; align-items: baseline; }
+  .s-wordmark .rules .rule-num { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--ib-orange); letter-spacing: 0.1em; min-width: 32px; }
+  .s-wordmark .rules .rule-text { font-size: 22px; line-height: 1.5; color: var(--ib-navy); max-width: 560px; }
+  .s-wordmark .rules .rule-text strong { font-weight: 700; }
+  .s-wordmark .rules .rule-text code { font-family: var(--font-mono); font-size: 18px; background: rgba(10,37,64,0.06); padding: 2px 8px; border-radius: 4px; }
+
+  /* ============ SLIDE 4 — FAVICON ============ */
+  .s-fav { background:
+    radial-gradient(1400px 900px at 20% 80%, rgba(255,77,0,0.1), transparent 60%),
+    var(--bg-dark); }
+  .s-fav.dark h2 { color: #F3F7FB; }
+  .s-fav .content { flex: 1; display: grid; grid-template-columns: 1.2fr 1fr; gap: 120px; align-items: center; }
+  .s-fav .showcase { display: flex; flex-direction: column; gap: 48px; align-items: center; }
+  .s-fav .showcase .big { width: 380px; height: 380px; border-radius: 72px; box-shadow: 0 40px 100px rgba(0,0,0,0.4); overflow: hidden; }
+  .s-fav .showcase .big img { width: 100%; height: 100%; display: block; }
+  .s-fav .sizes { display: flex; align-items: flex-end; gap: 56px; }
+  .s-fav .sizes .cell { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .s-fav .sizes .cell img { display: block; }
+  .s-fav .sizes .c128 img { width: 128px; height: 128px; border-radius: 24px; }
+  .s-fav .sizes .c64 img  { width: 64px;  height: 64px;  border-radius: 14px; }
+  .s-fav .sizes .c32 img  { width: 32px;  height: 32px;  border-radius: 7px; }
+  .s-fav .sizes .c16 img  { width: 16px;  height: 16px;  border-radius: 4px; }
+  .s-fav .sizes .lbl { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; color: rgba(245,247,251,0.4); }
+  .s-fav .info { display: flex; flex-direction: column; gap: 28px; }
+  .s-fav .info h2 { color: #F3F7FB; margin-bottom: 8px; }
+  .s-fav .info p { font-size: 24px; line-height: 1.55; color: rgba(245,247,251,0.75); max-width: 620px; margin: 0; }
+  .s-fav .info .callout { margin-top: 20px; padding: 28px 36px; background: rgba(255,255,255,0.04); border-left: 3px solid var(--ib-orange); border-radius: 0 14px 14px 0; }
+  .s-fav .info .callout .l { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.16em; color: var(--ib-orange); text-transform: uppercase; margin-bottom: 10px; display: block; }
+  .s-fav .info .callout p { font-size: 22px; color: rgba(245,247,251,0.82); }
+
+  /* ============ SLIDE 5 — COLORS ============ */
+  .s-colors .content { flex: 1; display: flex; flex-direction: column; gap: 44px; margin-top: 36px; }
+  .s-colors .swatches { display: grid; grid-template-columns: 1.2fr 1.2fr 2fr; gap: 24px; height: 420px; }
+  .s-colors .sw { border-radius: 28px; padding: 36px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+  .s-colors .sw .name { font-size: 32px; font-weight: 700; letter-spacing: -0.02em; }
+  .s-colors .sw .hex { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.08em; opacity: 0.8; }
+  .s-colors .sw .role { font-size: 15px; font-family: var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.65; }
+  .s-colors .sw.navy { background: var(--ib-navy); color: #F3F7FB; }
+  .s-colors .sw.orange { background: var(--ib-orange); color: #FFFFFF; }
+  .s-colors .sw.prism { background: var(--gradient-prism); color: #FFFFFF; }
+  .s-colors .extra-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .s-colors .xsw { padding: 20px 22px; border-radius: 14px; border: 1px solid rgba(10,37,64,0.1); display: flex; flex-direction: column; gap: 4px; }
+  .s-colors .xsw .hex { font-family: var(--font-mono); font-size: 14px; color: var(--ib-navy); letter-spacing: 0.06em; }
+  .s-colors .xsw .role { font-size: 11px; font-family: var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: rgba(10,37,64,0.55); }
+  .s-colors .xsw .dot { width: 20px; height: 20px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(10,37,64,0.08); }
+
+  /* ============ SLIDE 6 — TYPOGRAPHY ============ */
+  .s-type .content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; margin-top: 36px; }
+  .s-type .scale { display: flex; flex-direction: column; gap: 32px; }
+  .s-type .sample { display: grid; grid-template-columns: 140px 1fr; gap: 24px; align-items: baseline; padding-bottom: 28px; border-bottom: 1px solid rgba(10,37,64,0.08); }
+  .s-type .sample .tag { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.1em; color: rgba(10,37,64,0.5); text-transform: uppercase; }
+  .s-type .sample .text { color: var(--ib-navy); }
+  .s-type .s-d1 .text { font-size: 112px; font-weight: 700; letter-spacing: -0.035em; line-height: 0.95; }
+  .s-type .s-d2 .text { font-size: 70px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .s-type .s-title .text { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+  .s-type .s-body .text { font-size: 22px; line-height: 1.55; color: rgba(10,37,64,0.75); }
+  .s-type .s-kicker .text { font-size: 15px; font-weight: 700; letter-spacing: 0.16em; color: rgba(10,37,64,0.55); text-transform: uppercase; }
+  .s-type .side { display: flex; flex-direction: column; gap: 28px; padding-left: 60px; border-left: 2px solid rgba(10,37,64,0.08); }
+  .s-type .side h3 { font-size: 28px; font-weight: 700; color: var(--ib-navy); margin: 0 0 12px; }
+  .s-type .side p { font-size: 18px; line-height: 1.6; color: rgba(10,37,64,0.68); max-width: 480px; margin: 0; }
+  .s-type .side .tech { display: grid; grid-template-columns: 140px 1fr; row-gap: 10px; column-gap: 18px; margin-top: 12px; font-family: var(--font-mono); font-size: 15px; }
+  .s-type .side .tech .k { color: rgba(10,37,64,0.5); letter-spacing: 0.08em; }
+  .s-type .side .tech .v { color: var(--ib-navy); }
+
+  /* ============ SLIDE 7 — COMPONENTS ============ */
+  .s-comp { background: var(--bg-light); }
+  .s-comp .content { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 22px; margin-top: 32px; }
+  .s-comp .ccard { background: #fff; border-radius: 22px; padding: 32px 34px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(10,37,64,0.06); box-shadow: var(--shadow-card-light); position: relative; }
+  .s-comp .ccard .cname { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; color: var(--ib-navy); margin: 0; }
+  .s-comp .ccard .cdesc { font-size: 15px; line-height: 1.5; color: rgba(10,37,64,0.6); max-width: 320px; margin: 8px 0 0; }
+  .s-comp .ccard .cmeta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; color: rgba(10,37,64,0.4); text-transform: uppercase; margin-top: 18px; display: block; }
+  .s-comp .ccard .vis { display: flex; align-items: center; justify-content: center; flex: 1; min-height: 120px; padding: 20px 0; }
+
+  /* mini visuals */
+  .mini-nav { display: flex; align-items: center; gap: 24px; padding: 8px 16px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+  .mini-nav .logo { font-size: 18px; font-weight: 800; letter-spacing: -0.025em; color: var(--ib-navy); }
+  .mini-nav .logo .dot { color: var(--ib-orange); }
+  .mini-nav .links { display: flex; gap: 16px; align-items: center; }
+  .mini-nav .links a { font-size: 12px; font-weight: 500; color: rgba(10,37,64,0.7); }
+  .mini-nav .buy { padding: 5px 12px; border-radius: 999px; background: var(--ib-orange); color: #fff; font-size: 11px; font-weight: 700; }
+  .mini-buy { padding: 10px 26px; border-radius: 999px; background: var(--ib-orange); color: #fff; font-weight: 700; font-size: 15px; box-shadow: var(--shadow-button-accent); }
+  .mini-pill-split { display: inline-flex; align-items: center; padding: 6px; background: rgba(10,37,64,0.06); border-radius: 999px; gap: 4px; }
+  .mini-pill-split .p { padding: 8px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ib-navy); }
+  .mini-pill-split .p.active { background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .mini-glow { padding: 22px 26px; background: #fff; border-radius: 14px; position: relative; box-shadow: 0 0 30px rgba(255,77,0,0.15); }
+  .mini-glow::before { content: ''; position: absolute; inset: 0; border-radius: 14px; padding: 2px; background: var(--gradient-prism); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  .mini-glow .t { font-size: 16px; font-weight: 700; color: var(--ib-navy); }
+  .mini-glow .s { font-size: 11px; color: rgba(10,37,64,0.6); margin-top: 2px; }
+  .mini-compare { display: flex; gap: 10px; }
+  .mini-compare .card { padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid rgba(10,37,64,0.08); min-width: 80px; }
+  .mini-compare .card.best { border: 2px solid var(--ib-orange); box-shadow: 0 4px 14px rgba(255,77,0,0.14); }
+  .mini-compare .card .h { font-size: 12px; font-weight: 700; color: var(--ib-navy); }
+  .mini-compare .card .b { font-size: 10px; color: rgba(10,37,64,0.55); margin-top: 4px; }
+  .mini-combi { display: inline-flex; align-items: center; padding: 4px; background: var(--ib-navy); border-radius: 999px; }
+  .mini-combi .l { padding: 8px 16px; font-size: 12px; color: rgba(245,247,251,0.9); font-weight: 600; }
+  .mini-combi .r { padding: 8px 16px; font-size: 12px; background: var(--ib-orange); color: #fff; font-weight: 700; border-radius: 999px; }
+
+  /* ============ SLIDE 8 — DO/DON'T ============ */
+  .s-rules .content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 32px; }
+  .s-rules .col { display: flex; flex-direction: column; gap: 18px; }
+  .s-rules .col h3 { font-size: 28px; margin-bottom: 4px; display: flex; align-items: center; gap: 14px; }
+  .s-rules .col h3 .mk { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 20px; }
+  .s-rules .col.do h3 .mk { background: #10B981; }
+  .s-rules .col.dont h3 .mk { background: #EF4444; }
+  .s-rules .item { padding: 22px 28px; border-radius: 16px; border: 1px solid rgba(10,37,64,0.08); background: #fff; }
+  .s-rules .item .t { font-size: 20px; font-weight: 700; color: var(--ib-navy); letter-spacing: -0.01em; margin: 0 0 6px; }
+  .s-rules .item .d { font-size: 16px; line-height: 1.5; color: rgba(10,37,64,0.62); margin: 0; }
+  .s-rules .item .d code { font-family: var(--font-mono); font-size: 14px; background: rgba(10,37,64,0.06); padding: 2px 6px; border-radius: 4px; }
+
+  /* ============ SLIDE 9 — REFERENCE ============ */
+  .s-ref { background:
+    radial-gradient(1200px 700px at 80% 40%, rgba(255,77,0,0.08), transparent 60%),
+    var(--bg-dark-deep);
+    color: #F3F7FB;
+  }
+  .s-ref h2 { color: #F3F7FB; }
+  .s-ref p.lede { color: rgba(245,247,251,0.72); }
+  .s-ref .content { flex: 1; display: grid; grid-template-columns: 1.1fr 1fr; gap: 100px; margin-top: 44px; align-items: flex-start; }
+  .s-ref .map { display: flex; flex-direction: column; gap: 14px; }
+  .s-ref .map .row { display: grid; grid-template-columns: 280px 1fr; gap: 28px; align-items: center; padding: 16px 22px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+  .s-ref .map .path { font-family: var(--font-mono); font-size: 18px; color: var(--ib-orange); letter-spacing: 0.02em; }
+  .s-ref .map .what { font-size: 18px; color: rgba(245,247,251,0.82); line-height: 1.4; }
+  .s-ref .next { display: flex; flex-direction: column; gap: 26px; padding: 44px; border-radius: 22px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+  .s-ref .next h3 { font-size: 30px; color: #F3F7FB; margin: 0 0 8px; }
+  .s-ref .next .step { display: flex; gap: 16px; align-items: flex-start; }
+  .s-ref .next .n { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--ib-orange); letter-spacing: 0.12em; min-width: 30px; padding-top: 4px; }
+  .s-ref .next .txt { font-size: 20px; line-height: 1.5; color: rgba(245,247,251,0.88); }
+  .s-ref .next .txt strong { color: #F3F7FB; font-weight: 700; }
+  .s-ref .closing { margin-top: 36px; font-size: 22px; color: rgba(245,247,251,0.65); line-height: 1.5; }
+  .s-ref .closing .mark { color: var(--ib-orange); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- ============ 1. COVER ============ -->
+  <section class="dark s-cover">
+    <div class="cover-top">
+      <div class="cover-brand">
+        <img src="assets/favicon.svg" alt="">
+        <span>Indie<span class="dot">.</span>box</span>
+      </div>
+      <div class="cover-date">April 2026 · v1.0</div>
+    </div>
+
+    <div class="cover-mid">
+      <p class="hero-kicker">Design System · Briefing</p>
+      <h1 class="hero-title">Indie<span class="dot">.</span>box</h1>
+      <p class="hero-sub">Das Briefing für Marketing und Entwicklung — Wortmarke, Favicon, Farben, Typografie und Komponenten auf einen Blick.</p>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="cover-meta">
+        <span>Zielgruppe<strong>Marketing · Dev</strong></span>
+        <span>Umfang<strong>9 Folien · 10 Minuten</strong></span>
+        <span>Referenz<strong>Design-System-Tab</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. BRAND ESSENCE ============ -->
+  <section class="s-essence">
+    <div class="slide-label">02 · Essenz</div>
+    <div class="left">
+      <p class="kicker">Die Marke in einem Satz</p>
+      <h2>Lokale KI.<br>Souverän.<br>Indie.</h2>
+      <span class="tag">Tonalität · Haltung · Gefühl</span>
+    </div>
+    <div class="right">
+      <p class="statement">Wir bauen <em>Hardware</em> für eine KI, die <em>bei dir bleibt</em>.</p>
+      <p class="desc">Kein Cloud-Zwang, keine Telemetrie, keine Abos. <strong>Indie.box</strong> ist die Hardware-Appliance — <strong>Indie.hub</strong> die Software-Plattform aus eigenen und Open-Source-Komponenten. Beide tragen denselben Punkt, dieselbe Haltung: souverän, lokal, indie.</p>
+      <div class="tone-row">
+        <span class="tone-chip">Technisch präzise</span>
+        <span class="tone-chip">Selbstbewusst</span>
+        <span class="tone-chip">Klar</span>
+        <span class="tone-chip">Unabhängig</span>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 02/09</div>
+  </section>
+
+  <!-- ============ 3. WORDMARK ============ -->
+  <section class="s-wordmark">
+    <div class="slide-label">03 · Wortmarke</div>
+    <p class="kicker">Wortmarken-System</p>
+    <h2>Der orange Punkt<br>hält die Familie zusammen.</h2>
+
+    <div class="content">
+      <div class="family">
+        <div class="mk">Indie<span class="dot">.</span>box<span class="lbl">Hardware · dedizierter lokaler KI-Server</span></div>
+        <div class="mk">Indie<span class="dot">.</span>hub<span class="lbl">Software-Plattform · eigene + Open-Source-Komponenten, plattformübergreifend</span></div>
+        <div class="mk">Indie<span class="dot">.</span>cluster<span class="lbl">Infrastruktur · vernetzte Indie.box-Geräte als Rechenpool</span></div>
+      </div>
+      <div class="rules">
+        <h3>Konstruktionsregeln</h3>
+        <div class="rule"><span class="rule-num">01</span><span class="rule-text"><strong>Inter 700</strong>, Letter-Spacing <code>-0.03em</code>, keine Alternativen.</span></div>
+        <div class="rule"><span class="rule-num">02</span><span class="rule-text">Stamm <code>Indie</code> und Suffix <code>&lt;produkt&gt;</code> in <strong>Navy</strong> (#0A2540).</span></div>
+        <div class="rule"><span class="rule-num">03</span><span class="rule-text">Der Punkt <code>.</code> immer in <strong>Brand-Orange</strong> (#FF4D00) — das ist der Marken-Anker.</span></div>
+        <div class="rule"><span class="rule-num">04</span><span class="rule-text">Suffix immer <strong>lowercase</strong>. Keine Versalien, keine Bindestriche.</span></div>
+        <div class="rule"><span class="rule-num">05</span><span class="rule-text">Auf dunkel: Stamm in <code>#F3F7FB</code>, Punkt bleibt <strong>orange</strong>.</span></div>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 03/09</div>
+  </section>
+
+  <!-- ============ 4. FAVICON ============ -->
+  <section class="dark s-fav">
+    <div class="slide-label">04 · Favicon</div>
+    <div class="content">
+      <div class="showcase">
+        <div class="big"><img src="assets/favicon.svg" alt=""></div>
+        <div class="sizes">
+          <div class="cell c128"><img src="assets/favicon.svg"><span class="lbl">128</span></div>
+          <div class="cell c64"><img src="assets/favicon.svg"><span class="lbl">64</span></div>
+          <div class="cell c32"><img src="assets/favicon.svg"><span class="lbl">32</span></div>
+          <div class="cell c16"><img src="assets/favicon.svg"><span class="lbl">16</span></div>
+        </div>
+      </div>
+      <div class="info">
+        <p class="kicker" style="color:var(--ib-orange)">Bildmarke · „i."</p>
+        <h2>Das „i." in der Box.</h2>
+        <p>Favicon konstruiert nach Inter-700-Proportionen — der Stem und die Tittle matchen den Zeichensatz der Wortmarke, der Punkt ist die orange Brand-Signatur.</p>
+        <div class="callout">
+          <span class="l">Wichtig</span>
+          <p>Das Favicon steht <strong>nie</strong> direkt neben der Wortmarke. Beide wiederholen dasselbe Motiv — die Kombination erzeugt optische Unruhe.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 04/09</div>
+  </section>
+
+  <!-- ============ 5. COLORS ============ -->
+  <section class="s-colors">
+    <div class="slide-label">05 · Farben</div>
+    <p class="kicker">Farbsystem</p>
+    <h2>Navy trägt. Orange akzentuiert.</h2>
+
+    <div class="content">
+      <div class="swatches">
+        <div class="sw navy">
+          <span class="role">Primär · 70% der Fläche</span>
+          <div>
+            <div class="name">Deep Navy</div>
+            <div class="hex">#0A2540</div>
+          </div>
+        </div>
+        <div class="sw orange">
+          <span class="role">Akzent · punktuell</span>
+          <div>
+            <div class="name">International Orange</div>
+            <div class="hex">#FF4D00</div>
+          </div>
+        </div>
+        <div class="sw prism">
+          <span class="role">Signature · Hero &amp; CTA</span>
+          <div>
+            <div class="name">Prism Gradient</div>
+            <div class="hex">C2410C → F97316 → FB923C → FDBA74</div>
+          </div>
+        </div>
+      </div>
+      <div class="extra-row">
+        <div class="xsw"><div class="dot" style="background:#FFFFFF"></div><div class="role">Surface</div><div class="hex">#FFFFFF</div></div>
+        <div class="xsw"><div class="dot" style="background:#F7F9FC"></div><div class="role">Light BG</div><div class="hex">#F7F9FC</div></div>
+        <div class="xsw"><div class="dot" style="background:#F0F2F5"></div><div class="role">Neutral</div><div class="hex">#F0F2F5</div></div>
+        <div class="xsw"><div class="dot" style="background:#0B1118"></div><div class="role">Dark BG</div><div class="hex">#0B1118</div></div>
+        <div class="xsw"><div class="dot" style="background:#05101A"></div><div class="role">Dark Deep</div><div class="hex">#05101A</div></div>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 05/09</div>
+  </section>
+
+  <!-- ============ 6. TYPOGRAPHY ============ -->
+  <section class="s-type">
+    <div class="slide-label">06 · Typografie</div>
+    <p class="kicker">Schrift</p>
+    <h2>Inter. Eine Familie, klare Rollen.</h2>
+
+    <div class="content">
+      <div class="scale">
+        <div class="sample s-d1"><span class="tag">Display-1</span><span class="text">Lokale KI.</span></div>
+        <div class="sample s-d2"><span class="tag">Display-2</span><span class="text">Gemacht für produktive KI vor Ort.</span></div>
+        <div class="sample s-title"><span class="tag">Title</span><span class="text">Warum Indie<span style="color:var(--ib-orange)">.</span>box?</span></div>
+        <div class="sample s-body"><span class="tag">Body</span><span class="text">Indie.box verarbeitet Prompts, Dateien und Antworten komplett lokal — keine Cloud, keine Telemetrie.</span></div>
+        <div class="sample s-kicker"><span class="tag">Kicker</span><span class="text">PRIVATSPHÄRE</span></div>
+      </div>
+      <div class="side">
+        <h3>Regeln auf einen Blick</h3>
+        <p>Inter Variable, self-hosted. Gewicht 700 für alles Fette, 500 für UI, 400 für Body. Kursiv nur im Body. Mono nur für Code, Tags und Kicker-Labels.</p>
+        <div class="tech">
+          <span class="k">Display</span><span class="v">700 · -0.03em</span>
+          <span class="k">Title</span><span class="v">700 · -0.02em</span>
+          <span class="k">Body</span><span class="v">400 · 1.7 line-height</span>
+          <span class="k">Kicker</span><span class="v">700 · 0.14em · UPPER</span>
+          <span class="k">Mono</span><span class="v">SF Mono, Menlo</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 06/09</div>
+  </section>
+
+  <!-- ============ 7. COMPONENTS ============ -->
+  <section class="s-comp">
+    <div class="slide-label">07 · Komponenten</div>
+    <p class="kicker">Bausteine</p>
+    <h2>Die Kern-Komponenten.</h2>
+
+    <div class="content">
+      <div class="ccard">
+        <p class="cname">Navigation</p>
+        <p class="cdesc">Wortmarke links, Links rechts, Kaufen-Pill orange. Light &amp; Dark.</p>
+        <div class="vis">
+          <div class="mini-nav">
+            <div class="logo">Indie<span class="dot">.</span>box</div>
+            <div class="links"><a>Docs</a><a>Specs</a><span class="buy">Kaufen</span></div>
+          </div>
+        </div>
+        <span class="cmeta">preview/components-nav.html</span>
+      </div>
+
+      <div class="ccard">
+        <p class="cname">Buy-Pill</p>
+        <p class="cdesc">Oranger Call-to-Action. Identisch in Light- und Dark-Nav, weißer Text.</p>
+        <div class="vis"><span class="mini-buy">Kaufen</span></div>
+        <span class="cmeta">preview/components-buttons.html</span>
+      </div>
+
+      <div class="ccard">
+        <p class="cname">Toggle-Pill</p>
+        <p class="cdesc">Segment-Switch für Zustände und Filter.</p>
+        <div class="vis">
+          <div class="mini-pill-split"><span class="p active">Monatlich</span><span class="p">Jährlich</span></div>
+        </div>
+        <span class="cmeta">preview/components-combi-pill.html</span>
+      </div>
+
+      <div class="ccard">
+        <p class="cname">Glow-Frame</p>
+        <p class="cdesc">Premium-Callout: 2 px Prism-Gradient-Border mit weichem Glow.</p>
+        <div class="vis">
+          <div class="mini-glow"><div class="t">Die Referenz.</div><div class="s">Für Hero- und Premium-Platzierungen.</div></div>
+        </div>
+        <span class="cmeta">preview/components-glow-frame.html</span>
+      </div>
+
+      <div class="ccard">
+        <p class="cname">Comparison Card</p>
+        <p class="cdesc">Dreispaltiger Vergleich. Beste Wahl mit oranger Outline.</p>
+        <div class="vis">
+          <div class="mini-compare">
+            <div class="card"><div class="h">Cloud-KI</div><div class="b">Abo, extern</div></div>
+            <div class="card best"><div class="h">Indie.box</div><div class="b">Einmal, lokal</div></div>
+            <div class="card"><div class="h">Selbst</div><div class="b">Aufwändig</div></div>
+          </div>
+        </div>
+        <span class="cmeta">preview/components-comparison.html</span>
+      </div>
+
+      <div class="ccard">
+        <p class="cname">Combi-Pill</p>
+        <p class="cdesc">Split-Button auf Dunkel. Primär-Aktion rechts in Orange.</p>
+        <div class="vis">
+          <div class="mini-combi"><span class="l">Demo buchen</span><span class="r">Kaufen</span></div>
+        </div>
+        <span class="cmeta">preview/components-combi-pill.html</span>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 07/09</div>
+  </section>
+
+  <!-- ============ 8. DO/DON'T ============ -->
+  <section class="s-rules">
+    <div class="slide-label">08 · Regeln</div>
+    <p class="kicker">Anwendung</p>
+    <h2>So machen wir es. So nicht.</h2>
+
+    <div class="content">
+      <div class="col do">
+        <h3><span class="mk">✓</span>Do</h3>
+        <div class="item">
+          <p class="t">Oranger Punkt in der Wortmarke</p>
+          <p class="d">Immer <code>.</code> in <code>#FF4D00</code>, nie in Navy oder Grau.</p>
+        </div>
+        <div class="item">
+          <p class="t">Favicon <em>oder</em> Wortmarke</p>
+          <p class="d">Favicon in Browser-Tab, Dock, App-Icon. Wortmarke im Layout. Nicht kombinieren.</p>
+        </div>
+        <div class="item">
+          <p class="t">Navy dominiert, Orange akzentuiert</p>
+          <p class="d">Navy ~70% der Fläche, Orange nur für CTA, Punkt und Signature-Gradient.</p>
+        </div>
+        <div class="item">
+          <p class="t">Inter 700 für alle Headlines</p>
+          <p class="d">Einheitliche Schrift, klare Gewichtung — keine Mix-Fonts.</p>
+        </div>
+      </div>
+      <div class="col dont">
+        <h3><span class="mk">✕</span>Don't</h3>
+        <div class="item">
+          <p class="t">Kein Favicon neben der Wortmarke</p>
+          <p class="d">Beide wiederholen das „i." — die Kombination wirkt unruhig und doppelt.</p>
+        </div>
+        <div class="item">
+          <p class="t">Keine Versalien im Suffix</p>
+          <p class="d">Nicht <code>Indie.Box</code>, nicht <code>INDIE.BOX</code>. Immer <code>Indie.box</code>.</p>
+        </div>
+        <div class="item">
+          <p class="t">Kein Orange auf Orange</p>
+          <p class="d">Prism-Gradient und Brand-Orange nie in derselben Fläche stapeln.</p>
+        </div>
+        <div class="item">
+          <p class="t">Keine verspielten Emojis / Gradients</p>
+          <p class="d">Haltung ist technisch und klar — keine deko-gradients, keine Emoji in UI.</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Indie.box · Design System Briefing · 08/09</div>
+  </section>
+
+  <!-- ============ 9. REFERENCE ============ -->
+  <section class="s-ref">
+    <div class="slide-label">09 · Referenz</div>
+    <p class="kicker">Handover</p>
+    <h2>Wo alles liegt.</h2>
+    <p class="lede">Das komplette System lebt im Design-System-Tab dieses Projekts. Alle Tokens, Komponenten und Previews sind direkt referenzierbar und kopierbar.</p>
+
+    <div class="content">
+      <div class="map">
+        <div class="row"><span class="path">colors_and_type.css</span><span class="what">Single source of truth — Farben, Schriften, Abstände, Radien.</span></div>
+        <div class="row"><span class="path">assets/favicon.svg</span><span class="what">Das „i."-Favicon. Multi-Size optimiert.</span></div>
+        <div class="row"><span class="path">preview/brand-logo.html</span><span class="what">Wortmarken-Familie Indie.box / .hub / .cluster.</span></div>
+        <div class="row"><span class="path">preview/components-*</span><span class="what">Nav, Buttons, Pills, Cards, Glow-Frame, Comparison.</span></div>
+        <div class="row"><span class="path">preview/colors-*</span><span class="what">Core, Gradients, Prism — alle Farbrollen.</span></div>
+        <div class="row"><span class="path">preview/type-*</span><span class="what">Typo-Scale mit Display, Title, Body, Kicker.</span></div>
+        <div class="row"><span class="path">fonts/InterVariable.woff2</span><span class="what">Selbst-gehostete Variable-Font-Datei.</span></div>
+      </div>
+
+      <div class="next">
+        <h3>Nächste Schritte</h3>
+        <div class="step"><span class="n">01</span><span class="txt"><strong>Marketing:</strong> Wortmarke + Farben für Kampagnen und Social-Templates übernehmen.</span></div>
+        <div class="step"><span class="n">02</span><span class="txt"><strong>Dev:</strong> <code style="font-family:var(--font-mono);font-size:17px;background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">colors_and_type.css</code> als Token-Basis ins Repo ziehen.</span></div>
+        <div class="step"><span class="n">03</span><span class="txt">Feedback &amp; Erweiterungen direkt im Design-System-Tab kommentieren.</span></div>
+        <div class="step"><span class="n">04</span><span class="txt">Bei Unklarheiten: <strong>im Zweifel immer Navy + ein einziger oranger Akzent</strong>.</span></div>
+      </div>
+    </div>
+
+    <p class="closing">Danke. <span class="mark">Indie<span style="color:var(--ib-orange)">.</span>box</span> lebt von Konsistenz — jede Anwendung des Systems macht die Marke schärfer.</p>
+  </section>
+
+</deck-stage>
+
+</body>
+</html>
