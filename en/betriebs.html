@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operations and Administration – Indiebox</title>
+    <title>Operations and Administration – Indie.box</title>
 
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-    <meta name="description" content="Indiebox operations and administration: commissioning, containers, access, updates, models, backup, and network integration.">
+    <meta name="description" content="Indie.box operations and administration: commissioning, containers, access, updates, models, backup, and network integration.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
 <body class="checkout-page">
     <nav class="nav-bar" aria-label="Main menu">
         <div class="container nav-container">
-            <a class="nav-logo" href="index.html" aria-label="Indiebox Home">Indiebox</a>
+            <a class="nav-logo" href="index.html" aria-label="Indie.box Home">Indie<span class="brand-dot">.</span>box</a>
             <div class="nav-links" id="nav-links">
                 <a href="docs/">Docs</a>
                 <a href="privacy.html">Data security</a>
@@ -43,7 +43,7 @@
             <div class="container">
                 <div class="checkout-hero-copy">
                     <h1 class="checkout-title">Operations and Administration</h1>
-                    <p class="checkout-subtitle checkout-subtitle--sm">Indiebox is operated in your own network and provides chat, workflows, agents, and administration as web interfaces.</p>
+                    <p class="checkout-subtitle checkout-subtitle--sm">Indie.box is operated in your own network and provides chat, workflows, agents, and administration as web interfaces.</p>
                     <p class="checkout-hero-note">After commissioning, chat is immediately usable. Agents, workflows, and automations can then be added step by step.</p>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                 <article class="checkout-card">
                     <h2 class="checkout-card-title">Applications: separate containers, managed separately</h2>
                     <div class="form-section">
-                        <p>All Indiebox applications run in separate containers. This makes operations easier because services can be managed independently of each other. Restarting or updating one application does not automatically affect the others.</p>
+                        <p>All Indie.box applications run in separate containers. This makes operations easier because services can be managed independently of each other. Restarting or updating one application does not automatically affect the others.</p>
                         <p>Typically included:</p>
                         <ul class="checkout-list">
                             <li><strong>OpenWebUI</strong> as chat interface</li>
@@ -195,7 +195,7 @@
                 <article class="checkout-card">
                     <h2 class="checkout-card-title">Models: preinstalled, fit for purpose, expandable later</h2>
                     <div class="form-section">
-                        <p>Indiebox is delivered with several models for different tasks. This means the start is not “search for a model”, but “start the task”.</p>
+                        <p>Indie.box is delivered with several models for different tasks. This means the start is not “search for a model”, but “start the task”.</p>
                         <p>Preinstalled are:</p>
                         <ul class="checkout-list">
                             <li><strong>gpt-oss:120b</strong> for more complex tasks with high demand for reasoning and multi-step problem solving</li>
@@ -206,7 +206,7 @@
 
                         <h3 class="form-section-title">Disk space vs runtime: the decisive point is memory</h3>
                         <p>With 2 TB storage, space for several models is usually sufficiently dimensioned for daily work. Less decisive is storage on disk, more decisive is <strong>runtime memory demand</strong>.</p>
-                        <p>Indiebox is designed for systems with <strong>128 GB shared memory</strong>. This is a practical advantage compared to classic GPU setups, which are often limited by GPU memory (VRAM). Through the large shared memory, even very large models in suitable quantization become realistically usable if the use case fits.</p>
+                        <p>Indie.box is designed for systems with <strong>128 GB shared memory</strong>. This is a practical advantage compared to classic GPU setups, which are often limited by GPU memory (VRAM). Through the large shared memory, even very large models in suitable quantization become realistically usable if the use case fits.</p>
                     </div>
 
                     <aside class="checkout-card checkout-card--muted" aria-labelledby="info-open-source-models">
@@ -221,7 +221,7 @@
                     <div class="form-section">
                         <h3 class="form-section-title">Load additional models (Ollama): deliberate and reversible</h3>
                         <p>In addition to the preinstalled models, further models can be downloaded and integrated via Ollama.</p>
-                        <p>Downloaded models are not part of the preconfigured Indiebox environment. Stability, quality, and suitability are therefore the responsibility of operations. The risk remains manageable because models can be removed at any time. This enables deliberate testing without permanently changing the system.</p>
+                        <p>Downloaded models are not part of the preconfigured Indie.box environment. Stability, quality, and suitability are therefore the responsibility of operations. The risk remains manageable because models can be removed at any time. This enables deliberate testing without permanently changing the system.</p>
                     </div>
                 </article>
             </div>
@@ -232,7 +232,7 @@
                 <article class="checkout-card">
                     <h2 class="checkout-card-title">Data areas, backup, and recovery</h2>
                     <div class="form-section">
-                        <p>Indiebox bundles persistent application data in a <strong>central data area</strong> on the box. Within this area, data is separated by application. This is intentionally designed so backup and recovery stay simple.</p>
+                        <p>Indie.box bundles persistent application data in a <strong>central data area</strong> on the box. Within this area, data is separated by application. This is intentionally designed so backup and recovery stay simple.</p>
                         <p>In operation this means:</p>
                         <ul class="checkout-list">
                             <li>Data and configuration are not distributed across many locations, but organized centrally.</li>
@@ -251,7 +251,7 @@
                     <div class="form-section">
                         <p>At the core, data flow is simple:</p>
                         <ol class="legal-list">
-                            <li><strong>Access</strong><br>Usage happens via browser or installable web app on Indiebox web interfaces (chat, workflows, dashboard).</li>
+                            <li><strong>Access</strong><br>Usage happens via browser or installable web app on Indie.box web interfaces (chat, workflows, dashboard).</li>
                             <li><strong>Chat to the local model</strong><br>OpenWebUI forwards prompt and context to the model service on the box. The response goes back to OpenWebUI and is shown in the client.</li>
                             <li><strong>Workflows to internal or external targets</strong><br>n8n executes workflows. Whether internal systems or external APIs are called depends on the specific workflow.</li>
                         </ol>
@@ -294,7 +294,7 @@
                     <div class="form-section">
                         <p>The additional container for own applications is intended for fully custom solutions. This allows partners or internal teams to build specialized applications and integrations without changing the standard containers. This can range from industry workflows to clearly separated internal tools.</p>
                         <p>Other local agent applications can also be operated in this area. One example is OpenClaw: <a class="text-link" href="https://docs.ollama.com/integrations/openclaw" target="_blank" rel="noopener noreferrer">OpenClaw</a></p>
-                        <p>An Indiebox marketplace is in preparation, through which curated models and solution packages can be installed. The goal is reproducible installation instead of individual one-off setups.</p>
+                        <p>An Indie.box marketplace is in preparation, through which curated models and solution packages can be installed. The goal is reproducible installation instead of individual one-off setups.</p>
                     </div>
                 </article>
             </div>
@@ -305,7 +305,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h4>Indiebox</h4>
+                    <h4>Indie.box</h4>
                     <p>Private AI. Fully local. No cloud.</p>
                 </div>
                 <div class="footer-contact">
@@ -313,7 +313,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <div>© 2025 Indiebox</div>
+                <div>© 2025 Indie.box</div>
                 <div class="legal-links">
                     <a href="terms.html">Terms</a>
                     <a href="datenschutz.html">Privacy policy</a>
