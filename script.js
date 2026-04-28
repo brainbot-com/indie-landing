@@ -1951,8 +1951,7 @@ function setupAdminOrders() {
     const isoDate = (v) => { if (!v) return ''; const s = String(v); return s.length >= 10 ? s.slice(0, 10) : s; };
 
     // Lucide-style inline SVG icons. Stroke 2 for small badge contexts (8–16px
-    // render size) where the default 1.8 becomes too thin. See
-    // design_handoff/MIGRATION.md.
+    // render size) where the default 1.8 becomes too thin.
     const icon = (name) => {
         const s = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
         const icons = {

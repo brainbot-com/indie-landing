@@ -1,12 +1,8 @@
 # Agent Briefing (Indie.Box)
 
 ## Design System
-- Disziplin: `design_handoff/DISCIPLINE.md`
-- Motion: `design_handoff/MOTION.md`
-- Tokens: `design_handoff/colors_and_type.css`
-- Komponenten: `design_handoff/preview/`
-- Favicon: `design_handoff/assets/favicon.svg`
-- Schriften: `design_handoff/fonts/`
+- Style Guide (Tokens, Komponenten, Animationen): `STYLE_GUIDE.md`
+- CSS Tokens: `style.css`
 
 Translation workflow lives in `TRANSLATION.md`. Agents must follow it when creating or updating copy.
 Always generate matching English pages for any new or updated HTML pages (e.g. `en/index.html`, `en/checkout.html`, `en/terms.html`, `en/impressum.html`).

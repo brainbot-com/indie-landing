@@ -56,7 +56,6 @@
 
     /* ==========================================================
        NEW DESIGN SYSTEM TOKENS (long-form naming)
-       Migration target — see design_handoff/MIGRATION.md
        New components use these. Legacy tokens above are kept
        during migration and will be removed in Phase 5.
        ========================================================== */
@@ -762,6 +761,11 @@ ul {
     font-size: 1.5rem;
     font-weight: 800;
     color: var(--primary-color);
+    letter-spacing: -0.035em;
+}
+
+.brand-dot {
+    color: var(--accent-color);
 }
 
 .nav-links {
