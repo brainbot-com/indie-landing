@@ -27,5 +27,13 @@ rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/caddy/Caddyfile" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}Caddyfile"
 
+rsync -av -e "ssh -i $SSH_KEY" \
+  "$ROOT_DIR/deploy/env/.env.staging" \
+  "${DEPLOY_USER}@${DEPLOY_HOST}:/srv/staging.indiebox/config/runtime.staging.env"
+
+rsync -av -e "ssh -i $SSH_KEY" \
+  "$ROOT_DIR/deploy/env/.env.live" \
+  "${DEPLOY_USER}@${DEPLOY_HOST}:/srv/indiebox/config/runtime.live.env"
+
 ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
   "install -d -m 755 /srv/staging.indiebox/site /srv/staging.indiebox/config /srv/staging.indiebox/data /srv/staging.indiebox/backups /srv/indiebox/data/backend-live /srv/edge/config && if [ ! -f ${CONFIG_PATH}caddy.env ]; then install -m 600 /dev/null ${CONFIG_PATH}caddy.env; fi && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build"

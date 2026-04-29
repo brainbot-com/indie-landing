@@ -3180,7 +3180,7 @@ function setupAdminNotifications() {
         `).join('')}</ul>`;
     };
 
-    let htmlViewMode = 'edit';
+    let htmlViewMode = 'preview';
 
     const renderHtmlEditor = (htmlValue) => {
         if (htmlViewMode === 'preview') {
