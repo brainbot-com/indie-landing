@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test notification</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body { min-height: 100vh; }
+        .notif-test-main { padding: 1.5rem 0 3rem; display: flex; flex-direction: column; gap: 1.5rem; max-width: 760px; }
+        .notif-test-section { display: flex; flex-direction: column; gap: 0.5rem; }
+        .notif-test-section-head { display: flex; justify-content: space-between; align-items: center; }
+        .notif-test-section-label { font-size: 0.8rem; font-weight: 600; color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .notif-test-group { border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden; margin-bottom: 0.5rem; }
+        .notif-test-group:last-child { margin-bottom: 0; }
+        .notif-test-group-header { padding: 0.35rem 0.75rem; background: var(--color-bg-subtle); font-size: 0.75rem; font-weight: 600; color: var(--color-fg-subtle); border-bottom: 1px solid var(--color-border); }
+        .notif-test-row { display: grid; grid-template-columns: 220px 1fr; border-bottom: 1px solid var(--color-border); }
+        .notif-test-row:last-child { border-bottom: none; }
+        .notif-test-key { padding: 0.38rem 0.75rem; font-size: 0.75rem; font-family: var(--font-mono, monospace); color: var(--color-fg-muted); background: var(--color-bg-subtle); border-right: 1px solid var(--color-border); display: flex; align-items: center; word-break: break-all; }
+        .notif-test-val input { width: 100%; padding: 0.35rem 0.6rem; font-size: 0.82rem; border: none; background: transparent; outline: none; color: var(--color-fg); font-family: inherit; }
+        .notif-test-val input:focus { background: #f0f4ff; }
+        .notif-test-send-row { display: flex; gap: 0.5rem; align-items: stretch; }
+        .notif-test-send-row .form-input { flex: 1; }
+        .notif-test-restricted { font-size: 0.75rem; font-weight: 400; color: var(--color-fg-subtle); }
+        .notif-test-feedback { margin: 0; font-size: 0.82rem; padding: 0.45rem 0.7rem; border-radius: 6px; }
+        .notif-test-feedback--ok { background: #e8f5e9; color: #2e7d32; }
+        .notif-test-feedback--err { background: #fdecea; color: #c62828; }
+        .notif-test-customer-warning { display: none; align-items: flex-start; gap: 0.55rem; padding: 0.55rem 0.75rem; background: #fff3e0; border: 1px solid #ffb74d; border-radius: 6px; font-size: 0.82rem; color: #7c4c00; }
+        .notif-test-customer-warning.visible { display: flex; }
+        .notif-test-customer-warning label { display: flex; align-items: flex-start; gap: 0.45rem; cursor: pointer; }
+        .notif-test-customer-warning input[type=checkbox] { margin-top: 2px; flex-shrink: 0; }
+    </style>
+</head>
+<body class="docs-page admin-page">
+    <header class="admin-header">
+        <div class="container admin-header__inner">
+            <span class="admin-header__logo" id="tpl-name">Test notification</span>
+        </div>
+    </header>
+    <main class="container notif-test-main">
+        <div id="state-loading"><p class="admin-notif-hint">Loading…</p></div>
+        <div id="state-error" hidden><p class="admin-notif-hint" style="color:#c62828">Error: <span id="error-msg"></span></p></div>
+        <div id="state-ready" hidden>
+
+            <div class="notif-test-section">
+                <label class="notif-test-section-label" for="order-select">Order data</label>
+                <select id="order-select" class="form-input"></select>
+            </div>
+
+            <div class="notif-test-section">
+                <div class="notif-test-section-head">
+                    <span class="notif-test-section-label">Token values</span>
+                    <button type="button" id="reset-btn" class="button button--plain-light button--pill button--sm">Reset</button>
+                </div>
+                <div id="token-groups"></div>
+            </div>
+
+            <div class="notif-test-section">
+                <label class="notif-test-section-label" for="send-to">Send to</label>
+                <div class="notif-test-send-row">
+                    <input type="email" id="send-to" class="form-input" placeholder="you@example.com" autocomplete="email">
+                    <button type="button" id="send-btn" class="button button--plain-dark button--pill button--md">Send test</button>
+                </div>
+                <div id="customer-warning" class="notif-test-customer-warning">
+                    <label><input type="checkbox" id="confirm-customer"> This is the real customer email — I confirm sending a test to this address.</label>
+                </div>
+                <p id="send-feedback" class="notif-test-feedback" hidden></p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    (async () => {
+        const params = new URLSearchParams(location.search);
+        const templateId = params.get('templateId');
+
+        const elLoading  = document.getElementById('state-loading');
+        const elError    = document.getElementById('state-error');
+        const elReady    = document.getElementById('state-ready');
+        const elName     = document.getElementById('tpl-name');
+        const elOrder    = document.getElementById('order-select');
+        const elGroups   = document.getElementById('token-groups');
+        const elReset    = document.getElementById('reset-btn');
+        const elTo       = document.getElementById('send-to');
+        const elSend     = document.getElementById('send-btn');
+        const elFeedback = document.getElementById('send-feedback');
+        const elWarning  = document.getElementById('customer-warning');
+        const elConfirm  = document.getElementById('confirm-customer');
+
+        let overrides = {};
+        let currentCustomerEmail = '';
+
+        const GROUP_LABELS = {
+            brand: 'Brand', order: 'Order', customer: 'Customer',
+            billingAddress: 'Billing address', shippingAddress: 'Shipping address'
+        };
+        const GROUP_ORDER = Object.keys(GROUP_LABELS);
+
+        function showError(msg) {
+            elLoading.hidden = true;
+            elError.hidden = false;
+            document.getElementById('error-msg').textContent = msg;
+        }
+
+        async function apiFetch(path, opts = {}) {
+            const res = await fetch(path, {
+                credentials: 'same-origin',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                ...opts
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || data.error || `HTTP ${res.status}`);
+            return data;
+        }
+
+        function esc(str) {
+            return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function renderTokens(flatCtx) {
+            const groups = {};
+            for (const [key, val] of Object.entries(flatCtx)) {
+                const dot = key.indexOf('.');
+                const group = dot >= 0 ? key.slice(0, dot) : '_';
+                if (!groups[group]) groups[group] = [];
+                groups[group].push({ key, val: String(val ?? '') });
+            }
+
+            const html = GROUP_ORDER.filter(g => groups[g]).map(g => {
+                const rows = groups[g].map(({ key, val }) => `
+                    <div class="notif-test-row">
+                        <span class="notif-test-key">{{${esc(key)}}}</span>
+                        <span class="notif-test-val"><input type="text" data-token="${esc(key)}" value="${esc(val)}"></span>
+                    </div>`).join('');
+                return `<div class="notif-test-group">
+                    <div class="notif-test-group-header">${esc(GROUP_LABELS[g] || g)}</div>
+                    ${rows}
+                </div>`;
+            }).join('');
+
+            elGroups.innerHTML = html;
+            overrides = {};
+            elGroups.querySelectorAll('input[data-token]').forEach(inp => {
+                inp.addEventListener('input', () => { overrides[inp.dataset.token] = inp.value; });
+            });
+            currentCustomerEmail = (flatCtx['customer.email'] || '').trim().toLowerCase();
+            updateCustomerWarning();
+        }
+
+        async function loadContext() {
+            const orderId = elOrder.value;
+            const url = `/api/admin/notification-preview-context${orderId ? '?orderId=' + encodeURIComponent(orderId) : ''}`;
+            const data = await apiFetch(url);
+            renderTokens(data.context);
+        }
+
+        async function init() {
+            if (!templateId) { showError('No templateId in URL.'); return; }
+            try {
+                const [tplData, ordersData] = await Promise.all([
+                    apiFetch(`/api/admin/notification-templates/${encodeURIComponent(templateId)}`),
+                    apiFetch('/api/orders?limit=100')
+                ]);
+
+                const tpl = tplData.template;
+                elName.textContent = `Test: ${tpl.name}`;
+                document.title = `Test: ${tpl.name}`;
+
+                const opts = ['<option value="">▸ Sample data</option>'];
+                for (const o of ordersData.orders || []) {
+                    const label = `#${o.orderNumber || '?'} · ${o.customerName || ''} (${o.status})`;
+                    opts.push(`<option value="${esc(o.id)}">${esc(label)}</option>`);
+                }
+                elOrder.innerHTML = opts.join('');
+
+                await loadContext();
+
+                elLoading.hidden = true;
+                elReady.hidden = false;
+            } catch (e) {
+                showError(e.message);
+            }
+        }
+
+        elOrder.addEventListener('change', loadContext);
+        elReset.addEventListener('click', loadContext);
+
+        function updateCustomerWarning() {
+            const to = elTo.value.trim().toLowerCase();
+            const isCustomer = !!currentCustomerEmail && to === currentCustomerEmail;
+            elWarning.classList.toggle('visible', isCustomer);
+            if (!isCustomer) elConfirm.checked = false;
+        }
+
+        elTo.addEventListener('input', updateCustomerWarning);
+        elConfirm.addEventListener('change', updateCustomerWarning);
+
+        elSend.addEventListener('click', async () => {
+            const to = elTo.value.trim();
+            if (!to) { elTo.focus(); return; }
+            const isCustomer = !!currentCustomerEmail && to.toLowerCase() === currentCustomerEmail;
+            if (isCustomer && !elConfirm.checked) {
+                elWarning.classList.add('visible');
+                elConfirm.focus();
+                showFeedback('Confirm sending to the real customer email first.', true);
+                return;
+            }
+            elSend.disabled = true;
+            elFeedback.hidden = true;
+            try {
+                const result = await apiFetch(
+                    `/api/admin/notification-templates/${encodeURIComponent(templateId)}/test`,
+                    { method: 'POST', body: JSON.stringify({ to, orderId: elOrder.value || undefined, contextOverrides: overrides }) }
+                );
+                showFeedback(`Sent to ${result.recipient}`, false);
+            } catch (e) {
+                showFeedback(e.message, true);
+            } finally {
+                elSend.disabled = false;
+            }
+        });
+
+        function showFeedback(msg, isError) {
+            elFeedback.textContent = msg;
+            elFeedback.className = `notif-test-feedback notif-test-feedback--${isError ? 'err' : 'ok'}`;
+            elFeedback.hidden = false;
+        }
+
+        init();
+    })();
+    </script>
+</body>
+</html>

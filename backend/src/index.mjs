@@ -1821,6 +1821,34 @@ function parseNotificationPatch(body = {}) {
   return patch;
 }
 
+function flattenObject(obj, prefix = '') {
+  const result = {};
+  for (const [key, value] of Object.entries(obj || {})) {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      Object.assign(result, flattenObject(value, path));
+    } else {
+      result[path] = value === null || value === undefined ? '' : String(value);
+    }
+  }
+  return result;
+}
+
+function applyFlatOverrides(context, overrides) {
+  if (!overrides || Object.keys(overrides).length === 0) return context;
+  const copy = JSON.parse(JSON.stringify(context));
+  for (const [path, value] of Object.entries(overrides)) {
+    const parts = path.split('.');
+    let obj = copy;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (obj[parts[i]] == null || typeof obj[parts[i]] !== 'object') obj[parts[i]] = {};
+      obj = obj[parts[i]];
+    }
+    obj[parts[parts.length - 1]] = value;
+  }
+  return copy;
+}
+
 function sampleOrderForPreview(order) {
   if (order) return order;
 
@@ -1919,8 +1947,13 @@ app.post('/api/admin/notification-templates/:id/test', adminRateLimit, requireAd
     ? store.getOrder(req.body.orderId)
     : null;
 
+  const contextOverrides = req.body?.contextOverrides && typeof req.body.contextOverrides === 'object' && !Array.isArray(req.body.contextOverrides)
+    ? req.body.contextOverrides
+    : {};
+
   const previewOrder = sampleOrderForPreview(order);
-  const context = buildNotificationContext(previewOrder);
+  const baseContext = buildNotificationContext(previewOrder);
+  const context = applyFlatOverrides(baseContext, contextOverrides);
   const subject = `[TEST] ${renderTemplateString(template.subjectTemplate, context, { mode: 'text' }).trim()}`;
   const text = renderTemplateString(template.textTemplate, context, { mode: 'text' });
   const renderedHtml = template.htmlTemplate
@@ -1940,6 +1973,15 @@ app.post('/api/admin/notification-templates/:id/test', adminRateLimit, requireAd
   } catch (error) {
     return res.status(502).json({ error: 'mail_send_failed', message: error.message });
   }
+});
+
+app.get('/api/admin/notification-preview-context', adminRateLimit, requireAdmin, (req, res) => {
+  const orderId = typeof req.query.orderId === 'string' ? req.query.orderId.trim() : '';
+  const order = orderId ? store.getOrder(orderId) : null;
+  const previewOrder = sampleOrderForPreview(order);
+  const context = buildNotificationContext(previewOrder);
+  const { appBaseUrl: _skip, ...rest } = context;
+  return res.json({ context: flattenObject(rest) });
 });
 
 // ── Email assets (public serve + admin CRUD) ──

@@ -3481,25 +3481,11 @@ function setupAdminNotifications() {
         }
     };
 
-    const sendTest = async () => {
+    const sendTest = () => {
         const tpl = templates.find((x) => x.id === selectedId);
         if (!tpl) return;
-
-        const defaultTo = meta.adminRecipient || '';
-        const to = prompt(t.testPromptTo, defaultTo);
-        if (to === null) return;
-        const recipient = to.trim();
-        if (!recipient) return;
-
-        try {
-            await adminFetch(`/api/admin/notification-templates/${encodeURIComponent(tpl.id)}/test`, {
-                method: 'POST',
-                body: JSON.stringify({ to: recipient })
-            });
-            setFeedback(`${t.testOk} → ${recipient}`);
-        } catch (error) {
-            setFeedback(`${t.testFailed} ${error.message || ''}`, true);
-        }
+        const url = `/admin/test-notification.html?templateId=${encodeURIComponent(tpl.id)}`;
+        window.open(url, 'notif-test', 'width=860,height=740,resizable=yes,scrollbars=yes');
     };
 
     const exportTemplate = () => {
