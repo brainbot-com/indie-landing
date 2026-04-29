@@ -3679,7 +3679,12 @@ function setupAdminRoleGuard() {
         .then((r) => r.ok ? r.json() : null)
         .then((data) => {
             if (!data?.authenticated || !data?.user) return;
-            if (data.user.role === 'admin') return;
+            if (data.user.role === 'admin') {
+                document.querySelectorAll('.admin-subnav [data-admin-only]').forEach((link) => {
+                    link.hidden = false;
+                });
+                return;
+            }
             // Non-admin user: hide admin content
             adminContainers.forEach((c) => {
                 c.innerHTML = `<div class="admin-not-authorized"><p>${msg}</p></div>`;

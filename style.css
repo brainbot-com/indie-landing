@@ -3422,6 +3422,10 @@ ul {
     border-color: rgba(255, 255, 255, 0.12);
 }
 
+.admin-subnav .admin-subnav__users {
+    margin-left: auto;
+}
+
 .admin-shell {
     padding: 1.5rem 0 5rem;
 }
