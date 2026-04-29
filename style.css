@@ -6600,6 +6600,32 @@ button.box-cta.combi-pill {
 }
 .admin-notif-hint--muted { color: var(--color-fg-subtle); font-size: 0.78rem; }
 
+.admin-notif-usage {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    background: var(--color-bg-subtle);
+    font-size: 0.82rem;
+}
+.admin-notif-usage summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--color-fg-muted);
+    list-style: none;
+    user-select: none;
+}
+.admin-notif-usage summary::-webkit-details-marker { display: none; }
+.admin-notif-usage summary::before { content: '▸\00a0'; font-size: 0.7em; }
+.admin-notif-usage[open] summary::before { content: '▾\00a0'; }
+.admin-notif-usage__list {
+    margin: 0.5rem 0 0;
+    padding-left: 1.1rem;
+    color: var(--color-fg-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
 .admin-notif-textarea {
     width: 100%;
     resize: vertical;

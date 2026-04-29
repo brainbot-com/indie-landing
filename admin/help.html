@@ -52,6 +52,17 @@
                     <h3>Triggers</h3>
                     <p>The only trigger today is <code>order.paid</code> — fired when Mollie confirms a payment. All active templates matching this trigger (and the order's language filter) are sent.</p>
 
+                    <h3>How language selection works</h3>
+                    <p>Each order carries a locale (<code>de</code> or <code>en</code>, defaults to <code>de</code>). On payment, the system loops over all active <code>order.paid</code> templates and skips any whose language filter doesn't match the order.</p>
+                    <p>The three built-in templates cover the common case:</p>
+                    <ul>
+                        <li><strong>Admin notification</strong> — language filter "Any" → fires for <em>every</em> order, always goes to the admin address.</li>
+                        <li><strong>Customer confirmation (DE)</strong> — language filter "DE" → fires only when the customer checked out in German.</li>
+                        <li><strong>Customer confirmation (EN)</strong> — language filter "EN" → fires only when the customer checked out in English.</li>
+                    </ul>
+                    <p>For each template, at most one email is sent per order — duplicate sends for the same order are blocked automatically.</p>
+                    <p>The "▸ When is this template used?" note at the top of each template in the editor shows the exact conditions at a glance.</p>
+
                     <h3>Template parts</h3>
                     <ul>
                         <li><strong>Name</strong> — internal label, admin only.</li>

@@ -3182,6 +3182,36 @@ function setupAdminNotifications() {
 
     let htmlViewMode = 'preview';
 
+    const buildUsageNote = (recipientType, triggerEvent, locale) => {
+        const triggerText = triggerEvent === 'order.paid'
+            ? 'Fires when Mollie confirms payment for an order.'
+            : `Fires on event: <code>${esc(triggerEvent)}</code>`;
+
+        const localeText = !locale
+            ? 'Sent for <strong>every order</strong>, regardless of the customer\'s checkout language.'
+            : locale === 'de'
+                ? 'Sent only for <strong>German orders</strong> (checkout language&nbsp;=&nbsp;DE). English orders skip this template.'
+                : locale === 'en'
+                    ? 'Sent only for <strong>English orders</strong> (checkout language&nbsp;=&nbsp;EN). German orders skip this template.'
+                    : `Sent only for orders with locale&nbsp;=&nbsp;<code>${esc(locale)}</code>.`;
+
+        const recipientText = recipientType === 'admin'
+            ? 'Goes to the <strong>admin address</strong> configured via <code>ORDER_NOTIFICATION_TO</code> on the server.'
+            : recipientType === 'customer'
+                ? 'Goes to the <strong>customer\'s email address</strong> entered at checkout.'
+                : 'Goes to the <strong>custom recipient address</strong> set in the field below.';
+
+        return `<details class="admin-notif-usage">
+            <summary>When is this template used?</summary>
+            <ul class="admin-notif-usage__list">
+                <li>${triggerText}</li>
+                <li>${localeText}</li>
+                <li>${recipientText}</li>
+                <li>Sent <strong>at most once per order</strong> — duplicate sends for the same order are blocked.</li>
+            </ul>
+        </details>`;
+    };
+
     const renderHtmlEditor = (htmlValue) => {
         if (htmlViewMode === 'preview') {
             const previewDoc = buildPreviewHtml(htmlValue);
@@ -3222,6 +3252,8 @@ function setupAdminNotifications() {
                         <span class="admin-notif-switch__label">${esc(t.tplEnabled)}</span>
                     </label>
                 </header>
+
+                ${buildUsageNote(form.recipientType, form.triggerEvent, form.locale)}
 
                 <form class="admin-notif-form" data-notif-form>
                     <div class="admin-notif-fieldset">
