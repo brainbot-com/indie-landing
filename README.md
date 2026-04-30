@@ -263,7 +263,18 @@ ssh -i ~/.ssh/indiebox_ionos deploy@87.106.111.141 \
 - Mollie webhooks are verified by re-fetching payment status from the Mollie API rather than trusting the webhook payload.
 - Rate limiting per IP is applied to checkout, order-status, admin, and webhook endpoints.
 
-**Planned (Task 3):** Field-level AES-256-GCM encryption for customer PII columns in SQLite (name, address, phone, email, notes). Key stored as `DATA_ENCRYPTION_KEY` env var.
+### TODO — Field-level PII Encryption
+
+Customer data (name, address, phone, email, notes, device credentials) is stored in plaintext in SQLite. **This should be encrypted before the first real customer order is placed.**
+
+Plan:
+- Encrypt sensitive columns (`customer_*`, `billing_*`, `shipping_*`, `notes`, `device_username`, `device_password`) with AES-256-GCM using `node:crypto` (no new dependency).
+- Key in a new env var `DATA_ENCRYPTION_KEY` (32 bytes hex).
+- Stored format: `enc:v1:{iv}:{ciphertext}:{tag}` — values without this prefix are treated as plaintext, so existing rows migrate transparently on next write.
+- Add `customer_email_lookup_hash` (HMAC-SHA256) for email-based order lookup.
+- One-shot migration script to re-encrypt all existing rows at rollout.
+
+This protects against a leaked backup or a stolen DB file being readable without the key.
 
 ---
 
