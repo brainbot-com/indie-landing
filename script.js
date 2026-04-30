@@ -998,6 +998,9 @@ function setupAdminAuthShell({ locale, authFailed, authMissing, onAuthenticated,
     const authForm = document.querySelector('[data-admin-auth-form]');
     const usernameInput = document.querySelector('[data-admin-username-input]');
     const passwordInput = document.querySelector('[data-admin-password-input]');
+    const twoFaForm = document.querySelector('[data-admin-2fa-form]');
+    const twoFaCodeInput = document.querySelector('[data-admin-2fa-code-input]');
+    const twoFaBackButton = document.querySelector('[data-admin-2fa-back]');
     const loginError = document.querySelector('[data-admin-login-error]');
     const userBar = document.querySelector('[data-admin-userbar]');
     const userToggle = document.querySelector('[data-admin-user-toggle]');
@@ -1040,6 +1043,7 @@ function setupAdminAuthShell({ locale, authFailed, authMissing, onAuthenticated,
         setCurrentUser(null);
         if (usernameInput) usernameInput.value = '';
         if (passwordInput) passwordInput.value = '';
+        if (twoFaCodeInput) twoFaCodeInput.value = '';
         setLoginError(message);
         setPageState('unauthenticated');
         await onUnauthenticated?.();
@@ -1057,13 +1061,48 @@ function setupAdminAuthShell({ locale, authFailed, authMissing, onAuthenticated,
                 body: JSON.stringify({ username, password })
             });
             const payload = await response.json().catch(() => null);
-            if (!response.ok || !payload?.authenticated || !payload?.user) {
+            if (!response.ok) {
+                throw new Error(payload?.error || authFailed);
+            }
+            if (payload?.step === '2fa_required') {
+                setLoginError('');
+                setPageState('2fa');
+                twoFaCodeInput?.focus();
+                return;
+            }
+            if (!payload?.authenticated || !payload?.user) {
                 throw new Error(payload?.error || authFailed);
             }
             await handleAuthenticated(payload.user);
         } catch (error) {
             setLoginError(error.message || authFailed);
         }
+    });
+
+    twoFaForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        try {
+            const code = twoFaCodeInput?.value.trim() || '';
+            const response = await fetch('/api/admin/session/verify', {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ code })
+            });
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || !payload?.authenticated || !payload?.user) {
+                if (twoFaCodeInput) twoFaCodeInput.value = '';
+                throw new Error(payload?.error || authFailed);
+            }
+            await handleAuthenticated(payload.user);
+        } catch (error) {
+            setLoginError(error.message || authFailed);
+        }
+    });
+
+    twoFaBackButton?.addEventListener('click', async () => {
+        await fetch('/api/admin/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+        await handleUnauthenticated('');
     });
 
     clearAuthButton?.addEventListener('click', async () => {
@@ -2627,6 +2666,10 @@ function setupAdminUsers() {
                         <span class="admin-user-detail-value">${esc(user.username)}</span>
                     </div>
                     <div class="admin-user-detail-field">
+                        <span class="admin-user-detail-label">Email</span>
+                        <span class="admin-user-detail-value">${user.email ? esc(user.email) : '<span style="opacity:0.4">not set</span>'}</span>
+                    </div>
+                    <div class="admin-user-detail-field">
                         <span class="admin-user-detail-label">${t.role}</span>
                         <span class="admin-user-detail-value">${user.role === 'admin' ? t.admin : t.user}</span>
                     </div>
@@ -2662,6 +2705,8 @@ function setupAdminUsers() {
                         <input class="form-input" id="create-username" name="username" type="text" required minlength="3" maxlength="50" pattern="[a-zA-Z0-9._\\-]+" autocomplete="off"></div>
                     <div class="form-row"><label class="form-label" for="create-displayName">${t.displayName}</label>
                         <input class="form-input" id="create-displayName" name="displayName" type="text" required maxlength="100"></div>
+                    <div class="form-row"><label class="form-label" for="create-email">Email <span style="font-weight:400;opacity:0.6">(for 2FA alerts)</span></label>
+                        <input class="form-input" id="create-email" name="email" type="email" maxlength="320" autocomplete="off" placeholder="user@example.com"></div>
                     <div class="form-row"><label class="form-label" for="create-role">${t.role}</label>
                         <select class="form-input" id="create-role" name="role">
                             <option value="user">${t.user}</option>
@@ -2686,6 +2731,8 @@ function setupAdminUsers() {
                 <form class="admin-user-form" data-user-edit-form data-user-edit-id="${esc(user.id)}">
                     <div class="form-row"><label class="form-label" for="edit-displayName">${t.displayName}</label>
                         <input class="form-input" id="edit-displayName" name="displayName" type="text" required maxlength="100" value="${esc(user.displayName)}"></div>
+                    <div class="form-row"><label class="form-label" for="edit-email">Email <span style="font-weight:400;opacity:0.6">(for 2FA alerts)</span></label>
+                        <input class="form-input" id="edit-email" name="email" type="email" maxlength="320" value="${esc(user.email || '')}" placeholder="user@example.com"></div>
                     <div class="form-row"><label class="form-label" for="edit-role">${t.role}</label>
                         <select class="form-input" id="edit-role" name="role">
                             <option value="user" ${user.role === 'user' ? 'selected' : ''}>${t.user}</option>

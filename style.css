@@ -4807,15 +4807,26 @@ ul {
 
 .admin-page[data-admin-auth-state="loading"] .admin-layout,
 .admin-page[data-admin-auth-state="unauthenticated"] .admin-layout,
+.admin-page[data-admin-auth-state="2fa"] .admin-layout,
 .admin-page[data-admin-auth-state="loading"] .admin-subnav,
 .admin-page[data-admin-auth-state="unauthenticated"] .admin-subnav,
+.admin-page[data-admin-auth-state="2fa"] .admin-subnav,
 .admin-page[data-admin-auth-state="loading"] .admin-userbar,
-.admin-page[data-admin-auth-state="unauthenticated"] .admin-userbar {
+.admin-page[data-admin-auth-state="unauthenticated"] .admin-userbar,
+.admin-page[data-admin-auth-state="2fa"] .admin-userbar {
     display: none;
 }
 
 .admin-page[data-admin-auth-state="loading"] .admin-login-screen,
 .admin-page[data-admin-auth-state="authenticated"] .admin-login-screen {
+    display: none;
+}
+
+.admin-page[data-admin-auth-state="2fa"] [data-admin-auth-form] {
+    display: none;
+}
+
+.admin-page:not([data-admin-auth-state="2fa"]) [data-admin-2fa-form] {
     display: none;
 }
 

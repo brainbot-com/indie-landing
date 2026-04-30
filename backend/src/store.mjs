@@ -450,6 +450,18 @@ export async function createStore({ dataDir, logger = console }) {
     );
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);
+
+    CREATE TABLE IF NOT EXISTS login_challenges (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      code_hash TEXT NOT NULL,
+      failed_attempts_snapshot INTEGER NOT NULL DEFAULT 0,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      expires_at TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_login_challenges_user_id ON login_challenges(user_id);
+    CREATE INDEX IF NOT EXISTS idx_login_challenges_expires_at ON login_challenges(expires_at);
   `);
 
   function ensureColumn(tableName, columnName, columnSql) {
@@ -461,6 +473,8 @@ export async function createStore({ dataDir, logger = console }) {
 
   ensureColumn('device_models', 'system_spec', 'system_spec TEXT');
   ensureColumn('device_models', 'manufacturer', 'manufacturer TEXT');
+  ensureColumn('users', 'email', 'email TEXT');
+  ensureColumn('users', 'failed_attempts', 'failed_attempts INTEGER NOT NULL DEFAULT 0');
   ensureColumn('stock_devices', 'supplier_name', 'supplier_name TEXT');
   ensureColumn('stock_devices', 'supplier_order_id', 'supplier_order_id TEXT');
   ensureColumn('stock_devices', 'ordered_at', 'ordered_at TEXT');
@@ -1390,16 +1404,27 @@ export async function createStore({ dataDir, logger = console }) {
   const countActiveAdminsExcludingStatement = db.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'admin' AND status = 'active' AND id != :excludeId");
   const countUsersStatement = db.prepare('SELECT COUNT(*) as count FROM users');
   const insertUserStatement = db.prepare(`
-    INSERT INTO users (id, username, display_name, password_hash, role, status, created_at, updated_at)
-    VALUES (:id, :username, :display_name, :password_hash, :role, :status, :created_at, :updated_at)
+    INSERT INTO users (id, username, display_name, password_hash, role, status, email, created_at, updated_at)
+    VALUES (:id, :username, :display_name, :password_hash, :role, :status, :email, :created_at, :updated_at)
   `);
   const updateUserStatement = db.prepare(`
-    UPDATE users SET display_name = :display_name, role = :role, updated_at = :updated_at WHERE id = :id
+    UPDATE users SET display_name = :display_name, role = :role, email = :email, updated_at = :updated_at WHERE id = :id
   `);
   const updateUserPasswordStatement = db.prepare('UPDATE users SET password_hash = :password_hash, updated_at = :updated_at WHERE id = :id');
   const updateUserLastLoginStatement = db.prepare('UPDATE users SET last_login_at = :last_login_at WHERE id = :id');
   const updateUserStatusStatement = db.prepare('UPDATE users SET status = :status, updated_at = :updated_at WHERE id = :id');
+  const incrementFailedAttemptsStatement = db.prepare('UPDATE users SET failed_attempts = failed_attempts + 1, updated_at = :updated_at WHERE id = :id');
+  const resetFailedAttemptsStatement = db.prepare('UPDATE users SET failed_attempts = 0, updated_at = :updated_at WHERE id = :id');
   const deleteUserStatement = db.prepare('DELETE FROM users WHERE id = :id');
+
+  const insertLoginChallengeStatement = db.prepare(`
+    INSERT INTO login_challenges (id, user_id, code_hash, failed_attempts_snapshot, attempts, expires_at, created_at)
+    VALUES (:id, :user_id, :code_hash, :failed_attempts_snapshot, 0, :expires_at, :created_at)
+  `);
+  const getLoginChallengeStatement = db.prepare('SELECT * FROM login_challenges WHERE id = :id');
+  const incrementChallengeAttemptsStatement = db.prepare('UPDATE login_challenges SET attempts = attempts + 1 WHERE id = :id');
+  const deleteLoginChallengeStatement = db.prepare('DELETE FROM login_challenges WHERE id = :id');
+  const deleteExpiredLoginChallengesStatement = db.prepare("DELETE FROM login_challenges WHERE expires_at < :now");
 
   function mapUserRow(row) {
     if (!row) return null;
@@ -1410,6 +1435,8 @@ export async function createStore({ dataDir, logger = console }) {
       passwordHash: row.password_hash,
       role: row.role,
       status: row.status,
+      email: row.email || null,
+      failedAttempts: row.failed_attempts || 0,
       lastLoginAt: row.last_login_at || null,
       createdAt: row.created_at,
       updatedAt: row.updated_at
@@ -1433,7 +1460,7 @@ export async function createStore({ dataDir, logger = console }) {
     return db.prepare(sql).all(params).map(mapUserRow);
   }
 
-  function createUser({ username, displayName, passwordHash, role = 'user', status = 'active' }) {
+  function createUser({ username, displayName, passwordHash, role = 'user', status = 'active', email = null }) {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     insertUserStatement.run({
@@ -1443,16 +1470,52 @@ export async function createStore({ dataDir, logger = console }) {
       password_hash: passwordHash,
       role,
       status,
+      email: email || null,
       created_at: now,
       updated_at: now
     });
     return findUserById(id);
   }
 
-  function updateUser(id, { displayName, role }) {
+  function updateUser(id, { displayName, role, email }) {
     const now = new Date().toISOString();
-    updateUserStatement.run({ id, display_name: displayName, role, updated_at: now });
+    updateUserStatement.run({ id, display_name: displayName, role, email: email ?? null, updated_at: now });
     return findUserById(id);
+  }
+
+  function incrementFailedAttempts(id) {
+    incrementFailedAttemptsStatement.run({ id, updated_at: new Date().toISOString() });
+    return findUserById(id)?.failedAttempts ?? 0;
+  }
+
+  function resetFailedAttempts(id) {
+    resetFailedAttemptsStatement.run({ id, updated_at: new Date().toISOString() });
+  }
+
+  function createLoginChallenge({ userId, codeHash, failedAttemptsSnapshot, expiresAt }) {
+    const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    insertLoginChallengeStatement.run({ id, user_id: userId, code_hash: codeHash, failed_attempts_snapshot: failedAttemptsSnapshot, expires_at: expiresAt, created_at: now });
+    return { id, userId, codeHash, failedAttemptsSnapshot, attempts: 0, expiresAt, createdAt: now };
+  }
+
+  function getLoginChallenge(id) {
+    const row = getLoginChallengeStatement.get({ id });
+    if (!row) return null;
+    return { id: row.id, userId: row.user_id, codeHash: row.code_hash, failedAttemptsSnapshot: row.failed_attempts_snapshot, attempts: row.attempts, expiresAt: row.expires_at, createdAt: row.created_at };
+  }
+
+  function incrementChallengeAttempts(id) {
+    incrementChallengeAttemptsStatement.run({ id });
+    return getLoginChallenge(id);
+  }
+
+  function deleteLoginChallenge(id) {
+    deleteLoginChallengeStatement.run({ id });
+  }
+
+  function deleteExpiredLoginChallenges() {
+    deleteExpiredLoginChallengesStatement.run({ now: new Date().toISOString() });
   }
 
   function updateUserPassword(id, passwordHash) {
@@ -1730,10 +1793,17 @@ export async function createStore({ dataDir, logger = console }) {
     updateUserLastLogin,
     toggleUserStatus,
     deleteUser,
+    incrementFailedAttempts,
+    resetFailedAttempts,
     countActiveAdmins,
     countActiveAdminsExcluding,
     countUsers,
     bootstrapAdminUser,
+    createLoginChallenge,
+    getLoginChallenge,
+    incrementChallengeAttempts,
+    deleteLoginChallenge,
+    deleteExpiredLoginChallenges,
     listNotificationTemplates,
     listNotificationTemplatesForTrigger,
     getNotificationTemplate,

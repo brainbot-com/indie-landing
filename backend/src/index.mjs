@@ -32,6 +32,9 @@ const config = {
   adminSessionSecret: process.env.ADMIN_SESSION_SECRET || '',
   adminSessionCookieName: process.env.ADMIN_SESSION_COOKIE_NAME || 'indiebox_admin_session',
   adminSessionTtlSeconds: Number.parseInt(process.env.ADMIN_SESSION_TTL_SECONDS || '2592000', 10),
+  adminChallengeCookieName: process.env.ADMIN_CHALLENGE_COOKIE_NAME || 'indiebox_login_challenge',
+  adminChallengeTtlSeconds: 600,
+  adminChallengeThreshold: 5,
   mailgunApiKey: process.env.MAILGUN_API_KEY || '',
   mailgunDomain: process.env.MAILGUN_DOMAIN || '',
   mailgunRegion: (process.env.MAILGUN_REGION || 'eu').toLowerCase(),
@@ -366,6 +369,51 @@ function clearAdminSessionCookie(res) {
     parts.push('Secure');
   }
   res.setHeader('Set-Cookie', parts.join('; '));
+}
+
+function hashChallengeCode(code) {
+  return crypto.createHmac('sha256', config.adminSessionSecret || 'challenge-fallback').update(String(code)).digest('hex');
+}
+
+function setChallengeCookie(res, challengeId) {
+  const parts = [
+    `${config.adminChallengeCookieName}=${encodeURIComponent(challengeId)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    `Max-Age=${config.adminChallengeTtlSeconds}`
+  ];
+  if (config.appEnv !== 'development') parts.push('Secure');
+  res.setHeader('Set-Cookie', parts.join('; '));
+}
+
+function clearChallengeCookie(res) {
+  const parts = [
+    `${config.adminChallengeCookieName}=`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Strict',
+    'Max-Age=0'
+  ];
+  if (config.appEnv !== 'development') parts.push('Secure');
+  res.setHeader('Set-Cookie', parts.join('; '));
+}
+
+function getChallengeCookieId(req) {
+  const cookies = parseCookies(req);
+  const raw = cookies[config.adminChallengeCookieName];
+  return raw ? String(raw).trim() : null;
+}
+
+async function sendLoginChallengeEmail({ user, code, failedAttempts }) {
+  if (!mailNotificationsEnabled()) return;
+  const from = config.orderNotificationFrom;
+  const subject = 'Your Indiebox admin login code';
+  const failLine = failedAttempts > 0
+    ? `Note: ${failedAttempts} failed login attempt${failedAttempts !== 1 ? 's' : ''} were recorded before this request.\n\n`
+    : '';
+  const text = `A login request was made for the account "${user.username}".\n\n${failLine}Your verification code: ${code}\n\nThis code expires in 10 minutes. If you did not request this, your password may be compromised — change it after signing in.`;
+  await sendViaMailgun({ from, to: user.email, subject, text });
 }
 
 function readAdminToken(req) {
@@ -1642,7 +1690,7 @@ app.get('/api/admin/session', (req, res) => {
   return res.json({ authenticated: false });
 });
 
-app.post('/api/admin/session', adminRateLimit, (req, res) => {
+app.post('/api/admin/session', adminRateLimit, async (req, res) => {
   if (!adminAuthEnabled()) {
     return res.status(404).json({ error: 'not_found' });
   }
@@ -1654,8 +1702,11 @@ app.post('/api/admin/session', adminRateLimit, (req, res) => {
     return res.status(400).json({ error: 'Username and password required' });
   }
 
+  store.deleteExpiredLoginChallenges();
+
   const user = store.findUserByUsername(username);
   if (!user || !verifyPassword(password, user.passwordHash)) {
+    if (user) store.incrementFailedAttempts(user.id);
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
@@ -1663,7 +1714,77 @@ app.post('/api/admin/session', adminRateLimit, (req, res) => {
     return res.status(401).json({ error: 'Account disabled' });
   }
 
+  if (user.failedAttempts >= config.adminChallengeThreshold && user.email) {
+    const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+    const codeHash = hashChallengeCode(code);
+    const expiresAt = new Date(Date.now() + config.adminChallengeTtlSeconds * 1000).toISOString();
+    const challenge = store.createLoginChallenge({
+      userId: user.id,
+      codeHash,
+      failedAttemptsSnapshot: user.failedAttempts,
+      expiresAt
+    });
+    try {
+      await sendLoginChallengeEmail({ user, code, failedAttempts: user.failedAttempts });
+    } catch (err) {
+      console.error(JSON.stringify({ msg: '2fa_email_failed', userId: user.id, error: err.message }));
+    }
+    setChallengeCookie(res, challenge.id);
+    return res.json({ step: '2fa_required' });
+  }
+
   store.updateUserLastLogin(user.id);
+  store.resetFailedAttempts(user.id);
+  setSessionCookie(res, user.id);
+  return res.json({
+    authenticated: true,
+    user: { id: user.id, username: user.username, displayName: user.displayName, role: user.role }
+  });
+});
+
+app.post('/api/admin/session/verify', adminRateLimit, async (req, res) => {
+  if (!adminAuthEnabled()) {
+    return res.status(404).json({ error: 'not_found' });
+  }
+
+  const challengeId = getChallengeCookieId(req);
+  if (!challengeId) {
+    return res.status(400).json({ error: 'No active challenge' });
+  }
+
+  const challenge = store.getLoginChallenge(challengeId);
+  if (!challenge || new Date(challenge.expiresAt) <= new Date()) {
+    if (challenge) store.deleteLoginChallenge(challengeId);
+    clearChallengeCookie(res);
+    return res.status(401).json({ error: 'Challenge expired — please sign in again' });
+  }
+
+  if (challenge.attempts >= 5) {
+    store.deleteLoginChallenge(challengeId);
+    clearChallengeCookie(res);
+    return res.status(401).json({ error: 'Too many attempts — please sign in again' });
+  }
+
+  const code = typeof req.body.code === 'string' ? req.body.code.trim() : '';
+  const provided = Buffer.from(hashChallengeCode(code), 'utf8');
+  const stored = Buffer.from(challenge.codeHash, 'utf8');
+  const valid = provided.length === stored.length && crypto.timingSafeEqual(provided, stored);
+
+  if (!valid) {
+    store.incrementChallengeAttempts(challengeId);
+    return res.status(401).json({ error: 'Invalid code' });
+  }
+
+  store.deleteLoginChallenge(challengeId);
+  clearChallengeCookie(res);
+
+  const user = store.findUserById(challenge.userId);
+  if (!user || user.status === 'disabled') {
+    return res.status(401).json({ error: 'Account unavailable' });
+  }
+
+  store.updateUserLastLogin(user.id);
+  store.resetFailedAttempts(user.id);
   setSessionCookie(res, user.id);
   return res.json({
     authenticated: true,
@@ -1673,6 +1794,7 @@ app.post('/api/admin/session', adminRateLimit, (req, res) => {
 
 app.delete('/api/admin/session', (req, res) => {
   clearAdminSessionCookie(res);
+  clearChallengeCookie(res);
   return res.status(200).json({ success: true });
 });
 
@@ -1685,6 +1807,7 @@ function userPayload(user) {
     displayName: user.displayName,
     role: user.role,
     status: user.status,
+    email: user.email || null,
     lastLoginAt: user.lastLoginAt,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt
@@ -1709,6 +1832,7 @@ app.post('/api/admin/users', adminRateLimit, requireAdmin, (req, res) => {
   const displayName = typeof req.body.displayName === 'string' ? req.body.displayName.trim() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   const role = typeof req.body.role === 'string' ? req.body.role : 'user';
+  const email = normalizeEmail(req.body.email) || null;
 
   if (!username) return res.status(400).json({ error: 'Username is required' });
   if (!/^[a-zA-Z0-9._-]+$/.test(username)) return res.status(400).json({ error: 'Invalid username format' });
@@ -1717,11 +1841,12 @@ app.post('/api/admin/users', adminRateLimit, requireAdmin, (req, res) => {
   if (displayName.length > 100) return res.status(400).json({ error: 'Display name must be at most 100 characters' });
   if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
   if (!['admin', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+  if (email && !isValidEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
 
   const existing = store.findUserByUsername(username);
   if (existing) return res.status(409).json({ error: 'Username already exists' });
 
-  const user = store.createUser({ username, displayName, passwordHash: hashPassword(password), role });
+  const user = store.createUser({ username, displayName, passwordHash: hashPassword(password), role, email });
   return res.status(201).json({ user: userPayload(user) });
 });
 
@@ -1731,9 +1856,11 @@ app.put('/api/admin/users/:userId', adminRateLimit, requireAdmin, (req, res) => 
 
   const displayName = typeof req.body.displayName === 'string' ? req.body.displayName.trim() : user.displayName;
   const role = typeof req.body.role === 'string' ? req.body.role : user.role;
+  const email = 'email' in req.body ? (normalizeEmail(req.body.email) || null) : user.email;
 
   if (!['admin', 'user'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
   if (displayName.length > 100) return res.status(400).json({ error: 'Display name must be at most 100 characters' });
+  if (email && !isValidEmail(email)) return res.status(400).json({ error: 'Invalid email address' });
 
   // Last admin protection: demoting admin → user
   if (user.role === 'admin' && role === 'user' && user.status === 'active') {
@@ -1742,7 +1869,7 @@ app.put('/api/admin/users/:userId', adminRateLimit, requireAdmin, (req, res) => 
     }
   }
 
-  const updated = store.updateUser(user.id, { displayName, role });
+  const updated = store.updateUser(user.id, { displayName, role, email });
   return res.json({ user: userPayload(updated) });
 });
 

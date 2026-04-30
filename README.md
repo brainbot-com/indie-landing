@@ -1,165 +1,315 @@
-# INDIE LANDING PAGE
-*Static marketing, checkout, and legal pages for Indie.Box.*
+# Indie.Box — Landing, Checkout & Admin
 
-## Overview
-Indie.Box is a dedicated hardware platform for running open-weight AI models
-locally.
+Static marketing and checkout site for Indie.Box, with a Node.js backend for order processing and an internal admin area.
 
-This repository is designed to:
-1. **Position**: Explain the value of local AI in a clear commercial narrative.
-2. **Build trust**: Substantiate claims about privacy, operations, and product fit.
-3. **Convert**: Guide users from interest to checkout or direct contact.
-
-**Live Site:** https://indiebox.ai
+**Live:** https://indiebox.ai · **Staging:** https://staging.indiebox.ai
 
 ---
 
-## Working Rules
+## Architecture
 
-- `STYLE_GUIDE.md` is the single source of truth for typography, gradients,
-  backgrounds, and component usage.
-- `TRANSLATION.md` defines the DE -> EN workflow.
-- German pages are the source of truth; matching English pages must stay in
-  sync.
-- This repo stays intentionally simple: static HTML, shared CSS, minimal
-  JavaScript.
+```
+Browser
+  │
+  ▼
+Caddy (TLS termination, security headers, basic auth for /admin*)
+  ├── /api/* and /mail/*  → Node.js backend (Express 4, port 8080)
+  └── everything else     → static files (HTML/CSS/JS)
+
+Node.js backend
+  └── SQLite (node:sqlite, single file: indiebox.sqlite)
+```
+
+All services run in Docker on a single server via `docker-compose.yml`.
+Two independent backend instances share one Caddy: `backend-live` and `backend-staging`.
 
 ---
 
-## Quick Start
+## Local Development
 
-### 1. Local Content Workflow
+### 1. Start the backend
 
-- Update German source pages first.
-- Keep matching English pages in sync.
-- For generated language pages, regenerate the English output after copy changes.
+```bash
+cd backend
+npm install
+```
 
-### 2. Translation
-For `index.html`, update German copy first, then update
-`i18n/index.html.lang.en.json`, and regenerate `en/index.html`:
+Copy and source the dev env:
+
+```bash
+cp deploy/env/.env.dev .env.local   # do not commit
+export $(grep -v '^#' deploy/env/.env.dev | xargs)
+node src/index.mjs
+# → backend listening on http://127.0.0.1:8080
+```
+
+Default dev credentials: username `admin`, password `brainbot`.
+
+### 2. Start the static preview server
+
+In a second terminal, from the repo root:
+
+```bash
+node deploy/scripts/local-preview.mjs
+# → http://127.0.0.1:3000
+```
+
+This serves static files and proxies `/api/*` to the backend on port 8080.
+
+### 3. Translation
+
+German pages are the source of truth. After updating German copy, regenerate English pages:
 
 ```bash
 node scripts/generate-lang.js
 ```
 
-### 3. Analytics
-Matomo is loaded via `matomo.js`. Any analytics change must stay consistent with
-the site's privacy claims.
+---
+
+## Deployment
+
+Two scripts cover all deployment scenarios. Both require SSH key access to the server.
+
+Set the target server via environment variables (or rely on defaults):
+
+```bash
+export INDIEBOX_DEPLOY_HOST=87.106.111.141   # default
+export INDIEBOX_DEPLOY_USER=deploy           # default
+export INDIEBOX_DEPLOY_KEY=~/.ssh/indiebox_ionos  # default
+```
+
+### Deploy static site only
+
+```bash
+bash deploy/scripts/push-site.sh               # both staging and live
+bash deploy/scripts/push-site.sh --staging     # staging only
+bash deploy/scripts/push-site.sh --production  # live only
+bash deploy/scripts/push-site.sh --dry-run     # preview what would change
+```
+
+Rsyncs all static files (HTML, CSS, JS, images) to the server. Does **not** restart the backend.
+
+### Deploy backend + proxy stack
+
+```bash
+bash deploy/scripts/push-stack.sh
+```
+
+This script:
+1. **Takes a live DB backup first** (aborts if backup fails — see Backup below)
+2. Rsyncs backend source code and `docker-compose.yml`
+3. Rsyncs the Caddyfile and env files for both environments
+4. Runs `docker compose up -d --build` on the server
+
+Use this whenever `backend/src/`, `docker-compose.yml`, `deploy/caddy/Caddyfile`, or env files change.
+
+### Server layout
+
+| Path | Contents |
+|---|---|
+| `/srv/indiebox/app/site/` | Live static site |
+| `/srv/indiebox/app/backend/` | Backend source (deployed by push-stack) |
+| `/srv/indiebox/data/backend-live/` | Live DB + data (bind-mounted, never deleted by Docker) |
+| `/srv/indiebox/config/runtime.live.env` | Live runtime env vars |
+| `/srv/staging.indiebox/site/` | Staging static site |
+| `/srv/staging.indiebox/data/` | Staging DB + data |
+| `/srv/staging.indiebox/config/runtime.staging.env` | Staging runtime env vars |
+| `/srv/edge/config/Caddyfile` | Shared Caddy config |
+| `/srv/edge/config/caddy.env` | Caddy basic-auth credentials |
 
 ---
 
-## Operations
+## Environment Variables
 
-### Admin Access
+### Backend (`runtime.live.env` / `runtime.staging.env`)
 
-The internal admin area currently runs on staging:
+| Variable | Purpose |
+|---|---|
+| `APP_ENV` | `production` or `staging` — controls cookie Secure flag and dev shortcuts |
+| `APP_BASE_URL` | Public base URL, used in Mollie redirect and email links |
+| `APP_RUNTIME_NAME` | Human label shown in admin and API responses |
+| `MOLLIE_API_KEY` | Mollie API key (`live_…` or `test_…`) |
+| `MOLLIE_PROFILE_ID` | Mollie profile ID |
+| `MOLLIE_MODE` | `live` or `test` |
+| `ENABLE_ADMIN_API` | Must be `true` to activate admin endpoints |
+| `PROXY_INTERNAL_TOKEN` | Token Caddy injects as `X-Proxy-Auth` — backend checks this to reject direct access |
+| `ADMIN_SESSION_SECRET` | Secret for HMAC-signing session cookies (min 32 random bytes) |
+| `ADMIN_SESSION_TTL_SECONDS` | Session lifetime in seconds (default: 2592000 = 30 days) |
+| `ADMIN_LOGIN_PASSWORD` | Bootstrap admin password (used only when no users exist in DB) |
+| `ADMIN_LOGIN_HASH` | Pre-hashed bootstrap password: `salt:scrypt_derived` |
+| `ADMIN_API_TOKEN` | Optional static bearer token for API access (CI scripts etc.) |
+| `MAILGUN_API_KEY` | Mailgun API key for order and 2FA emails |
+| `MAILGUN_DOMAIN` | Mailgun sending domain |
+| `MAILGUN_REGION` | `eu` or `us` |
+| `ORDER_NOTIFICATION_FROM` | Sender address for admin and 2FA notification emails |
+| `ORDER_NOTIFICATION_TO` | Recipient for new-order notifications |
+| `DATA_DIR` | Path to data directory inside the container (default: `/app/data`) |
+| `PORT` | Backend listen port (default: `8080`) |
 
-- Inventory: `https://staging.indiebox.ai/admin/inventory.html`
-- Orders: `https://staging.indiebox.ai/admin/orders.html`
+### Caddy (`caddy.env`)
 
-Access is protected in two layers:
+| Variable | Purpose |
+|---|---|
+| `ADMIN_BASIC_AUTH_USER` | HTTP basic auth username for `/admin*` |
+| `ADMIN_BASIC_AUTH_HASH` | Bcrypt hash of basic auth password (generate with `caddy hash-password`) |
+| `PROXY_INTERNAL_TOKEN` | Same value as in backend env — Caddy injects it into API proxied requests |
 
-1. **HTTP Basic Auth on the proxy**
-2. **Admin sign-in inside the app via session cookie**
+---
 
-The app session is configured to stay valid for up to 30 days.
+## Admin Authentication
 
-Credentials are intentionally not committed to git.
+The admin area has two independent layers:
 
-Relevant local files:
+### Layer 1 — HTTP Basic Auth (Caddy)
 
-- `deploy/env/.env.caddy`
-- `deploy/env/.env.staging`
+All requests to `/admin*` are gated by HTTP Basic Auth at the proxy level before any HTML is served. Configured in `caddy.env`.
 
-Relevant server files:
+### Layer 2 — App Session (Backend)
 
-- `/srv/edge/config/caddy.env`
-- `/srv/staging.indiebox/config/runtime.staging.env`
+After passing Basic Auth, the admin pages require a signed session cookie obtained by logging in at the bottom of any admin page.
 
-The admin area is not enabled for the live environment by default.
+**Login flow:**
 
-### Runtime Layout
+1. Enter username + password.
+2. If credentials are correct and the account has **fewer than 5 recorded failed attempts**: session cookie is issued immediately.
+3. If credentials are correct but there were **5 or more failed attempts**: a 6-digit code is sent to the user's registered email address. The email also states how many failed attempts were recorded. The user must enter the code within 10 minutes to complete sign-in. After success, the failed-attempt counter resets.
+4. Wrong password: increments the failed-attempt counter for that username.
 
-Current server layout:
+Sessions are valid for 30 days (`ADMIN_SESSION_TTL_SECONDS`).
 
-- Live site root: `/srv/indiebox/app/site`
-- Live backend data: `/srv/indiebox/data/backend-live`
-- Staging site root: `/srv/staging.indiebox/site`
-- Staging runtime config: `/srv/staging.indiebox/config/runtime.staging.env`
-- Staging backend data: `/srv/staging.indiebox/data`
-- Shared Caddy config: `/srv/edge/config/Caddyfile`
-- Shared Caddy credentials: `/srv/edge/config/caddy.env`
+### Managing admin users
 
-Deployment scripts:
+Users and their email addresses (required for 2FA alerts) are managed at `/admin/users.html`. Each user needs an email set to receive 2FA codes.
 
-- Static site: `bash deploy/scripts/push-site.sh`
-- Backend and proxy stack: `bash deploy/scripts/push-stack.sh`
-- SQLite backup: `bash deploy/scripts/backup-remote-sqlite.sh staging|live|all`
+---
 
-### Order Flow
+## Backup
 
-Current checkout flow:
+### Manual backup
 
-1. The user fills out the checkout form on `checkout.html`.
-2. The backend validates the request and creates an internal order draft.
-3. A Mollie payment is created.
-4. The user is redirected to Mollie Hosted Checkout.
-5. After payment, Mollie redirects back to `checkout-status.html`.
-6. The backend verifies the payment status server-side through Mollie.
-7. If the payment is confirmed, stock is reserved automatically.
+```bash
+bash deploy/scripts/backup-remote-sqlite.sh staging|live|all
+```
 
-### What The User Can Do
+Connects to the server and runs `sqlite3.backup()` (WAL-safe snapshot), gzips the result, and stores it at:
 
-- view product and checkout pages
-- submit a German checkout request
-- choose from the payment methods currently enabled in Mollie
-- return from Mollie and view the current payment status
+- Live: `/srv/indiebox/backups/live/indiebox-YYYYMMDD-HHMMSS.sqlite.gz`
+- Staging: `/srv/staging.indiebox/backups/indiebox-YYYYMMDD-HHMMSS.sqlite.gz`
 
-### What The Admin Can Do
+### Automatic pre-deploy backup
 
-- update the public inventory state shown on checkout
-- maintain the current system description
-- record supplier orders and incoming stock
-- review customer orders
-- update reservation and fulfilment state
+`push-stack.sh` automatically runs the live backup before every deploy. If the backup fails, the deploy is aborted.
 
-### Security Notes
+### Backup encryption with age
 
-- Admin access on staging requires both proxy authentication and an app session.
-- Public order status checks require `order_id` and `status_token`.
-- Staging uses rate limiting for checkout, status, admin, and webhook endpoints.
+Backups can be encrypted at rest using [age](https://age-encryption.org). The server encrypts with your public key; only you can decrypt with your private key.
+
+**One-time setup:**
+
+```bash
+# 1. Generate a key pair locally
+age-keygen -o ~/.config/age/indiebox-backup.key
+# → prints the public key, e.g.: age1abcdef1234...
+
+# 2. Install age on the server
+ssh deploy@87.106.111.141 "sudo apt install -y age"
+
+# 3. Store your public key on the server
+ssh deploy@87.106.111.141 \
+  "mkdir -p /srv/indiebox/config && \
+   echo 'age1abcdef1234...' > /srv/indiebox/config/backup-age-recipient.txt"
+```
+
+Once the key file exists, every backup is automatically encrypted to `.sqlite.gz.age` and the unencrypted `.sqlite.gz` is deleted.
+
+**Decrypt a backup:**
+
+```bash
+age -d -i ~/.config/age/indiebox-backup.key \
+    -o restored.sqlite.gz \
+    indiebox-20240501-120000.sqlite.gz.age
+gunzip restored.sqlite.gz
+# → restored.sqlite
+```
+
+**Important:** Store the private key (`indiebox-backup.key`) in a password manager or offline backup. Without it, encrypted backups cannot be restored.
+
+### Restore procedure
+
+```bash
+# 1. Take a safety backup of the current live DB
+bash deploy/scripts/backup-remote-sqlite.sh live
+
+# 2. Copy the restored SQLite file to the server
+scp -i ~/.ssh/indiebox_ionos restored.sqlite \
+    deploy@87.106.111.141:/srv/indiebox/data/backend-live/indiebox.sqlite
+
+# 3. Restart the backend to pick up the restored file
+ssh -i ~/.ssh/indiebox_ionos deploy@87.106.111.141 \
+    "sudo docker restart indiebox-backend-live"
+```
+
+---
+
+## Security Notes
+
+- TLS is terminated at Caddy with HSTS preload enabled.
+- Security headers are set globally: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy`, `Cross-Origin-*-Policy`.
+- The backend does not expose a public port; it only listens on the internal Docker network.
+- Passwords are hashed with scrypt (32-byte salt, 64-byte derived key).
+- Session cookies are HMAC-signed, `HttpOnly`, `SameSite=Strict`, `Secure` (in non-dev environments).
+- All SQL queries use prepared statements.
+- Public order status checks require both `order_id` and `status_token` (UUID).
+- Mollie webhooks are verified by re-fetching payment status from the Mollie API rather than trusting the webhook payload.
+- Rate limiting per IP is applied to checkout, order-status, admin, and webhook endpoints.
+
+**Planned (Task 3):** Field-level AES-256-GCM encryption for customer PII columns in SQLite (name, address, phone, email, notes). Key stored as `DATA_ENCRYPTION_KEY` env var.
 
 ---
 
 ## File Structure
 
-```text
+```
 indie-landing/
-├── index.html              # German landing page source
-├── checkout.html           # German checkout/supporting page
-├── betriebs.html           # German operations page
-├── privacy.html            # German privacy page
-├── terms.html              # German terms page
-├── impressum.html          # German legal page
-├── en/                     # English counterparts
-├── admin/                  # Internal admin pages
-├── docs/                   # Documentation pages
-├── i18n/                   # Translation keys for generated pages
-├── style.css               # Shared design system and tokens
-├── script.js               # Progressive enhancement behaviors
-├── backend/                # Mollie/order backend
-├── deploy/                 # Deploy, Caddy, backup scripts
-├── scripts/generate-lang.js
+├── index.html              # German landing page (source of truth)
+├── checkout.html           # Checkout page (DE)
+├── checkout-status.html    # Payment return page (DE)
+├── betriebs.html           # Operations/SLA page (DE)
+├── datenschutz.html        # Privacy page (DE)
+├── terms.html              # Terms of service (EN)
+├── impressum.html          # Legal notice (DE)
+├── privacy.html            # Privacy policy (EN)
+├── en/                     # English counterparts of all DE pages
+├── admin/                  # Internal admin pages (English only)
+│   ├── inventory.html      # Stock and procurement
+│   ├── orders.html         # Customer orders and fulfilment
+│   ├── notifications.html  # Email notification templates
+│   └── users.html          # Admin user management
+├── docs/                   # Public documentation pages
+├── i18n/                   # Translation key files for generated pages
+├── style.css               # Design system tokens and components
+├── script.js               # Frontend and admin behaviour
+├── backend/
+│   ├── src/index.mjs       # Express app, all API routes
+│   ├── src/store.mjs       # SQLite store, all DB logic
+│   └── Dockerfile
+├── deploy/
+│   ├── caddy/Caddyfile     # Caddy reverse proxy config
+│   ├── env/                # Env files (gitignored)
+│   └── scripts/
+│       ├── push-site.sh             # Deploy static files
+│       ├── push-stack.sh            # Deploy backend + proxy (with pre-deploy backup)
+│       ├── backup-remote-sqlite.sh  # SQLite backup (+ age encryption if configured)
+│       └── local-preview.mjs        # Local dev static server + API proxy
+├── docker-compose.yml
 └── README.md
 ```
 
 ---
 
-## Support & Contact
+## Working Rules
 
-- **Email**: sysadmin@indie.ai
-- **GitHub**: [brainbot-com/indie-core](https://github.com/brainbot-com/indie-core)
-
----
-
-**Built as a static site with shared CSS and minimal JavaScript.**
+- `STYLE_GUIDE.md` — single source of truth for typography, gradients, components.
+- `TRANSLATION.md` — DE → EN workflow. German pages are always the source; English pages must stay in sync.
+- `AGENTS.md` — briefing for AI agents working in this repo.
+- Admin and backend pages are **English only** — no `en/admin/` counterparts.

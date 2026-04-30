@@ -63,6 +63,20 @@ PY
 
 for environment in "${ENVIRONMENTS[@]}"; do
   echo "Creating ${environment} backup on ${DEPLOY_HOST}..."
-  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-    "python3 - '$environment'" <<<"$REMOTE_SCRIPT"
+  compressed=$(ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+    "python3 - '$environment'" <<<"$REMOTE_SCRIPT")
+
+  # Encrypt with age if a recipient key file exists on the server
+  AGE_KEY_FILE="/srv/indiebox/config/backup-age-recipient.txt"
+  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" bash <<REMOTE
+    set -euo pipefail
+    if command -v age &>/dev/null && [ -f "$AGE_KEY_FILE" ]; then
+      recipient=\$(cat "$AGE_KEY_FILE" | tr -d '[:space:]')
+      age -r "\$recipient" -o "${compressed}.age" "$compressed" && rm "$compressed"
+      echo "Encrypted backup: ${compressed}.age"
+    else
+      echo "Backup (unencrypted): $compressed"
+      echo "  → To enable encryption: install age and put your public key in $AGE_KEY_FILE"
+    fi
+REMOTE
 done

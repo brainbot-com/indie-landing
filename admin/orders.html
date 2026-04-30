@@ -67,8 +67,17 @@
                         <input class="form-input" id="admin-orders-password" type="password" autocomplete="current-password" placeholder="Password" data-admin-password-input>
                     </div>
                     <button class="button button--plain-dark button--pill button--md" type="submit">Sign in</button>
-                    <p class="admin-login-error" data-admin-login-error hidden></p>
                 </form>
+                <form class="admin-login-form" data-admin-2fa-form>
+                    <div class="form-row">
+                        <label class="form-label" for="admin-orders-2fa-code">Verification code</label>
+                        <input class="form-input" id="admin-orders-2fa-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" data-admin-2fa-code-input>
+                    </div>
+                    <p style="margin:0;font-size:0.82rem;color:var(--color-fg-muted)">Check your email for a 6-digit code.</p>
+                    <button class="button button--plain-dark button--pill button--md" type="submit">Verify</button>
+                    <button class="button button--ghost button--pill button--sm" type="button" data-admin-2fa-back>← Back to sign in</button>
+                </form>
+                <p class="admin-login-error" data-admin-login-error hidden></p>
             </div>
         </section>
         <div class="container admin-layout" data-admin-orders data-locale="en">
