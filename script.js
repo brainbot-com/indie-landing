@@ -1348,6 +1348,8 @@ function setupAdminInventory() {
                         <span class="admin-device-status admin-device-status--${esc(st.cls)}">${esc(st.label)}</span>
                     </div>
                     ${modelInfo ? `<div class="admin-detail-row-pair"><strong>${'Model'}</strong><span>${esc(modelInfo)}</span></div>` : ''}
+                    ${d.hostname ? `<div class="admin-detail-row-pair"><strong>${'Hostname'}</strong><span>${esc(d.hostname)}</span></div>` : ''}
+                    ${d.deviceUsername ? `<div class="admin-detail-row-pair"><strong>${'Username'}</strong><span>${esc(d.deviceUsername)}</span></div>` : ''}
                     ${d.supplierName ? `<div class="admin-detail-row-pair"><strong>${'Supplier'}</strong><span>${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${'exp.'} ${esc(d.expectedDeliveryAt)}` : ''}${d.supplierOrderId ? ` · <button type="button" class="admin-detail-link" style="background:none;border:none;padding:0;cursor:pointer" data-goto-supplier-order="${esc(d.supplierOrderId)}">${'View order →'}</button>` : ''}</span></div>` : ''}
                     ${d.status === 'ordered' ? `<div style="font-size:0.8rem;color:rgba(15,23,42,0.55);margin-top:0.25rem">${'Mark as received via the supplier order or use the button below.'}</div>` : ''}
                 </div>
@@ -1409,8 +1411,8 @@ function setupAdminInventory() {
                 }
             })();
             const subtitle = d.assignedOrderId
-                ? [d.orderNumber ? `#${d.orderNumber}` : null, d.customerName, d.customerCompany].filter(Boolean).join(' · ')
-                : ([d.manufacturer, d.modelName].filter(Boolean).join(' · '));
+                ? [d.orderNumber ? `#${d.orderNumber}` : null, d.customerName, d.customerCompany, d.hostname || null].filter(Boolean).join(' · ')
+                : ([d.manufacturer, d.modelName, d.hostname || null].filter(Boolean).join(' · '));
             return `<div class="admin-order-item admin-order-item--simple${isSelected ? ' is-selected' : ''}" data-device-item data-device-id="${esc(d.id)}">
                 <div class="admin-order-item__body">
                     <span class="admin-order-item__name">${esc(displaySerial)}</span>
