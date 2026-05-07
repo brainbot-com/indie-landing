@@ -230,6 +230,7 @@ function mapStockDeviceRow(row) {
     serialNumber: row.serial_number || '',
     deviceUsername: row.device_username || '',
     devicePassword: row.device_password || '',
+    hostname: row.hostname || '',
     status: row.status || 'available',
     assignedOrderId: row.assigned_order_id || null,
     supplierOrderId: row.supplier_order_id || null,
@@ -480,6 +481,7 @@ export async function createStore({ dataDir, logger = console }) {
   ensureColumn('stock_devices', 'ordered_at', 'ordered_at TEXT');
   ensureColumn('stock_devices', 'expected_delivery_at', 'expected_delivery_at TEXT');
   ensureColumn('stock_devices', 'received_at', 'received_at TEXT');
+  ensureColumn('stock_devices', 'hostname', 'hostname TEXT');
   ensureColumn('supplier_orders', 'price_per_item', 'price_per_item TEXT');
   ensureColumn('supplier_orders', 'price_includes_vat', 'price_includes_vat INTEGER NOT NULL DEFAULT 0');
   ensureColumn('orders', 'status_token', 'status_token TEXT');
@@ -898,11 +900,11 @@ export async function createStore({ dataDir, logger = console }) {
   const listAllStockDevicesStatement = db.prepare(`${stockDeviceSelect} ORDER BY sd.created_at DESC`);
   const upsertStockDeviceStatement = db.prepare(`
     INSERT INTO stock_devices (
-      id, product_key, serial_number, device_username, device_password,
+      id, product_key, serial_number, device_username, device_password, hostname,
       status, assigned_order_id, supplier_order_id, supplier_name, ordered_at, expected_delivery_at,
       received_at, notes, created_at, updated_at
     ) VALUES (
-      @id, @product_key, @serial_number, @device_username, @device_password,
+      @id, @product_key, @serial_number, @device_username, @device_password, @hostname,
       @status, @assigned_order_id, @supplier_order_id, @supplier_name, @ordered_at, @expected_delivery_at,
       @received_at, @notes, @created_at, @updated_at
     )
@@ -910,6 +912,7 @@ export async function createStore({ dataDir, logger = console }) {
       serial_number = excluded.serial_number,
       device_username = excluded.device_username,
       device_password = excluded.device_password,
+      hostname = excluded.hostname,
       status = excluded.status,
       assigned_order_id = excluded.assigned_order_id,
       supplier_order_id = excluded.supplier_order_id,
@@ -1281,6 +1284,7 @@ export async function createStore({ dataDir, logger = console }) {
       serial_number: device.serialNumber,
       device_username: device.deviceUsername || null,
       device_password: device.devicePassword || null,
+      hostname: device.hostname || null,
       status: device.status || 'available',
       assigned_order_id: device.assignedOrderId || null,
       supplier_order_id: device.supplierOrderId || null,

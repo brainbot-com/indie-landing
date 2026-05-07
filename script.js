@@ -1367,6 +1367,10 @@ function setupAdminInventory() {
                         </div>
                     </div>
                     <div class="form-row">
+                        <label class="form-label">${'Hostname'}</label>
+                        <input class="form-input" type="text" name="hostname" value="${esc(d.hostname || '')}" ${editable ? '' : 'disabled'}>
+                    </div>
+                    <div class="form-row">
                         <label class="form-label">${'Notes'}</label>
                         <textarea class="form-textarea" name="notes" rows="3" ${editable ? '' : 'disabled'}>${esc(d.notes || '')}</textarea>
                     </div>
@@ -1755,6 +1759,10 @@ function setupAdminInventory() {
                         </div>
                     </div>
                     <div class="form-row">
+                        <label class="form-label">${'Hostname'}</label>
+                        <input class="form-input" type="text" name="hostname">
+                    </div>
+                    <div class="form-row">
                         <label class="form-label">${'Notes'}</label>
                         <textarea class="form-textarea" name="notes" rows="3"></textarea>
                     </div>
@@ -1899,7 +1907,7 @@ function setupAdminOrders() {
             created: 'Created', paidAt: 'Paid at', payment: 'Payment', fulfilment: 'Fulfilment',
             method: 'Method', reference: 'Reference', customerNotes: 'Customer notes',
             fulfillmentWorkflow: 'Fulfilment workflow', serialNumber: 'Serial number',
-            deviceUser: 'Device username', devicePassword: 'Device password',
+            deviceUser: 'Device username', devicePassword: 'Device password', deviceHostname: 'Hostname',
             trackingNumber: 'Tracking number', trackingCarrier: 'Carrier',
             internalNotes: 'Internal notes', statusPage: 'Customer status page',
             sectionDevice: 'Device', sectionShipping: 'Shipping', sectionDeviceConfig: 'Device config',
@@ -2222,6 +2230,7 @@ function setupAdminOrders() {
                                 <div class="admin-kv-grid admin-device-card__kv">
                                     ${d.deviceUsername ? `<span class="admin-kv-key">${t.deviceUser}</span><span class="admin-kv-val">${esc(d.deviceUsername)}</span>` : ''}
                                     ${d.devicePassword ? `<span class="admin-kv-key">${t.devicePassword}</span><span class="admin-kv-val">${esc(d.devicePassword)}</span>` : ''}
+                                    ${d.hostname ? `<span class="admin-kv-key">${t.deviceHostname}</span><span class="admin-kv-val">${esc(d.hostname)}</span>` : ''}
                                     ${d.supplierName ? `<span class="admin-kv-key">${t.supplier}</span><span class="admin-kv-val">${esc(d.supplierName)}${d.expectedDeliveryAt ? ` · ${esc(d.expectedDeliveryAt)}` : ''}</span>` : ''}
                                 </div>
                             </div>`;
