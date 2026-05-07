@@ -64,7 +64,7 @@ PY
 for environment in "${ENVIRONMENTS[@]}"; do
   echo "Creating ${environment} backup on ${DEPLOY_HOST}..."
   compressed=$(ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-    "python3 - '$environment'" <<<"$REMOTE_SCRIPT")
+    "sudo -n python3 - '$environment'" <<<"$REMOTE_SCRIPT")
 
   # Encrypt with age if a recipient key file exists on the server
   AGE_KEY_FILE="/srv/indiebox/config/backup-age-recipient.txt"
