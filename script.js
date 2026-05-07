@@ -2946,7 +2946,102 @@ function setupAdminUsers() {
         renderCreateForm();
     });
 
+    // Tab switching (configuration page has Users + API Keys tabs)
+    const tabs = app.querySelectorAll('[data-tab]');
+    const panels = app.querySelectorAll('[data-tab-panel]');
+    if (tabs.length) {
+        const switchTab = (key) => {
+            tabs.forEach((t) => t.setAttribute('aria-selected', t.getAttribute('data-tab') === key ? 'true' : 'false'));
+            panels.forEach((p) => { p.hidden = p.getAttribute('data-tab-panel') !== key; });
+        };
+        tabs.forEach((t) => t.addEventListener('click', () => switchTab(t.getAttribute('data-tab'))));
+        setupAdminApiKeys(app);
+    }
+
     authShell.loadAuthState();
+}
+
+function setupAdminApiKeys(app) {
+    const section = app.querySelector('[data-admin-api-keys]');
+    if (!section) return;
+
+    const listEl = section.querySelector('[data-api-keys-list]');
+    const createBtn = section.querySelector('[data-create-api-key]');
+
+    function esc(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'; }
+
+    async function loadKeys() {
+        try {
+            const data = await adminFetch('/api/admin/api-keys');
+            renderKeys(data.apiKeys || []);
+        } catch { renderKeys([]); }
+    }
+
+    function renderKeys(keys) {
+        if (!listEl) return;
+        if (!keys.length) {
+            listEl.innerHTML = '<p class="admin-notif-hint" style="padding:0.5rem 1rem">No API keys yet.</p>';
+            return;
+        }
+        listEl.innerHTML = `<table class="admin-help__tokens" style="width:100%;margin:0"><thead><tr>
+            <th style="text-align:left;padding:0.4rem 1rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Label</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Suffix</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Created</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Last used</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Status</th>
+            <th></th>
+        </tr></thead><tbody>${keys.map((k) => `<tr style="border-top:1px solid var(--color-border)">
+            <td style="padding:0.45rem 1rem;font-size:0.82rem">${esc(k.label)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;font-family:monospace">…${esc(k.last_four)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">${fmtDate(k.created_at)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">${fmtDate(k.last_used_at)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem">${k.revoked_at ? '<span style="color:#b91c1c">Revoked</span>' : '<span style="color:#15803d">Active</span>'}</td>
+            <td style="padding:0.45rem 0.5rem;text-align:right">${k.revoked_at ? '' : `<button class="button button--plain-light button--pill button--sm" data-revoke-key="${esc(k.id)}">Revoke</button>`}</td>
+        </tr>`).join('')}</tbody></table>`;
+
+        listEl.querySelectorAll('[data-revoke-key]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                if (!confirm(`Revoke key "${btn.closest('tr').querySelector('td').textContent}"? This cannot be undone.`)) return;
+                btn.disabled = true;
+                try {
+                    await adminFetch(`/api/admin/api-keys/${encodeURIComponent(btn.dataset.revokeKey)}`, { method: 'DELETE' });
+                    await loadKeys();
+                } catch { btn.disabled = false; }
+            });
+        });
+    }
+
+    createBtn?.addEventListener('click', () => {
+        const label = prompt('Label for this key (e.g. "install-script-prod"):');
+        if (!label?.trim()) return;
+        adminFetch('/api/admin/api-keys', { method: 'POST', body: JSON.stringify({ label: label.trim() }) })
+            .then((data) => {
+                const dialog = document.createElement('dialog');
+                dialog.style.cssText = 'padding:1.5rem;border-radius:10px;border:1px solid var(--color-border);max-width:520px;width:90vw';
+                dialog.innerHTML = `<h3 style="margin:0 0 0.75rem">New API Key</h3>
+                    <p style="margin:0 0 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">Copy this token now — it will <strong>never be shown again</strong>.</p>
+                    <code style="display:block;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:6px;padding:0.6rem 0.75rem;font-size:0.78rem;word-break:break-all;margin-bottom:1rem">${esc(data.token)}</code>
+                    <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+                        <button class="button button--plain-dark button--pill button--sm" id="copy-key-btn">Copy</button>
+                        <button class="button button--plain-light button--pill button--sm" id="close-key-btn">Close</button>
+                    </div>`;
+                document.body.appendChild(dialog);
+                dialog.showModal();
+                dialog.querySelector('#copy-key-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(data.token).then(() => { dialog.querySelector('#copy-key-btn').textContent = 'Copied!'; });
+                });
+                dialog.querySelector('#close-key-btn').addEventListener('click', () => { dialog.close(); dialog.remove(); loadKeys(); });
+            })
+            .catch((err) => alert(err.message || 'Failed to create key'));
+    });
+
+    // Load keys when the API keys tab becomes active
+    app.querySelectorAll('[data-tab]').forEach((t) => {
+        if (t.getAttribute('data-tab') === 'api-keys') {
+            t.addEventListener('click', loadKeys);
+        }
+    });
 }
 
 function setupAdminNotifications() {
@@ -3727,7 +3822,7 @@ function setupAdminNotifications() {
 
 function setupAdminRoleGuard() {
     // On any admin page: after session check, if user is not admin, hide admin content and show message
-    const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users], [data-admin-notifications]');
+    const adminContainers = document.querySelectorAll('[data-admin-inventory], [data-admin-orders], [data-admin-users], [data-admin-notifications], [data-admin-api-keys]');
     if (!adminContainers.length) return;
 
     const locale = 'en';

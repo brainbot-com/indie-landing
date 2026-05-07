@@ -42,7 +42,8 @@ const config = {
   orderNotificationFrom: process.env.ORDER_NOTIFICATION_FROM || '',
   dataDir: process.env.DATA_DIR || '/app/data',
   enableAdminApi: process.env.ENABLE_ADMIN_API === 'true' || (process.env.APP_ENV || 'development') === 'development',
-  port: Number.parseInt(process.env.PORT || '8080', 10)
+  port: Number.parseInt(process.env.PORT || '8080', 10),
+  apiKeyPrefix: process.env.APP_ENV === 'production' ? 'ind_bo_live_' : process.env.APP_ENV === 'staging' ? 'ind_bo_stg_' : 'ind_bo_dev_'
 };
 
 const supportedPaymentMethods = {
@@ -1918,6 +1919,36 @@ app.post('/api/admin/users/:userId/toggle-status', adminRateLimit, requireAdmin,
 
   const updated = store.toggleUserStatus(user.id);
   return res.json({ user: { id: updated.id, status: updated.status } });
+});
+
+// ── API Keys (admin) ──
+
+app.get('/api/admin/api-keys', adminRateLimit, requireAdmin, (req, res) => {
+  const keys = store.listApiKeys();
+  return res.json({ apiKeys: keys });
+});
+
+app.post('/api/admin/api-keys', adminRateLimit, requireAdmin, (req, res) => {
+  const label = sanitizeSingleLineInput(req.body.label, 100);
+  if (!label) return res.status(400).json({ error: 'label_required' });
+
+  const raw = crypto.randomBytes(32).toString('hex');
+  const token = config.apiKeyPrefix + raw;
+  const keyHash = crypto.createHash('sha256').update(token).digest('hex');
+  const lastFour = token.slice(-4);
+  const id = crypto.randomUUID();
+  const createdBy = req.user?.id || null;
+
+  store.createApiKey({ id, label, keyHash, lastFour, createdBy });
+  return res.status(201).json({ id, label, lastFour, token });
+});
+
+app.delete('/api/admin/api-keys/:keyId', adminRateLimit, requireAdmin, (req, res) => {
+  const keys = store.listApiKeys();
+  const key = keys.find((k) => k.id === req.params.keyId);
+  if (!key) return res.status(404).json({ error: 'api_key_not_found' });
+  store.revokeApiKey(key.id);
+  return res.json({ ok: true });
 });
 
 // ── Notification templates (admin) ──

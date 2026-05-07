@@ -23,7 +23,7 @@
                 <a href="./orders.html">Orders</a>
                 <a href="./notifications.html">Notifications</a>
                 <a href="../checkout.html">View checkout</a>
-                <a href="./users.html" class="admin-subnav__users" data-admin-only hidden>Users</a>
+                <a href="./configuration.html" class="admin-subnav__users" data-admin-only hidden>Configuration</a>
                 
             </nav>
         </div>
@@ -35,7 +35,7 @@
                 <a href="#notifications">Notifications</a>
                 <a href="#inventory">Inventory</a>
                 <a href="#orders">Orders</a>
-                <a href="#users">Users</a>
+                <a href="#configuration">Configuration</a>
             </aside>
 
             <article class="admin-help__content">
@@ -165,9 +165,16 @@ ORDER_NOTIFICATION_TO=indiebox@brainbot.com</code></pre>
                     <p>Under <a href="./orders.html">Orders</a> you see all incoming customer orders with payment status and fulfillment progress. A paid order can be assigned to a specific device from inventory and walked through the shipping and installation steps.</p>
                 </section>
 
-                <section id="users" class="admin-help__section">
-                    <h2>Users</h2>
-                    <p>Under <a href="./users.html">Users</a> you manage admin accounts and roles. Only accounts with the <em>admin</em> role can see internal admin areas.</p>
+                <section id="configuration" class="admin-help__section">
+                    <h2>Configuration</h2>
+                    <p>Under <a href="./configuration.html">Configuration</a> you manage admin accounts and API keys. Only accounts with the <em>admin</em> role can see this section.</p>
+
+                    <h3>Users</h3>
+                    <p>Create, edit, and disable admin accounts. The last active admin cannot be disabled. Each account has a <em>role</em>: <strong>admin</strong> sees everything including Configuration; <strong>user</strong> sees Inventory, Orders, and Notifications.</p>
+
+                    <h3>API Keys</h3>
+                    <p>API keys authenticate the provisioning API (<code>/api/v1/devices</code>) used by install scripts. Keys are prefixed with <code>ind_bo_live_</code> (live) or <code>ind_bo_stg_</code> (staging) so accidental exposure is easy to detect.</p>
+                    <p>The full token is shown <strong>exactly once</strong> at creation time. Store it in your secrets manager immediately. Revoking a key takes effect immediately — ongoing requests with that key will return <code>401</code>.</p>
                 </section>
             </article>
         </div>

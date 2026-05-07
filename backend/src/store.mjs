@@ -452,6 +452,18 @@ export async function createStore({ dataDir, logger = console }) {
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_role_status ON users(role, status);
 
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id TEXT PRIMARY KEY,
+      label TEXT NOT NULL,
+      key_hash TEXT NOT NULL UNIQUE,
+      last_four TEXT NOT NULL,
+      created_by TEXT,
+      created_at TEXT NOT NULL,
+      last_used_at TEXT,
+      revoked_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash);
+
     CREATE TABLE IF NOT EXISTS login_challenges (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
@@ -1818,6 +1830,34 @@ export async function createStore({ dataDir, logger = console }) {
     getEmailAssetMeta,
     getEmailAssetData,
     listEmailAssets,
-    deleteEmailAsset
+    deleteEmailAsset,
+    createApiKey,
+    listApiKeys,
+    getApiKeyByHash,
+    revokeApiKey,
+    deleteApiKey
   };
+
+  function createApiKey({ id, label, keyHash, lastFour, createdBy }) {
+    const now = new Date().toISOString();
+    db.prepare(`INSERT INTO api_keys (id, label, key_hash, last_four, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)`)
+      .run(id, label, keyHash, lastFour, createdBy || null, now);
+    return db.prepare('SELECT * FROM api_keys WHERE id = ?').get(id);
+  }
+
+  function listApiKeys() {
+    return db.prepare('SELECT id, label, last_four, created_by, created_at, last_used_at, revoked_at FROM api_keys ORDER BY created_at DESC').all();
+  }
+
+  function getApiKeyByHash(keyHash) {
+    return db.prepare('SELECT * FROM api_keys WHERE key_hash = ? AND revoked_at IS NULL').get(keyHash);
+  }
+
+  function revokeApiKey(id) {
+    db.prepare('UPDATE api_keys SET revoked_at = ? WHERE id = ?').run(new Date().toISOString(), id);
+  }
+
+  function deleteApiKey(id) {
+    db.prepare('DELETE FROM api_keys WHERE id = ?').run(id);
+  }
 }
