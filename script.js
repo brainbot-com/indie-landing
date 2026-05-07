@@ -945,7 +945,7 @@ function showAdminChangePasswordPopover(anchorEl, locale, onSuccess) {
         <div class="form-row"><label class="form-label" for="chpw-new">${t.newPw}</label>
             <input class="form-input" id="chpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
         <div class="admin-user-actions">
-            <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
+            <button class="button button--plain-dark button--pill button--sm" type="submit">${t.save}</button>
             <button class="button button--plain-dark button--pill button--sm" type="button" data-chpw-cancel>${t.cancel}</button>
         </div>
         <p class="form-error" data-form-error hidden></p>
@@ -2726,7 +2726,7 @@ function setupAdminUsers() {
                     <div class="form-row"><label class="form-label" for="create-password">${t.password}</label>
                         <input class="form-input" id="create-password" name="password" type="password" required minlength="8" autocomplete="new-password"></div>
                     <div class="admin-user-actions">
-                        <button class="button button--primary button--pill button--sm" type="submit">${t.create}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">${t.create}</button>
                         <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
                     </div>
                     <p class="form-error" data-form-error hidden></p>
@@ -2736,9 +2736,10 @@ function setupAdminUsers() {
 
     const renderEditForm = (user) => {
         if (!detailPane || !user) return;
+        const isYou = currentUser && user.id === currentUser.id;
         detailPane.innerHTML = `
             <div class="admin-user-detail-section">
-                <h3>${t.editTitle}: ${esc(user.displayName)}</h3>
+                <h3>${esc(user.displayName)}${isYou ? ` <em>${t.you}</em>` : ''}</h3>
                 <form class="admin-user-form" data-user-edit-form data-user-edit-id="${esc(user.id)}">
                     <div class="form-row"><label class="form-label" for="edit-displayName">${t.displayName}</label>
                         <input class="form-input" id="edit-displayName" name="displayName" type="text" required maxlength="100" value="${esc(user.displayName)}"></div>
@@ -2750,11 +2751,16 @@ function setupAdminUsers() {
                             <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>${t.admin}</option>
                         </select></div>
                     <div class="admin-user-actions">
-                        <button class="button button--primary button--pill button--sm" type="submit">${t.save}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">${t.save}</button>
                         <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
                     </div>
                     <p class="form-error" data-form-error hidden></p>
                 </form>
+                <div class="admin-user-actions" style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--color-border)">
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-toggle-status="${esc(user.id)}">${user.status === 'active' ? t.disable : t.enable}</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-reset-pw="${esc(user.id)}">${t.resetPassword}</button>
+                    ${!isYou ? `<button class="button button--plain-light button--pill button--sm admin-danger-btn" type="button" data-delete-user="${esc(user.id)}">${t.deleteUser}</button>` : ''}
+                </div>
             </div>`;
     };
 
@@ -2767,7 +2773,7 @@ function setupAdminUsers() {
                     <div class="form-row"><label class="form-label" for="resetpw-new">${t.newPassword}</label>
                         <input class="form-input" id="resetpw-new" name="newPassword" type="password" required minlength="8" autocomplete="new-password"></div>
                     <div class="admin-user-actions">
-                        <button class="button button--primary button--pill button--sm" type="submit">${t.reset}</button>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">${t.reset}</button>
                         <button class="button button--plain-dark button--pill button--sm" type="button" data-cancel-form>${t.cancel}</button>
                     </div>
                     <p class="form-error" data-form-error hidden></p>
@@ -2810,7 +2816,7 @@ function setupAdminUsers() {
             refreshList();
             if (selectedUserId) {
                 const u = allUsers.find((u) => u.id === selectedUserId);
-                if (u) renderUserDetail(u); else { selectedUserId = null; renderDetailPlaceholder(); }
+                if (u) renderEditForm(u); else { selectedUserId = null; renderDetailPlaceholder(); }
             }
         } catch (error) {
             allUsers = [];
@@ -2835,7 +2841,7 @@ function setupAdminUsers() {
             selectedUserId = id;
             refreshList();
             const u = allUsers.find((u) => u.id === id);
-            renderUserDetail(u);
+            renderEditForm(u);
         }
     });
 
@@ -2843,8 +2849,9 @@ function setupAdminUsers() {
     detailPane?.addEventListener('click', async (event) => {
         // Cancel form
         if (event.target.closest('[data-cancel-form]')) {
-            const u = allUsers.find((u) => u.id === selectedUserId);
-            if (u) renderUserDetail(u); else renderDetailPlaceholder();
+            selectedUserId = null;
+            refreshList();
+            renderDetailPlaceholder();
             return;
         }
 
@@ -2929,8 +2936,7 @@ function setupAdminUsers() {
             try {
                 await adminFetch(`/api/admin/users/${userId}/reset-password`, { method: 'POST', body: JSON.stringify(fd) });
                 setFeedback(t.passwordReset, false);
-                const u = allUsers.find((u) => u.id === userId);
-                if (u) renderUserDetail(u);
+                await loadUsers();
             } catch (e) { setFormError(form, e.message); }
             return;
         }
@@ -2967,73 +2973,126 @@ function setupAdminApiKeys(app) {
 
     const listEl = section.querySelector('[data-api-keys-list]');
     const createBtn = section.querySelector('[data-create-api-key]');
+    const createForm = section.querySelector('[data-api-key-create-form]');
 
     function esc(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—'; }
 
+    const apiFetch = async (url, options = {}) => {
+        const headers = new Headers(options.headers || {});
+        headers.set('Accept', 'application/json');
+        if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+            const error = new Error(payload?.error || payload?.message || response.statusText);
+            error.status = response.status;
+            throw error;
+        }
+        return payload;
+    };
+
     async function loadKeys() {
         try {
-            const data = await adminFetch('/api/admin/api-keys');
+            const data = await apiFetch('/api/admin/api-keys');
             renderKeys(data.apiKeys || []);
         } catch { renderKeys([]); }
+    }
+
+    function showTokenModal(token) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+        overlay.innerHTML = `<div style="background:#fff;border-radius:12px;padding:1.5rem;max-width:540px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.25)">
+            <h3 style="margin:0 0 0.5rem;font-size:1rem;color:var(--color-primary)">New API Key</h3>
+            <p style="margin:0 0 0.75rem;font-size:0.82rem;color:var(--color-fg-muted)">Copy this token now — it will <strong>never be shown again</strong>.</p>
+            <code style="display:block;background:#f4f7fa;border:1px solid var(--color-border);border-radius:6px;padding:0.6rem 0.75rem;font-size:0.78rem;word-break:break-all;margin-bottom:1rem;user-select:all">${esc(token)}</code>
+            <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+                <button class="button button--plain-dark button--pill button--sm" id="overlay-copy-btn" type="button">Copy</button>
+                <button class="button button--plain-light button--pill button--sm" id="overlay-close-btn" type="button">I've saved it</button>
+            </div>
+        </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#overlay-copy-btn').addEventListener('click', () => {
+            navigator.clipboard.writeText(token).then(() => { overlay.querySelector('#overlay-copy-btn').textContent = 'Copied!'; });
+        });
+        const close = () => { overlay.remove(); loadKeys(); };
+        overlay.querySelector('#overlay-close-btn').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     }
 
     function renderKeys(keys) {
         if (!listEl) return;
         if (!keys.length) {
-            listEl.innerHTML = '<p class="admin-notif-hint" style="padding:0.5rem 1rem">No API keys yet.</p>';
+            listEl.innerHTML = '<p style="padding:0.5rem 1rem;font-size:0.85rem;color:var(--color-fg-muted)">No API keys yet.</p>';
             return;
         }
-        listEl.innerHTML = `<table class="admin-help__tokens" style="width:100%;margin:0"><thead><tr>
-            <th style="text-align:left;padding:0.4rem 1rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Label</th>
-            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Suffix</th>
-            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Created</th>
-            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Last used</th>
-            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted)">Status</th>
-            <th></th>
-        </tr></thead><tbody>${keys.map((k) => `<tr style="border-top:1px solid var(--color-border)">
-            <td style="padding:0.45rem 1rem;font-size:0.82rem">${esc(k.label)}</td>
-            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;font-family:monospace">…${esc(k.last_four)}</td>
-            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">${fmtDate(k.created_at)}</td>
-            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">${fmtDate(k.last_used_at)}</td>
-            <td style="padding:0.45rem 0.5rem;font-size:0.82rem">${k.revoked_at ? '<span style="color:#b91c1c">Revoked</span>' : '<span style="color:#15803d">Active</span>'}</td>
-            <td style="padding:0.45rem 0.5rem;text-align:right">${k.revoked_at ? '' : `<button class="button button--plain-light button--pill button--sm" data-revoke-key="${esc(k.id)}">Revoke</button>`}</td>
+        listEl.innerHTML = `<table style="width:100%;border-collapse:collapse"><thead><tr>
+            <th style="text-align:left;padding:0.4rem 1rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border)">Label</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border)">Suffix</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border)">Created</th>
+            <th style="text-align:left;padding:0.4rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border)">Status</th>
+            <th style="border-bottom:1px solid var(--color-border)"></th>
+        </tr></thead><tbody>${keys.map((k) => `<tr>
+            <td style="padding:0.45rem 1rem;font-size:0.82rem;border-bottom:1px solid var(--color-border-subtle,#eef0f3)">${esc(k.label)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;font-family:monospace;border-bottom:1px solid var(--color-border-subtle,#eef0f3)">…${esc(k.last_four)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;color:var(--color-fg-muted);border-bottom:1px solid var(--color-border-subtle,#eef0f3)">${fmtDate(k.created_at)}</td>
+            <td style="padding:0.45rem 0.5rem;font-size:0.82rem;border-bottom:1px solid var(--color-border-subtle,#eef0f3)">${k.revoked_at ? '<span style="color:#b91c1c">Disabled</span>' : '<span style="color:#15803d">Active</span>'}</td>
+            <td style="padding:0.45rem 0.5rem;text-align:right;white-space:nowrap;border-bottom:1px solid var(--color-border-subtle,#eef0f3)">
+                ${!k.revoked_at ? `<button class="button button--plain-light button--pill button--sm" style="margin-right:0.25rem" data-disable-key="${esc(k.id)}">Disable</button>` : ''}
+                <button class="button button--plain-light button--pill button--sm admin-danger-btn" data-delete-key="${esc(k.id)}">Delete</button>
+            </td>
         </tr>`).join('')}</tbody></table>`;
 
-        listEl.querySelectorAll('[data-revoke-key]').forEach((btn) => {
+        listEl.querySelectorAll('[data-disable-key]').forEach((btn) => {
             btn.addEventListener('click', async () => {
-                if (!confirm(`Revoke key "${btn.closest('tr').querySelector('td').textContent}"? This cannot be undone.`)) return;
                 btn.disabled = true;
                 try {
-                    await adminFetch(`/api/admin/api-keys/${encodeURIComponent(btn.dataset.revokeKey)}`, { method: 'DELETE' });
+                    await apiFetch(`/api/admin/api-keys/${encodeURIComponent(btn.dataset.disableKey)}/revoke`, { method: 'POST' });
+                    await loadKeys();
+                } catch { btn.disabled = false; }
+            });
+        });
+        listEl.querySelectorAll('[data-delete-key]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const label = btn.closest('tr')?.querySelector('td')?.textContent || 'this key';
+                if (!confirm(`Permanently delete "${label}"? This cannot be undone.`)) return;
+                btn.disabled = true;
+                try {
+                    await apiFetch(`/api/admin/api-keys/${encodeURIComponent(btn.dataset.deleteKey)}`, { method: 'DELETE' });
                     await loadKeys();
                 } catch { btn.disabled = false; }
             });
         });
     }
 
+    // Inline create form toggle
     createBtn?.addEventListener('click', () => {
-        const label = prompt('Label for this key (e.g. "install-script-prod"):');
-        if (!label?.trim()) return;
-        adminFetch('/api/admin/api-keys', { method: 'POST', body: JSON.stringify({ label: label.trim() }) })
-            .then((data) => {
-                const dialog = document.createElement('dialog');
-                dialog.style.cssText = 'padding:1.5rem;border-radius:10px;border:1px solid var(--color-border);max-width:520px;width:90vw';
-                dialog.innerHTML = `<h3 style="margin:0 0 0.75rem">New API Key</h3>
-                    <p style="margin:0 0 0.5rem;font-size:0.82rem;color:var(--color-fg-muted)">Copy this token now — it will <strong>never be shown again</strong>.</p>
-                    <code style="display:block;background:var(--color-bg-subtle);border:1px solid var(--color-border);border-radius:6px;padding:0.6rem 0.75rem;font-size:0.78rem;word-break:break-all;margin-bottom:1rem">${esc(data.token)}</code>
-                    <div style="display:flex;gap:0.5rem;justify-content:flex-end">
-                        <button class="button button--plain-dark button--pill button--sm" id="copy-key-btn">Copy</button>
-                        <button class="button button--plain-light button--pill button--sm" id="close-key-btn">Close</button>
-                    </div>`;
-                document.body.appendChild(dialog);
-                dialog.showModal();
-                dialog.querySelector('#copy-key-btn').addEventListener('click', () => {
-                    navigator.clipboard.writeText(data.token).then(() => { dialog.querySelector('#copy-key-btn').textContent = 'Copied!'; });
-                });
-                dialog.querySelector('#close-key-btn').addEventListener('click', () => { dialog.close(); dialog.remove(); loadKeys(); });
-            })
-            .catch((err) => alert(err.message || 'Failed to create key'));
+        if (!createForm) return;
+        createForm.hidden = !createForm.hidden;
+        if (!createForm.hidden) createForm.querySelector('[data-api-key-label]')?.focus();
+    });
+
+    createForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = createForm.querySelector('[data-api-key-label]');
+        const label = input?.value.trim();
+        if (!label) return;
+        const submitBtn = createForm.querySelector('[type="submit"]');
+        submitBtn.disabled = true;
+        try {
+            const data = await apiFetch('/api/admin/api-keys', { method: 'POST', body: JSON.stringify({ label }) });
+            createForm.hidden = true;
+            if (input) input.value = '';
+            showTokenModal(data.token);
+        } catch {
+            submitBtn.disabled = false;
+        }
+    });
+
+    createForm?.querySelector('[data-api-key-cancel]')?.addEventListener('click', () => {
+        createForm.hidden = true;
+        const input = createForm.querySelector('[data-api-key-label]');
+        if (input) input.value = '';
     });
 
     // Load keys when the API keys tab becomes active

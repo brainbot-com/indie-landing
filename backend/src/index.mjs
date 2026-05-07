@@ -1943,11 +1943,20 @@ app.post('/api/admin/api-keys', adminRateLimit, requireAdmin, (req, res) => {
   return res.status(201).json({ id, label, lastFour, token });
 });
 
+app.post('/api/admin/api-keys/:keyId/revoke', adminRateLimit, requireAdmin, (req, res) => {
+  const keys = store.listApiKeys();
+  const key = keys.find((k) => k.id === req.params.keyId);
+  if (!key) return res.status(404).json({ error: 'api_key_not_found' });
+  if (key.revoked_at) return res.status(400).json({ error: 'already_revoked' });
+  store.revokeApiKey(key.id);
+  return res.json({ ok: true });
+});
+
 app.delete('/api/admin/api-keys/:keyId', adminRateLimit, requireAdmin, (req, res) => {
   const keys = store.listApiKeys();
   const key = keys.find((k) => k.id === req.params.keyId);
   if (!key) return res.status(404).json({ error: 'api_key_not_found' });
-  store.revokeApiKey(key.id);
+  store.deleteApiKey(key.id);
   return res.json({ ok: true });
 });
 

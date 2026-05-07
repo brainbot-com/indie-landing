@@ -141,6 +141,14 @@
                         </div>
                     </div>
                     <p class="admin-notif-hint" style="padding:0.75rem 1rem 0">Keys are used to authenticate the provisioning API (<code>/api/v1/devices</code>). The full token is only shown once at creation.</p>
+                    <form data-api-key-create-form hidden style="padding:0.75rem 1rem;border-top:1px solid var(--color-border);display:flex;gap:0.5rem;align-items:flex-end;flex-wrap:wrap">
+                        <div class="form-row" style="margin:0;flex:1;min-width:200px">
+                            <label class="form-label" for="api-key-label">Label</label>
+                            <input class="form-input" id="api-key-label" type="text" required maxlength="100" placeholder="e.g. install-script-prod" data-api-key-label>
+                        </div>
+                        <button class="button button--plain-dark button--pill button--sm" type="submit">Create</button>
+                        <button class="button button--plain-light button--pill button--sm" type="button" data-api-key-cancel>Cancel</button>
+                    </form>
                     <div data-api-keys-list style="padding:0.5rem 0"></div>
                 </section>
             </div>
