@@ -24,6 +24,21 @@ if [[ ! -f "$SSH_KEY" ]]; then
   exit 1
 fi
 
+# Preflight: the deploy key has a passphrase, so non-interactive auth only
+# works if the key is unlocked in the SSH agent. Without this, rsync below
+# would fail with a cryptic "Permission denied (publickey,password)".
+# Fix once:    ssh-add --apple-use-keychain ~/.ssh/indiebox_ionos
+if ! ssh -i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=5 \
+       "${DEPLOY_USER}@${DEPLOY_HOST}" true 2>/dev/null; then
+  cat >&2 <<EOF
+SSH preflight to ${DEPLOY_USER}@${DEPLOY_HOST} failed (non-interactive).
+The deploy key has a passphrase — load it into the agent once:
+    ssh-add --apple-use-keychain $SSH_KEY
+Then retry this script.
+EOF
+  exit 1
+fi
+
 RSYNC_BASE_ARGS=(
   --archive
   --verbose
