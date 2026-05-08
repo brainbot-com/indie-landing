@@ -12,14 +12,15 @@ This document is the contract between:
 
 ## 1. Purpose
 
-Each Indie.Box ships with an install script that runs on first boot. The script needs to:
+Provide an automated installation pipeline with read/write access to Indie.Box device records. Concretely, the install script needs to:
 
-1. Verify with the backend that the device serial is known and assigned.
-2. Read its target hostname and assigned-order ID.
-3. Write back the chosen hostname and the post-install device credentials.
-4. Mark itself as `installed` once the box is ready for shipping.
+1. **Discover** which boxes are currently ready to install — the script does **not** know serial numbers up front.
+2. **Read** the relevant metadata for each box (model, serial, supplier, status) so the backend operator can do the assignment to a customer order.
+3. **Write back** the chosen hostname and the post-install device credentials.
+4. **Append notes** as the install progresses (append-only — see §4.4).
+5. **Transition** the box's status as it moves through the lifecycle.
 
-This API is **device-scoped**: a script authenticated with an API key can only operate on its own serial number. It must **not** expose customer PII (name, email, address) to the box.
+The API never exposes customer PII (name, email, address) to the box.
 
 ---
 
@@ -61,7 +62,47 @@ Keys can be **disabled** (soft revoke, can audit) or **deleted** (hard removal) 
 
 ## 4. Endpoints
 
-### 4.1 `GET /api/v1/devices/{serial}`
+### 4.1 `GET /api/v1/devices`
+
+List devices visible to the install pipeline. The script calls this **first** because it does not know any serial numbers up front; the response is the canonical inventory of boxes currently in scope for the installer.
+
+**Query parameters**
+
+| Param      | Type    | Default        | Description                                                                 |
+| ---------- | ------- | -------------- | --------------------------------------------------------------------------- |
+| `status`   | string  | `ready`        | Filter by status. Special value `ready` = all boxes that can still be installed (excludes `installed` and `retired`). Or pass an explicit status (`in_stock`, `available`, `reserved`, `assigned`). |
+| `limit`    | integer | `100`          | Max items returned. Hard cap `500`.                                         |
+
+**Response 200**
+```json
+{
+  "devices": [
+    {
+      "serialNumber": "MX24A1B0019",
+      "productKey": "indiebox-ai-workstation",
+      "modelName": "NUC 14 Pro AI",
+      "manufacturer": "ASUS",
+      "supplierName": "Reichelt",
+      "hostname": "",
+      "status": "in_stock",
+      "assignedOrderId": null,
+      "createdAt": "2026-04-12T08:14:22.000Z",
+      "updatedAt": "2026-04-12T08:14:22.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+The fields returned are the same as for the single-device `GET` (§4.2), so the script can use one mapping for both. Sorted by `createdAt` descending.
+
+**Errors**
+- `401 unauthorized`
+- `400 invalid_field` — unknown `status` value.
+
+---
+
+### 4.2 `GET /api/v1/devices/{serial}`
 
 Fetch the device record for a given serial number.
 
@@ -96,7 +137,7 @@ Fetch the device record for a given serial number.
 
 ---
 
-### 4.2 `PATCH /api/v1/devices/{serial}`
+### 4.3 `PATCH /api/v1/devices/{serial}`
 
 Update writable fields on the device record. Send only the fields you want to change.
 
@@ -105,8 +146,7 @@ Update writable fields on the device record. Send only the fields you want to ch
 {
   "hostname": "indiebox-aurora-01",
   "deviceUsername": "indie",
-  "devicePassword": "<generated-during-install>",
-  "notes": "OS image v1.4.2; ai pack v0.9"
+  "devicePassword": "<generated-during-install>"
 }
 ```
 
@@ -116,7 +156,8 @@ Update writable fields on the device record. Send only the fields you want to ch
 | `hostname`       | string         | 1–63 chars, RFC 1123 hostname; lowercase      |
 | `deviceUsername` | string         | 1–32 chars; encrypted at rest                 |
 | `devicePassword` | string         | 8–128 chars; encrypted at rest                |
-| `notes`          | string         | up to 2000 chars                              |
+
+> `notes` is **not** writable here — see §4.4. Notes are append-only and have a dedicated endpoint.
 
 **Response 200**
 Returns the updated record (same shape as `GET`, sans secrets).
@@ -125,11 +166,51 @@ Returns the updated record (same shape as `GET`, sans secrets).
 - `400 invalid_field` — payload fails validation. The response includes `{ "error": "invalid_field", "field": "hostname" }`.
 - `401 unauthorized`
 - `404 device_not_found`
-- `409 invalid_transition` — see status rules below.
 
 ---
 
-### 4.3 `POST /api/v1/devices/{serial}/transition`
+### 4.4 `POST /api/v1/devices/{serial}/notes` — append a note
+
+Notes on a device are an **append-only audit trail**. There is no way to overwrite or delete an existing note via this API; every call adds one entry.
+
+The backend implements this as a single dedicated function (e.g. `appendDeviceNote(serial, note)`); `PATCH` deliberately does not accept `notes`. This guarantees that the install script — or any other client — cannot accidentally clobber operator notes by sending a stale value.
+
+**Body**
+```json
+{ "note": "Disk wipe complete; rebooting into installer" }
+```
+
+| Field  | Type   | Constraints       |
+| ------ | ------ | ----------------- |
+| `note` | string | 1–500 chars       |
+
+**Server-side append format**
+
+The backend prepends an ISO 8601 UTC timestamp and a separator, then appends to the existing `notes` column with a leading newline if the column is non-empty. After two appends the stored value looks like:
+
+```
+2026-05-08T13:55:12Z — Disk wipe complete; rebooting into installer
+2026-05-08T14:23:00Z — Installation finished, hostname set to indiebox-aurora-01
+```
+
+Operator notes from the admin UI use the same column and the same append helper, so the timeline is unified.
+
+**Response 200**
+```json
+{
+  "appended": true,
+  "device": { "...": "..." }
+}
+```
+
+**Errors**
+- `400 invalid_field` — empty or oversized `note`.
+- `401 unauthorized`
+- `404 device_not_found`
+
+---
+
+### 4.5 `POST /api/v1/devices/{serial}/transition`
 
 Move the device through the fulfilment lifecycle. Status transitions are validated server-side.
 
@@ -188,30 +269,45 @@ The provisioning endpoints share the per-IP admin-rate-limit pool: roughly 60 re
 - `GET` is naturally safe to retry.
 - `PATCH` is idempotent on the same payload — replays produce the same end state.
 - `POST /transition` is idempotent for the same `action` once the target status is reached: replaying `mark_installed` on an already-`installed` device returns `200` without side effects.
+- `POST /notes` is **not** idempotent — every call appends a new entry. The script must avoid blindly retrying on non-network errors (e.g. `4xx`) or it will produce duplicate audit lines. On a transport-level retry (e.g. ECONNRESET with no response received) a duplicate is acceptable; both lines carry timestamps so the operator sees what happened.
 
-The script can therefore retry on transient network errors without state checks.
+The script can therefore retry the read and `PATCH`/`transition` calls on transient network errors without state checks; for `POST /notes`, retry only when no response was received.
 
 ---
 
 ## 8. Example session (curl)
 
 ```bash
-SERIAL="MX24A1B0019"
 KEY="ind_bo_stg_$YOURTOKEN"
 BASE="https://staging.indiebox.ai/api/v1"
 
-# 1. Verify the box is registered
+# 1. Discover boxes that are ready to install (script does not know serials up front)
+curl -fsS -H "Authorization: Bearer $KEY" \
+  "$BASE/devices?status=ready"
+# → { "devices": [ { "serialNumber": "MX24A1B0019", "modelName": "...", "supplierName": "Reichelt", ... } ], "count": 1 }
+
+# Pick one serial and pin it for the rest of the session:
+SERIAL="MX24A1B0019"
+
+# 2. Read full record for the chosen device
 curl -fsS -H "Authorization: Bearer $KEY" \
   "$BASE/devices/$SERIAL"
 
-# 2. Write hostname + post-install credentials
+# 3. Write hostname + post-install credentials
 curl -fsS -X PATCH \
   -H "Authorization: Bearer $KEY" \
   -H "Content-Type: application/json" \
   -d '{"hostname":"indiebox-aurora-01","deviceUsername":"indie","devicePassword":"<generated>"}' \
   "$BASE/devices/$SERIAL"
 
-# 3. Mark the box installed
+# 4. Append a progress note (append-only — never overwrites)
+curl -fsS -X POST \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"note":"Installation finished, OS image v1.4.2"}' \
+  "$BASE/devices/$SERIAL/notes"
+
+# 5. Mark the box installed
 curl -fsS -X POST \
   -H "Authorization: Bearer $KEY" \
   -H "Content-Type: application/json" \

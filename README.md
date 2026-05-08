@@ -288,46 +288,6 @@ The Indie.Box backend exposes one API consumed by an external party:
 
 ---
 
-## File Structure
-
-```
-indie-landing/
-├── index.html              # German landing page (source of truth)
-├── checkout.html           # Checkout page (DE)
-├── checkout-status.html    # Payment return page (DE)
-├── betriebs.html           # Operations/SLA page (DE)
-├── datenschutz.html        # Privacy page (DE)
-├── terms.html              # Terms of service (EN)
-├── impressum.html          # Legal notice (DE)
-├── privacy.html            # Privacy policy (EN)
-├── en/                     # English counterparts of all DE pages
-├── admin/                  # Internal admin pages (English only)
-│   ├── inventory.html      # Stock and procurement
-│   ├── orders.html         # Customer orders and fulfilment
-│   ├── notifications.html  # Email notification templates
-│   └── users.html          # Admin user management
-├── docs/                   # Public documentation pages
-├── i18n/                   # Translation key files for generated pages
-├── style.css               # Design system tokens and components
-├── script.js               # Frontend and admin behaviour
-├── backend/
-│   ├── src/index.mjs       # Express app, all API routes
-│   ├── src/store.mjs       # SQLite store, all DB logic
-│   └── Dockerfile
-├── deploy/
-│   ├── caddy/Caddyfile     # Caddy reverse proxy config
-│   ├── env/                # Env files (gitignored)
-│   └── scripts/
-│       ├── push-site.sh             # Deploy static files
-│       ├── push-stack.sh            # Deploy backend + proxy (with pre-deploy backup)
-│       ├── backup-remote-sqlite.sh  # SQLite backup (+ age encryption if configured)
-│       └── local-preview.mjs        # Local dev static server + API proxy
-├── docker-compose.yml
-└── README.md
-```
-
----
-
 ## Working Rules
 
 - `STYLE_GUIDE.md` — single source of truth for typography, gradients, components.
