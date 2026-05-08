@@ -1960,6 +1960,119 @@ app.delete('/api/admin/api-keys/:keyId', adminRateLimit, requireAdmin, (req, res
   return res.json({ ok: true });
 });
 
+// ── Provisioning API v1 (used by box install scripts) — see DEVICES_API.md ──
+
+function requireApiKey(req, res, next) {
+  const authHeader = req.get('authorization') || '';
+  if (!authHeader.toLowerCase().startsWith('bearer ')) {
+    return res.status(401).json({ error: 'unauthorized', message: 'Missing Bearer token' });
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token.startsWith(config.apiKeyPrefix)) {
+    return res.status(401).json({ error: 'unauthorized', message: 'Token environment does not match this backend' });
+  }
+  const keyHash = crypto.createHash('sha256').update(token).digest('hex');
+  const key = store.getApiKeyByHash(keyHash);
+  if (!key) {
+    return res.status(401).json({ error: 'unauthorized', message: 'Invalid or revoked key' });
+  }
+  store.touchApiKeyUsage(key.id);
+  req.apiKey = { id: key.id, label: key.label };
+  next();
+}
+
+const ALLOWED_DEVICE_STATUSES = ['ready', 'all', 'ordered', 'in_stock', 'available', 'reserved', 'assigned', 'installed', 'retired'];
+const HOSTNAME_REGEX = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
+
+function toApiDeviceShape(d) {
+  if (!d) return null;
+  return {
+    serialNumber: d.serialNumber,
+    productKey: d.productKey,
+    modelName: d.modelName,
+    manufacturer: d.manufacturer,
+    supplierName: d.supplierName,
+    hostname: d.hostname || '',
+    status: d.status,
+    assignedOrderId: d.assignedOrderId,
+    createdAt: d.createdAt,
+    updatedAt: d.updatedAt
+  };
+}
+
+app.get('/api/v1/devices', adminRateLimit, requireApiKey, (req, res) => {
+  const status = (typeof req.query.status === 'string' && req.query.status) ? req.query.status : 'ready';
+  if (!ALLOWED_DEVICE_STATUSES.includes(status)) {
+    return res.status(400).json({ error: 'invalid_field', field: 'status', message: `Allowed: ${ALLOWED_DEVICE_STATUSES.join(', ')}` });
+  }
+  const limit = Number.parseInt(req.query.limit, 10) || 100;
+  const filter = status === 'all' ? null : status;
+  const devices = store.listDevicesForApi(filter, limit).map(toApiDeviceShape);
+  return res.json({ devices, count: devices.length });
+});
+
+app.get('/api/v1/devices/:serial', adminRateLimit, requireApiKey, (req, res) => {
+  const device = store.getStockDeviceBySerial(req.params.serial);
+  if (!device) return res.status(404).json({ error: 'device_not_found' });
+  return res.json({ device: toApiDeviceShape(device) });
+});
+
+app.patch('/api/v1/devices/:serial', adminRateLimit, requireApiKey, (req, res) => {
+  const existing = store.getStockDeviceBySerial(req.params.serial);
+  if (!existing) return res.status(404).json({ error: 'device_not_found' });
+
+  if (req.body && Object.prototype.hasOwnProperty.call(req.body, 'notes')) {
+    return res.status(400).json({ error: 'invalid_field', field: 'notes', message: 'notes is append-only — use POST /api/v1/devices/:serial/notes' });
+  }
+
+  const merged = { ...existing };
+
+  if (req.body?.hostname !== undefined) {
+    const hostname = sanitizeSingleLineInput(req.body.hostname, 63).toLowerCase();
+    if (!HOSTNAME_REGEX.test(hostname)) {
+      return res.status(400).json({ error: 'invalid_field', field: 'hostname', message: 'RFC 1123 lowercase hostname (1–63 chars) required' });
+    }
+    merged.hostname = hostname;
+  }
+  if (req.body?.deviceUsername !== undefined) {
+    const username = sanitizeSingleLineInput(req.body.deviceUsername, 32);
+    if (username.length < 1) {
+      return res.status(400).json({ error: 'invalid_field', field: 'deviceUsername', message: '1–32 chars required' });
+    }
+    merged.deviceUsername = username;
+  }
+  if (req.body?.devicePassword !== undefined) {
+    const pwd = typeof req.body.devicePassword === 'string' ? req.body.devicePassword : '';
+    if (pwd.length < 8 || pwd.length > 128) {
+      return res.status(400).json({ error: 'invalid_field', field: 'devicePassword', message: 'must be 8–128 chars' });
+    }
+    merged.devicePassword = pwd;
+  }
+
+  const updated = store.saveStockDevice(merged);
+  return res.json({ device: toApiDeviceShape(updated) });
+});
+
+app.post('/api/v1/devices/:serial/notes', adminRateLimit, requireApiKey, (req, res) => {
+  const note = sanitizeSingleLineInput(req.body?.note, 500);
+  if (!note) return res.status(400).json({ error: 'invalid_field', field: 'note', message: 'must be 1–500 chars' });
+  const updated = store.appendDeviceNote(req.params.serial, note);
+  if (!updated) return res.status(404).json({ error: 'device_not_found' });
+  return res.json({ appended: true, device: toApiDeviceShape(updated) });
+});
+
+app.post('/api/v1/devices/:serial/transition', adminRateLimit, requireApiKey, (req, res) => {
+  const action = sanitizeSingleLineInput(req.body?.action, 50);
+  if (!action) return res.status(400).json({ error: 'invalid_field', field: 'action', message: 'action is required' });
+  const result = store.transitionDevice(req.params.serial, action);
+  if (result.error === 'device_not_found') return res.status(404).json({ error: 'device_not_found' });
+  if (result.error === 'unknown_action') return res.status(400).json({ error: 'unknown_action', message: `Unknown action: ${action}` });
+  if (result.error === 'invalid_transition') {
+    return res.status(409).json({ error: 'invalid_transition', message: `Cannot ${action} from status ${result.currentStatus}` });
+  }
+  return res.json({ device: toApiDeviceShape(result.device) });
+});
+
 // ── Notification templates (admin) ──
 
 const NOTIFICATION_TRIGGERS = ['order.paid'];

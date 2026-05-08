@@ -193,7 +193,7 @@ The backend prepends an ISO 8601 UTC timestamp and a separator, then appends to 
 2026-05-08T14:23:00Z — Installation finished, hostname set to indiebox-aurora-01
 ```
 
-Operator notes from the admin UI use the same column and the same append helper, so the timeline is unified.
+Operator notes from the admin UI live in the same `notes` column. Today the admin UI still overwrites the field; it will be migrated onto the same append helper in a follow-up so the timeline is fully unified.
 
 **Response 200**
 ```json

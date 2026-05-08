@@ -18,6 +18,39 @@ function parseJson(value, fallback) {
   }
 }
 
+const ENCRYPTION_KEY = process.env.DATA_ENCRYPTION_KEY?.length === 64
+  ? Buffer.from(process.env.DATA_ENCRYPTION_KEY, 'hex')
+  : null;
+
+function encryptField(value) {
+  if (!ENCRYPTION_KEY || value === null || value === undefined || value === '') return value ?? null;
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
+  const ciphertext = Buffer.concat([cipher.update(String(value), 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return `enc:v1:${iv.toString('hex')}:${ciphertext.toString('hex')}:${tag.toString('hex')}`;
+}
+
+function decryptField(value) {
+  if (!value || typeof value !== 'string' || !value.startsWith('enc:v1:')) return value;
+  if (!ENCRYPTION_KEY) return null;
+  const parts = value.split(':');
+  if (parts.length !== 5) return value;
+  try {
+    const iv = Buffer.from(parts[2], 'hex');
+    const ciphertext = Buffer.from(parts[3], 'hex');
+    const tag = Buffer.from(parts[4], 'hex');
+    const decipher = crypto.createDecipheriv('aes-256-gcm', ENCRYPTION_KEY, iv);
+    decipher.setAuthTag(tag);
+    return decipher.update(ciphertext, undefined, 'utf8') + decipher.final('utf8');
+  } catch { return null; }
+}
+
+function emailLookupHash(email) {
+  if (!ENCRYPTION_KEY || !email) return null;
+  return crypto.createHmac('sha256', ENCRYPTION_KEY).update(String(email).toLowerCase().trim()).digest('hex');
+}
+
 function minimizePaymentPayload(payload) {
   if (!payload || typeof payload !== 'object') return payload ?? null;
 
@@ -125,16 +158,16 @@ function mapOrderRow(row) {
     amount: row.amount,
     currency: row.currency,
     customer: {
-      firstName: row.customer_first_name,
-      lastName: row.customer_last_name,
-      email: row.customer_email,
-      phone: row.customer_phone,
-      company: row.customer_company,
-      vatId: row.customer_vat_id
+      firstName: decryptField(row.customer_first_name),
+      lastName: decryptField(row.customer_last_name),
+      email: decryptField(row.customer_email),
+      phone: decryptField(row.customer_phone),
+      company: decryptField(row.customer_company),
+      vatId: decryptField(row.customer_vat_id)
     },
-    billingAddress: parseJson(row.billing_address_json, {}),
-    shippingAddress: parseJson(row.shipping_address_json, {}),
-    notes: row.notes,
+    billingAddress: parseJson(decryptField(row.billing_address_json), {}),
+    shippingAddress: parseJson(decryptField(row.shipping_address_json), {}),
+    notes: decryptField(row.notes),
     paymentProvider: row.payment_provider,
     paymentMethodRequested: row.payment_method_requested,
     paymentMethod: row.payment_method,
@@ -228,8 +261,8 @@ function mapStockDeviceRow(row) {
     modelName: row.model_name || '',
     manufacturer: row.manufacturer || '',
     serialNumber: row.serial_number || '',
-    deviceUsername: row.device_username || '',
-    devicePassword: row.device_password || '',
+    deviceUsername: decryptField(row.device_username) || '',
+    devicePassword: decryptField(row.device_password) || '',
     hostname: row.hostname || '',
     status: row.status || 'available',
     assignedOrderId: row.assigned_order_id || null,
@@ -256,8 +289,8 @@ function mapOrderAllocationRow(row) {
     fulfilledAt: row.fulfilled_at,
     releasedAt: row.released_at,
     serialNumber: row.serial_number || '',
-    deviceUsername: row.device_username || '',
-    devicePassword: row.device_password || '',
+    deviceUsername: decryptField(row.device_username) || '',
+    devicePassword: decryptField(row.device_password) || '',
     trackingNumber: row.tracking_number || '',
     trackingCarrier: row.tracking_carrier || '',
     installedAt: row.installed_at || null,
@@ -499,6 +532,7 @@ export async function createStore({ dataDir, logger = console }) {
   ensureColumn('orders', 'status_token', 'status_token TEXT');
   ensureColumn('orders', 'order_number', 'order_number INTEGER');
   ensureColumn('orders', 'is_archived', 'is_archived INTEGER NOT NULL DEFAULT 0');
+  ensureColumn('orders', 'customer_email_lookup_hash', 'customer_email_lookup_hash TEXT');
   ensureColumn('order_allocations', 'serial_number', 'serial_number TEXT');
   ensureColumn('order_allocations', 'device_username', 'device_username TEXT');
   ensureColumn('order_allocations', 'device_password', 'device_password TEXT');
@@ -509,6 +543,7 @@ export async function createStore({ dataDir, logger = console }) {
   ensureColumn('order_allocations', 'shipped_at', 'shipped_at TEXT');
   ensureColumn('order_allocations', 'delivered_at', 'delivered_at TEXT');
   db.exec('CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders(order_number DESC)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_orders_email_lookup ON orders(customer_email_lookup_hash)');
 
   const upsertOrderStatement = db.prepare(`
     INSERT INTO orders (
@@ -521,6 +556,7 @@ export async function createStore({ dataDir, logger = console }) {
       amount,
       currency,
       customer_email,
+      customer_email_lookup_hash,
       customer_first_name,
       customer_last_name,
       customer_phone,
@@ -553,6 +589,7 @@ export async function createStore({ dataDir, logger = console }) {
       @amount,
       @currency,
       @customer_email,
+      @customer_email_lookup_hash,
       @customer_first_name,
       @customer_last_name,
       @customer_phone,
@@ -585,6 +622,7 @@ export async function createStore({ dataDir, logger = console }) {
       amount = excluded.amount,
       currency = excluded.currency,
       customer_email = excluded.customer_email,
+      customer_email_lookup_hash = excluded.customer_email_lookup_hash,
       customer_first_name = excluded.customer_first_name,
       customer_last_name = excluded.customer_last_name,
       customer_phone = excluded.customer_phone,
@@ -907,9 +945,21 @@ export async function createStore({ dataDir, logger = console }) {
     LEFT JOIN device_models dm ON dm.product_key = sd.product_key
   `;
   const getStockDeviceStatement = db.prepare(`${stockDeviceSelect} WHERE sd.id = ?`);
+  const getStockDeviceBySerialStatement = db.prepare(`${stockDeviceSelect} WHERE sd.serial_number = ? LIMIT 1`);
   const getDevicesByOrderIdStatement = db.prepare(`${stockDeviceSelect} WHERE sd.assigned_order_id = ? ORDER BY sd.created_at ASC`);
   const listStockDevicesStatement = db.prepare(`${stockDeviceSelect} WHERE sd.product_key = ? ORDER BY sd.created_at DESC`);
   const listAllStockDevicesStatement = db.prepare(`${stockDeviceSelect} ORDER BY sd.created_at DESC`);
+  const listStockDevicesReadyStatement = db.prepare(`${stockDeviceSelect} WHERE sd.status NOT IN ('installed', 'retired') ORDER BY datetime(sd.created_at) DESC LIMIT ?`);
+  const listStockDevicesByStatusStatement = db.prepare(`${stockDeviceSelect} WHERE sd.status = ? ORDER BY datetime(sd.created_at) DESC LIMIT ?`);
+  const appendStockDeviceNoteStatement = db.prepare(`
+    UPDATE stock_devices
+    SET notes = CASE WHEN notes IS NULL OR notes = '' THEN @line ELSE notes || char(10) || @line END,
+        updated_at = @updated_at
+    WHERE id = @id
+  `);
+  const setStockDeviceStatusStatement = db.prepare(`UPDATE stock_devices SET status = @status, updated_at = @updated_at WHERE id = @id`);
+  const setAllocationInstalledAtStatement = db.prepare(`UPDATE order_allocations SET installed_at = @installed_at, status = CASE WHEN status IN ('reserved','assigned','fulfilled') THEN 'installed' ELSE status END, updated_at = @updated_at WHERE order_id = @order_id AND installed_at IS NULL`);
+  const touchApiKeyUsageStatement = db.prepare(`UPDATE api_keys SET last_used_at = ? WHERE id = ?`);
   const upsertStockDeviceStatement = db.prepare(`
     INSERT INTO stock_devices (
       id, product_key, serial_number, device_username, device_password, hostname,
@@ -972,15 +1022,16 @@ export async function createStore({ dataDir, logger = console }) {
       product: normalized.product,
       amount: normalized.amount,
       currency: normalized.currency,
-      customer_email: normalized.customer.email,
-      customer_first_name: normalized.customer.firstName,
-      customer_last_name: normalized.customer.lastName,
-      customer_phone: normalized.customer.phone || null,
-      customer_company: normalized.customer.company || null,
-      customer_vat_id: normalized.customer.vatId || null,
-      billing_address_json: stringifyJson(normalized.billingAddress, '{}'),
-      shipping_address_json: stringifyJson(normalized.shippingAddress, '{}'),
-      notes: normalized.notes || null,
+      customer_email: encryptField(normalized.customer.email),
+      customer_email_lookup_hash: emailLookupHash(normalized.customer.email),
+      customer_first_name: encryptField(normalized.customer.firstName),
+      customer_last_name: encryptField(normalized.customer.lastName),
+      customer_phone: encryptField(normalized.customer.phone || null) || null,
+      customer_company: encryptField(normalized.customer.company || null) || null,
+      customer_vat_id: encryptField(normalized.customer.vatId || null) || null,
+      billing_address_json: encryptField(stringifyJson(normalized.billingAddress, '{}')),
+      shipping_address_json: encryptField(stringifyJson(normalized.shippingAddress, '{}')),
+      notes: encryptField(normalized.notes || null) || null,
       payment_provider: normalized.paymentProvider,
       payment_method_requested: normalized.paymentMethodRequested || null,
       payment_method: normalized.paymentMethod || null,
@@ -1027,8 +1078,8 @@ export async function createStore({ dataDir, logger = console }) {
       paymentMethodRequested: row.payment_method_requested,
       amount: row.amount,
       currency: row.currency,
-      customerEmail: row.customer_email,
-      customerName: `${row.customer_first_name} ${row.customer_last_name}`.trim(),
+      customerEmail: decryptField(row.customer_email),
+      customerName: `${decryptField(row.customer_first_name)} ${decryptField(row.customer_last_name)}`.trim(),
       product: row.product
     }));
   }
@@ -1045,12 +1096,12 @@ export async function createStore({ dataDir, logger = console }) {
       paymentMethodRequested: row.payment_method_requested,
       amount: row.amount,
       currency: row.currency,
-      customerEmail: row.customer_email,
-      customerName: `${row.customer_first_name} ${row.customer_last_name}`.trim(),
-      customerCompany: row.customer_company || '',
+      customerEmail: decryptField(row.customer_email),
+      customerName: `${decryptField(row.customer_first_name)} ${decryptField(row.customer_last_name)}`.trim(),
+      customerCompany: decryptField(row.customer_company) || '',
       product: row.product,
-      billingAddress: parseJson(row.billing_address_json, {}),
-      shippingAddress: parseJson(row.shipping_address_json, {}),
+      billingAddress: parseJson(decryptField(row.billing_address_json), {}),
+      shippingAddress: parseJson(decryptField(row.shipping_address_json), {}),
       allocationStatus: row.allocation_status || null,
       allocationSerialNumber: row.allocation_serial_number || '',
       allocationInstalledAt: row.allocation_installed_at || null,
@@ -1224,8 +1275,8 @@ export async function createStore({ dataDir, logger = console }) {
       fulfilled_at: normalized.fulfilledAt,
       released_at: normalized.releasedAt,
       serial_number: normalized.serialNumber,
-      device_username: normalized.deviceUsername,
-      device_password: normalized.devicePassword,
+      device_username: encryptField(normalized.deviceUsername),
+      device_password: encryptField(normalized.devicePassword),
       tracking_number: normalized.trackingNumber,
       tracking_carrier: normalized.trackingCarrier,
       installed_at: normalized.installedAt,
@@ -1294,8 +1345,8 @@ export async function createStore({ dataDir, logger = console }) {
       id: device.id,
       product_key: device.productKey,
       serial_number: device.serialNumber,
-      device_username: device.deviceUsername || null,
-      device_password: device.devicePassword || null,
+      device_username: encryptField(device.deviceUsername || null),
+      device_password: encryptField(device.devicePassword || null),
       hostname: device.hostname || null,
       status: device.status || 'available',
       assigned_order_id: device.assignedOrderId || null,
@@ -1309,6 +1360,55 @@ export async function createStore({ dataDir, logger = console }) {
       updated_at: now
     });
     return getStockDevice(device.id);
+  }
+
+  function getStockDeviceBySerial(serial) {
+    if (!serial) return null;
+    return mapStockDeviceRow(getStockDeviceBySerialStatement.get(String(serial)));
+  }
+
+  function listDevicesForApi(statusFilter, limit = 100) {
+    const cap = Math.min(500, Math.max(1, Number.parseInt(limit, 10) || 100));
+    if (!statusFilter || statusFilter === 'ready') {
+      return listStockDevicesReadyStatement.all(cap).map(mapStockDeviceRow);
+    }
+    return listStockDevicesByStatusStatement.all(statusFilter, cap).map(mapStockDeviceRow);
+  }
+
+  function appendDeviceNote(serial, note) {
+    const device = getStockDeviceBySerial(serial);
+    if (!device) return null;
+    const text = String(note || '').trim();
+    if (!text) return device;
+    const ts = new Date().toISOString();
+    const line = `${ts} — ${text}`;
+    appendStockDeviceNoteStatement.run({ id: device.id, line, updated_at: ts });
+    return getStockDevice(device.id);
+  }
+
+  function transitionDevice(serial, action) {
+    const device = getStockDeviceBySerial(serial);
+    if (!device) return { error: 'device_not_found' };
+
+    if (action === 'mark_installed') {
+      if (device.status === 'installed') return { device, idempotent: true };
+      if (!['available', 'assigned', 'reserved'].includes(device.status)) {
+        return { error: 'invalid_transition', currentStatus: device.status };
+      }
+      const now = new Date().toISOString();
+      setStockDeviceStatusStatement.run({ id: device.id, status: 'installed', updated_at: now });
+      if (device.assignedOrderId) {
+        setAllocationInstalledAtStatement.run({ order_id: device.assignedOrderId, installed_at: now, updated_at: now });
+      }
+      return { device: getStockDevice(device.id) };
+    }
+
+    return { error: 'unknown_action' };
+  }
+
+  function touchApiKeyUsage(id) {
+    if (!id) return;
+    touchApiKeyUsageStatement.run(new Date().toISOString(), id);
   }
 
 	  async function migrateLegacyJsonOrders() {
@@ -1751,6 +1851,32 @@ export async function createStore({ dataDir, logger = console }) {
     });
   }
 
+  // ── PII encryption migration ──
+
+  function migrateEncryptPii() {
+    let orders = 0, stockDevices = 0, allocations = 0;
+
+    const allOrders = db.prepare('SELECT id FROM orders').all();
+    for (const row of allOrders) {
+      const order = getOrder(row.id);
+      if (order) { saveOrder(order); orders++; }
+    }
+
+    const allDevices = db.prepare('SELECT id FROM stock_devices').all();
+    for (const row of allDevices) {
+      const device = getStockDevice(row.id);
+      if (device) { saveStockDevice(device); stockDevices++; }
+    }
+
+    const allAllocations = db.prepare('SELECT order_id FROM order_allocations').all();
+    for (const row of allAllocations) {
+      const alloc = getOrderAllocation(row.order_id);
+      if (alloc) { saveOrderAllocation(alloc); allocations++; }
+    }
+
+    return { orders, stockDevices, allocations };
+  }
+
   // ── Bootstrap admin (T007 / US4) ──
 
   function bootstrapAdminUser({ loginHash, defaultUsername = 'admin' }) {
@@ -1792,10 +1918,14 @@ export async function createStore({ dataDir, logger = console }) {
     listOrderAllocations,
     archiveOrder,
     getStockDevice,
+    getStockDeviceBySerial,
     listStockDevices,
     listAllStockDevices,
     listDevicesByOrderId,
+    listDevicesForApi,
     saveStockDevice,
+    appendDeviceNote,
+    transitionDevice,
     deleteDeviceModel,
     deleteStockDevice,
     deleteSupplierOrder,
@@ -1834,8 +1964,10 @@ export async function createStore({ dataDir, logger = console }) {
     createApiKey,
     listApiKeys,
     getApiKeyByHash,
+    touchApiKeyUsage,
     revokeApiKey,
-    deleteApiKey
+    deleteApiKey,
+    migrateEncryptPii
   };
 
   function createApiKey({ id, label, keyHash, lastFour, createdBy }) {
