@@ -278,6 +278,16 @@ This protects against a leaked backup or a stolen DB file being readable without
 
 ---
 
+## 3rd-Party API
+
+The Indie.Box backend exposes one API consumed by an external party:
+
+- **Devices / Provisioning API** — used by the box-side install script to read and write its own device record. Spec: [`DEVICES_API.md`](DEVICES_API.md).
+  - Auth: API keys, prefixed `ind_bo_live_…` / `ind_bo_stg_…`, managed under `/admin/configuration.html` → API Keys.
+  - Endpoints under `/api/v1/devices/*` (implementation pending — auth layer is live).
+
+---
+
 ## File Structure
 
 ```
