@@ -307,7 +307,19 @@
   // Cookie consent controls only cookie usage; tracking itself remains active without cookies.
   _paq.push(["requireCookieConsent"]);
   applyCookieConsentState(consent);
-  if (consent !== CONSENT_GRANTED && consent !== CONSENT_DENIED) showConsentBanner();
+  if (consent !== CONSENT_GRANTED && consent !== CONSENT_DENIED) {
+    // Delay banner until the hero cinematic animation is done so it doesn't
+    // distract from the staged reveal. setupHeroCinematicSequence fires
+    // `indiebox:hero-done` (also on pages without a hero — immediately).
+    const showWhenHeroDone = () => showConsentBanner();
+    if (window.__indieboxHeroDone) {
+      showWhenHeroDone();
+    } else {
+      document.addEventListener("indiebox:hero-done", showWhenHeroDone, { once: true });
+      // Fallback in case the event never fires (e.g. animation script broken).
+      window.setTimeout(showWhenHeroDone, 8000);
+    }
+  }
 
   loadMatomoScriptOnce(baseUrl);
   _paq.push(["trackPageView"]);

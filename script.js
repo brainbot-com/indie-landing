@@ -95,8 +95,17 @@ function setupStoryScroll() {
 }
 
 function setupHeroCinematicSequence() {
+    const markHeroDone = () => {
+        if (window.__indieboxHeroDone) return;
+        window.__indieboxHeroDone = true;
+        document.dispatchEvent(new CustomEvent('indiebox:hero-done'));
+    };
+
     const heroSection = document.querySelector('.hero-overlay[data-hero-seq="cinematic"]');
-    if (!heroSection) return;
+    if (!heroSection) {
+        markHeroDone();
+        return;
+    }
 
     const activeVariant = heroSection.querySelector('.hero-content-overlay[data-hero-seq-enabled="true"]:not([hidden])');
     if (!activeVariant) {
@@ -115,6 +124,7 @@ function setupHeroCinematicSequence() {
             'hero-seq-subtitle-settle',
             'hero-seq-cta'
         );
+        markHeroDone();
         return;
     }
 
@@ -129,6 +139,7 @@ function setupHeroCinematicSequence() {
         at(540, () => heroSection.classList.add('hero-seq-line1'));
         at(900, () => heroSection.classList.add('hero-seq-line2'));
         at(1200, () => heroSection.classList.add('hero-seq-subtitle-settle'));
+        at(1500, markHeroDone);
         return;
     }
 
@@ -143,6 +154,7 @@ function setupHeroCinematicSequence() {
             'hero-seq-subtitle-settle',
             'hero-seq-cta'
         );
+        markHeroDone();
         return;
     }
 
@@ -207,6 +219,7 @@ function setupHeroCinematicSequence() {
     at(3350, startCloudFlip); // appear big, brief pause, then move to final slot
     at(4550, () => heroSection.classList.add('hero-seq-subtitle-in')); // subtitle fades in already at 200% size
     at(5100, () => heroSection.classList.add('hero-seq-subtitle-settle')); // settles to final size/position
+    at(5700, markHeroDone);
 }
 
 function setupNavReveal() {
