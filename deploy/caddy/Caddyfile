@@ -84,6 +84,7 @@ indiebox.ai, www.indiebox.ai {
   }
 
   handle /api/* {
+    request_header X-Proxy-Auth {$PROXY_INTERNAL_TOKEN}
     reverse_proxy backend-live:8080
   }
 

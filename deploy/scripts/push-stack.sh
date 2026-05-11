@@ -38,7 +38,12 @@ rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/docker-compose.yml" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${APP_PATH}docker-compose.yml"
 
-rsync -av -e "ssh -i $SSH_KEY" \
+# --inplace preserves the inode on the host so the Caddy container's
+# bind mount (/srv/edge/config/Caddyfile → /etc/caddy/Caddyfile) keeps
+# pointing at the right file. Without it, rsync replaces the file
+# (new inode) and the container keeps reading the old one until it is
+# restarted, which silently breaks proxy header injection.
+rsync -av --inplace -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/caddy/Caddyfile" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}Caddyfile"
 
@@ -56,3 +61,10 @@ bash "$(dirname "${BASH_SOURCE[0]}")/backup-remote-sqlite.sh" live
 echo "→ Deploying stack..."
 ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
   "install -d -m 755 /srv/staging.indiebox/site /srv/staging.indiebox/config /srv/staging.indiebox/data /srv/staging.indiebox/backups /srv/indiebox/data/backend-live /srv/edge/config && if [ ! -f ${CONFIG_PATH}caddy.env ]; then install -m 600 /dev/null ${CONFIG_PATH}caddy.env; fi && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build"
+
+# docker compose only restarts containers whose image/config changed —
+# Caddy keeps running on bind-mount edits. Restart (not just reload) so
+# Caddyfile *and* caddy.env changes both take effect. ~1s downtime.
+echo "→ Restarting Caddy..."
+ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+  "sudo -n docker restart indiebox-caddy"
