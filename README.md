@@ -263,18 +263,27 @@ ssh -i ~/.ssh/indiebox_ionos deploy@87.106.111.141 \
 - Mollie webhooks are verified by re-fetching payment status from the Mollie API rather than trusting the webhook payload.
 - Rate limiting per IP is applied to checkout, order-status, admin, and webhook endpoints.
 
-### TODO — Field-level PII Encryption
+### Field-level PII Encryption
 
-Customer data (name, address, phone, email, notes, device credentials) is stored in plaintext in SQLite. **This should be encrypted before the first real customer order is placed.**
+AES-256-GCM via `node:crypto` is wired up across orders, stock devices and order allocations. Encrypted columns: `customer_*`, `billing_address_json`, `shipping_address_json`, `orders.notes`, `device_username`, `device_password`. Stored format: `enc:v1:{iv}:{ciphertext}:{tag}` — plaintext rows are read transparently and re-encrypted on next write. `customer_email_lookup_hash` (HMAC-SHA256) is reserved for indexed email lookup. One-shot migration: `backend/src/migrate-encrypt-pii.mjs`.
 
-Plan:
-- Encrypt sensitive columns (`customer_*`, `billing_*`, `shipping_*`, `notes`, `device_username`, `device_password`) with AES-256-GCM using `node:crypto` (no new dependency).
-- Key in a new env var `DATA_ENCRYPTION_KEY` (32 bytes hex).
-- Stored format: `enc:v1:{iv}:{ciphertext}:{tag}` — values without this prefix are treated as plaintext, so existing rows migrate transparently on next write.
-- Add `customer_email_lookup_hash` (HMAC-SHA256) for email-based order lookup.
-- One-shot migration script to re-encrypt all existing rows at rollout.
+The key is derived from `DATA_ENCRYPTION_KEY`:
+- 64 hex chars → used directly as a 32-byte raw key (recommended for live)
+- any other string → SHA-256-derived to 32 bytes (test/staging convenience)
 
-This protects against a leaked backup or a stolen DB file being readable without the key.
+#### 🚨 TODO — Replace test passphrase before first real customer order
+
+All three env files currently ship with `DATA_ENCRYPTION_KEY=brainbot` as a test default. This means anyone who guesses the (publicly known) passphrase can decrypt a leaked DB backup. **Before going live with real customers:**
+
+1. Generate a real key: `openssl rand -hex 32`
+2. Put it in `deploy/env/.env.live` (and `.env.staging` if useful)
+3. Store a copy in 1Password / secure vault — **losing the key = unrecoverable PII**
+4. Push the env, then run the one-shot migration on the server:
+   ```bash
+   ssh deploy@indiebox.ai "sudo docker exec indiebox-backend-live \
+       node /app/src/migrate-encrypt-pii.mjs /app/data"
+   ```
+5. Verify: read any pre-existing order via the admin API and confirm fields decrypt correctly.
 
 ---
 

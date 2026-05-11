@@ -18,9 +18,17 @@ function parseJson(value, fallback) {
   }
 }
 
-const ENCRYPTION_KEY = process.env.DATA_ENCRYPTION_KEY?.length === 64
-  ? Buffer.from(process.env.DATA_ENCRYPTION_KEY, 'hex')
-  : null;
+// Accepts either 64 hex chars (32 bytes raw key) or any non-empty passphrase
+// which is then SHA-256-derived to a 32-byte key. The passphrase fallback is
+// for dev/staging convenience — see TODO in README "Field-level PII Encryption".
+function deriveEncryptionKey(input) {
+  if (!input) return null;
+  if (input.length === 64 && /^[0-9a-fA-F]+$/.test(input)) {
+    return Buffer.from(input, 'hex');
+  }
+  return crypto.createHash('sha256').update(input).digest();
+}
+const ENCRYPTION_KEY = deriveEncryptionKey(process.env.DATA_ENCRYPTION_KEY);
 
 function encryptField(value) {
   if (!ENCRYPTION_KEY || value === null || value === undefined || value === '') return value ?? null;
