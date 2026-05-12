@@ -53,7 +53,11 @@ RSYNC_BASE_ARGS=(
   --exclude
   ".codex/"
   --exclude
+  ".claude/"
+  --exclude
   ".specify/"
+  --exclude
+  ".mcp.json*"
   --exclude
   ".vscode/"
   --exclude
