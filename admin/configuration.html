@@ -85,6 +85,7 @@
             <nav class="admin-tabs" role="tablist" aria-label="Configuration sections">
                 <button class="admin-tab" role="tab" aria-selected="true" data-tab="users">Users</button>
                 <button class="admin-tab" role="tab" aria-selected="false" data-tab="api-keys">API Keys</button>
+                <button class="admin-tab" role="tab" aria-selected="false" data-tab="service-config">Service Credentials</button>
             </nav>
 
             <!-- Users tab -->
@@ -150,6 +151,20 @@
                         <button class="button button--plain-light button--pill button--sm" type="button" data-api-key-cancel>Cancel</button>
                     </form>
                     <div data-api-keys-list style="padding:0.5rem 0"></div>
+                </section>
+            </div>
+
+            <!-- Service Credentials tab -->
+            <div class="admin-tab-panel" data-tab-panel="service-config" hidden>
+                <section class="admin-card" data-admin-service-config>
+                    <div class="admin-card-header">
+                        <h2>Service Credentials</h2>
+                        <div class="admin-card-header__actions">
+                            <button class="button button--plain-dark button--pill button--sm" type="button" data-service-config-reload>Reload</button>
+                        </div>
+                    </div>
+                    <p class="admin-notif-hint" style="padding:0.75rem 1rem 0">Overrides for Mollie and Mailgun credentials. When set, the stored value takes precedence over the env file. Secrets are masked — only the first and last 8 characters are shown. Clearing a value reverts to the env-file default.</p>
+                    <div data-service-config-list style="padding:0.5rem 0"></div>
                 </section>
             </div>
 

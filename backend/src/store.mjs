@@ -516,6 +516,13 @@ export async function createStore({ dataDir, logger = console }) {
     );
     CREATE INDEX IF NOT EXISTS idx_login_challenges_user_id ON login_challenges(user_id);
     CREATE INDEX IF NOT EXISTS idx_login_challenges_expires_at ON login_challenges(expires_at);
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value_encrypted TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      updated_by TEXT
+    );
   `);
 
   function ensureColumn(tableName, columnName, columnSql) {
@@ -968,6 +975,18 @@ export async function createStore({ dataDir, logger = console }) {
   const setStockDeviceStatusStatement = db.prepare(`UPDATE stock_devices SET status = @status, updated_at = @updated_at WHERE id = @id`);
   const setAllocationInstalledAtStatement = db.prepare(`UPDATE order_allocations SET installed_at = @installed_at, status = CASE WHEN status IN ('reserved','assigned','fulfilled') THEN 'installed' ELSE status END, updated_at = @updated_at WHERE order_id = @order_id AND installed_at IS NULL`);
   const touchApiKeyUsageStatement = db.prepare(`UPDATE api_keys SET last_used_at = ? WHERE id = ?`);
+
+  const listAppSettingsStatement = db.prepare(`SELECT key, value_encrypted, updated_at, updated_by FROM app_settings ORDER BY key`);
+  const getAppSettingStatement = db.prepare(`SELECT value_encrypted FROM app_settings WHERE key = ?`);
+  const upsertAppSettingStatement = db.prepare(`
+    INSERT INTO app_settings (key, value_encrypted, updated_at, updated_by)
+    VALUES (@key, @value_encrypted, @updated_at, @updated_by)
+    ON CONFLICT(key) DO UPDATE SET
+      value_encrypted = excluded.value_encrypted,
+      updated_at = excluded.updated_at,
+      updated_by = excluded.updated_by
+  `);
+  const deleteAppSettingStatement = db.prepare(`DELETE FROM app_settings WHERE key = ?`);
   const upsertStockDeviceStatement = db.prepare(`
     INSERT INTO stock_devices (
       id, product_key, serial_number, device_username, device_password, hostname,
@@ -1417,6 +1436,37 @@ export async function createStore({ dataDir, logger = console }) {
   function touchApiKeyUsage(id) {
     if (!id) return;
     touchApiKeyUsageStatement.run(new Date().toISOString(), id);
+  }
+
+  function listAppSettings() {
+    return listAppSettingsStatement.all().map((row) => {
+      const value = decryptField(row.value_encrypted);
+      return {
+        key: row.key,
+        value: value || '',
+        updatedAt: row.updated_at,
+        updatedBy: row.updated_by
+      };
+    });
+  }
+
+  function getAppSettingValue(key) {
+    const row = getAppSettingStatement.get(key);
+    if (!row) return null;
+    return decryptField(row.value_encrypted) || null;
+  }
+
+  function setAppSetting(key, value, updatedBy) {
+    upsertAppSettingStatement.run({
+      key,
+      value_encrypted: encryptField(value),
+      updated_at: new Date().toISOString(),
+      updated_by: updatedBy || null
+    });
+  }
+
+  function deleteAppSetting(key) {
+    deleteAppSettingStatement.run(key);
   }
 
 	  async function migrateLegacyJsonOrders() {
@@ -1975,7 +2025,11 @@ export async function createStore({ dataDir, logger = console }) {
     touchApiKeyUsage,
     revokeApiKey,
     deleteApiKey,
-    migrateEncryptPii
+    migrateEncryptPii,
+    listAppSettings,
+    getAppSettingValue,
+    setAppSetting,
+    deleteAppSetting
   };
 
   function createApiKey({ id, label, keyHash, lastFour, createdBy }) {

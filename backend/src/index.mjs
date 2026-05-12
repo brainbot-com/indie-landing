@@ -86,6 +86,42 @@ const store = await createStore({ dataDir: config.dataDir, logger: console });
 const rateLimitBuckets = new Map();
 seedNotificationTemplates();
 
+// Admin-editable service credentials. Each entry maps the env-style key
+// shown in the UI to the corresponding live field on `config`, plus a
+// hint for the UI (so it can render the right input control). When an
+// override is set, the DB value wins; clearing it falls back to env.
+const SERVICE_CONFIG_KEYS = [
+  { key: 'MOLLIE_API_KEY',          configField: 'mollieApiKey',         label: 'Mollie API Key',          group: 'Mollie',  type: 'secret' },
+  { key: 'MOLLIE_PROFILE_ID',       configField: 'mollieProfileId',      label: 'Mollie Profile ID',       group: 'Mollie',  type: 'text' },
+  { key: 'MOLLIE_MODE',             configField: 'mollieMode',           label: 'Mollie Mode',             group: 'Mollie',  type: 'enum', options: ['test', 'live'] },
+  { key: 'MAILGUN_API_KEY',         configField: 'mailgunApiKey',        label: 'Mailgun API Key',         group: 'Mailgun', type: 'secret' },
+  { key: 'MAILGUN_DOMAIN',          configField: 'mailgunDomain',        label: 'Mailgun Domain',          group: 'Mailgun', type: 'text' },
+  { key: 'MAILGUN_REGION',          configField: 'mailgunRegion',        label: 'Mailgun Region',          group: 'Mailgun', type: 'enum', options: ['eu', 'us'] },
+  { key: 'ORDER_NOTIFICATION_FROM', configField: 'orderNotificationFrom', label: 'Notification From',      group: 'Mailgun', type: 'text' },
+  { key: 'ORDER_NOTIFICATION_TO',   configField: 'orderNotificationTo',  label: 'Notification To',         group: 'Mailgun', type: 'text' }
+];
+const SERVICE_CONFIG_BY_KEY = new Map(SERVICE_CONFIG_KEYS.map((entry) => [entry.key, entry]));
+const SERVICE_CONFIG_ENV_VALUES = SERVICE_CONFIG_KEYS.reduce((acc, entry) => {
+  acc[entry.key] = config[entry.configField] || '';
+  return acc;
+}, {});
+
+function maskSecret(value) {
+  if (!value) return '';
+  const str = String(value);
+  if (str.length <= 16) return '•'.repeat(str.length);
+  return `${str.slice(0, 8)}${'•'.repeat(Math.max(4, str.length - 16))}${str.slice(-8)}`;
+}
+
+function applyServiceConfigOverrides() {
+  for (const entry of SERVICE_CONFIG_KEYS) {
+    const envValue = SERVICE_CONFIG_ENV_VALUES[entry.key];
+    const dbValue = store.getAppSettingValue(entry.key);
+    config[entry.configField] = dbValue !== null ? dbValue : envValue;
+  }
+}
+applyServiceConfigOverrides();
+
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(express.urlencoded({ extended: false, limit: '20kb' }));
@@ -1957,6 +1993,52 @@ app.delete('/api/admin/api-keys/:keyId', adminRateLimit, requireAdmin, (req, res
   const key = keys.find((k) => k.id === req.params.keyId);
   if (!key) return res.status(404).json({ error: 'api_key_not_found' });
   store.deleteApiKey(key.id);
+  return res.json({ ok: true });
+});
+
+app.get('/api/admin/service-config', adminRateLimit, requireAdmin, (_req, res) => {
+  const overrides = new Map(store.listAppSettings().map((row) => [row.key, row]));
+  const entries = SERVICE_CONFIG_KEYS.map((entry) => {
+    const override = overrides.get(entry.key);
+    const envValue = SERVICE_CONFIG_ENV_VALUES[entry.key] || '';
+    const effective = override ? override.value : envValue;
+    const isSecret = entry.type === 'secret';
+    return {
+      key: entry.key,
+      label: entry.label,
+      group: entry.group,
+      type: entry.type,
+      options: entry.options || null,
+      source: override ? 'db' : (envValue ? 'env' : 'unset'),
+      hasValue: Boolean(effective),
+      maskedValue: isSecret ? maskSecret(effective) : effective,
+      isSecret,
+      updatedAt: override?.updatedAt || null,
+      updatedBy: override?.updatedBy || null
+    };
+  });
+  return res.json({ entries });
+});
+
+app.put('/api/admin/service-config/:key', adminRateLimit, requireAdmin, (req, res) => {
+  const entry = SERVICE_CONFIG_BY_KEY.get(req.params.key);
+  if (!entry) return res.status(404).json({ error: 'unknown_setting' });
+  const rawValue = typeof req.body?.value === 'string' ? req.body.value : '';
+  const value = rawValue.trim();
+  if (!value) return res.status(400).json({ error: 'value_required' });
+  if (entry.type === 'enum' && entry.options && !entry.options.includes(value)) {
+    return res.status(400).json({ error: 'invalid_value', allowed: entry.options });
+  }
+  store.setAppSetting(entry.key, value, req.user?.id || null);
+  applyServiceConfigOverrides();
+  return res.json({ ok: true });
+});
+
+app.delete('/api/admin/service-config/:key', adminRateLimit, requireAdmin, (req, res) => {
+  const entry = SERVICE_CONFIG_BY_KEY.get(req.params.key);
+  if (!entry) return res.status(404).json({ error: 'unknown_setting' });
+  store.deleteAppSetting(entry.key);
+  applyServiceConfigOverrides();
   return res.json({ ok: true });
 });
 

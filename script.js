@@ -2975,6 +2975,7 @@ function setupAdminUsers() {
         };
         tabs.forEach((t) => t.addEventListener('click', () => switchTab(t.getAttribute('data-tab'))));
         setupAdminApiKeys(app);
+        setupAdminServiceConfig(app);
     }
 
     authShell.loadAuthState();
@@ -3112,6 +3113,148 @@ function setupAdminApiKeys(app) {
     app.querySelectorAll('[data-tab]').forEach((t) => {
         if (t.getAttribute('data-tab') === 'api-keys') {
             t.addEventListener('click', loadKeys);
+        }
+    });
+}
+
+function setupAdminServiceConfig(app) {
+    const section = app.querySelector('[data-admin-service-config]');
+    if (!section) return;
+
+    const listEl = section.querySelector('[data-service-config-list]');
+    const reloadBtn = section.querySelector('[data-service-config-reload]');
+
+    const esc = (str) => String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const fmtDate = (iso) => iso ? new Date(iso).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+
+    const apiFetch = async (url, options = {}) => {
+        const headers = new Headers(options.headers || {});
+        headers.set('Accept', 'application/json');
+        if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+        const response = await fetch(url, { ...options, headers, credentials: 'same-origin' });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) {
+            const error = new Error(payload?.error || payload?.message || response.statusText);
+            error.status = response.status;
+            throw error;
+        }
+        return payload;
+    };
+
+    let editingKey = null;
+
+    async function load() {
+        try {
+            const data = await apiFetch('/api/admin/service-config');
+            render(data.entries || []);
+        } catch {
+            render([]);
+        }
+    }
+
+    function render(entries) {
+        if (!listEl) return;
+        if (!entries.length) {
+            listEl.innerHTML = '<p style="padding:0.5rem 1rem;font-size:0.85rem;color:var(--color-fg-muted)">No service config entries.</p>';
+            return;
+        }
+        const groups = entries.reduce((acc, entry) => {
+            (acc[entry.group] ||= []).push(entry);
+            return acc;
+        }, {});
+        listEl.innerHTML = Object.entries(groups).map(([groupName, items]) => `
+            <div style="padding:0.5rem 1rem 1rem">
+                <h3 style="font-size:0.78rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--color-fg-muted);margin:0.75rem 0 0.5rem">${esc(groupName)}</h3>
+                <div style="display:grid;gap:0.3rem">
+                    ${items.map(renderRow).join('')}
+                </div>
+            </div>`).join('');
+
+        listEl.querySelectorAll('[data-edit-key]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                editingKey = btn.dataset.editKey;
+                render(entries);
+                const input = listEl.querySelector(`[data-value-input="${editingKey}"]`);
+                input?.focus();
+            });
+        });
+        listEl.querySelectorAll('[data-cancel-edit]').forEach((btn) => {
+            btn.addEventListener('click', () => { editingKey = null; render(entries); });
+        });
+        listEl.querySelectorAll('[data-save-form]').forEach((form) => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const key = form.dataset.saveForm;
+                const input = form.querySelector('[data-value-input]');
+                const select = form.querySelector('[data-value-select]');
+                const value = (select?.value ?? input?.value ?? '').trim();
+                if (!value) return;
+                form.querySelector('button[type="submit"]').disabled = true;
+                try {
+                    await apiFetch(`/api/admin/service-config/${encodeURIComponent(key)}`, { method: 'PUT', body: JSON.stringify({ value }) });
+                    editingKey = null;
+                    await load();
+                } catch (error) {
+                    form.querySelector('button[type="submit"]').disabled = false;
+                    alert(`Save failed: ${error.message}`);
+                }
+            });
+        });
+        listEl.querySelectorAll('[data-clear-key]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Clear this override and revert to the env-file value?')) return;
+                btn.disabled = true;
+                try {
+                    await apiFetch(`/api/admin/service-config/${encodeURIComponent(btn.dataset.clearKey)}`, { method: 'DELETE' });
+                    await load();
+                } catch (error) {
+                    btn.disabled = false;
+                    alert(`Clear failed: ${error.message}`);
+                }
+            });
+        });
+    }
+
+    function renderRow(entry) {
+        const sourceBadge = entry.source === 'db'
+            ? '<span style="background:#dbeafe;color:#1e40af;padding:0.1rem 0.5rem;border-radius:10px;font-size:0.7rem;font-weight:600">DB override</span>'
+            : entry.source === 'env'
+              ? '<span style="background:#f1f5f9;color:#475569;padding:0.1rem 0.5rem;border-radius:10px;font-size:0.7rem;font-weight:600">env</span>'
+              : '<span style="background:#fef3c7;color:#92400e;padding:0.1rem 0.5rem;border-radius:10px;font-size:0.7rem;font-weight:600">unset</span>';
+        const valueDisplay = entry.hasValue
+            ? `<code style="font-family:monospace;font-size:0.82rem">${esc(entry.maskedValue)}</code>`
+            : '<span style="color:var(--color-fg-muted);font-size:0.82rem;font-style:italic">not set</span>';
+
+        if (editingKey === entry.key) {
+            const inputField = entry.type === 'enum' && entry.options
+                ? `<select class="form-input" data-value-select required style="flex:1;min-width:200px">${entry.options.map((opt) => `<option value="${esc(opt)}">${esc(opt)}</option>`).join('')}</select>`
+                : `<input class="form-input" data-value-input="${esc(entry.key)}" type="${entry.isSecret ? 'password' : 'text'}" required autocomplete="off" placeholder="Enter new value" style="flex:1;min-width:200px">`;
+            return `
+                <form data-save-form="${esc(entry.key)}" style="display:flex;gap:0.5rem;align-items:center;padding:0.6rem 0.75rem;background:var(--color-bg-subtle,#f8fafc);border-radius:8px;flex-wrap:wrap">
+                    <label style="font-size:0.85rem;font-weight:600;min-width:180px">${esc(entry.label)}</label>
+                    ${inputField}
+                    <button class="button button--plain-dark button--pill button--sm" type="submit">Save</button>
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-cancel-edit>Cancel</button>
+                </form>`;
+        }
+        return `
+            <div style="display:flex;gap:0.75rem;align-items:center;padding:0.5rem 0.75rem;border-bottom:1px solid var(--color-border-subtle,#eef0f3);flex-wrap:wrap">
+                <div style="min-width:180px;font-size:0.85rem;font-weight:600">${esc(entry.label)}</div>
+                <div style="flex:1;min-width:200px;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+                    ${valueDisplay}
+                    ${sourceBadge}
+                </div>
+                <div style="display:flex;gap:0.25rem;align-items:center">
+                    <button class="button button--plain-light button--pill button--sm" type="button" data-edit-key="${esc(entry.key)}">${entry.source === 'db' ? 'Edit' : 'Override'}</button>
+                    ${entry.source === 'db' ? `<button class="button button--plain-light button--pill button--sm admin-danger-btn" type="button" data-clear-key="${esc(entry.key)}">Clear</button>` : ''}
+                </div>
+            </div>`;
+    }
+
+    reloadBtn?.addEventListener('click', load);
+    app.querySelectorAll('[data-tab]').forEach((t) => {
+        if (t.getAttribute('data-tab') === 'service-config') {
+            t.addEventListener('click', load);
         }
     });
 }
