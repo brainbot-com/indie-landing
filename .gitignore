@@ -6,3 +6,5 @@ deploy/env/.env*
 .local-data/
 dist
 build
+.claude/
+.mcp.json.bak
