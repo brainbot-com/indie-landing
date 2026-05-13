@@ -48,7 +48,10 @@
   };
 
   const getPrivacyLink = (lang) => {
-    return lang === "de" ? "datenschutz.html" : "privacy.html";
+    // EN has two pages: privacy.html (marketing-style "Privacy Principles")
+    // and datenschutz.html (the legal GDPR notice with the Matomo section).
+    // Banner links must point to the legal notice.
+    return lang === "de" ? "datenschutz.html" : "datenschutz.html";
   };
 
   const getStoredConsent = () => {
@@ -120,22 +123,24 @@
 
     const title = document.createElement("div");
     title.className = "matomo-consent__title";
-    title.textContent = lang === "de" ? "Website-Analyse (Matomo)" : "Website analytics (Matomo)";
+    title.textContent = lang === "de" ? "Reichweitenmessung" : "Visitor analytics";
 
     const body = document.createElement("div");
     body.className = "matomo-consent__body";
     body.innerHTML =
       lang === "de"
-        ? `Analyse des Nutzerverhaltens auf unserer Website zur Reichweitenmessung, auch über mehrere Besuche hinweg. <a class="matomo-consent__link" href="${privacyLink}">Mehr Infos</a>.`
-        : `Analytics of user behavior on our website to measure reach, including across multiple visits. <a class="matomo-consent__link" href="${privacyLink}">Learn more</a>.`;
+        ? `Wir möchten verstehen, wie unsere Website genutzt wird. Dafür setzen wir mit Ihrer Einwilligung ein Cookie, um wiederkehrende Besuche zu erkennen. Die Messung läuft auf unserem eigenen Matomo-Server — keine Weitergabe an Dritte. Ihre Einwilligung können Sie jederzeit widerrufen. <a class="matomo-consent__link" href="${privacyLink}">Mehr in der Datenschutzerklärung</a>.`
+        : `We'd like to understand how this website is used. With your consent, we set a cookie to recognise return visits. Analytics run on our own Matomo server — no data is shared with third parties. You can withdraw your consent at any time. <a class="matomo-consent__link" href="${privacyLink}">More in the privacy notice</a>.`;
 
     const actions = document.createElement("div");
     actions.className = "matomo-consent__actions";
 
+    // Buttons share the same visual weight to avoid steering users towards
+    // acceptance (relevant under DSGVO/TTDSG dark-pattern guidance).
     const accept = document.createElement("button");
     accept.type = "button";
-    accept.className = "button button--solid button--pill button--sm";
-    accept.textContent = lang === "de" ? "Akzeptieren" : "Accept";
+    accept.className = "button button--plain-dark button--pill button--sm";
+    accept.textContent = lang === "de" ? "Einverstanden" : "Agree";
 
     const decline = document.createElement("button");
     decline.type = "button";
@@ -199,6 +204,10 @@
 
   if (MATOMO_DISABLE_COOKIES) _paq.push(["disableCookies"]);
   _paq.push(["setDoNotTrack", true]);
+  // IP anonymisation: keep only the first three octets server-side.
+  // Required to back up the claim in the privacy notice that the IP is
+  // truncated. Must be set before trackPageView.
+  _paq.push(["setIpAnonymization", true]);
 
   _paq.push(["setTrackerUrl", `${baseUrl}matomo.php`]);
   _paq.push(["setSiteId", String(MATOMO_SITE_ID)]);
