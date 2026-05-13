@@ -85,6 +85,9 @@ const supportedPaymentMethods = {
 const store = await createStore({ dataDir: config.dataDir, logger: console });
 const rateLimitBuckets = new Map();
 seedNotificationTemplates();
+if (store.seedArticlesIfEmpty()) {
+  console.log(JSON.stringify({ msg: 'articles_seeded', id: 1, slug: 'indiebox-base' }));
+}
 
 // Admin-editable service credentials. Each entry maps the env-style key
 // shown in the UI to the corresponding live field on `config`, plus a
@@ -2039,6 +2042,128 @@ app.delete('/api/admin/service-config/:key', adminRateLimit, requireAdmin, (req,
   if (!entry) return res.status(404).json({ error: 'unknown_setting' });
   store.deleteAppSetting(entry.key);
   applyServiceConfigOverrides();
+  return res.json({ ok: true });
+});
+
+// ── Articles API ─────────────────────────────────────────────────────────
+// Articles are the source of truth for product copy & pricing. They are
+// referenced from the frontend via `data-article="<id>.<field>"`. The
+// public read endpoints are unauthenticated so the static site can hydrate
+// at build/runtime; admin endpoints (still TBD UI-wise) require admin.
+
+function shapeArticleForApi(article, { content = [], features = [] } = {}) {
+  const contentByLocale = content.reduce((acc, row) => {
+    (acc[row.locale] ||= {})[row.field] = { value: row.value, isRichtext: row.isRichtext };
+    return acc;
+  }, {});
+  const featuresByLocale = features.reduce((acc, row) => {
+    (acc[row.locale] ||= []).push({ position: row.position, label: row.label, detail: row.detail });
+    return acc;
+  }, {});
+  return {
+    id: article.id,
+    slug: article.slug,
+    productKey: article.productKey,
+    basePriceCents: article.basePriceCents,
+    baseCurrency: article.baseCurrency,
+    displayOrder: article.displayOrder,
+    isActive: article.isActive,
+    content: contentByLocale,
+    features: featuresByLocale
+  };
+}
+
+app.get('/api/articles', (req, res) => {
+  const includeInactive = req.query.include_inactive === '1';
+  const articles = store.listArticles({ activeOnly: !includeInactive });
+  const payload = articles.map((article) => shapeArticleForApi(article, {
+    content: store.listArticleContent(article.id),
+    features: store.listArticleFeatures(article.id)
+  }));
+  return res.json({ articles: payload });
+});
+
+app.get('/api/articles/:id', (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid_id' });
+  const article = store.getArticle(id);
+  if (!article) return res.status(404).json({ error: 'not_found' });
+  if (!article.isActive && req.query.include_inactive !== '1') {
+    return res.status(404).json({ error: 'not_found' });
+  }
+  return res.json({
+    article: shapeArticleForApi(article, {
+      content: store.listArticleContent(id),
+      features: store.listArticleFeatures(id)
+    })
+  });
+});
+
+app.post('/api/admin/articles', adminRateLimit, requireAdmin, (req, res) => {
+  const body = req.body || {};
+  if (!body.slug || !body.basePriceCents) {
+    return res.status(400).json({ error: 'slug_and_price_required' });
+  }
+  if (!Number.isInteger(body.basePriceCents) || body.basePriceCents < 0) {
+    return res.status(400).json({ error: 'invalid_price' });
+  }
+  const article = store.saveArticle({
+    id: body.id,
+    slug: String(body.slug).trim(),
+    productKey: body.productKey || null,
+    basePriceCents: body.basePriceCents,
+    baseCurrency: body.baseCurrency || 'EUR',
+    displayOrder: body.displayOrder ?? 0,
+    isActive: body.isActive !== false
+  });
+  return res.json({ article });
+});
+
+app.put('/api/admin/articles/:id', adminRateLimit, requireAdmin, (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid_id' });
+  const existing = store.getArticle(id);
+  if (!existing) return res.status(404).json({ error: 'not_found' });
+  const body = req.body || {};
+  const article = store.saveArticle({
+    id,
+    slug: body.slug ?? existing.slug,
+    productKey: body.productKey ?? existing.productKey,
+    basePriceCents: body.basePriceCents ?? existing.basePriceCents,
+    baseCurrency: body.baseCurrency ?? existing.baseCurrency,
+    displayOrder: body.displayOrder ?? existing.displayOrder,
+    isActive: body.isActive ?? existing.isActive
+  });
+  return res.json({ article });
+});
+
+app.put('/api/admin/articles/:id/content/:locale/:field', adminRateLimit, requireAdmin, (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id) || !store.getArticle(id)) return res.status(404).json({ error: 'not_found' });
+  const value = typeof req.body?.value === 'string' ? req.body.value : '';
+  store.setArticleContent(id, req.params.locale, req.params.field, value, { isRichtext: Boolean(req.body?.isRichtext) });
+  return res.json({ ok: true });
+});
+
+app.delete('/api/admin/articles/:id/content/:locale/:field', adminRateLimit, requireAdmin, (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid_id' });
+  store.deleteArticleContent(id, req.params.locale, req.params.field);
+  return res.json({ ok: true });
+});
+
+app.put('/api/admin/articles/:id/features/:locale', adminRateLimit, requireAdmin, (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id) || !store.getArticle(id)) return res.status(404).json({ error: 'not_found' });
+  const features = Array.isArray(req.body?.features) ? req.body.features : [];
+  store.replaceArticleFeatures(id, req.params.locale, features);
+  return res.json({ ok: true });
+});
+
+app.delete('/api/admin/articles/:id', adminRateLimit, requireAdmin, (req, res) => {
+  const id = Number.parseInt(req.params.id, 10);
+  if (!Number.isFinite(id)) return res.status(400).json({ error: 'invalid_id' });
+  store.deleteArticle(id);
   return res.json({ ok: true });
 });
 

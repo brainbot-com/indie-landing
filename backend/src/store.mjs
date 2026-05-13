@@ -523,6 +523,39 @@ export async function createStore({ dataDir, logger = console }) {
       updated_at TEXT NOT NULL,
       updated_by TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS articles (
+      id INTEGER PRIMARY KEY,
+      slug TEXT UNIQUE NOT NULL,
+      product_key TEXT,
+      base_price_cents INTEGER NOT NULL,
+      base_currency TEXT NOT NULL DEFAULT 'EUR',
+      display_order INTEGER NOT NULL DEFAULT 0,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS article_content (
+      article_id INTEGER NOT NULL,
+      locale TEXT NOT NULL,
+      field TEXT NOT NULL,
+      value TEXT,
+      is_richtext INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL,
+      PRIMARY KEY (article_id, locale, field),
+      FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS article_features (
+      article_id INTEGER NOT NULL,
+      locale TEXT NOT NULL,
+      position INTEGER NOT NULL,
+      label TEXT NOT NULL,
+      detail TEXT,
+      PRIMARY KEY (article_id, locale, position),
+      FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
+    );
   `);
 
   function ensureColumn(tableName, columnName, columnSql) {
@@ -987,6 +1020,48 @@ export async function createStore({ dataDir, logger = console }) {
       updated_by = excluded.updated_by
   `);
   const deleteAppSettingStatement = db.prepare(`DELETE FROM app_settings WHERE key = ?`);
+
+  const listArticlesStatement = db.prepare(`SELECT * FROM articles ORDER BY display_order ASC, id ASC`);
+  const listActiveArticlesStatement = db.prepare(`SELECT * FROM articles WHERE is_active = 1 ORDER BY display_order ASC, id ASC`);
+  const getArticleByIdStatement = db.prepare(`SELECT * FROM articles WHERE id = ?`);
+  const getArticleBySlugStatement = db.prepare(`SELECT * FROM articles WHERE slug = ?`);
+  const insertArticleStatement = db.prepare(`
+    INSERT INTO articles (id, slug, product_key, base_price_cents, base_currency, display_order, is_active, created_at, updated_at)
+    VALUES (@id, @slug, @product_key, @base_price_cents, @base_currency, @display_order, @is_active, @created_at, @updated_at)
+  `);
+  const updateArticleStatement = db.prepare(`
+    UPDATE articles SET
+      slug = @slug,
+      product_key = @product_key,
+      base_price_cents = @base_price_cents,
+      base_currency = @base_currency,
+      display_order = @display_order,
+      is_active = @is_active,
+      updated_at = @updated_at
+    WHERE id = @id
+  `);
+  const deleteArticleStatement = db.prepare(`DELETE FROM articles WHERE id = ?`);
+
+  const listArticleContentStatement = db.prepare(`SELECT * FROM article_content WHERE article_id = ? ORDER BY locale, field`);
+  const listArticleContentByLocaleStatement = db.prepare(`SELECT * FROM article_content WHERE article_id = ? AND locale = ?`);
+  const upsertArticleContentStatement = db.prepare(`
+    INSERT INTO article_content (article_id, locale, field, value, is_richtext, updated_at)
+    VALUES (@article_id, @locale, @field, @value, @is_richtext, @updated_at)
+    ON CONFLICT(article_id, locale, field) DO UPDATE SET
+      value = excluded.value,
+      is_richtext = excluded.is_richtext,
+      updated_at = excluded.updated_at
+  `);
+  const deleteArticleContentStatement = db.prepare(`DELETE FROM article_content WHERE article_id = ? AND locale = ? AND field = ?`);
+
+  const listArticleFeaturesStatement = db.prepare(`SELECT * FROM article_features WHERE article_id = ? ORDER BY locale, position`);
+  const listArticleFeaturesByLocaleStatement = db.prepare(`SELECT * FROM article_features WHERE article_id = ? AND locale = ? ORDER BY position`);
+  const insertArticleFeatureStatement = db.prepare(`
+    INSERT INTO article_features (article_id, locale, position, label, detail)
+    VALUES (@article_id, @locale, @position, @label, @detail)
+  `);
+  const deleteArticleFeaturesStatement = db.prepare(`DELETE FROM article_features WHERE article_id = ? AND locale = ?`);
+  const countArticlesStatement = db.prepare(`SELECT COUNT(*) AS n FROM articles`);
   const upsertStockDeviceStatement = db.prepare(`
     INSERT INTO stock_devices (
       id, product_key, serial_number, device_username, device_password, hostname,
@@ -1467,6 +1542,162 @@ export async function createStore({ dataDir, logger = console }) {
 
   function deleteAppSetting(key) {
     deleteAppSettingStatement.run(key);
+  }
+
+  function rowToArticle(row) {
+    if (!row) return null;
+    return {
+      id: row.id,
+      slug: row.slug,
+      productKey: row.product_key,
+      basePriceCents: row.base_price_cents,
+      baseCurrency: row.base_currency,
+      displayOrder: row.display_order,
+      isActive: Boolean(row.is_active),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at
+    };
+  }
+
+  function listArticles({ activeOnly = false } = {}) {
+    const rows = (activeOnly ? listActiveArticlesStatement : listArticlesStatement).all();
+    return rows.map(rowToArticle);
+  }
+
+  function getArticle(id) {
+    return rowToArticle(getArticleByIdStatement.get(id));
+  }
+
+  function getArticleBySlug(slug) {
+    return rowToArticle(getArticleBySlugStatement.get(slug));
+  }
+
+  function saveArticle(input) {
+    const now = new Date().toISOString();
+    const existing = input.id != null ? getArticleByIdStatement.get(input.id) : null;
+    const payload = {
+      id: input.id,
+      slug: input.slug,
+      product_key: input.productKey || null,
+      base_price_cents: input.basePriceCents,
+      base_currency: input.baseCurrency || 'EUR',
+      display_order: input.displayOrder ?? 0,
+      is_active: input.isActive === false ? 0 : 1,
+      created_at: existing ? existing.created_at : now,
+      updated_at: now
+    };
+    if (existing) {
+      updateArticleStatement.run(payload);
+    } else {
+      insertArticleStatement.run(payload);
+    }
+    return getArticle(payload.id);
+  }
+
+  function deleteArticle(id) {
+    deleteArticleStatement.run(id);
+  }
+
+  function listArticleContent(articleId, locale) {
+    const rows = locale
+      ? listArticleContentByLocaleStatement.all(articleId, locale)
+      : listArticleContentStatement.all(articleId);
+    return rows.map((r) => ({
+      articleId: r.article_id,
+      locale: r.locale,
+      field: r.field,
+      value: r.value,
+      isRichtext: Boolean(r.is_richtext),
+      updatedAt: r.updated_at
+    }));
+  }
+
+  function setArticleContent(articleId, locale, field, value, { isRichtext = false } = {}) {
+    upsertArticleContentStatement.run({
+      article_id: articleId,
+      locale,
+      field,
+      value: value ?? null,
+      is_richtext: isRichtext ? 1 : 0,
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  function deleteArticleContent(articleId, locale, field) {
+    deleteArticleContentStatement.run(articleId, locale, field);
+  }
+
+  function listArticleFeatures(articleId, locale) {
+    const rows = locale
+      ? listArticleFeaturesByLocaleStatement.all(articleId, locale)
+      : listArticleFeaturesStatement.all(articleId);
+    return rows.map((r) => ({
+      articleId: r.article_id,
+      locale: r.locale,
+      position: r.position,
+      label: r.label,
+      detail: r.detail
+    }));
+  }
+
+  function replaceArticleFeatures(articleId, locale, features) {
+    const transaction = db.transaction((items) => {
+      deleteArticleFeaturesStatement.run(articleId, locale);
+      items.forEach((feature, index) => {
+        insertArticleFeatureStatement.run({
+          article_id: articleId,
+          locale,
+          position: index,
+          label: feature.label,
+          detail: feature.detail || null
+        });
+      });
+    });
+    transaction(features || []);
+  }
+
+  function seedArticlesIfEmpty() {
+    const { n } = countArticlesStatement.get();
+    if (n > 0) return false;
+    const now = new Date().toISOString();
+    insertArticleStatement.run({
+      id: 1,
+      slug: 'indiebox-base',
+      product_key: 'indiebox-ai-workstation',
+      base_price_cents: 399900,
+      base_currency: 'EUR',
+      display_order: 0,
+      is_active: 1,
+      created_at: now,
+      updated_at: now
+    });
+    const seedContent = (locale, entries) => {
+      for (const [field, body] of Object.entries(entries)) {
+        const isRichtext = typeof body === 'object' && body.richtext === true;
+        const value = typeof body === 'object' ? body.value : body;
+        upsertArticleContentStatement.run({
+          article_id: 1,
+          locale,
+          field,
+          value,
+          is_richtext: isRichtext ? 1 : 0,
+          updated_at: now
+        });
+      }
+    };
+    seedContent('de', {
+      name: 'Indie.box',
+      tagline: 'Private KI. Bereit zum Start.',
+      cta_buy: 'Kaufen',
+      price_label: '3.999 €'
+    });
+    seedContent('en', {
+      name: 'Indie.box',
+      tagline: 'Private AI. Ready to go.',
+      cta_buy: 'Buy',
+      price_label: '€3,999'
+    });
+    return true;
   }
 
 	  async function migrateLegacyJsonOrders() {
@@ -2029,7 +2260,18 @@ export async function createStore({ dataDir, logger = console }) {
     listAppSettings,
     getAppSettingValue,
     setAppSetting,
-    deleteAppSetting
+    deleteAppSetting,
+    listArticles,
+    getArticle,
+    getArticleBySlug,
+    saveArticle,
+    deleteArticle,
+    listArticleContent,
+    setArticleContent,
+    deleteArticleContent,
+    listArticleFeatures,
+    replaceArticleFeatures,
+    seedArticlesIfEmpty
   };
 
   function createApiKey({ id, label, keyHash, lastFour, createdBy }) {
