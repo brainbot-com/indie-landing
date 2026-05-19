@@ -4102,7 +4102,10 @@ function setupCapabilityLightbox() {
 
     triggers.forEach(img => {
         img.style.cursor = 'zoom-in';
-        img.addEventListener('click', () => open(img.currentSrc || img.src, img.alt));
+        img.addEventListener('click', () => {
+            const full = img.getAttribute('data-full');
+            open(full || img.currentSrc || img.src, img.alt);
+        });
     });
 
     closeBtn.addEventListener('click', close);
