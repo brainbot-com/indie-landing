@@ -179,7 +179,7 @@
   "nav.menu": "Menu",
   "nav.buy": "Buy",
   "spec.kicker": "Workstation Grade Power",
-  "spec.title": "Indie.box",
+  "spec.title": "Indie<span class=\"brand-dot\">.</span>box",
   "spec.tagline": "One-time purchase. Lifetime ownership.",
   "spec.items.0": "Processor",
   "spec.values.0": "AMD Ryzen™ AI Max 395 (16 Cores)",
