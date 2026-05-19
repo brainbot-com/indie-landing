@@ -4068,6 +4068,50 @@ function setupAdminRoleGuard() {
         .catch(() => {});
 }
 
+function setupCapabilityLightbox() {
+    const triggers = document.querySelectorAll('.cap-card__visual img');
+    if (!triggers.length) return;
+
+    const modal = document.createElement('div');
+    modal.className = 'cap-lightbox';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.innerHTML =
+        '<button class="cap-lightbox__close" type="button" aria-label="Close">&times;</button>' +
+        '<img class="cap-lightbox__img" alt="" />';
+    document.body.appendChild(modal);
+
+    const imgEl = modal.querySelector('.cap-lightbox__img');
+    const closeBtn = modal.querySelector('.cap-lightbox__close');
+
+    const open = (src, alt) => {
+        imgEl.src = src;
+        imgEl.alt = alt || '';
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const close = () => {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        imgEl.src = '';
+    };
+
+    triggers.forEach(img => {
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', () => open(img.currentSrc || img.src, img.alt));
+    });
+
+    closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyHeroVariant(resolveHeroVariant());
     setupHeroCinematicSequence();
@@ -4078,6 +4122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupSpecExplorer();
     setupCtaOverlays();
     setupMailtoForms();
+    setupCapabilityLightbox();
     setupCheckoutInventory();
     setupCheckoutPaymentMethods();
     setupCheckoutFormPanels();

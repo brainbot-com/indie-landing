@@ -701,68 +701,70 @@
     </section>
 
     <!-- Einsatz -->
-    <section class="section capability-story" id="einsatz">
+    <section class="section capability-cards" id="einsatz">
         <div class="container">
-            <div class="feature-panel" data-animate="fade-up">
-                <div class="feature-visual">
-                    <img class="feature-visual__img" src="chat-with-data.png" alt="Datenchat mit Dokumenten" loading="lazy">
-                </div>
-                <div class="feature-copy">
-                    <div class="feature-kicker" data-i18n="capabilities.kicker">Einsatz</div>
-                    <h3 class="feature-title" data-i18n="capabilities.docs.title">1. Mit Dokumenten chatten</h3>
-                    <p class="feature-lead" data-i18n="capabilities.docs.body" data-i18n-html="true">
-                        Lade PDFs, Verträge und Berichte hoch, um Inhalte zu analysieren, zusammenzufassen und gezielt
-                        Fragen zu stellen.<br>
-                        Alles bleibt im eigenen Netzwerk.
-                    </p>
-                    <ul class="feature-points">
-                        <li data-i18n="capabilities.docs.items.0">Verschiedene Dateiformate</li>
-                        <li data-i18n="capabilities.docs.items.1">Wissensdatenbanken</li>
-                        <li data-i18n="capabilities.docs.items.2">Texterkennung</li>
-                        <li data-i18n="capabilities.docs.items.3">Zusammenfassungen</li>
-                    </ul>
-                </div>
-            </div>
+            <header class="cap-header" data-animate="fade-up">
+                <div class="cap-eyebrow" data-i18n="capabilities.kicker">Anwendungsfälle</div>
+                <h2 class="cap-headline" data-i18n="capabilities.headline" data-i18n-html="true">Was du<br>mit Indie.box machen kannst</h2>
+                <p class="cap-sub" data-i18n="capabilities.sub">Chat, Automatisierung und Agenten laufen vollständig auf deiner eigenen Plattform. Alles ist sofort eingerichtet, optimiert und einsatzbereit. Keine Cloud erforderlich.</p>
+            </header>
 
-            <div class="feature-panel feature-panel--reverse" data-animate="fade-up">
-                <div class="feature-visual">
-                    <img class="feature-visual__img feature-visual__img--agent" src="workflows.png" alt="Agenten-Workflow" loading="lazy">
-                </div>
-                <div class="feature-copy">
-                    <div class="feature-kicker" data-i18n="capabilities.kicker">Einsatz</div>
-                    <h3 class="feature-title" data-i18n="capabilities.agents.title">2. Agenten</h3>
-                    <p class="feature-lead" data-i18n="capabilities.agents.body" data-i18n-html="true">
-                        Erstelle Agenten, die KI, Daten und Tools direkt in Workflows verbinden.<br>
-                        Mehrstufige Logik, autonomes Arbeiten, lokal ausgeführt.
-                    </p>
-                    <ul class="feature-points">
-                        <li data-i18n="capabilities.agents.items.0">1000+ App- und API-Konnektoren</li>
-                        <li data-i18n="capabilities.agents.items.1">Mehrstufige Abläufe</li>
-                        <li data-i18n="capabilities.agents.items.2">Agenten-Teams</li>
-                        <li data-i18n="capabilities.agents.items.3">Visuell konfigurierbar und per Code erweiterbar</li>
-                    </ul>
-                </div>
-            </div>
+            <div class="cap-list">
 
-            <div class="feature-panel" data-animate="fade-up">
-                <div class="feature-visual">
-                    <img class="feature-visual__img" src="models.png" alt="Modelle lokal ausführen" loading="lazy">
-                </div>
-                <div class="feature-copy">
-                    <div class="feature-kicker" data-i18n="capabilities.kicker">Einsatz</div>
-                    <h3 class="feature-title" data-i18n="capabilities.models.title">3. Alle Modelle ausführen</h3>
-                    <p class="feature-lead" data-i18n="capabilities.models.lead">Alle gängigen KI-Modelle, lokal.</p>
-                    <p class="feature-lead" data-i18n="capabilities.models.body" data-i18n-html="true">
-                        Die Indie.box kommt mit leistungsstarken Modellen vorinstalliert.<br>
-                        Weitere Modelle lassen sich bei Bedarf hinzufügen und sofort wechseln.
-                    </p>
-                    <ul class="feature-points">
-                        <li data-i18n="capabilities.models.items.0">Starke Reasoning-Modelle (Schlussfolgerung)</li>
-                        <li data-i18n="capabilities.models.items.1">Vision- und Audio-Tasks</li>
-                        <li data-i18n="capabilities.models.items.2">Tool-Aufrufe</li>
-                        <li data-i18n="capabilities.models.items.3">Hohe Antwortqualität durch lokale Rechenleistung</li>
-                    </ul>
-                </div>
+                <!-- 1: Mit Dokumenten chatten -->
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">01 / Dokumente</div>
+                        <h3 class="cap-card__title" data-i18n="capabilities.docs.title" data-i18n-html="true">Chatten mit <em>Dokumenten</em></h3>
+                        <p class="cap-card__body" data-i18n="capabilities.docs.body">PDFs, Verträge und Berichte hochladen, Inhalte analysieren, zusammenfassen und gezielt Fragen stellen. Alles bleibt in deinem Netzwerk – kein einziges Byte verlässt deine Infrastruktur.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill" data-i18n="capabilities.docs.items.0">Viele Dateiformate</span>
+                            <span class="cap-pill" data-i18n="capabilities.docs.items.1">Wissensdatenbanken</span>
+                            <span class="cap-pill" data-i18n="capabilities.docs.items.2">Texterkennung</span>
+                            <span class="cap-pill" data-i18n="capabilities.docs.items.3">Zusammenfassungen</span>
+                        </div>
+                    </div>
+                    <div class="cap-card__visual">
+                        <img src="OpenWebUI.Screenshot.De.png" alt="Chat mit Dokumenten" loading="lazy">
+                    </div>
+                </article>
+
+                <!-- 2: Agenten & Workflows -->
+                <article class="cap-card cap-card--flip" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">02 / Automatisierung</div>
+                        <h3 class="cap-card__title" data-i18n="capabilities.agents.title" data-i18n-html="true">Agenten &amp; <em>Workflows</em></h3>
+                        <p class="cap-card__body" data-i18n="capabilities.agents.body">Agenten erstellen, die KI, Daten und Tools direkt in deinen Workflows verbinden. Mehrstufige Logik, autonomes Arbeiten, lokal ausgeführt – mit über 1.000 App- und API-Konnektoren.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill" data-i18n="capabilities.agents.items.0">1.000+ Konnektoren</span>
+                            <span class="cap-pill" data-i18n="capabilities.agents.items.1">Mehrstufige Workflows</span>
+                            <span class="cap-pill" data-i18n="capabilities.agents.items.2">Agenten-Teams</span>
+                            <span class="cap-pill" data-i18n="capabilities.agents.items.3">Code-erweiterbar</span>
+                        </div>
+                    </div>
+                    <div class="cap-card__visual">
+                        <img src="workflows.png" alt="Agenten-Workflow" loading="lazy">
+                    </div>
+                </article>
+
+                <!-- 3: Alle Modelle lokal -->
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">03 / Modelle</div>
+                        <h3 class="cap-card__title" data-i18n="capabilities.models.title" data-i18n-html="true">Alle Modelle <em>lokal</em> ausführen</h3>
+                        <p class="cap-card__body" data-i18n="capabilities.models.body">Alle gängigen KI-Modelle, lokal. Indie.box kommt mit leistungsstarken Modellen vorinstalliert. Weitere bei Bedarf hinzufügen und sofort wechseln – starke Reasoning-, Vision- und Audio-Tasks inklusive.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill" data-i18n="capabilities.models.items.0">Starke Reasoning-Modelle</span>
+                            <span class="cap-pill" data-i18n="capabilities.models.items.1">Vision &amp; Audio</span>
+                            <span class="cap-pill" data-i18n="capabilities.models.items.2">Tool-Calls</span>
+                            <span class="cap-pill" data-i18n="capabilities.models.items.3">Hohe lokale Performance</span>
+                        </div>
+                    </div>
+                    <div class="cap-card__visual">
+                        <img src="models.png" alt="Verfügbare Modelle" loading="lazy">
+                    </div>
+                </article>
+
             </div>
         </div>
     </section>
