@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Indie.box Kaufoptionen</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --navy: #0e1b2e;
+      --text: #16253a;
+      --muted: #667085;
+      --orange: #ff6a00;
+      --orange-2: #ff8a2a;
+      --line: rgba(14, 27, 46, 0.08);
+      --shadow: 0 16px 38px rgba(14, 27, 46, 0.08);
+      --radius: 24px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+    .topbar { height: 28px; background: #f3f4f6; border-bottom: 1px solid #e5e7eb; color: #9aa1ab; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .nav { height: 86px; padding: 0 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(14,27,46,0.06); background: #fff; }
+    .logo { font-size: 28px; font-weight: 800; letter-spacing: -0.05em; color: var(--navy); }
+    .navlinks { display: flex; align-items: center; gap: 34px; font-size: 18px; font-weight: 600; color: #1f2937; }
+    .buy-btn { border: 0; border-radius: 999px; padding: 13px 22px; background: linear-gradient(135deg, var(--orange) 0%, var(--orange-2) 100%); color: #fff; font-weight: 800; font-size: 17px; box-shadow: 0 10px 22px rgba(255, 106, 0, 0.20); }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 28px 72px; }
+    .eyebrow { color: #d65f14; font-size: 13px; font-weight: 800; letter-spacing: 0.28em; text-transform: uppercase; margin-bottom: 14px; }
+    h1 { margin: 0; max-width: 860px; font-size: 56px; line-height: 0.98; letter-spacing: -0.05em; color: #dc5d12; }
+    .intro { margin-top: 18px; max-width: 860px; color: var(--muted); font-size: 19px; line-height: 1.55; }
+    .section-label { margin-top: 34px; color: #d65f14; font-size: 13px; font-weight: 800; letter-spacing: 0.26em; text-transform: uppercase; }
+    .pricing-grid { margin-top: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch; }
+    .plan { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 580px; }
+    .plan-head { position: relative; padding: 24px; background: linear-gradient(135deg, #0e1b2e 0%, #122847 56%, #0c1728 100%); color: #fff; height: 222px; display: flex; flex-direction: column; }
+    .plan-head::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--orange) 0%, var(--orange-2) 100%); }
+    .plan-tag { color: #ff9a4d; font-size: 11px; font-weight: 900; letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 14px; }
+    .plan-title { margin: 0; font-size: 26px; line-height: 1.02; letter-spacing: -0.04em; }
+    .price { margin-top: 14px; font-size: 38px; line-height: 1; letter-spacing: -0.04em; font-weight: 900; white-space: nowrap; }
+    .price span { font-size: 17px; font-weight: 700; opacity: 0.82; }
+    .plan-sub { margin-top: 12px; color: rgba(255,255,255,0.78); font-size: 14px; line-height: 1.45; max-width: 300px; }
+    .plan-body { padding: 20px 22px 22px; display: flex; flex: 1; flex-direction: column; }
+    .bullet-title { font-size: 15px; font-weight: 800; margin: 0 0 10px; color: var(--text); letter-spacing: 0.02em; }
+    ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; flex: 1; }
+    li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.35; color: var(--muted); min-height: 26px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--orange) 0%, var(--orange-2) 100%); margin-top: 6px; flex: 0 0 8px; box-shadow: 0 0 0 3px rgba(255,106,0,0.10); }
+    .cta-row { margin-top: 18px; display: flex; gap: 10px; }
+    .cta { flex: 1; display: inline-flex; align-items: center; justify-content: center; padding: 10px 12px; border-radius: 999px; font-weight: 800; font-size: 13px; text-align: center; }
+    .cta.primary { background: linear-gradient(135deg, var(--orange) 0%, var(--orange-2) 100%); color: #fff; box-shadow: 0 8px 16px rgba(255,106,0,0.16); }
+    .cta.secondary { background: #f5f7fa; border: 1px solid rgba(14,27,46,0.10); color: var(--navy); }
+    .info-bar { margin-top: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .pill { border: 1px solid rgba(14,27,46,0.10); border-radius: 999px; padding: 10px 14px; background: #fff; color: var(--navy); font-weight: 700; font-size: 13px; text-align: center; }
+    .footer-note { margin-top: 20px; max-width: 980px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+    @media (max-width: 1240px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1120px) { .pricing-grid, .info-bar { grid-template-columns: 1fr; } h1 { font-size: 46px; } .nav { padding: 0 20px; } .navlinks { gap: 16px; font-size: 15px; } .logo { font-size: 22px; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">Indie.box — Private AI. Ready to go.</div>
+  <div class="nav">
+    <div class="logo">Indie.box</div>
+    <div class="navlinks">
+      <div>Docs</div>
+      <div>Data security</div>
+      <div>Operations</div>
+      <div>Specifications</div>
+      <button class="buy-btn">Demo buchen</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="eyebrow">Kaufoptionen</div>
+    <h1>Vier Tarife für den passenden Einstieg in lokale KI.</h1>
+    <div class="intro">Wählen Sie die Option, die am besten zu Ihrem Einsatz, Budget und Ihrer Planung passt.</div>
+    <div class="section-label">Tarife</div>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-head">
+          <div class="plan-tag">01 / Kauf</div>
+          <h2 class="plan-title">Einmalzahlung</h2>
+          <div class="price">3.999 <span>€</span></div>
+          <div class="plan-sub">Die günstigste Gesamtlösung bei direktem Kauf.</div>
+        </div>
+        <div class="plan-body">
+          <div class="bullet-title">Vorteile</div>
+          <ul>
+            <li><span class="dot"></span><span>Günstigste Wahl insgesamt.</span></li>
+            <li><span class="dot"></span><span>Einmal zahlen, direkt nutzen.</span></li>
+            <li><span class="dot"></span><span>Kein laufender Vertrag.</span></li>
+                      </ul>
+          <div class="cta-row"><a class="cta primary" href="#kontakt">Demo buchen</a><a class="cta secondary" href="#faq">Mehr erfahren</a></div>
+        </div>
+      </div>
+      <div class="plan">
+        <div class="plan-head">
+          <div class="plan-tag">02 / Einstieg</div>
+          <h2 class="plan-title">Leasing 12</h2>
+          <div class="price">399,99 <span>€/Monat</span></div>
+          <div class="plan-sub">Die kürzeste Laufzeit für einen schnellen Einstieg.</div>
+        </div>
+        <div class="plan-body">
+          <div class="bullet-title">Vorteile</div>
+          <ul>
+            <li><span class="dot"></span><span>Probemonat inklusive*</span></li>
+            <li><span class="dot"></span><span>Kurze Laufzeit.</span></li>
+            <li><span class="dot"></span><span>Reparatur oder Austausch bei Defekt.</span></li>
+            <li><span class="dot"></span><span>Planbare Monatsrate.</span></li>
+            <li><span class="dot"></span><span>Übernahme am Laufzeitende.</span></li>
+          </ul>
+          <div class="cta-row"><a class="cta primary" href="#kontakt">Demo buchen</a><a class="cta secondary" href="#faq">Mehr erfahren</a></div>
+        </div>
+      </div>
+      <div class="plan">
+        <div class="plan-head">
+          <div class="plan-tag">03 / Standard</div>
+          <h2 class="plan-title">Leasing 24</h2>
+          <div class="price">204,99 <span>€/Monat</span></div>
+          <div class="plan-sub">Die ausgewogene Variante für die meisten Teams.</div>
+        </div>
+        <div class="plan-body">
+          <div class="bullet-title">Vorteile</div>
+          <ul>
+            <li><span class="dot"></span><span>Probemonat inklusive*</span></li>
+            <li><span class="dot"></span><span>Ausgewogene Laufzeit.</span></li>
+            <li><span class="dot"></span><span>Reparatur oder Austausch bei Defekt.</span></li>
+            <li><span class="dot"></span><span>Gut kalkulierbar für Budgets.</span></li>
+            <li><span class="dot"></span><span>Übernahme am Laufzeitende.</span></li>
+          </ul>
+          <div class="cta-row"><a class="cta primary" href="#kontakt">Demo buchen</a><a class="cta secondary" href="#faq">Mehr erfahren</a></div>
+        </div>
+      </div>
+      <div class="plan">
+        <div class="plan-head">
+          <div class="plan-tag">04 / Flex</div>
+          <h2 class="plan-title">Leasing 48</h2>
+          <div class="price">112,99 <span>€/Monat</span></div>
+          <div class="plan-sub">Die niedrigste monatliche Belastung.</div>
+        </div>
+        <div class="plan-body">
+          <div class="bullet-title">Vorteile</div>
+          <ul>
+            <li><span class="dot"></span><span>Probemonat inklusive*</span></li>
+            <li><span class="dot"></span><span>Niedrige Monatsrate.</span></li>
+            <li><span class="dot"></span><span>Reparatur oder Austausch bei Defekt.</span></li>
+            <li><span class="dot"></span><span>Ideal für lange Planung.</span></li>
+            <li><span class="dot"></span><span>Übernahme am Laufzeitende.</span></li>
+          </ul>
+          <div class="cta-row"><a class="cta primary" href="#kontakt">Demo buchen</a><a class="cta secondary" href="#faq">Mehr erfahren</a></div>
+        </div>
+      </div>
+    </div>
+        <p class="footer-note" id="faq">*Wir bieten einen Probemonat inklusive an. Der Betrag wird zunächst abgebucht. Sollte sich im Alltag zeigen, dass das Setup nicht passt oder die Lösung nicht überzeugt, kann die Box zurückgegeben werden und die Zahlung wird erstattet. Wenn alles überzeugt, läuft das Leasing regulär weiter und die Indiebox bleibt im Einsatz.</p>
+  </div>
+</body>
+</html>
