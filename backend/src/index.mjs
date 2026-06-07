@@ -43,7 +43,12 @@ const config = {
   dataDir: process.env.DATA_DIR || '/app/data',
   enableAdminApi: process.env.ENABLE_ADMIN_API === 'true' || (process.env.APP_ENV || 'development') === 'development',
   port: Number.parseInt(process.env.PORT || '8080', 10),
-  apiKeyPrefix: process.env.APP_ENV === 'production' ? 'ind_bo_live_' : process.env.APP_ENV === 'staging' ? 'ind_bo_stg_' : 'ind_bo_dev_'
+  apiKeyPrefix: process.env.APP_ENV === 'production' ? 'ind_bo_live_' : process.env.APP_ENV === 'staging' ? 'ind_bo_stg_' : 'ind_bo_dev_',
+  litellmBaseUrl: (process.env.LITELLM_BASE_URL || 'https://studiollm.brainbot.com').replace(/\/$/, ''),
+  litellmApiKey: process.env.LITELLM_API_KEY || '',
+  litellmModel: process.env.LITELLM_MODEL || 'Qwen3.6-35B-A3B-8bit',
+  chatSystemPrompt: process.env.CHAT_SYSTEM_PROMPT
+    || 'Du bist der Indie.box-Assistent. Indie.box ist eine private, lokal laufende KI-Workstation – keine Cloud, volle Datenhoheit. Antworte freundlich, präzise und in der Sprache des Nutzers (Deutsch oder Englisch). Wenn du etwas nicht sicher weißt, sage es ehrlich.'
 };
 
 const supportedPaymentMethods = {
@@ -101,7 +106,10 @@ const SERVICE_CONFIG_KEYS = [
   { key: 'MAILGUN_DOMAIN',          configField: 'mailgunDomain',        label: 'Mailgun Domain',          group: 'Mailgun', type: 'text' },
   { key: 'MAILGUN_REGION',          configField: 'mailgunRegion',        label: 'Mailgun Region',          group: 'Mailgun', type: 'enum', options: ['eu', 'us'] },
   { key: 'ORDER_NOTIFICATION_FROM', configField: 'orderNotificationFrom', label: 'Notification From',      group: 'Mailgun', type: 'text' },
-  { key: 'ORDER_NOTIFICATION_TO',   configField: 'orderNotificationTo',  label: 'Notification To',         group: 'Mailgun', type: 'text' }
+  { key: 'ORDER_NOTIFICATION_TO',   configField: 'orderNotificationTo',  label: 'Notification To',         group: 'Mailgun', type: 'text' },
+  { key: 'LITELLM_BASE_URL',        configField: 'litellmBaseUrl',       label: 'LiteLLM Base URL',        group: 'Chat',    type: 'text' },
+  { key: 'LITELLM_API_KEY',         configField: 'litellmApiKey',        label: 'LiteLLM API Key',         group: 'Chat',    type: 'secret' },
+  { key: 'LITELLM_MODEL',           configField: 'litellmModel',         label: 'LiteLLM Model',           group: 'Chat',    type: 'text' }
 ];
 const SERVICE_CONFIG_BY_KEY = new Map(SERVICE_CONFIG_KEYS.map((entry) => [entry.key, entry]));
 const SERVICE_CONFIG_ENV_VALUES = SERVICE_CONFIG_KEYS.reduce((acc, entry) => {
@@ -2043,6 +2051,101 @@ app.delete('/api/admin/service-config/:key', adminRateLimit, requireAdmin, (req,
   store.deleteAppSetting(entry.key);
   applyServiceConfigOverrides();
   return res.json({ ok: true });
+});
+
+// ── Chat API ─────────────────────────────────────────────────────────────
+// Public, unauthenticated proxy to the LiteLLM endpoint. The API key lives
+// only server-side (config.litellmApiKey) and is never exposed to the
+// browser. The response is streamed back as Server-Sent Events so the chat
+// UI can render tokens as they arrive.
+
+const CHAT_MAX_MESSAGES = 30;
+const CHAT_MAX_CONTENT_LENGTH = 4000;
+// Chat history can exceed the default 20kb body limit, so this route uses a
+// larger (but still bounded) parser.
+const chatJsonParser = express.json({ limit: '256kb' });
+
+function normalizeChatMessages(input) {
+  if (!Array.isArray(input)) return [];
+  const allowedRoles = new Set(['user', 'assistant']);
+  return input
+    .filter((item) => item && allowedRoles.has(item.role))
+    .map((item) => ({
+      role: item.role,
+      content: sanitizeMultilineInput(item.content, CHAT_MAX_CONTENT_LENGTH)
+    }))
+    .filter((item) => item.content)
+    .slice(-CHAT_MAX_MESSAGES);
+}
+
+app.post('/api/chat', chatJsonParser, async (req, res) => {
+  if (!config.litellmApiKey || !config.litellmBaseUrl) {
+    return res.status(503).json({ error: 'chat_unavailable' });
+  }
+
+  const messages = normalizeChatMessages(req.body?.messages);
+  if (messages.length === 0) {
+    return res.status(400).json({ error: 'no_messages' });
+  }
+
+  const payload = {
+    model: config.litellmModel,
+    stream: true,
+    messages: [
+      { role: 'system', content: config.chatSystemPrompt },
+      ...messages
+    ]
+  };
+
+  // Abort the upstream request only when the client disconnects before we
+  // have finished responding (not merely when the request body is consumed).
+  const controller = new AbortController();
+  res.on('close', () => {
+    if (!res.writableEnded) controller.abort();
+  });
+
+  let upstream;
+  try {
+    upstream = await fetch(`${config.litellmBaseUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.litellmApiKey}`,
+        Accept: 'text/event-stream'
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (controller.signal.aborted) return res.end();
+    console.error('chat_upstream_unreachable', { message: error.message });
+    return res.status(502).json({ error: 'chat_upstream_unreachable' });
+  }
+
+  if (!upstream.ok || !upstream.body) {
+    const detail = await upstream.text().catch(() => '');
+    console.error('chat_upstream_error', { status: upstream.status, detail: detail.slice(0, 500) });
+    return res.status(502).json({ error: 'chat_upstream_error', status: upstream.status });
+  }
+
+  res.status(200);
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders?.();
+
+  try {
+    for await (const chunk of upstream.body) {
+      res.write(chunk);
+    }
+    res.end();
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      console.error('chat_stream_interrupted', { message: error.message });
+    }
+    res.end();
+  }
 });
 
 // ── Articles API ─────────────────────────────────────────────────────────
