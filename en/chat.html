@@ -7,7 +7,7 @@
     <title>Indie.box – Try the AI</title>
 
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-    <meta name="description" content="Try the private Indie.box AI right in your browser – no cloud, no sign-up.">
+    <meta name="description" content="Try the private Indie.box AI right in your browser, with no cloud and no sign-up.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,14 +44,17 @@
             <div class="container chat-container">
                 <header class="chat-intro">
                     <p class="chat-kicker">Live demo</p>
-                    <h1 class="chat-title">Talk to the Indie.box AI</h1>
-                    <p class="chat-lead">Private AI, running fully on our own hardware. Ask a question – the answer comes straight from a model on the Indie.box, with no third-party cloud services involved.</p>
+                    <h1 class="chat-title">Try local AI</h1>
+                    <p class="chat-meta" id="chat-meta">
+                        <span class="chat-meta-item">Model: <strong id="chat-model">…</strong></span>
+                    </p>
+                    <p class="chat-lead">This demo runs on an exo cluster of two Mac minis with 512 GB of combined memory. It shows what locally hosted AI feels like, with no third-party cloud services involved.</p>
                 </header>
 
                 <div class="chat-window">
                     <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Conversation history">
                         <div class="chat-message chat-message--assistant">
-                            <div class="chat-bubble">Hi! I'm the Indie.box assistant. Ask me anything about private AI, the Indie.box, or whatever else you're curious about.</div>
+                            <div class="chat-bubble">Hi! I'm a locally running AI model. Ask me anything about private AI, the Indie.box, or whatever else you're curious about.</div>
                         </div>
                     </div>
 

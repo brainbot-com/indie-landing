@@ -2078,6 +2078,15 @@ function normalizeChatMessages(input) {
     .slice(-CHAT_MAX_MESSAGES);
 }
 
+// Public, non-secret chat metadata for the UI: which model is in use and
+// whether chat is configured. The API key and base URL are never exposed.
+app.get('/api/chat/info', (_req, res) => {
+  res.json({
+    available: Boolean(config.litellmApiKey && config.litellmBaseUrl),
+    model: config.litellmModel
+  });
+});
+
 app.post('/api/chat', chatJsonParser, async (req, res) => {
   if (!config.litellmApiKey || !config.litellmBaseUrl) {
     return res.status(503).json({ error: 'chat_unavailable' });

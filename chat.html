@@ -7,7 +7,7 @@
     <title>Indie.box – KI ausprobieren</title>
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <meta name="description" content="Teste die private Indie.box-KI direkt im Browser – ohne Cloud, ohne Anmeldung.">
+    <meta name="description" content="Teste die private Indie.box-KI direkt im Browser, ohne Cloud und ohne Anmeldung.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,14 +44,17 @@
             <div class="container chat-container">
                 <header class="chat-intro">
                     <p class="chat-kicker">Live-Demo</p>
-                    <h1 class="chat-title">Sprich mit der Indie.box-KI</h1>
-                    <p class="chat-lead">Private KI, komplett lokal betrieben. Stell eine Frage – die Antwort kommt direkt von einem Modell auf unserer Hardware, ohne Cloud-Dienste Dritter.</p>
+                    <h1 class="chat-title">Lokale KI ausprobieren</h1>
+                    <p class="chat-meta" id="chat-meta">
+                        <span class="chat-meta-item">Modell: <strong id="chat-model">…</strong></span>
+                    </p>
+                    <p class="chat-lead">Diese Demo läuft auf einem exo-Cluster aus zwei Mac mini mit zusammen 512 GB Arbeitsspeicher. Sie zeigt, wie sich lokal betriebene KI ohne Cloud-Dienste Dritter anfühlt.</p>
                 </header>
 
                 <div class="chat-window">
                     <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Gesprächsverlauf">
                         <div class="chat-message chat-message--assistant">
-                            <div class="chat-bubble">Hallo! Ich bin der Indie.box-Assistent. Frag mich gern etwas über private KI, die Indie.box oder einfach irgendwas, das dich interessiert.</div>
+                            <div class="chat-bubble">Hallo! Ich bin ein lokal laufendes KI-Modell. Frag mich gern etwas über private KI, die Indie.box oder einfach irgendwas, das dich interessiert.</div>
                         </div>
                     </div>
 

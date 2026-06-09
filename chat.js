@@ -36,6 +36,18 @@
     const messages = [];
     let busy = false;
 
+    // Show which model is live (fetched from the backend; never the key/URL).
+    const modelEl = document.getElementById('chat-model');
+    if (modelEl) {
+        fetch('/api/chat/info', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (info) {
+                if (info && info.model) modelEl.textContent = info.model;
+                else modelEl.textContent = '—';
+            })
+            .catch(function () { modelEl.textContent = '—'; });
+    }
+
     function autoGrow() {
         input.style.height = 'auto';
         input.style.height = Math.min(input.scrollHeight, 200) + 'px';
