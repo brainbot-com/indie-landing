@@ -75,6 +75,61 @@
         log.scrollTop = log.scrollHeight;
     }
 
+    function escapeHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // Inline Markdown on an already-HTML-escaped string: code, bold, italic, links.
+    function inlineMarkdown(t) {
+        return t
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*])\*([^*\n]+?)\*/g, '$1<em>$2</em>')
+            .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)"']+)\)/g,
+                '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    // Minimal, dependency-free Markdown -> HTML for assistant bubbles. HTML is
+    // escaped first, so only the known-safe tags below can ever be produced —
+    // the model output cannot inject markup.
+    function renderMarkdown(src) {
+        const lines = escapeHtml(src).split('\n');
+        const out = [];
+        let list = null;   // 'ul' | 'ol'
+        let para = [];     // buffered consecutive paragraph lines
+
+        function flushPara() {
+            if (para.length) { out.push('<p>' + para.join('<br>') + '</p>'); para = []; }
+        }
+        function closeList() {
+            if (list) { out.push('</' + list + '>'); list = null; }
+        }
+
+        for (const raw of lines) {
+            const line = raw.trim();
+            if (!line) { flushPara(); closeList(); continue; }
+
+            let m;
+            if ((m = /^#{1,6}\s+(.*)$/.exec(line))) {
+                flushPara(); closeList();
+                out.push('<p><strong>' + inlineMarkdown(m[1]) + '</strong></p>');
+            } else if ((m = /^[-*]\s+(.*)$/.exec(line))) {
+                flushPara();
+                if (list !== 'ul') { closeList(); out.push('<ul>'); list = 'ul'; }
+                out.push('<li>' + inlineMarkdown(m[1]) + '</li>');
+            } else if ((m = /^\d+\.\s+(.*)$/.exec(line))) {
+                flushPara();
+                if (list !== 'ol') { closeList(); out.push('<ol>'); list = 'ol'; }
+                out.push('<li>' + inlineMarkdown(m[1]) + '</li>');
+            } else {
+                closeList();
+                para.push(inlineMarkdown(line));
+            }
+        }
+        flushPara(); closeList();
+        return out.join('');
+    }
+
     function addMessage(role, text) {
         const wrap = document.createElement('div');
         wrap.className = 'chat-message chat-message--' + role;
@@ -177,7 +232,8 @@
                             bubble.textContent = '';
                         }
                         answer += piece;
-                        bubble.textContent = answer;
+                        bubble.classList.add('chat-bubble--rendered');
+                        bubble.innerHTML = renderMarkdown(answer);
                         scrollToBottom();
                     }
                 }

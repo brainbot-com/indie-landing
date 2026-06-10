@@ -7435,6 +7435,29 @@ button.box-cta.combi-pill {
     color: var(--primary-color) !important;
 }
 
+/* Rendered Markdown inside assistant bubbles (let the HTML control layout
+   instead of the bubble's pre-wrap). */
+.chat-bubble--rendered { white-space: normal; }
+.chat-bubble--rendered > :first-child { margin-top: 0; }
+.chat-bubble--rendered > :last-child { margin-bottom: 0; }
+.chat-bubble--rendered p { margin: 0 0 0.6em; }
+.chat-bubble--rendered ul,
+.chat-bubble--rendered ol { margin: 0.3em 0 0.6em; padding-left: 1.3em; }
+.chat-bubble--rendered li { margin: 0.2em 0; }
+.chat-bubble--rendered li::marker { color: var(--accent-color); }
+.chat-bubble--rendered strong { font-weight: 700; }
+.chat-bubble--rendered code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.88em;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 5px;
+}
+.chat-bubble--rendered a {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
 /* Typing indicator (three pulsing dots) */
 .chat-typing {
     display: inline-flex;
