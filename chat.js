@@ -34,28 +34,48 @@
             errorModel: 'Das KI-Modell läuft gerade nicht. Bitte versuche es gleich noch einmal.'
         };
 
-    // Mode selector (custom dropdown): "Instant Answer" (reasoning off, fast)
-    // vs "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
-    let thinkMode = false;
-    (function initModeMenu() {
-        const root = document.getElementById('chat-mode');
-        const button = document.getElementById('chat-mode-button');
-        const menu = document.getElementById('chat-mode-menu');
-        const current = document.getElementById('chat-mode-current');
-        if (!root || !button || !menu || !current) return;
-        const options = Array.prototype.slice.call(menu.querySelectorAll('.chat-mode-option'));
-
+    // The bottom toolbar has two custom dropdowns (model picker, answer-mode
+    // picker), styled identically. Shared open/close wiring; opening one closes
+    // the other, and clicks outside / Escape close all.
+    const dropdowns = [];
+    function closeAllDropdowns() {
+        dropdowns.forEach(function (d) { d.setOpen(false); });
+    }
+    function makeDropdown(rootId, buttonId, menuId) {
+        const root = document.getElementById(rootId);
+        const button = document.getElementById(buttonId);
+        const menu = document.getElementById(menuId);
+        if (!root || !button || !menu) return null;
         function setOpen(open) {
             menu.hidden = !open;
             root.classList.toggle('is-open', open);
             button.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
-
         button.addEventListener('click', function (event) {
             event.stopPropagation();
-            setOpen(menu.hidden);
+            const willOpen = menu.hidden;
+            closeAllDropdowns();
+            setOpen(willOpen);
         });
+        const api = { root: root, button: button, menu: menu, setOpen: setOpen };
+        dropdowns.push(api);
+        return api;
+    }
+    document.addEventListener('click', function (event) {
+        dropdowns.forEach(function (d) { if (!d.root.contains(event.target)) d.setOpen(false); });
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeAllDropdowns();
+    });
 
+    // Answer-mode picker: "Instant Answer" (reasoning off, fast) vs
+    // "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
+    let thinkMode = false;
+    (function initModeMenu() {
+        const dd = makeDropdown('chat-mode', 'chat-mode-button', 'chat-mode-menu');
+        const current = document.getElementById('chat-mode-current');
+        if (!dd || !current) return;
+        const options = Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-mode-option'));
         options.forEach(function (opt) {
             opt.addEventListener('click', function () {
                 thinkMode = opt.getAttribute('data-mode') === 'thinking';
@@ -65,17 +85,61 @@
                     o.classList.toggle('is-active', active);
                     o.setAttribute('aria-selected', active ? 'true' : 'false');
                 });
-                setOpen(false);
-                button.focus();
+                dd.setOpen(false);
+                dd.button.focus();
             });
         });
+    })();
 
-        document.addEventListener('click', function (event) {
-            if (!root.contains(event.target)) setOpen(false);
-        });
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') setOpen(false);
-        });
+    // Model picker: reads the available models from the backend (key stays
+    // server-side) and lets the user switch; the choice is sent with each message.
+    let selectedModel = '';
+    (function initModelMenu() {
+        const dd = makeDropdown('chat-model', 'chat-model-button', 'chat-model-menu');
+        const current = document.getElementById('chat-model-current');
+        if (!dd || !current) return;
+
+        function choose(id) {
+            selectedModel = id;
+            current.textContent = id;
+            Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-mode-option')).forEach(function (o) {
+                const active = o.getAttribute('data-model') === id;
+                o.classList.toggle('is-active', active);
+                o.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+        }
+
+        fetch('/api/chat/models', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (info) {
+                const models = (info && info.models) || [];
+                const def = (info && info.default) || models[0] || '';
+                if (!models.length) { selectedModel = def; current.textContent = def || '—'; return; }
+                dd.menu.innerHTML = '';
+                models.forEach(function (id) {
+                    const li = document.createElement('li');
+                    li.className = 'chat-mode-option';
+                    li.setAttribute('role', 'option');
+                    li.setAttribute('data-model', id);
+                    const check = document.createElement('span');
+                    check.className = 'chat-mode-check';
+                    check.setAttribute('aria-hidden', 'true');
+                    check.textContent = '✓';
+                    const label = document.createElement('span');
+                    label.className = 'chat-mode-label';
+                    label.textContent = id;
+                    li.appendChild(check);
+                    li.appendChild(label);
+                    li.addEventListener('click', function () {
+                        choose(id);
+                        dd.setOpen(false);
+                        dd.button.focus();
+                    });
+                    dd.menu.appendChild(li);
+                });
+                choose(models.indexOf(def) >= 0 ? def : models[0]);
+            })
+            .catch(function () { current.textContent = '—'; });
     })();
 
     // When the user agrees to the greeting's follow-up question, the model
@@ -98,18 +162,6 @@
     let busy = false;
     // True until the user's first message — their answer to the greeting question.
     let awaitingIntro = true;
-
-    // Show which model is live (fetched from the backend; never the key/URL).
-    const modelEl = document.getElementById('chat-model');
-    if (modelEl) {
-        fetch('/api/chat/info', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
-            .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (info) {
-                if (info && info.model) modelEl.textContent = info.model;
-                else modelEl.textContent = '—';
-            })
-            .catch(function () { modelEl.textContent = '—'; });
-    }
 
     function autoGrow() {
         input.style.height = 'auto';
@@ -248,7 +300,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ messages: messages, think: think })
+                body: JSON.stringify({ messages: messages, think: think, model: selectedModel || undefined })
             });
 
             if (!response.ok || !response.body) {

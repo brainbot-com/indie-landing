@@ -45,9 +45,6 @@
                 <header class="chat-intro">
                     <p class="chat-kicker">Live demo</p>
                     <h1 class="chat-title">Try local AI</h1>
-                    <p class="chat-meta" id="chat-meta">
-                        <span class="chat-meta-item">Model: <strong id="chat-model">…</strong></span>
-                    </p>
                     <p class="chat-lead">This demo runs on an exo cluster of two Mac Studios with 512 GB of unified memory each (1,024 GB combined). It runs large, knowledge-rich models with long context fully locally – the full capability of modern AI, with no cloud and no data leaving your infrastructure.</p>
                 </header>
 
@@ -71,30 +68,41 @@
                             placeholder="Type a message …"
                             maxlength="4000"></textarea>
                         <div class="chat-toolbar">
-                            <div class="chat-mode" id="chat-mode">
-                                <button type="button" class="chat-mode-button" id="chat-mode-button" title="Answer mode" aria-haspopup="listbox" aria-expanded="false">
-                                    <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
+                            <div class="chat-mode" id="chat-model">
+                                <button type="button" class="chat-mode-button" id="chat-model-button" title="Model" aria-haspopup="listbox" aria-expanded="false">
+                                    <span class="chat-mode-current" id="chat-model-current">…</span>
                                     <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
                                         <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
                                 </button>
-                                <ul class="chat-mode-menu" id="chat-mode-menu" role="listbox" hidden>
-                                    <li class="chat-mode-option is-active" role="option" data-mode="instant" aria-selected="true">
-                                        <span class="chat-mode-check" aria-hidden="true">✓</span>
-                                        <span class="chat-mode-label">Instant Answer</span>
-                                    </li>
-                                    <li class="chat-mode-option" role="option" data-mode="thinking" aria-selected="false">
-                                        <span class="chat-mode-check" aria-hidden="true">✓</span>
-                                        <span class="chat-mode-label">Thinking Mode</span>
-                                    </li>
-                                </ul>
+                                <ul class="chat-mode-menu chat-mode-menu--left" id="chat-model-menu" role="listbox" hidden></ul>
                             </div>
-                            <button type="submit" class="button button--pill button--sm button--solid chat-send" id="chat-send" aria-label="Send">
-                                <span class="chat-send-label">Send</span>
-                                <svg class="chat-send-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18">
-                                    <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            </button>
+                            <div class="chat-toolbar-right">
+                                <div class="chat-mode" id="chat-mode">
+                                    <button type="button" class="chat-mode-button" id="chat-mode-button" title="Answer mode" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
+                                        <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                                            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <ul class="chat-mode-menu chat-mode-menu--right" id="chat-mode-menu" role="listbox" hidden>
+                                        <li class="chat-mode-option is-active" role="option" data-mode="instant" aria-selected="true">
+                                            <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                            <span class="chat-mode-label">Instant Answer</span>
+                                        </li>
+                                        <li class="chat-mode-option" role="option" data-mode="thinking" aria-selected="false">
+                                            <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                            <span class="chat-mode-label">Thinking Mode</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <button type="submit" class="button button--pill button--sm button--solid chat-send" id="chat-send" aria-label="Send">
+                                    <span class="chat-send-label">Send</span>
+                                    <svg class="chat-send-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18">
+                                        <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

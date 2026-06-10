@@ -7501,7 +7501,8 @@ button.box-cta.combi-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.3rem 0.4rem;
+    /* left padding aligns the (left) model picker with the placeholder above */
+    padding: 0.3rem 0.5rem;
     border: none;
     background: none;
     color: #8a9099;
@@ -7516,9 +7517,11 @@ button.box-cta.combi-pill {
     outline-offset: 2px;
     border-radius: 6px;
 }
+.chat-mode-current { white-space: nowrap; }
 .chat-mode-caret {
     width: 14px;
     height: 14px;
+    flex: none;
     color: inherit;
     transition: transform 0.2s ease;
 }
@@ -7527,9 +7530,10 @@ button.box-cta.combi-pill {
 
 .chat-mode-menu {
     position: absolute;
-    right: 0;
     bottom: calc(100% + 6px);
     min-width: 190px;
+    max-height: 260px;
+    overflow-y: auto;
     margin: 0;
     padding: 0.3rem;
     list-style: none;
@@ -7539,6 +7543,8 @@ button.box-cta.combi-pill {
     box-shadow: 0 12px 30px rgba(10, 37, 64, 0.16);
     z-index: 20;
 }
+.chat-mode-menu--left { left: 0; }
+.chat-mode-menu--right { right: 0; }
 .chat-mode-menu[hidden] { display: none; }
 .chat-mode-option {
     display: flex;
@@ -7602,7 +7608,12 @@ button.box-cta.combi-pill {
 .chat-toolbar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.chat-toolbar-right {
+    display: flex;
+    align-items: center;
     gap: 0.3rem;
 }
 

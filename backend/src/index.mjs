@@ -2087,6 +2087,45 @@ app.get('/api/chat/info', (_req, res) => {
   });
 });
 
+// Model list for the chat UI's model picker. Proxies the gateway's /v1/models
+// server-side (the API key is never exposed) and caches the result briefly.
+let chatModelsCache = null;
+let chatModelsCacheAt = 0;
+const CHAT_MODELS_TTL_MS = 5 * 60 * 1000;
+
+async function fetchChatModels() {
+  if (!config.litellmApiKey || !config.litellmBaseUrl) return [];
+  if (chatModelsCache && (Date.now() - chatModelsCacheAt) < CHAT_MODELS_TTL_MS) {
+    return chatModelsCache;
+  }
+  try {
+    const upstream = await fetch(`${config.litellmBaseUrl}/v1/models`, {
+      headers: { Authorization: `Bearer ${config.litellmApiKey}`, Accept: 'application/json' }
+    });
+    if (!upstream.ok) return chatModelsCache || [];
+    const data = await upstream.json();
+    const ids = Array.isArray(data?.data)
+      ? data.data.map((m) => m && m.id).filter((id) => typeof id === 'string' && id)
+      : [];
+    if (ids.length) {
+      chatModelsCache = ids;
+      chatModelsCacheAt = Date.now();
+    }
+    return ids.length ? ids : (chatModelsCache || []);
+  } catch (error) {
+    console.error('chat_models_fetch_failed', { message: error.message });
+    return chatModelsCache || [];
+  }
+}
+
+app.get('/api/chat/models', async (_req, res) => {
+  if (!config.litellmApiKey || !config.litellmBaseUrl) {
+    return res.status(503).json({ error: 'chat_unavailable' });
+  }
+  const models = await fetchChatModels();
+  res.json({ models, default: config.litellmModel });
+});
+
 app.post('/api/chat', chatJsonParser, async (req, res) => {
   if (!config.litellmApiKey || !config.litellmBaseUrl) {
     return res.status(503).json({ error: 'chat_unavailable' });
@@ -2101,8 +2140,16 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
   // visible answer. Let the client opt out via `think: false` so the model
   // answers directly — much lower time-to-first-visible-token.
   const think = req.body?.think !== false;
+  // Let the client pick a model from the gateway's list; fall back to the
+  // configured default and ignore anything not in the allow-list.
+  const requestedModel = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
+  let model = config.litellmModel;
+  if (requestedModel && requestedModel !== model) {
+    const allowed = await fetchChatModels();
+    if (allowed.includes(requestedModel)) model = requestedModel;
+  }
   const payload = {
-    model: config.litellmModel,
+    model: model,
     stream: true,
     messages: [
       { role: 'system', content: config.chatSystemPrompt },
