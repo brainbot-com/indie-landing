@@ -7586,33 +7586,42 @@ button.box-cta.combi-pill {
 
 .chat-form {
     display: flex;
-    align-items: flex-end;
-    gap: 0.6rem;
-    padding: 0.85rem clamp(0.85rem, 2vw, 1.25rem);
-    border-top: 1px solid var(--border-light);
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0.85rem clamp(0.85rem, 2vw, 1.25rem) 1.1rem;
+    padding: 0.55rem 0.65rem 0.5rem;
+    border: 1px solid var(--border-light);
+    border-radius: 18px;
     background: var(--bg-white);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.chat-form:focus-within {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
+}
+.chat-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
 }
 
 .chat-input {
-    flex: 1;
+    width: 100%;
     resize: none;
-    border: 1px solid var(--border-light);
-    border-radius: 14px;
-    padding: 0.7rem 0.95rem;
+    border: none;
+    border-radius: 0;
+    padding: 0.45rem 0.5rem 0;
     font-family: var(--font-main);
     font-size: var(--t-body);
     line-height: 1.5;
     color: var(--text-dark);
-    background: var(--bg-light);
+    background: none;
     max-height: 200px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .chat-input:focus {
     outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(255, 77, 0, 0.12);
-    background: var(--bg-white);
 }
 
 .chat-input:disabled {

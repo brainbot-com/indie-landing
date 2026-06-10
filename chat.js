@@ -237,6 +237,9 @@
                 bubble.style.display = 'none';
             }
             thinkBody.textContent += piece;
+            // Keep the newest reasoning visible: scroll the thinking box to its
+            // bottom and follow along in the chat log.
+            thinkBody.scrollTop = thinkBody.scrollHeight;
             scrollToBottom();
         }
 

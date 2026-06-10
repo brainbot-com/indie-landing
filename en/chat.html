@@ -70,33 +70,33 @@
                             rows="1"
                             placeholder="Type a message …"
                             maxlength="4000"></textarea>
-                        <button type="submit" class="button button--pill button--md button--solid chat-send" id="chat-send" aria-label="Send">
-                            <span class="chat-send-label">Send</span>
-                            <svg class="chat-send-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18">
-                                <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </button>
-                    </form>
-                    <div class="chat-footer-row">
-                        <div class="chat-mode" id="chat-mode">
-                            <button type="button" class="chat-mode-button" id="chat-mode-button" title="Answer mode" aria-haspopup="listbox" aria-expanded="false">
-                                <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
-                                <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                                    <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <div class="chat-toolbar">
+                            <div class="chat-mode" id="chat-mode">
+                                <button type="button" class="chat-mode-button" id="chat-mode-button" title="Answer mode" aria-haspopup="listbox" aria-expanded="false">
+                                    <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
+                                    <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                                        <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                                <ul class="chat-mode-menu" id="chat-mode-menu" role="listbox" hidden>
+                                    <li class="chat-mode-option is-active" role="option" data-mode="instant" aria-selected="true">
+                                        <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                        <span class="chat-mode-label">Instant Answer</span>
+                                    </li>
+                                    <li class="chat-mode-option" role="option" data-mode="thinking" aria-selected="false">
+                                        <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                        <span class="chat-mode-label">Thinking Mode</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <button type="submit" class="button button--pill button--md button--solid chat-send" id="chat-send" aria-label="Send">
+                                <span class="chat-send-label">Send</span>
+                                <svg class="chat-send-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" width="18" height="18">
+                                    <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
                             </button>
-                            <ul class="chat-mode-menu" id="chat-mode-menu" role="listbox" hidden>
-                                <li class="chat-mode-option is-active" role="option" data-mode="instant" aria-selected="true">
-                                    <span class="chat-mode-check" aria-hidden="true">✓</span>
-                                    <span class="chat-mode-label">Instant Answer</span>
-                                </li>
-                                <li class="chat-mode-option" role="option" data-mode="thinking" aria-selected="false">
-                                    <span class="chat-mode-check" aria-hidden="true">✓</span>
-                                    <span class="chat-mode-label">Thinking Mode</span>
-                                </li>
-                            </ul>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </section>
