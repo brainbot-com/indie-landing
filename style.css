@@ -7478,11 +7478,24 @@ button.box-cta.combi-pill {
 .chat-think[open] > summary { border-bottom: 1px dashed var(--border-light); }
 .chat-think-body {
     padding: 0.5rem 0.75rem;
-    white-space: pre-wrap;
     color: var(--text-light);
     line-height: 1.5;
     max-height: 220px;
     overflow-y: auto;
+}
+.chat-think-body > :first-child { margin-top: 0; }
+.chat-think-body > :last-child { margin-bottom: 0; }
+.chat-think-body p { margin: 0 0 0.5em; }
+.chat-think-body ul,
+.chat-think-body ol { margin: 0.25em 0 0.5em; padding-left: 1.2em; }
+.chat-think-body li { margin: 0.15em 0; }
+.chat-think-body strong { font-weight: 700; }
+.chat-think-body code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    background: rgba(0, 0, 0, 0.06);
+    padding: 0.05em 0.3em;
+    border-radius: 4px;
 }
 
 /* Suggestion chips under the greeting. */

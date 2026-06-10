@@ -350,6 +350,7 @@
         let answer = '';
         // Lazily-created disclosure that streams the model's reasoning.
         let thinkBody = null;
+        let thinking = '';
 
         function appendThinking(piece) {
             if (!thinkBody) {
@@ -365,7 +366,8 @@
                 bubble.textContent = '';
                 bubble.style.display = 'none';
             }
-            thinkBody.textContent += piece;
+            thinking += piece;
+            thinkBody.innerHTML = renderMarkdown(thinking);
             // Keep the newest reasoning visible: scroll the thinking box to its
             // bottom and follow along in the chat log.
             thinkBody.scrollTop = thinkBody.scrollHeight;
