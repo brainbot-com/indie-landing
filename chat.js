@@ -32,9 +32,26 @@
             errorModel: 'Das KI-Modell läuft gerade nicht. Bitte versuche es gleich noch einmal.'
         };
 
+    // When the user agrees to the greeting's follow-up question, the model
+    // gets this fuller prompt instead of the bare "ja"/"yes" — otherwise it
+    // has no context for the answer (the greeting lives only in the UI, not in
+    // the conversation history). The visible bubble still shows what the user
+    // typed. Edit this copy freely.
+    const INTRO_FOLLOWUP_PROMPT = isEnglish
+        ? 'Yes, please. Explain concretely and clearly the areas where the Indie.cluster can support me. Cover, among others: working and chatting with your own documents (PDFs, contracts, reports) including knowledge bases; building agents and automated workflows with tool and API connectivity; running various AI models locally for text analysis, research, coding, and content creation; and handling long contexts with autonomous validation across the cluster. Describe each area in one or two sentences with a practical example, and emphasise that everything runs fully local and private, with no cloud.'
+        : 'Ja, gerne. Bitte erkläre mir konkret und übersichtlich, in welchen Einsatzgebieten mich der Indie.cluster unterstützen kann. Gehe dabei unter anderem auf diese Bereiche ein: das Arbeiten und Chatten mit eigenen Dokumenten (PDFs, Verträge, Berichte) inklusive Wissensdatenbanken; das Erstellen von Agenten und automatisierten Workflows mit Tool- und API-Anbindung; das lokale Ausführen verschiedener KI-Modelle für Textanalyse, Recherche, Programmierung und Inhaltserstellung; sowie die Verarbeitung langer Kontexte und autonome Validierungen über den Cluster. Beschreibe jeden Bereich in ein bis zwei Sätzen mit einem praxisnahen Beispiel und betone, dass alles vollständig lokal und privat ohne Cloud läuft.';
+
+    // A short affirmative answer to the greeting question ("ja", "yes", …).
+    const AFFIRMATIVE_RE = /^(ja|jo|jap|jepp|yes|yep|yeah|klar|na klar|gerne|sicher|unbedingt|sure|ok|okay)\b/;
+    function isAffirmative(text) {
+        return AFFIRMATIVE_RE.test(text.toLowerCase().trim());
+    }
+
     // Conversation history sent to the backend (system prompt is added server-side).
     const messages = [];
     let busy = false;
+    // True until the user's first message — their answer to the greeting question.
+    let awaitingIntro = true;
 
     // Show which model is live (fetched from the backend; never the key/URL).
     const modelEl = document.getElementById('chat-model');
@@ -82,7 +99,13 @@
         if (!content || busy) return;
 
         addMessage('user', content);
-        messages.push({ role: 'user', content: content });
+
+        // First reply to the greeting: an affirmative ("ja"/"yes") becomes a
+        // fuller prompt so the model lays out the concrete use cases; anything
+        // else is sent as typed. Either way, the intro turn is now consumed.
+        const outgoing = (awaitingIntro && isAffirmative(content)) ? INTRO_FOLLOWUP_PROMPT : content;
+        awaitingIntro = false;
+        messages.push({ role: 'user', content: outgoing });
 
         input.value = '';
         autoGrow();
