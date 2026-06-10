@@ -98,10 +98,11 @@
         const dd = makeDropdown('chat-model', 'chat-model-button', 'chat-model-menu');
         const current = document.getElementById('chat-model-current');
         if (!dd || !current) return;
+        const MODEL_LABEL = isEnglish ? 'Model' : 'Modell';
 
         function choose(id) {
             selectedModel = id;
-            current.textContent = id;
+            current.textContent = MODEL_LABEL + ': ' + id;
             Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-mode-option')).forEach(function (o) {
                 const active = o.getAttribute('data-model') === id;
                 o.classList.toggle('is-active', active);
@@ -114,7 +115,7 @@
             .then(function (info) {
                 const models = (info && info.models) || [];
                 const def = (info && info.default) || models[0] || '';
-                if (!models.length) { selectedModel = def; current.textContent = def || '—'; return; }
+                if (!models.length) { selectedModel = def; current.textContent = def ? MODEL_LABEL + ': ' + def : '—'; return; }
                 dd.menu.innerHTML = '';
                 models.forEach(function (id) {
                     const li = document.createElement('li');
