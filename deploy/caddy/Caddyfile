@@ -52,6 +52,14 @@ staging.indiebox.ai {
     reverse_proxy backend-staging:8080
   }
 
+  # bb relaunch — staging preview
+  handle /bb/staging/* {
+    uri strip_prefix /bb/staging
+    root * /srv/bb-staging/site
+    encode zstd gzip
+    file_server
+  }
+
   root * /srv/staging.indiebox/site
   encode zstd gzip
   file_server
