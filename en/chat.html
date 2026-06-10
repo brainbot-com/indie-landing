@@ -79,11 +79,24 @@
                     </form>
                     <div class="chat-footer-row">
                         <p class="chat-hint">Enter to send · Shift + Enter for a new line</p>
-                        <label class="chat-switch" title="Shows the model's reasoning. Off = faster answers.">
-                            <input type="checkbox" id="chat-think-toggle">
-                            <span class="chat-switch-track" aria-hidden="true"><span class="chat-switch-thumb"></span></span>
-                            <span class="chat-switch-text">Reasoning</span>
-                        </label>
+                        <div class="chat-mode" id="chat-mode">
+                            <button type="button" class="chat-mode-button" id="chat-mode-button" title="Answer mode" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
+                                <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                                    <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                            <ul class="chat-mode-menu" id="chat-mode-menu" role="listbox" hidden>
+                                <li class="chat-mode-option is-active" role="option" data-mode="instant" aria-selected="true">
+                                    <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                    <span class="chat-mode-label">Instant Answer</span>
+                                </li>
+                                <li class="chat-mode-option" role="option" data-mode="thinking" aria-selected="false">
+                                    <span class="chat-mode-check" aria-hidden="true">✓</span>
+                                    <span class="chat-mode-label">Thinking Mode</span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -34,9 +34,49 @@
             errorModel: 'Das KI-Modell läuft gerade nicht. Bitte versuche es gleich noch einmal.'
         };
 
-    // Reasoning toggle: when on, the model thinks (slower) and we show the
-    // live chain-of-thought; when off, it answers directly (much faster).
-    const thinkToggle = document.getElementById('chat-think-toggle');
+    // Mode selector (custom dropdown): "Instant Answer" (reasoning off, fast)
+    // vs "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
+    let thinkMode = false;
+    (function initModeMenu() {
+        const root = document.getElementById('chat-mode');
+        const button = document.getElementById('chat-mode-button');
+        const menu = document.getElementById('chat-mode-menu');
+        const current = document.getElementById('chat-mode-current');
+        if (!root || !button || !menu || !current) return;
+        const options = Array.prototype.slice.call(menu.querySelectorAll('.chat-mode-option'));
+
+        function setOpen(open) {
+            menu.hidden = !open;
+            root.classList.toggle('is-open', open);
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            setOpen(menu.hidden);
+        });
+
+        options.forEach(function (opt) {
+            opt.addEventListener('click', function () {
+                thinkMode = opt.getAttribute('data-mode') === 'thinking';
+                current.textContent = opt.querySelector('.chat-mode-label').textContent;
+                options.forEach(function (o) {
+                    const active = o === opt;
+                    o.classList.toggle('is-active', active);
+                    o.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                setOpen(false);
+                button.focus();
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!root.contains(event.target)) setOpen(false);
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') setOpen(false);
+        });
+    })();
 
     // When the user agrees to the greeting's follow-up question, the model
     // gets this fuller prompt instead of the bare "ja"/"yes" — otherwise it
@@ -177,7 +217,7 @@
         bubble.classList.add('chat-bubble--pending');
         bubble.innerHTML = '<span class="chat-typing"><span></span><span></span><span></span></span>';
 
-        const think = !!(thinkToggle && thinkToggle.checked);
+        const think = thinkMode;
         let answer = '';
         // Lazily-created disclosure that streams the model's reasoning.
         let thinkBody = null;
