@@ -71,6 +71,8 @@ RSYNC_BASE_ARGS=(
   --exclude
   "backend/"
   --exclude
+  "bb_relaunch/"
+  --exclude
   "deploy/"
   --exclude
   "i18n/"
