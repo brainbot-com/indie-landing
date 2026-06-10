@@ -7485,6 +7485,29 @@ button.box-cta.combi-pill {
     overflow-y: auto;
 }
 
+/* Suggestion chips under the greeting. */
+.chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.chat-chip {
+    border: 1px solid var(--border-light);
+    background: var(--bg-white);
+    color: var(--text-dark);
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-main);
+    font-size: var(--t-body-sm);
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.chat-chip:hover { border-color: var(--accent-color); background: var(--bg-light); }
+.chat-chip:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+.chat-chip-hint { color: var(--text-light); }
+
 /* Footer row under the input: hint + reasoning toggle. */
 .chat-footer-row {
     display: flex;

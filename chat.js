@@ -83,6 +83,7 @@
     // meaningless there — those models show a static "Auto" instead.
     function modelSupportsModeToggle(id) { return !/minimax/i.test(id || ''); }
     let setModeForModel = function () {};   // wired up by initModeMenu
+    let setMode = function () {};           // wired up by initModeMenu (used by chips)
 
     (function initModeMenu() {
         const dd = makeDropdown('chat-mode', 'chat-mode-button', 'chat-mode-menu');
@@ -105,12 +106,20 @@
             });
         }
 
+        // Apply a mode choice, respecting the current model's capability.
+        function apply(isThinking) {
+            userMode = isThinking;
+            if (modelSupportsModeToggle(selectedModel)) {
+                thinkMode = userMode;
+                current.textContent = userMode ? thinkingLabel : instantLabel;
+                setActive(userMode);
+            }
+        }
+        setMode = apply;
+
         options.forEach(function (opt) {
             opt.addEventListener('click', function () {
-                userMode = opt.getAttribute('data-mode') === 'thinking';
-                thinkMode = userMode;
-                current.textContent = opt.querySelector('.chat-mode-label').textContent;
-                setActive(userMode);
+                apply(opt.getAttribute('data-mode') === 'thinking');
                 dd.setOpen(false);
                 dd.button.focus();
             });
@@ -210,6 +219,21 @@
     // True until the user's first message — their answer to the greeting question.
     let awaitingIntro = true;
 
+    // Suggestion chips under the greeting: fill the prompt, set the matching
+    // mode, and send. They disappear after the first message.
+    (function initSuggestions() {
+        const box = document.getElementById('chat-suggestions');
+        if (!box) return;
+        Array.prototype.slice.call(box.querySelectorAll('.chat-chip')).forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                const prompt = chip.getAttribute('data-prompt') || chip.textContent;
+                if (chip.getAttribute('data-mode') === 'thinking') setMode(true);
+                else setMode(false);
+                send(prompt);
+            });
+        });
+    })();
+
     function autoGrow() {
         input.style.height = 'auto';
         input.style.height = Math.min(input.scrollHeight, 200) + 'px';
@@ -299,6 +323,10 @@
     async function send(text) {
         const content = text.trim();
         if (!content || busy) return;
+
+        // Suggestion chips are a starting aid only — remove them on first send.
+        const suggestions = document.getElementById('chat-suggestions');
+        if (suggestions) suggestions.remove();
 
         addMessage('user', content);
 
