@@ -7584,6 +7584,8 @@ button.box-cta.combi-pill {
 }
 .chat-mode-menu--left { left: 0; }
 .chat-mode-menu--right { right: 0; }
+.chat-mode-menu--wide { min-width: 240px; }
+.chat-example { white-space: normal; }
 .chat-mode-menu[hidden] { display: none; }
 .chat-mode-option {
     display: flex;
@@ -7650,6 +7652,7 @@ button.box-cta.combi-pill {
     justify-content: space-between;
     gap: 0.5rem;
 }
+.chat-toolbar-left,
 .chat-toolbar-right {
     display: flex;
     align-items: center;

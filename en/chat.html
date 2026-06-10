@@ -69,14 +69,28 @@
                             placeholder="Type a message …"
                             maxlength="4000"></textarea>
                         <div class="chat-toolbar">
-                            <div class="chat-mode" id="chat-model">
-                                <button type="button" class="chat-mode-button" id="chat-model-button" title="Model" aria-haspopup="listbox" aria-expanded="false">
-                                    <span class="chat-mode-current" id="chat-model-current">…</span>
-                                    <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
-                                        <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </button>
-                                <ul class="chat-mode-menu chat-mode-menu--left" id="chat-model-menu" role="listbox" hidden></ul>
+                            <div class="chat-toolbar-left">
+                                <div class="chat-mode" id="chat-model">
+                                    <button type="button" class="chat-mode-button" id="chat-model-button" title="Model" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="chat-mode-current" id="chat-model-current">…</span>
+                                        <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                                            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <ul class="chat-mode-menu chat-mode-menu--left" id="chat-model-menu" role="listbox" hidden></ul>
+                                </div>
+                                <div class="chat-mode" id="chat-examples">
+                                    <button type="button" class="chat-mode-button" id="chat-examples-button" title="Examples" aria-haspopup="listbox" aria-expanded="false">
+                                        <span class="chat-mode-current">Examples</span>
+                                        <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+                                            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </button>
+                                    <ul class="chat-mode-menu chat-mode-menu--left chat-mode-menu--wide" id="chat-examples-menu" role="listbox" hidden>
+                                        <li class="chat-mode-option chat-example" role="option" data-mode="instant" data-prompt="Explain local AI in two sentences.">Local AI in 2 sentences <span class="chat-chip-hint">(Instant)</span></li>
+                                        <li class="chat-mode-option chat-example" role="option" data-mode="thinking" data-prompt="Explain for beginners what a cluster in AI is and what advantages large models offer in practice.">AI cluster for beginners <span class="chat-chip-hint">(Thinking)</span></li>
+                                    </ul>
+                                </div>
                             </div>
                             <div class="chat-toolbar-right">
                                 <div class="chat-mode" id="chat-mode">

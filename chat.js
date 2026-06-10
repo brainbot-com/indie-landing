@@ -219,19 +219,33 @@
     // True until the user's first message — their answer to the greeting question.
     let awaitingIntro = true;
 
-    // Suggestion chips under the greeting: fill the prompt, set the matching
-    // mode, and send. They disappear after the first message.
-    (function initSuggestions() {
+    // Run an example prompt: set the matching mode, then send it.
+    function runExample(prompt, mode) {
+        if (!prompt) return;
+        setMode(mode === 'thinking');
+        send(prompt);
+    }
+
+    // Starter chips under the greeting (a one-time aid; vanish after first send)
+    // AND the always-available "Examples" dropdown in the toolbar.
+    (function initExamples() {
         const box = document.getElementById('chat-suggestions');
-        if (!box) return;
-        Array.prototype.slice.call(box.querySelectorAll('.chat-chip')).forEach(function (chip) {
-            chip.addEventListener('click', function () {
-                const prompt = chip.getAttribute('data-prompt') || chip.textContent;
-                if (chip.getAttribute('data-mode') === 'thinking') setMode(true);
-                else setMode(false);
-                send(prompt);
+        if (box) {
+            Array.prototype.slice.call(box.querySelectorAll('.chat-chip')).forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    runExample(chip.getAttribute('data-prompt') || chip.textContent, chip.getAttribute('data-mode'));
+                });
             });
-        });
+        }
+        const dd = makeDropdown('chat-examples', 'chat-examples-button', 'chat-examples-menu');
+        if (dd) {
+            Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-example')).forEach(function (item) {
+                item.addEventListener('click', function () {
+                    dd.setOpen(false);
+                    runExample(item.getAttribute('data-prompt'), item.getAttribute('data-mode'));
+                });
+            });
+        }
     })();
 
     function autoGrow() {
