@@ -143,6 +143,10 @@ Use this whenever `backend/src/`, `docker-compose.yml`, `deploy/caddy/Caddyfile`
 | `MAILGUN_REGION` | `eu` or `us` |
 | `ORDER_NOTIFICATION_FROM` | Sender address for admin and 2FA notification emails |
 | `ORDER_NOTIFICATION_TO` | Recipient for new-order notifications |
+| `LITELLM_BASE_URL` | LiteLLM gateway base URL for the `/chat` page (default: `https://studiollm.brainbot.com`) |
+| `LITELLM_API_KEY` | LiteLLM API key — used server-side by the `/api/chat` proxy, never sent to the browser |
+| `LITELLM_MODEL` | Model name to use for chat (default: `Qwen3.6-35B-A3B-8bit`) |
+| `CHAT_SYSTEM_PROMPT` | Optional system prompt prepended to every chat conversation |
 | `DATA_DIR` | Path to data directory inside the container (default: `/app/data`) |
 | `PORT` | Backend listen port (default: `8080`) |
 
