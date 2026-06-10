@@ -7501,10 +7501,11 @@ button.box-cta.combi-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.3rem 0.1rem;
+    /* left padding aligns the label with the textarea placeholder above */
+    padding: 0.3rem 0.5rem;
     border: none;
     background: none;
-    color: var(--text-light);
+    color: #8a9099;
     font-size: var(--t-body-sm);
     font-weight: 500;
     cursor: pointer;
