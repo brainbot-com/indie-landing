@@ -7512,6 +7512,9 @@ button.box-cta.combi-pill {
     transition: color 0.15s ease;
 }
 .chat-mode-button:hover { color: var(--text-dark); }
+.chat-mode-button:disabled { cursor: default; opacity: 1; color: #8a9099; }
+/* Static "Auto" state (model that always reasons): no dropdown affordance. */
+.chat-mode--static .chat-mode-caret { display: none; }
 .chat-mode-button:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;

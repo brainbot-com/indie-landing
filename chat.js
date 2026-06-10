@@ -77,25 +77,62 @@
 
     // Answer-mode picker: "Instant Answer" (reasoning off, fast) vs
     // "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
-    let thinkMode = false;
+    let thinkMode = false;   // effective flag sent to the backend
+    let userMode = false;    // the user's chosen mode for toggle-capable models
+    // MiniMax M2 always reasons; no parameter disables it, so the mode toggle is
+    // meaningless there — those models show a static "Auto" instead.
+    function modelSupportsModeToggle(id) { return !/minimax/i.test(id || ''); }
+    let setModeForModel = function () {};   // wired up by initModeMenu
+
     (function initModeMenu() {
         const dd = makeDropdown('chat-mode', 'chat-mode-button', 'chat-mode-menu');
         const current = document.getElementById('chat-mode-current');
         if (!dd || !current) return;
         const options = Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-mode-option'));
+
+        function labelFor(mode) {
+            const o = dd.menu.querySelector('.chat-mode-option[data-mode="' + mode + '"] .chat-mode-label');
+            return o ? o.textContent : mode;
+        }
+        const instantLabel = labelFor('instant');
+        const thinkingLabel = labelFor('thinking');
+
+        function setActive(isThinking) {
+            options.forEach(function (o) {
+                const active = (o.getAttribute('data-mode') === 'thinking') === isThinking;
+                o.classList.toggle('is-active', active);
+                o.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+        }
+
         options.forEach(function (opt) {
             opt.addEventListener('click', function () {
-                thinkMode = opt.getAttribute('data-mode') === 'thinking';
+                userMode = opt.getAttribute('data-mode') === 'thinking';
+                thinkMode = userMode;
                 current.textContent = opt.querySelector('.chat-mode-label').textContent;
-                options.forEach(function (o) {
-                    const active = o === opt;
-                    o.classList.toggle('is-active', active);
-                    o.setAttribute('aria-selected', active ? 'true' : 'false');
-                });
+                setActive(userMode);
                 dd.setOpen(false);
                 dd.button.focus();
             });
         });
+
+        setModeForModel = function (model) {
+            if (modelSupportsModeToggle(model)) {
+                dd.root.classList.remove('chat-mode--static');
+                dd.button.disabled = false;
+                thinkMode = userMode;
+                current.textContent = userMode ? thinkingLabel : instantLabel;
+                setActive(userMode);
+            } else {
+                // Always-reasoning model: no choice. Show a static "Auto"; the
+                // reasoning streams into the thinking box live regardless.
+                dd.setOpen(false);
+                dd.button.disabled = true;
+                dd.root.classList.add('chat-mode--static');
+                current.textContent = 'Auto';
+                thinkMode = true;
+            }
+        };
     })();
 
     // Model picker: reads the available models from the backend (key stays
@@ -115,6 +152,8 @@
                 o.classList.toggle('is-active', active);
                 o.setAttribute('aria-selected', active ? 'true' : 'false');
             });
+            // Update the answer-mode picker for this model's capabilities.
+            setModeForModel(id);
         }
 
         fetch('/api/chat/models', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
