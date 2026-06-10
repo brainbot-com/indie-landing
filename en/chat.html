@@ -77,7 +77,7 @@
                                             <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     </button>
-                                    <ul class="chat-mode-menu chat-mode-menu--left" id="chat-model-menu" role="listbox" hidden></ul>
+                                    <ul class="chat-mode-menu chat-mode-menu--left chat-mode-menu--wide" id="chat-model-menu" role="listbox" hidden></ul>
                                 </div>
                                 <div class="chat-mode" id="chat-examples">
                                     <button type="button" class="chat-mode-button" id="chat-examples-button" title="Examples" aria-haspopup="listbox" aria-expanded="false">
@@ -128,8 +128,12 @@
         </section>
     </main>
 
-    <!-- Model overview below the chat -->
-    <section class="ibx">
+    <!-- Model comparison (overlay, opened from the model picker) -->
+    <div class="ibx-modal" id="model-compare" hidden>
+      <div class="ibx-modal__backdrop" data-close></div>
+      <div class="ibx-modal__dialog" role="dialog" aria-modal="true" aria-label="Compare models">
+        <button type="button" class="ibx-modal__close" data-close aria-label="Close">&times;</button>
+        <section class="ibx">
       <h2>Three models, three characters</h2>
       <p class="sub">All run locally on our own cluster – your inputs never leave the building. Choose by task, not by tech. You can switch anytime.</p>
 
@@ -195,7 +199,9 @@
       </div>
 
       <p class="ibx-foot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10h13l-3-3M17 14H4l3 3"/></svg>Switching is free – jump between models anytime with no wait.</p>
-    </section>
+        </section>
+      </div>
+    </div>
 
     <footer class="footer">
         <div class="container">

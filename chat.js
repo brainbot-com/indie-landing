@@ -144,6 +144,16 @@
         };
     })();
 
+    // Friendly metadata for the known models (drives the rich picker).
+    function modelMeta(id) {
+        const x = (id || '').toLowerCase();
+        if (/qwen/.test(x)) return { role: isEnglish ? 'The Fast One' : 'Der Schnelle', tag: isEnglish ? 'speed, images & long docs' : 'Tempo, Bilder & lange Docs', rec: false };
+        if (/minimax/.test(x)) return { role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'balanced default' : 'ausgewogen, Standardwahl', rec: true };
+        if (/kimi/.test(x)) return { role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks' : 'mehrstufige Aufgaben', rec: false };
+        return { role: id, tag: '', rec: false };
+    }
+    let openCompare = function () {};   // wired up by initCompareModal
+
     // Model picker: reads the available models from the backend (key stays
     // server-side) and lets the user switch; the choice is sent with each message.
     let selectedModel = '';
@@ -156,13 +166,53 @@
         function choose(id) {
             selectedModel = id;
             current.textContent = MODEL_LABEL + ': ' + id;
-            Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-mode-option')).forEach(function (o) {
+            Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-model-option')).forEach(function (o) {
                 const active = o.getAttribute('data-model') === id;
                 o.classList.toggle('is-active', active);
                 o.setAttribute('aria-selected', active ? 'true' : 'false');
             });
             // Update the answer-mode picker for this model's capabilities.
             setModeForModel(id);
+        }
+
+        function buildOption(id) {
+            const meta = modelMeta(id);
+            const li = document.createElement('li');
+            li.className = 'chat-mode-option chat-model-option';
+            li.setAttribute('role', 'option');
+            li.setAttribute('data-model', id);
+
+            const check = document.createElement('span');
+            check.className = 'chat-mode-check';
+            check.setAttribute('aria-hidden', 'true');
+            check.textContent = '✓';
+
+            const text = document.createElement('span');
+            text.className = 'chat-model-opt';
+            const role = document.createElement('span');
+            role.className = 'chat-model-opt-role';
+            role.textContent = meta.role;
+            if (meta.rec) {
+                const badge = document.createElement('span');
+                badge.className = 'chat-model-opt-badge';
+                badge.textContent = isEnglish ? 'Recommended' : 'Empfehlung';
+                role.appendChild(document.createTextNode(' '));
+                role.appendChild(badge);
+            }
+            const sub = document.createElement('span');
+            sub.className = 'chat-model-opt-sub';
+            sub.textContent = meta.tag ? (id + ' · ' + meta.tag) : id;
+            text.appendChild(role);
+            text.appendChild(sub);
+
+            li.appendChild(check);
+            li.appendChild(text);
+            li.addEventListener('click', function () {
+                choose(id);
+                dd.setOpen(false);
+                dd.button.focus();
+            });
+            return li;
         }
 
         fetch('/api/chat/models', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
@@ -172,30 +222,35 @@
                 const def = (info && info.default) || models[0] || '';
                 if (!models.length) { selectedModel = def; current.textContent = def ? MODEL_LABEL + ': ' + def : '—'; return; }
                 dd.menu.innerHTML = '';
-                models.forEach(function (id) {
-                    const li = document.createElement('li');
-                    li.className = 'chat-mode-option';
-                    li.setAttribute('role', 'option');
-                    li.setAttribute('data-model', id);
-                    const check = document.createElement('span');
-                    check.className = 'chat-mode-check';
-                    check.setAttribute('aria-hidden', 'true');
-                    check.textContent = '✓';
-                    const label = document.createElement('span');
-                    label.className = 'chat-mode-label';
-                    label.textContent = id;
-                    li.appendChild(check);
-                    li.appendChild(label);
-                    li.addEventListener('click', function () {
-                        choose(id);
-                        dd.setOpen(false);
-                        dd.button.focus();
-                    });
-                    dd.menu.appendChild(li);
-                });
+                models.forEach(function (id) { dd.menu.appendChild(buildOption(id)); });
+
+                // "Compare all models" opens the overview overlay.
+                const compare = document.createElement('li');
+                compare.className = 'chat-model-compare';
+                compare.setAttribute('role', 'button');
+                compare.tabIndex = 0;
+                compare.textContent = (isEnglish ? 'Compare all models' : 'Alle Modelle vergleichen') + ' →';
+                compare.addEventListener('click', function () { dd.setOpen(false); openCompare(); });
+                dd.menu.appendChild(compare);
+
                 choose(models.indexOf(def) >= 0 ? def : models[0]);
             })
             .catch(function () { current.textContent = '—'; });
+    })();
+
+    // Model-comparison overlay, opened from the model picker.
+    (function initCompareModal() {
+        const modal = document.getElementById('model-compare');
+        if (!modal) return;
+        function setOpen(open) {
+            modal.hidden = !open;
+            document.body.classList.toggle('modal-open', open);
+        }
+        openCompare = function () { setOpen(true); };
+        Array.prototype.slice.call(modal.querySelectorAll('[data-close]')).forEach(function (el) {
+            el.addEventListener('click', function () { setOpen(false); });
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
     })();
 
     // When the user agrees to the greeting's follow-up question, the model
