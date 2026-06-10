@@ -7489,11 +7489,8 @@ button.box-cta.combi-pill {
 .chat-footer-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
+    justify-content: flex-start;
 }
-.chat-footer-row .chat-hint { margin: 0; }
 
 /* Mode selector (custom dropdown): Instant Answer / Thinking Mode. */
 .chat-mode {
@@ -7503,31 +7500,34 @@ button.box-cta.combi-pill {
 .chat-mode-button {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.7rem;
-    border: 1px solid var(--border-light);
-    border-radius: 999px;
-    background: var(--bg-white);
-    color: var(--text-dark);
+    gap: 0.3rem;
+    padding: 0.3rem 0.1rem;
+    border: none;
+    background: none;
+    color: var(--text-light);
     font-size: var(--t-body-sm);
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition: color 0.15s ease;
 }
-.chat-mode-button:hover { border-color: var(--accent-color); }
+.chat-mode-button:hover { color: var(--text-dark); }
 .chat-mode-button:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
+    border-radius: 6px;
 }
 .chat-mode-caret {
-    color: var(--text-light);
+    width: 14px;
+    height: 14px;
+    color: inherit;
     transition: transform 0.2s ease;
 }
+.chat-mode-caret path { stroke-width: 1.6; }
 .chat-mode.is-open .chat-mode-caret { transform: rotate(180deg); }
 
 .chat-mode-menu {
     position: absolute;
-    right: 0;
+    left: 0;
     bottom: calc(100% + 6px);
     min-width: 190px;
     margin: 0;
