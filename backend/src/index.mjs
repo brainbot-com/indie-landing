@@ -2097,6 +2097,10 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
     return res.status(400).json({ error: 'no_messages' });
   }
 
+  // Reasoning models (e.g. Qwen3) emit a long chain-of-thought before any
+  // visible answer. Let the client opt out via `think: false` so the model
+  // answers directly — much lower time-to-first-visible-token.
+  const think = req.body?.think !== false;
   const payload = {
     model: config.litellmModel,
     stream: true,
@@ -2105,6 +2109,11 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
       ...messages
     ]
   };
+  if (!think) {
+    // Verified against the studiollm gateway: reasoning_effort:'none' disables
+    // the chain-of-thought (chat_template_kwargs / enable_thinking are ignored).
+    payload.reasoning_effort = 'none';
+  }
 
   // Abort the upstream request only when the client disconnects before we
   // have finished responding (not merely when the request body is consumed).

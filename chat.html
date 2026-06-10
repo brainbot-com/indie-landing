@@ -77,7 +77,14 @@
                             </svg>
                         </button>
                     </form>
-                    <p class="chat-hint">Enter zum Senden · Shift + Enter für eine neue Zeile</p>
+                    <div class="chat-footer-row">
+                        <p class="chat-hint">Enter zum Senden · Shift + Enter für eine neue Zeile</p>
+                        <label class="chat-switch" title="Zeigt den Denkprozess des Modells. Aus = schnellere Antworten.">
+                            <input type="checkbox" id="chat-think-toggle">
+                            <span class="chat-switch-track" aria-hidden="true"><span class="chat-switch-thumb"></span></span>
+                            <span class="chat-switch-text">Denkprozess</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </section>

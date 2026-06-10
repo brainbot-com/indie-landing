@@ -77,7 +77,14 @@
                             </svg>
                         </button>
                     </form>
-                    <p class="chat-hint">Enter to send · Shift + Enter for a new line</p>
+                    <div class="chat-footer-row">
+                        <p class="chat-hint">Enter to send · Shift + Enter for a new line</p>
+                        <label class="chat-switch" title="Shows the model's reasoning. Off = faster answers.">
+                            <input type="checkbox" id="chat-think-toggle">
+                            <span class="chat-switch-track" aria-hidden="true"><span class="chat-switch-thumb"></span></span>
+                            <span class="chat-switch-text">Reasoning</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </section>

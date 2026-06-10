@@ -7401,7 +7401,8 @@ button.box-cta.combi-pill {
 }
 
 .chat-message--assistant {
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .chat-bubble {
@@ -7456,6 +7457,85 @@ button.box-cta.combi-pill {
 .chat-bubble--rendered a {
     color: var(--accent-color);
     text-decoration: underline;
+}
+
+/* Live reasoning ("thinking") disclosure shown above the answer bubble. */
+.chat-think {
+    max-width: 80%;
+    margin-bottom: 0.5rem;
+    border: 1px dashed var(--border-light);
+    border-radius: 12px;
+    background: rgba(10, 37, 64, 0.03);
+    font-size: var(--t-body-sm);
+}
+.chat-think > summary {
+    cursor: pointer;
+    padding: 0.4rem 0.75rem;
+    color: var(--text-light);
+    list-style: none;
+}
+.chat-think > summary::-webkit-details-marker { display: none; }
+.chat-think[open] > summary { border-bottom: 1px dashed var(--border-light); }
+.chat-think-body {
+    padding: 0.5rem 0.75rem;
+    white-space: pre-wrap;
+    color: var(--text-light);
+    line-height: 1.5;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+/* Footer row under the input: hint + reasoning toggle. */
+.chat-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.chat-footer-row .chat-hint { margin: 0; }
+
+/* Reasoning toggle switch. */
+.chat-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: var(--t-body-sm);
+    color: var(--text-light);
+    user-select: none;
+}
+.chat-switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.chat-switch-track {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--border-light);
+    transition: background 0.2s ease;
+    flex: none;
+}
+.chat-switch-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease;
+}
+.chat-switch input:checked + .chat-switch-track { background: var(--accent-color); }
+.chat-switch input:checked + .chat-switch-track .chat-switch-thumb { transform: translateX(16px); }
+.chat-switch input:focus-visible + .chat-switch-track {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
 }
 
 /* Typing indicator (three pulsing dots) */

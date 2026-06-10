@@ -21,16 +21,22 @@
     const STRINGS = isEnglish
         ? {
             thinking: 'Thinking …',
+            thought: 'Reasoning',
             errorGeneric: 'Sorry, something went wrong. Please try again.',
             errorUnavailable: 'The chat is currently unavailable. Please try again later.',
             errorModel: 'The AI model is not running right now. Please try again in a moment.'
         }
         : {
             thinking: 'Denkt nach …',
+            thought: 'Gedankengang',
             errorGeneric: 'Entschuldigung, da ist etwas schiefgelaufen. Bitte versuche es erneut.',
             errorUnavailable: 'Der Chat ist gerade nicht verfügbar. Bitte versuche es später noch einmal.',
             errorModel: 'Das KI-Modell läuft gerade nicht. Bitte versuche es gleich noch einmal.'
         };
+
+    // Reasoning toggle: when on, the model thinks (slower) and we show the
+    // live chain-of-thought; when off, it answers directly (much faster).
+    const thinkToggle = document.getElementById('chat-think-toggle');
 
     // When the user agrees to the greeting's follow-up question, the model
     // gets this fuller prompt instead of the bare "ja"/"yes" — otherwise it
@@ -171,14 +177,35 @@
         bubble.classList.add('chat-bubble--pending');
         bubble.innerHTML = '<span class="chat-typing"><span></span><span></span><span></span></span>';
 
+        const think = !!(thinkToggle && thinkToggle.checked);
         let answer = '';
+        // Lazily-created disclosure that streams the model's reasoning.
+        let thinkBody = null;
+
+        function appendThinking(piece) {
+            if (!thinkBody) {
+                const details = document.createElement('details');
+                details.className = 'chat-think';
+                details.open = true;
+                details.innerHTML = '<summary></summary><div class="chat-think-body"></div>';
+                details.querySelector('summary').textContent = STRINGS.thinking;
+                bubble.parentElement.insertBefore(details, bubble);
+                thinkBody = details.querySelector('.chat-think-body');
+                // The reasoning stream replaces the typing dots.
+                bubble.classList.remove('chat-bubble--pending');
+                bubble.textContent = '';
+                bubble.style.display = 'none';
+            }
+            thinkBody.textContent += piece;
+            scrollToBottom();
+        }
 
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ messages: messages })
+                body: JSON.stringify({ messages: messages, think: think })
             });
 
             if (!response.ok || !response.body) {
@@ -224,12 +251,26 @@
                     }
 
                     const delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
-                    const piece = delta && delta.content;
+                    if (!delta) continue;
+
+                    // Reasoning tokens arrive before the visible answer.
+                    if (delta.reasoning_content) {
+                        appendThinking(delta.reasoning_content);
+                    }
+
+                    const piece = delta.content;
                     if (piece) {
                         if (!started) {
                             started = true;
                             bubble.classList.remove('chat-bubble--pending');
+                            bubble.style.display = '';
                             bubble.textContent = '';
+                            // Collapse the reasoning once the answer begins.
+                            if (thinkBody) {
+                                const details = thinkBody.parentElement;
+                                details.open = false;
+                                details.querySelector('summary').textContent = STRINGS.thought;
+                            }
                         }
                         answer += piece;
                         bubble.classList.add('chat-bubble--rendered');
@@ -242,6 +283,7 @@
             if (!started) {
                 // Stream ended without any content (e.g. upstream hiccup).
                 bubble.classList.remove('chat-bubble--pending');
+                bubble.style.display = '';
                 bubble.textContent = STRINGS.errorModel;
                 bubble.classList.add('chat-bubble--error');
                 setBusy(false);
@@ -251,6 +293,7 @@
             messages.push({ role: 'assistant', content: answer });
         } catch (err) {
             bubble.classList.remove('chat-bubble--pending');
+            bubble.style.display = '';
             bubble.textContent = STRINGS.errorGeneric;
             bubble.classList.add('chat-bubble--error');
         } finally {
