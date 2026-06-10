@@ -7660,6 +7660,11 @@ button.box-cta.combi-pill {
     display: inline-block;
 }
 
+/* Send button switches to a stop button while a response streams. */
+.chat-send-icon--stop { display: none; }
+.chat-send--stop .chat-send-icon--send { display: none; }
+.chat-send--stop .chat-send-icon--stop { display: inline-block; }
+
 .chat-hint {
     text-align: center;
     font-size: var(--t-small);

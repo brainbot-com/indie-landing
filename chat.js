@@ -22,6 +22,7 @@
         ? {
             thinking: 'Thinking …',
             thought: 'Reasoning',
+            stop: 'Stop',
             errorGeneric: 'Sorry, something went wrong. Please try again.',
             errorUnavailable: 'The chat is currently unavailable. Please try again later.',
             errorModel: 'The AI model is not running right now. Please try again in a moment.'
@@ -29,10 +30,16 @@
         : {
             thinking: 'Denkt nach …',
             thought: 'Gedankengang',
+            stop: 'Stopp',
             errorGeneric: 'Entschuldigung, da ist etwas schiefgelaufen. Bitte versuche es erneut.',
             errorUnavailable: 'Der Chat ist gerade nicht verfügbar. Bitte versuche es später noch einmal.',
             errorModel: 'Das KI-Modell läuft gerade nicht. Bitte versuche es gleich noch einmal.'
         };
+
+    // The send button doubles as a stop button while a response streams.
+    const sendLabelEl = sendButton.querySelector('.chat-send-label');
+    const SEND_TEXT = sendLabelEl ? sendLabelEl.textContent : '';
+    let activeController = null;
 
     // The bottom toolbar has two custom dropdowns (model picker, answer-mode
     // picker), styled identically. Shared open/close wiring; opening one closes
@@ -243,9 +250,11 @@
 
     function setBusy(state) {
         busy = state;
-        sendButton.disabled = state;
         input.disabled = state;
-        sendButton.classList.toggle('is-loading', state);
+        // While streaming the send button becomes a stop button (kept enabled).
+        sendButton.classList.toggle('chat-send--stop', state);
+        if (sendLabelEl) sendLabelEl.textContent = state ? STRINGS.stop : SEND_TEXT;
+        sendButton.setAttribute('aria-label', state ? STRINGS.stop : SEND_TEXT);
     }
 
     async function send(text) {
@@ -296,11 +305,15 @@
             scrollToBottom();
         }
 
+        const controller = new AbortController();
+        activeController = controller;
+
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
                 credentials: 'same-origin',
+                signal: controller.signal,
                 body: JSON.stringify({ messages: messages, think: think, model: selectedModel || undefined })
             });
 
@@ -388,18 +401,40 @@
 
             messages.push({ role: 'assistant', content: answer });
         } catch (err) {
-            bubble.classList.remove('chat-bubble--pending');
-            bubble.style.display = '';
-            bubble.textContent = STRINGS.errorGeneric;
-            bubble.classList.add('chat-bubble--error');
+            if (controller.signal.aborted) {
+                // User stopped the response: keep whatever was already rendered
+                // (so it stays in the history); if nothing was shown yet, drop
+                // the empty assistant message entirely.
+                if (answer) {
+                    messages.push({ role: 'assistant', content: answer });
+                } else {
+                    const wrap = bubble.parentElement;
+                    if (wrap) wrap.remove();
+                }
+            } else {
+                bubble.classList.remove('chat-bubble--pending');
+                bubble.style.display = '';
+                bubble.textContent = STRINGS.errorGeneric;
+                bubble.classList.add('chat-bubble--error');
+            }
         } finally {
+            activeController = null;
             setBusy(false);
             input.focus();
         }
     }
 
+    // While streaming, the same button stops the response instead of sending.
+    sendButton.addEventListener('click', function (event) {
+        if (busy) {
+            event.preventDefault();
+            if (activeController) activeController.abort();
+        }
+    });
+
     form.addEventListener('submit', function (event) {
         event.preventDefault();
+        if (busy) return;
         send(input.value);
     });
 
