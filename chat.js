@@ -75,6 +75,24 @@
         if (event.key === 'Escape') closeAllDropdowns();
     });
 
+    // On narrow screens the three pickers collapse behind an "Options" toggle.
+    function closeOpts() {
+        const toolbar = document.getElementById('chat-toolbar');
+        const toggle = document.getElementById('chat-opts-toggle');
+        if (toolbar) toolbar.classList.remove('is-open');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    }
+    (function initOptsToggle() {
+        const toolbar = document.getElementById('chat-toolbar');
+        const toggle = document.getElementById('chat-opts-toggle');
+        if (!toolbar || !toggle) return;
+        toggle.addEventListener('click', function () {
+            const open = !toolbar.classList.contains('is-open');
+            toolbar.classList.toggle('is-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    })();
+
     // Answer-mode picker: "Instant Answer" (reasoning off, fast) vs
     // "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
     let thinkMode = false;   // effective flag sent to the backend
@@ -121,7 +139,7 @@
             opt.addEventListener('click', function () {
                 apply(opt.getAttribute('data-mode') === 'thinking');
                 dd.setOpen(false);
-                dd.button.focus();
+                closeOpts();
             });
         });
 
@@ -210,7 +228,7 @@
             li.addEventListener('click', function () {
                 choose(id);
                 dd.setOpen(false);
-                dd.button.focus();
+                closeOpts();
             });
             return li;
         }

@@ -7718,15 +7718,28 @@ body.modal-open { overflow: hidden; }
 .chat-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-}
-.chat-toolbar-left,
-.chat-toolbar-right {
-    display: flex;
-    align-items: center;
     gap: 0.3rem;
 }
+/* Push the answer-mode picker and the send button to the right on desktop. */
+#chat-mode { margin-left: auto; }
+/* Bundled "Options" toggle — only shown on narrow screens. */
+.chat-opts-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border-light);
+    border-radius: 999px;
+    background: var(--bg-white);
+    color: var(--text-light);
+    font: inherit;
+    font-size: var(--t-body-sm);
+    font-weight: 500;
+    cursor: pointer;
+}
+.chat-opts-toggle:hover { border-color: var(--accent-color); color: var(--text-dark); }
+.chat-opts-toggle .chat-mode-caret { transition: transform 0.2s ease; }
+.chat-toolbar.is-open .chat-opts-toggle .chat-mode-caret { transform: rotate(180deg); }
 
 .chat-input {
     width: 100%;
@@ -7826,4 +7839,18 @@ body.modal-open { overflow: hidden; }
     .chat-bubble { max-width: 88%; }
     .chat-send-label { display: none; }
     .chat-send { padding: 0.7rem 0.95rem; }
+
+    /* Bundle the pickers behind the "Options" toggle; only it + send show. */
+    .chat-toolbar { flex-wrap: wrap; gap: 0.4rem; }
+    .chat-opts-toggle { display: inline-flex; }
+    .chat-send { margin-left: auto; }
+    #chat-model,
+    #chat-examples,
+    #chat-mode { display: none; width: 100%; margin-left: 0; }
+    .chat-toolbar.is-open #chat-model,
+    .chat-toolbar.is-open #chat-examples,
+    .chat-toolbar.is-open #chat-mode { display: block; order: 5; }
+    /* Picker buttons fill the stacked panel; menus span the row. */
+    .chat-toolbar.is-open .chat-mode > .chat-mode-button { width: 100%; justify-content: space-between; }
+    .chat-mode-menu { left: 0; right: 0; min-width: 0; max-height: 240px; }
 }

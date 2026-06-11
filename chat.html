@@ -68,9 +68,13 @@
                             rows="1"
                             placeholder="Nachricht schreiben …"
                             maxlength="4000"></textarea>
-                        <div class="chat-toolbar">
-                            <div class="chat-toolbar-left">
-                                <div class="chat-mode" id="chat-model">
+                        <div class="chat-toolbar" id="chat-toolbar">
+                            <button type="button" class="chat-opts-toggle" id="chat-opts-toggle" aria-expanded="false" aria-controls="chat-toolbar">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+                                <span>Optionen</span>
+                                <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                            </button>
+                            <div class="chat-mode" id="chat-model">
                                     <button type="button" class="chat-mode-button" id="chat-model-button" title="Modell" aria-haspopup="listbox" aria-expanded="false">
                                         <span class="chat-mode-current" id="chat-model-current">…</span>
                                         <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -91,9 +95,7 @@
                                         <li class="chat-mode-option chat-example" role="option" data-mode="thinking" data-prompt="Erkläre für Einsteiger, was ein Cluster in der KI ist und welche Vorteile große Modelle im Einsatz bieten.">KI-Cluster für Einsteiger <span class="chat-chip-hint">(Thinking)</span></li>
                                     </ul>
                                 </div>
-                            </div>
-                            <div class="chat-toolbar-right">
-                                <div class="chat-mode" id="chat-mode">
+                            <div class="chat-mode" id="chat-mode">
                                     <button type="button" class="chat-mode-button" id="chat-mode-button" title="Antwortmodus" aria-haspopup="listbox" aria-expanded="false">
                                         <span class="chat-mode-current" id="chat-mode-current">Instant Answer</span>
                                         <svg class="chat-mode-caret" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
@@ -120,7 +122,6 @@
                                         <rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" />
                                     </svg>
                                 </button>
-                            </div>
                         </div>
                     </form>
                 </div>
