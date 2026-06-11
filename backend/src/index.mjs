@@ -48,9 +48,9 @@ const config = {
   litellmApiKey: process.env.LITELLM_API_KEY || '',
   litellmModel: process.env.LITELLM_MODEL || 'Qwen3.6-35B-A3B-8bit',
   chatSystemPrompt: process.env.CHAT_SYSTEM_PROMPT
-    || 'Du bist der Indie.box-Assistent. Indie.box ist eine private, lokal laufende KI-Workstation – keine Cloud, volle Datenhoheit. Antworte freundlich, präzise und auf Deutsch. Wenn du etwas nicht sicher weißt, sage es ehrlich.',
+    || 'Du bist der Indie.assistant und läufst lokal auf dem Indie.cluster – verteilt auf mehreren Mac Studios, keine Cloud, volle Datenhoheit. Antworte freundlich, präzise und auf Deutsch. Wenn du etwas nicht sicher weißt, sage es ehrlich.',
   chatSystemPromptEn: process.env.CHAT_SYSTEM_PROMPT_EN
-    || 'You are the Indie.box assistant. Indie.box is a private, fully local AI workstation – no cloud, full data sovereignty. Reply in a friendly, precise way and in English. If you are unsure about something, say so honestly.'
+    || 'You are the Indie.assistant, running locally on the Indie.cluster – distributed across several Mac Studios, no cloud, full data sovereignty. Reply in a friendly, precise way and in English. If you are unsure about something, say so honestly.'
 };
 
 const supportedPaymentMethods = {
