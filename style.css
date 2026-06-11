@@ -7572,7 +7572,7 @@ button.box-cta.combi-pill {
     position: absolute;
     bottom: calc(100% + 6px);
     min-width: 190px;
-    max-height: 260px;
+    max-height: 360px;
     overflow-y: auto;
     margin: 0;
     padding: 0.3rem;
@@ -7605,14 +7605,16 @@ button.box-cta.combi-pill {
     vertical-align: middle;
 }
 .chat-model-compare {
-    margin-top: 0.25rem;
-    padding: 0.5rem 0.6rem;
+    position: sticky;
+    bottom: -0.3rem;
+    margin: 0.25rem -0.3rem -0.3rem;
+    padding: 0.55rem 0.9rem;
     border-top: 1px solid var(--border-light);
+    background: var(--bg-white);
     color: var(--accent-color);
     font-size: var(--t-body-sm);
     font-weight: 500;
     cursor: pointer;
-    border-radius: 8px;
 }
 .chat-model-compare:hover { background: var(--bg-light); }
 

@@ -165,10 +165,10 @@
     // Friendly metadata for the known models (drives the rich picker).
     function modelMeta(id) {
         const x = (id || '').toLowerCase();
-        if (/qwen/.test(x)) return { role: isEnglish ? 'The Fast One' : 'Der Schnelle', tag: isEnglish ? 'speed, images & long docs' : 'Tempo, Bilder & lange Docs', rec: false };
-        if (/minimax/.test(x)) return { role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'balanced default' : 'ausgewogen, Standardwahl', rec: true };
-        if (/kimi/.test(x)) return { role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks' : 'mehrstufige Aufgaben', rec: false };
-        return { role: id, tag: '', rec: false };
+        if (/qwen/.test(x)) return { short: 'Qwen3.6', role: isEnglish ? 'The Fast One' : 'Der Schnelle', tag: isEnglish ? 'speed, images & long docs' : 'Tempo, Bilder & lange Docs', rec: false };
+        if (/minimax/.test(x)) return { short: 'MiniMax M2.7', role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'balanced default' : 'ausgewogen, Standardwahl', rec: true };
+        if (/kimi/.test(x)) return { short: 'Kimi K2.6', role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks' : 'mehrstufige Aufgaben', rec: false };
+        return { short: id, role: id, tag: '', rec: false };
     }
     let openCompare = function () {};   // wired up by initCompareModal
 
@@ -189,7 +189,7 @@
             pfx.textContent = MODEL_LABEL + ': ';
             const nm = document.createElement('span');
             nm.className = 'chat-model-name';
-            nm.textContent = id;
+            nm.textContent = modelMeta(id).short || id;
             current.appendChild(pfx);
             current.appendChild(nm);
             Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-model-option')).forEach(function (o) {
