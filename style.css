@@ -7556,7 +7556,8 @@ button.box-cta.combi-pill {
     outline-offset: 2px;
     border-radius: 6px;
 }
-.chat-mode-current { white-space: nowrap; }
+.chat-mode-current { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+.chat-model-name { overflow: hidden; text-overflow: ellipsis; }
 .chat-mode-caret {
     width: 14px;
     height: 14px;
@@ -7853,4 +7854,7 @@ body.modal-open { overflow: hidden; }
     /* Picker buttons fill the stacked panel; menus span the row. */
     .chat-toolbar.is-open .chat-mode > .chat-mode-button { width: 100%; justify-content: space-between; }
     .chat-mode-menu { left: 0; right: 0; min-width: 0; max-height: 240px; }
+    /* Drop the "Modell:" prefix on phones; truncate the long model name. */
+    .chat-model-prefix { display: none; }
+    #chat-model .chat-mode-button { min-width: 0; }
 }

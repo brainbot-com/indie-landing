@@ -183,7 +183,15 @@
 
         function choose(id) {
             selectedModel = id;
-            current.textContent = MODEL_LABEL + ': ' + id;
+            current.innerHTML = '';
+            const pfx = document.createElement('span');
+            pfx.className = 'chat-model-prefix';
+            pfx.textContent = MODEL_LABEL + ': ';
+            const nm = document.createElement('span');
+            nm.className = 'chat-model-name';
+            nm.textContent = id;
+            current.appendChild(pfx);
+            current.appendChild(nm);
             Array.prototype.slice.call(dd.menu.querySelectorAll('.chat-model-option')).forEach(function (o) {
                 const active = o.getAttribute('data-model') === id;
                 o.classList.toggle('is-active', active);
