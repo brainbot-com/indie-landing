@@ -452,7 +452,7 @@
                 headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
                 credentials: 'same-origin',
                 signal: controller.signal,
-                body: JSON.stringify({ messages: messages, think: think, model: selectedModel || undefined })
+                body: JSON.stringify({ messages: messages, think: think, model: selectedModel || undefined, lang: isEnglish ? 'en' : 'de' })
             });
 
             if (!response.ok || !response.body) {
