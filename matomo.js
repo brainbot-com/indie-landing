@@ -68,6 +68,18 @@
     });
   }
 
+  window.ibOpenConsentBanner = function() {
+    localStorage.removeItem(CONSENT_KEY);
+    showBanner();
+  };
+
+  document.querySelectorAll('[data-matomo-consent-open]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.ibOpenConsentBanner();
+    });
+  });
+
   var consent = getConsent();
   if (consent === 'accepted') {
     initMatomo();
