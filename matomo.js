@@ -89,14 +89,29 @@
     });
   });
 
-  var consent = getConsent();
-  if (consent === 'accepted') {
-    initMatomo();
-  } else if (!consent) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', showBanner);
-    } else {
+  // Decide what to do once we're allowed to act: track if already consented,
+  // ask if undecided, stay quiet if declined.
+  function start() {
+    var consent = getConsent();
+    if (consent === 'accepted') {
+      initMatomo();
+    } else if (!consent) {
       showBanner();
     }
   }
+
+  // Don't disturb the hero intro: wait until the opening animation has
+  // finished before showing the consent banner or loading Matomo. script.js
+  // dispatches 'indiebox:hero-done' at the end of the sequence — and
+  // immediately on pages without a hero (chat, legal). A timeout is a safety
+  // net in case that event never arrives (e.g. script.js failed to load).
+  function whenHeroDone(cb) {
+    if (window.__indieboxHeroDone) { cb(); return; }
+    var ran = false;
+    var run = function () { if (ran) return; ran = true; cb(); };
+    document.addEventListener('indiebox:hero-done', run, { once: true });
+    setTimeout(run, 8000);
+  }
+
+  whenHeroDone(start);
 })();
