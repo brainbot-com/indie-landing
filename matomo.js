@@ -89,22 +89,10 @@
     });
   });
 
-  // Decide what to do once we're allowed to act: track if already consented,
-  // ask if undecided, stay quiet if declined.
-  function start() {
-    var consent = getConsent();
-    if (consent === 'accepted') {
-      initMatomo();
-    } else if (!consent) {
-      showBanner();
-    }
-  }
-
-  // Don't disturb the hero intro: wait until the opening animation has
-  // finished before showing the consent banner or loading Matomo. script.js
-  // dispatches 'indiebox:hero-done' at the end of the sequence — and
-  // immediately on pages without a hero (chat, legal). A timeout is a safety
-  // net in case that event never arrives (e.g. script.js failed to load).
+  // Run a callback once the hero intro has finished. script.js dispatches
+  // 'indiebox:hero-done' at the end of the sequence — and immediately on pages
+  // without a hero (chat, legal). The 8s timeout is a safety net in case the
+  // event never arrives (e.g. script.js failed to load).
   function whenHeroDone(cb) {
     if (window.__indieboxHeroDone) { cb(); return; }
     var ran = false;
@@ -113,5 +101,17 @@
     setTimeout(run, 8000);
   }
 
-  whenHeroDone(start);
+  var consent = getConsent();
+  if (consent === 'accepted') {
+    // Already consented: start tracking immediately. This is invisible (async
+    // script, no UI), so it neither disturbs the intro nor loses the pageview
+    // for visitors who bounce during the animation.
+    initMatomo();
+  } else if (!consent) {
+    // Undecided: only the *visible* banner waits for the intro to finish, so
+    // we don't interrupt the opening animation. No events are lost here —
+    // nothing is tracked before consent anyway.
+    whenHeroDone(showBanner);
+  }
+  // declined: do nothing.
 })();
