@@ -1,336 +1,82 @@
-// ========================================
-// Matomo (self-hosted) website analytics
-// ========================================
-//
-// 1) Set `MATOMO_BASE_URL` and `MATOMO_SITE_ID` to enable tracking.
-// 2) Optional: adjust cookie/consent settings below.
-//
-// Example:
-// const MATOMO_BASE_URL = "https://analytics.example.com/";
-// const MATOMO_SITE_ID = "1";
-//
 (function () {
-  const MATOMO_BASE_URL = "https://indieboxai.matomo.cloud/";
-  const MATOMO_SITE_ID = "1";
-  // Matomo Cloud serves the JS from a CDN URL (not from `MATOMO_BASE_URL`).
-  // Leave empty for self-hosted; set for Matomo Cloud.
-  const MATOMO_JS_URL = "https://cdn.matomo.cloud/indieboxai.matomo.cloud/matomo.js";
+  if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname)) return;
 
-  // Tracking policy:
-  // - always track pageviews/events in cookieless mode
-  // - enable cookies only after explicit consent (for returning visitors)
-  // - respect Do Not Track (browser setting)
-  const MATOMO_DISABLE_COOKIES = false;
+  var CONSENT_KEY = 'indiebox_analytics_consent';
+  var lang = (document.documentElement.lang || '').toLowerCase().startsWith('de') ? 'de' : 'en';
 
-  // Don't track local previews.
-  const DISABLE_ON_LOCALHOST = true;
-
-  if (!MATOMO_BASE_URL || !MATOMO_SITE_ID) return;
-
-  if (typeof window === "undefined" || typeof document === "undefined") return;
-  if (window.location && window.location.protocol === "file:") return;
-  if (
-    DISABLE_ON_LOCALHOST &&
-    window.location &&
-    /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname)
-  ) {
-    return;
+  function getConsent() {
+    try { return localStorage.getItem(CONSENT_KEY); } catch (e) { return null; }
   }
 
-  const CONSENT_KEY = "indiebox_matomo_consent";
-  const CONSENT_GRANTED = "granted";
-  const CONSENT_DENIED = "denied";
+  function setConsent(val) {
+    try { localStorage.setItem(CONSENT_KEY, val); } catch (e) {}
+  }
 
-  const getLang = () => {
-    const raw = (document.documentElement && document.documentElement.lang) || "";
-    const normalized = raw.trim().toLowerCase();
-    return normalized.startsWith("de") ? "de" : "en";
-  };
+  function initMatomo() {
+    var _paq = window._paq = window._paq || [];
+    _paq.push(['disableCookies']);
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function () {
+      var u = 'https://shutter.matomo.cloud/';
+      _paq.push(['setTrackerUrl', u + 'matomo.php']);
+      _paq.push(['setSiteId', '8']);
+      var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
+      g.async = true;
+      g.src = 'https://cdn.matomo.cloud/shutter.matomo.cloud/matomo.js';
+      s.parentNode.insertBefore(g, s);
+    })();
+  }
 
-  const getPrivacyLink = (lang) => {
-    // EN has two pages: privacy.html (marketing-style "Privacy Principles")
-    // and datenschutz.html (the legal GDPR notice with the Matomo section).
-    // Banner links must point to the legal notice.
-    return lang === "de" ? "datenschutz.html" : "datenschutz.html";
-  };
+  function showBanner() {
+    var style = document.createElement('style');
+    style.textContent = [
+      '.ib-consent{position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0f1923;border-top:1px solid rgba(255,255,255,0.1);padding:20px 24px}',
+      '.ib-consent__inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:24px;flex-wrap:wrap}',
+      '.ib-consent__text{font-size:14px;line-height:1.5;color:rgba(255,255,255,0.75);margin:0;flex:1;min-width:260px}',
+      '.ib-consent__text a{color:#f97316;text-decoration:underline;text-underline-offset:3px}',
+      '.ib-consent__btns{display:flex;gap:10px;flex-shrink:0}',
+      '.ib-consent__btn{font-size:14px;font-weight:500;padding:9px 20px;border-radius:999px;cursor:pointer;border:1.5px solid #f97316;white-space:nowrap}',
+      '.ib-consent__btn--accept{background:#f97316;color:#0f1923}',
+      '.ib-consent__btn--decline{background:transparent;color:#fff}',
+      '@media(max-width:480px){.ib-consent__inner{flex-direction:column;align-items:flex-start}.ib-consent__btns{width:100%}.ib-consent__btn{flex:1;text-align:center}}'
+    ].join('');
+    document.head.appendChild(style);
 
-  const getStoredConsent = () => {
-    try {
-      return String(window.localStorage.getItem(CONSENT_KEY) || "");
-    } catch (err) {
-      return "";
-    }
-  };
+    var privacyHref = lang === 'de' ? '/datenschutz.html' : '/privacy.html';
+    var text = lang === 'de'
+      ? 'Diese Website verwendet Matomo Analytics zur Analyse des Websiteverkehrs. Es werden keine Cookies gesetzt. <a href="' + privacyHref + '">Datenschutzerklärung</a>'
+      : 'This website uses Matomo Analytics to analyze website traffic. No cookies are set. <a href="' + privacyHref + '">Privacy policy</a>';
 
-  const storeConsent = (value) => {
-    try {
-      window.localStorage.setItem(CONSENT_KEY, value);
-    } catch (err) {
-      /* Ignore storage errors */
-    }
-  };
-
-  const clearMatomoCookies = () => {
-    // Matomo uses cookies like `_pk_id.*` and `_pk_ses.*` for visitor recognition.
-    const cookies = String(document.cookie || "")
-      .split(";")
-      .map((part) => part.trim())
-      .filter(Boolean);
-
-    cookies.forEach((entry) => {
-      const name = entry.split("=")[0];
-      if (!name || !name.startsWith("_pk_")) return;
-      document.cookie = `${name}=; Max-Age=0; path=/; SameSite=Lax`;
-    });
-  };
-
-  const applyCookieConsentState = (consent) => {
-    if (!window._paq) return;
-
-    if (consent === CONSENT_GRANTED) {
-      window._paq.push(["setCookieConsentGiven"]);
-      window._paq.push(["rememberCookieConsentGiven", 24 * 30]);
-      return;
-    }
-
-    clearMatomoCookies();
-    window._paq.push(["forgetCookieConsentGiven"]);
-  };
-
-  const loadMatomoScriptOnce = (baseUrl) => {
-    if (window.__matomoScriptLoaded) return;
-    window.__matomoScriptLoaded = true;
-
-    const d = document;
-    const g = d.createElement("script");
-    const s = d.getElementsByTagName("script")[0];
-    g.async = true;
-    g.src = MATOMO_JS_URL ? MATOMO_JS_URL : `${baseUrl}matomo.js`;
-    s.parentNode.insertBefore(g, s);
-  };
-
-  const showConsentBanner = ({ force } = {}) => {
-    const existing = document.getElementById("matomo-consent-banner");
-    if (existing && !force) return;
-    if (existing) existing.remove();
-
-    const lang = getLang();
-    const privacyLink = getPrivacyLink(lang);
-
-    const banner = document.createElement("div");
-    banner.id = "matomo-consent-banner";
-    banner.className = "matomo-consent";
-
-    const title = document.createElement("div");
-    title.className = "matomo-consent__title";
-    title.textContent = lang === "de" ? "Reichweitenmessung" : "Visitor analytics";
-
-    const body = document.createElement("div");
-    body.className = "matomo-consent__body";
-    body.innerHTML =
-      lang === "de"
-        ? `Wir möchten verstehen, wie unsere Website genutzt wird. Dafür setzen wir mit Ihrer Einwilligung ein Cookie, um wiederkehrende Besuche zu erkennen. Die Messung läuft auf unserem eigenen Matomo-Server — keine Weitergabe an Dritte. Ihre Einwilligung können Sie jederzeit widerrufen. <a class="matomo-consent__link" href="${privacyLink}">Mehr in der Datenschutzerklärung</a>.`
-        : `We'd like to understand how this website is used. With your consent, we set a cookie to recognise return visits. Analytics run on our own Matomo server — no data is shared with third parties. You can withdraw your consent at any time. <a class="matomo-consent__link" href="${privacyLink}">More in the privacy notice</a>.`;
-
-    const actions = document.createElement("div");
-    actions.className = "matomo-consent__actions";
-
-    // Buttons share the same visual weight to avoid steering users towards
-    // acceptance (relevant under DSGVO/TTDSG dark-pattern guidance).
-    const accept = document.createElement("button");
-    accept.type = "button";
-    accept.className = "button button--plain-dark button--pill button--sm";
-    accept.textContent = lang === "de" ? "Einverstanden" : "Agree";
-
-    const decline = document.createElement("button");
-    decline.type = "button";
-    decline.className = "button button--plain-dark button--pill button--sm";
-    decline.textContent = lang === "de" ? "Ablehnen" : "Decline";
-
-    accept.addEventListener("click", () => {
-      storeConsent(CONSENT_GRANTED);
-      banner.remove();
-      applyCookieConsentState(CONSENT_GRANTED);
-      if (debugEnabled) {
-        // eslint-disable-next-line no-console
-        console.log("[matomo] consent accepted");
-      }
-    });
-
-    decline.addEventListener("click", () => {
-      storeConsent(CONSENT_DENIED);
-      banner.remove();
-      applyCookieConsentState(CONSENT_DENIED);
-      if (debugEnabled) {
-        // eslint-disable-next-line no-console
-        console.log("[matomo] consent declined");
-      }
-    });
-
-    actions.appendChild(accept);
-    actions.appendChild(decline);
-    banner.appendChild(title);
-    banner.appendChild(body);
-    banner.appendChild(actions);
-
+    var banner = document.createElement('div');
+    banner.className = 'ib-consent';
+    banner.innerHTML = '<div class="ib-consent__inner"><p class="ib-consent__text">' + text + '</p>'
+      + '<div class="ib-consent__btns">'
+      + '<button class="ib-consent__btn ib-consent__btn--accept">' + (lang === 'de' ? 'Akzeptieren' : 'Accept') + '</button>'
+      + '<button class="ib-consent__btn ib-consent__btn--decline">' + (lang === 'de' ? 'Ablehnen' : 'Decline') + '</button>'
+      + '</div></div>';
     document.body.appendChild(banner);
-  };
 
-  window.indieboxOpenTrackingSettings = () => {
-    showConsentBanner({ force: true });
-  };
-
-  // Avoid tracking a transient page that will immediately redirect to /en/
-  // (mirrors the redirect logic in `script.js`).
-  const path = window.location.pathname || "";
-  const isAlreadyEnglish = /\/en(\/|$)/.test(path);
-  if (!isAlreadyEnglish) {
-    const preferred =
-      (navigator.languages && navigator.languages[0]) || navigator.language || "";
-    const prefersEnglish = preferred.toLowerCase().startsWith("en");
-    const isRoot =
-      path === "" ||
-      path === "/" ||
-      path.endsWith("/index.html") ||
-      path.endsWith("/");
-
-    if (prefersEnglish && isRoot) return;
-  }
-
-  const baseUrl = MATOMO_BASE_URL.endsWith("/") ? MATOMO_BASE_URL : `${MATOMO_BASE_URL}/`;
-
-  window._paq = window._paq || [];
-  const _paq = window._paq;
-
-  if (MATOMO_DISABLE_COOKIES) _paq.push(["disableCookies"]);
-  _paq.push(["setDoNotTrack", true]);
-  // IP anonymisation: keep only the first three octets server-side.
-  // Required to back up the claim in the privacy notice that the IP is
-  // truncated. Must be set before trackPageView.
-  _paq.push(["setIpAnonymization", true]);
-
-  _paq.push(["setTrackerUrl", `${baseUrl}matomo.php`]);
-  _paq.push(["setSiteId", String(MATOMO_SITE_ID)]);
-
-  const lang = getLang();
-  const consent = getStoredConsent();
-  const debugEnabled = (() => {
-    try {
-      const params = new URLSearchParams(window.location.search || "");
-      if (params.get("matomo_debug") === "1") return true;
-    } catch (err) {
-      /* Ignore */
-    }
-    return false;
-  })();
-
-  if (debugEnabled) {
-    // eslint-disable-next-line no-console
-    console.log("[matomo] init", { consent, lang, baseUrl, siteId: MATOMO_SITE_ID });
-  }
-
-  const bindConsentLinks = () => {
-    document.querySelectorAll("[data-matomo-consent-open]").forEach((el) => {
-      if (el.__matomoBound) return;
-      el.__matomoBound = true;
-      el.addEventListener("click", (event) => {
-        event.preventDefault();
-        showConsentBanner({ force: true });
-      });
+    banner.querySelector('.ib-consent__btn--accept').addEventListener('click', function () {
+      setConsent('accepted');
+      banner.remove();
+      initMatomo();
     });
-  };
 
-  const isDoNotTrackEnabled = () => {
-    const dnt =
-      (navigator && (navigator.doNotTrack || navigator.msDoNotTrack)) ||
-      (window && window.doNotTrack);
-    return String(dnt) === "1" || String(dnt).toLowerCase() === "yes";
-  };
-
-  const buildClickLabel = (el) => {
-    const explicit = el.getAttribute("data-matomo-label");
-    if (explicit) return explicit.trim();
-
-    const i18nKey = el.getAttribute("data-i18n");
-    if (i18nKey) return `i18n:${i18nKey}`;
-
-    const aria = el.getAttribute("aria-label");
-    if (aria) return aria.trim();
-
-    const id = el.id;
-    if (id) return `#${id}`;
-
-    const text = String(el.textContent || "").replace(/\s+/g, " ").trim();
-    if (text) return text.slice(0, 80);
-
-    return "unknown";
-  };
-
-  const buildClickAction = (el) => {
-    if (el.hasAttribute("data-overlay-open")) return "overlay_open";
-    if (el.hasAttribute("data-overlay-close")) return "overlay_close";
-    return "click";
-  };
-
-  const setupButtonTracking = () => {
-    if (window.__matomoButtonTrackingInstalled) return;
-    window.__matomoButtonTrackingInstalled = true;
-
-    document.addEventListener(
-      "click",
-      (event) => {
-        const target = event.target;
-        if (!target || typeof target.closest !== "function") return;
-
-        const button = target.closest("button, a.button, a.combi-pill, [data-overlay-open]");
-        if (!button) return;
-        if (button.hasAttribute("data-matomo-ignore")) return;
-        if (button.closest && button.closest("#matomo-consent-banner")) return;
-
-        if (isDoNotTrackEnabled()) return;
-
-        window._paq = window._paq || [];
-
-        const category = button.getAttribute("data-matomo-category") || "ui";
-        const action = button.getAttribute("data-matomo-action") || buildClickAction(button);
-        const label = button.getAttribute("data-matomo-event") || buildClickLabel(button);
-
-        window._paq.push(["trackEvent", category, action, label]);
-      },
-      { capture: true, passive: true }
-    );
-  };
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", bindConsentLinks, { once: true });
-  } else {
-    bindConsentLinks();
+    banner.querySelector('.ib-consent__btn--decline').addEventListener('click', function () {
+      setConsent('declined');
+      banner.remove();
+    });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", setupButtonTracking, { once: true });
-  } else {
-    setupButtonTracking();
-  }
-
-  // Cookie consent controls only cookie usage; tracking itself remains active without cookies.
-  _paq.push(["requireCookieConsent"]);
-  applyCookieConsentState(consent);
-  if (consent !== CONSENT_GRANTED && consent !== CONSENT_DENIED) {
-    // Delay banner until the hero cinematic animation is done so it doesn't
-    // distract from the staged reveal. setupHeroCinematicSequence fires
-    // `indiebox:hero-done` (also on pages without a hero — immediately).
-    const showWhenHeroDone = () => showConsentBanner();
-    if (window.__indieboxHeroDone) {
-      showWhenHeroDone();
+  var consent = getConsent();
+  if (consent === 'accepted') {
+    initMatomo();
+  } else if (!consent) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showBanner);
     } else {
-      document.addEventListener("indiebox:hero-done", showWhenHeroDone, { once: true });
-      // Fallback in case the event never fires (e.g. animation script broken).
-      window.setTimeout(showWhenHeroDone, 8000);
+      showBanner();
     }
   }
-
-  loadMatomoScriptOnce(baseUrl);
-  _paq.push(["trackPageView"]);
-  _paq.push(["enableLinkTracking"]);
 })();
