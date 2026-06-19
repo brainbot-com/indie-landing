@@ -1,0 +1,71 @@
+name: Deploy to Staging
+
+# Every push to main rsyncs the static site to staging.indiebox.ai.
+# Production (indiebox.ai) deploys only on a published release — see deploy-live.yml.
+#
+# Required repo secrets:
+#   SSH_PRIVATE_KEY  passphrase-less deploy key (public half in deploy@host authorized_keys)
+#   DEPLOY_HOST      e.g. 87.106.111.141
+#   DEPLOY_USER      e.g. deploy
+#   STAGING_PATH     e.g. /srv/staging.indiebox/site/
+#
+# Note: this deploys the static front-end only. The backend (Docker) is deployed
+# separately via deploy/scripts/push-stack.sh.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: rsync → staging.indiebox.ai
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy static site
+        run: |
+          rsync \
+            --archive --verbose --compress --delete --delete-excluded \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            --exclude ".claude/" \
+            --exclude ".codex/" \
+            --exclude ".specify/" \
+            --exclude ".vscode/" \
+            --exclude ".local-data/" \
+            --exclude "node_modules/" \
+            --exclude "dist/" \
+            --exclude "build/" \
+            --exclude "backend/" \
+            --exclude "bb_relaunch/" \
+            --exclude "deploy/" \
+            --exclude "i18n/" \
+            --exclude "scripts/" \
+            --exclude "specs/" \
+            --exclude ".env" \
+            --exclude ".DS_Store" \
+            --exclude ".gitignore" \
+            --exclude ".mcp.json*" \
+            --exclude "*.yml" \
+            --exclude "*.yaml" \
+            --exclude "*.md" \
+            ./ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.STAGING_PATH }}"
+
+      - name: Report
+        run: echo "✓ Deployed to https://staging.indiebox.ai/"
