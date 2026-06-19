@@ -68,6 +68,15 @@
     });
   }
 
+  document.addEventListener('click', function(e) {
+    var btn = e.target && e.target.closest('[data-matomo-category]');
+    if (!btn || !window._paq) return;
+    var category = btn.getAttribute('data-matomo-category');
+    var action = btn.getAttribute('data-matomo-action') || 'click';
+    var label = btn.getAttribute('data-matomo-label') || '';
+    window._paq.push(['trackEvent', category, action, label]);
+  });
+
   window.ibOpenConsentBanner = function() {
     localStorage.removeItem(CONSENT_KEY);
     showBanner();
