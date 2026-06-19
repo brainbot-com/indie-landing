@@ -1271,15 +1271,16 @@ ul {
 
 .hero-bg-image {
     position: absolute;
-    top: 0;
+    top: -20%;
     left: 0;
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: 140%;
+    /* cover = full-bleed, no dark letterbox bands; extra height/offset gives
+       the parallax room to move without exposing the background. */
+    object-fit: cover;
     object-position: center center;
     z-index: 0;
     filter: brightness(0.55);
-    /* Slightly darker for better contrast */
     transform-origin: center center;
 }
 
