@@ -68,17 +68,41 @@ node scripts/generate-lang.js
 
 ## Deployment
 
-Two scripts cover all deployment scenarios. Both require SSH key access to the server.
+**Hosting:** both `indiebox.ai` (live) and `staging.indiebox.ai` are served by the **IONOS server** (Caddy), **not** GitHub Pages. The static front-end deploys automatically via **GitHub Actions**; the backend (Docker) deploys via a manual script.
 
-Set the target server via environment variables (or rely on defaults):
+### Automatic deploy (GitHub Actions) — primary
+
+| Trigger | Workflow | Target |
+|---|---|---|
+| Push to `main` | `.github/workflows/deploy-staging.yml` | staging.indiebox.ai |
+| Publish a GitHub **Release** (or run the workflow manually) | `.github/workflows/deploy-live.yml` | indiebox.ai (live) |
+
+So **a push to `main` updates staging; a Release publishes live** — a plain push does *not* touch live.
 
 ```bash
-export INDIEBOX_DEPLOY_HOST=87.106.111.141   # default
-export INDIEBOX_DEPLOY_USER=deploy           # default
-export INDIEBOX_DEPLOY_KEY=~/.ssh/indiebox_ionos  # default
+# publish current main to live (creates a release → triggers the live deploy):
+gh release create vYYYY.MM.DD --target main --title "…" --notes "…"
+# or run the live workflow manually, without a version tag:
+gh workflow run "Deploy to Production"
 ```
 
-### Deploy static site only
+Required repo secrets (Settings → Secrets and variables → Actions): `SSH_PRIVATE_KEY`
+(passphrase-less deploy key; its public half lives in `deploy@host:~/.ssh/authorized_keys`),
+`DEPLOY_HOST`, `DEPLOY_USER`, `STAGING_PATH`, `LIVE_PATH`.
+
+### Manual deploy (fallback)
+
+The manual scripts rsync over SSH and need the deploy key loaded in the agent first:
+
+```bash
+ssh-add --apple-use-keychain ~/.ssh/indiebox_ionos
+# optional overrides (defaults shown):
+export INDIEBOX_DEPLOY_HOST=87.106.111.141
+export INDIEBOX_DEPLOY_USER=deploy
+export INDIEBOX_DEPLOY_KEY=~/.ssh/indiebox_ionos
+```
+
+Static site only (rsync; does **not** restart the backend):
 
 ```bash
 bash deploy/scripts/push-site.sh               # both staging and live
@@ -86,8 +110,6 @@ bash deploy/scripts/push-site.sh --staging     # staging only
 bash deploy/scripts/push-site.sh --production  # live only
 bash deploy/scripts/push-site.sh --dry-run     # preview what would change
 ```
-
-Rsyncs all static files (HTML, CSS, JS, images) to the server. Does **not** restart the backend.
 
 ### Deploy backend + proxy stack
 
