@@ -14,7 +14,6 @@
 
   function initMatomo() {
     var _paq = window._paq = window._paq || [];
-    _paq.push(['disableCookies']);
     _paq.push(['trackPageView']);
     _paq.push(['enableLinkTracking']);
     (function () {
@@ -45,8 +44,8 @@
 
     var privacyHref = lang === 'de' ? '/datenschutz.html' : '/privacy.html';
     var text = lang === 'de'
-      ? 'Diese Website verwendet Matomo Analytics zur Analyse des Websiteverkehrs. Es werden keine Cookies gesetzt. <a href="' + privacyHref + '">Datenschutzerklärung</a>'
-      : 'This website uses Matomo Analytics to analyze website traffic. No cookies are set. <a href="' + privacyHref + '">Privacy policy</a>';
+      ? 'Diese Website verwendet Matomo Analytics zur Analyse des Websiteverkehrs. Mit Ihrer Zustimmung wird ein Cookie gesetzt, um wiederkehrende Besuche zu erkennen. IP-Adressen werden anonymisiert. <a href="' + privacyHref + '">Datenschutzerklärung</a>'
+      : 'This website uses Matomo Analytics to analyze website traffic. With your consent, a cookie is set to recognize returning visits. IP addresses are anonymized. <a href="' + privacyHref + '">Privacy policy</a>';
 
     var banner = document.createElement('div');
     banner.className = 'ib-consent';
