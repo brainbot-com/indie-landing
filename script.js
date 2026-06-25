@@ -3455,7 +3455,7 @@ function setupAdminNotifications() {
             id: 'preview-order',
             orderNumber: 999,
             product: 'Indiebox AI-Workstation',
-            amount: '3999.00',
+            amount: '4499.00',
             currency: 'EUR',
             paymentMethod: 'creditcard',
             paidAt: new Date().toISOString().slice(0, 16).replace('T', ' '),
