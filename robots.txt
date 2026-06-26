@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /checkout.html
+Disallow: /checkout-status.html
+Disallow: /en/checkout.html
+Disallow: /en/checkout-status.html
+Disallow: /type-guide.html
+Disallow: /leasing_preview-2.html
+
+Sitemap: https://indiebox.ai/sitemap.xml
