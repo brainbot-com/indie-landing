@@ -20,7 +20,7 @@
   var isEN = document.documentElement.lang === 'en';
   var privacyHref = isEN ? '/en/privacy.html' : '/datenschutz.html';
   var copy = isEN ? {
-    text: 'Would you like to be recognised on your next visit? We use Matomo Analytics with anonymised IP addresses. Without consent, tracking is cookieless. ',
+    text: 'Would you like to be recognized on your next visit? We use Matomo Analytics with anonymized IP addresses. Without consent, tracking is cookieless. ',
     link: 'Privacy policy',
     accept: 'Yes please',
     decline: 'No thanks'
