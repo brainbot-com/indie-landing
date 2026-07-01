@@ -17,6 +17,19 @@
 
   var CONSENT_KEY = 'ib_analytics_consent';
   var consent = localStorage.getItem(CONSENT_KEY);
+  var isEN = document.documentElement.lang === 'en';
+  var privacyHref = isEN ? '/en/privacy.html' : '/datenschutz.html';
+  var copy = isEN ? {
+    text: 'Would you like to be recognised on your next visit? We use Matomo Analytics with anonymised IP addresses. Without consent, tracking is cookieless. ',
+    link: 'Privacy policy',
+    accept: 'Yes please',
+    decline: 'No thanks'
+  } : {
+    text: 'Möchten Sie bei Ihrem nächsten Besuch wiedererkannt werden? Wir verwenden Matomo Analytics mit anonymisierten IP-Adressen. Ohne Zustimmung erfolgt das Tracking cookielos. ',
+    link: 'Datenschutz',
+    accept: 'Ja, gerne',
+    decline: 'Nein danke'
+  };
 
   if (consent === 'accepted') {
     _paq.push(['rememberCookieConsentGiven']);
@@ -33,14 +46,12 @@
     banner.innerHTML = [
       '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">',
         '<p style="flex:1;margin:0;color:rgba(224,232,237,0.85)">',
-          'Möchten Sie bei Ihrem nächsten Besuch wiedererkannt werden? ',
-          'Wir verwenden Matomo Analytics mit anonymisierten IP-Adressen. ',
-          'Ohne Zustimmung erfolgt das Tracking cookielos. ',
-          '<a href="datenschutz.html" style="color:#ff9142">Datenschutz</a>',
+          copy.text,
+          '<a href="' + privacyHref + '" style="color:#ff9142">' + copy.link + '</a>',
         '</p>',
         '<div style="display:flex;gap:10px;flex-shrink:0">',
-          '<button id="ib-consent-accept" style="padding:9px 18px;border-radius:6px;background:#ff6314;color:#fff;border:none;font-weight:600;cursor:pointer;white-space:nowrap">Ja, gerne</button>',
-          '<button id="ib-consent-decline" style="padding:9px 18px;border-radius:6px;background:transparent;color:rgba(224,232,237,0.7);border:1px solid rgba(224,232,237,0.25);font-weight:600;cursor:pointer;white-space:nowrap">Nein danke</button>',
+          '<button id="ib-consent-accept" style="padding:9px 18px;border-radius:6px;background:#ff6314;color:#fff;border:none;font-weight:600;cursor:pointer;white-space:nowrap">' + copy.accept + '</button>',
+          '<button id="ib-consent-decline" style="padding:9px 18px;border-radius:6px;background:transparent;color:rgba(224,232,237,0.7);border:1px solid rgba(224,232,237,0.25);font-weight:600;cursor:pointer;white-space:nowrap">' + copy.decline + '</button>',
         '</div>',
       '</div>'
     ].join('');
