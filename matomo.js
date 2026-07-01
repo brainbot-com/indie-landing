@@ -20,12 +20,12 @@
   var isEN = document.documentElement.lang === 'en';
   var privacyHref = isEN ? '/en/privacy.html' : '/datenschutz.html';
   var copy = isEN ? {
-    text: 'Would you like to be recognized on your next visit? We use Matomo Analytics with anonymized IP addresses. Without consent, tracking is cookieless. ',
+    text: 'This site uses Matomo Analytics. By default, no cookies are set. Accept to allow cookies that recognize you on future visits. ',
     link: 'Privacy policy',
     accept: 'Yes please',
     decline: 'No thanks'
   } : {
-    text: 'Möchten Sie bei Ihrem nächsten Besuch wiedererkannt werden? Wir verwenden Matomo Analytics mit anonymisierten IP-Adressen. Ohne Zustimmung erfolgt das Tracking cookielos. ',
+    text: 'Diese Website verwendet Matomo Analytics. Standardmäßig werden keine Cookies gesetzt. Akzeptieren Sie, um Cookies für die Wiedererkennung bei zukünftigen Besuchen zu erlauben. ',
     link: 'Datenschutz',
     accept: 'Ja, gerne',
     decline: 'Nein danke'
