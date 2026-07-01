@@ -2,7 +2,7 @@
   if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname)) return;
 
   var _paq = window._paq = window._paq || [];
-  _paq.push(['requireCookieConsent']);
+  _paq.push(['disableCookies']);
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
   (function () {
