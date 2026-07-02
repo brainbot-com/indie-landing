@@ -63,6 +63,22 @@ staging.indiebox.ai {
   root * /srv/staging.indiebox/site
   encode zstd gzip
   file_server
+
+  handle_errors {
+    root * /srv/staging.indiebox/site
+    @404 expression {http.error.status_code} == 404
+    handle @404 {
+      @en expression `{http.request.orig_uri}.startsWith("/en")`
+      handle @en {
+        rewrite * /en/404.html
+        file_server
+      }
+      handle {
+        rewrite * /404.html
+        file_server
+      }
+    }
+  }
 }
 
 docs.indiebox.ai {
@@ -103,4 +119,20 @@ indiebox.ai, www.indiebox.ai {
   root * /srv/site
   encode zstd gzip
   file_server
+
+  handle_errors {
+    root * /srv/site
+    @404 expression {http.error.status_code} == 404
+    handle @404 {
+      @en expression `{http.request.orig_uri}.startsWith("/en")`
+      handle @en {
+        rewrite * /en/404.html
+        file_server
+      }
+      handle {
+        rewrite * /404.html
+        file_server
+      }
+    }
+  }
 }
