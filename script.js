@@ -10,10 +10,15 @@ function redirectToEnglishIfNeeded() {
     const preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
     if (!preferred.toLowerCase().startsWith('en')) return;
 
-    const isRoot = path === '' || path === '/' || path.endsWith('/index.html') || path.endsWith('/');
+    // Only auto-redirect from the site root homepage. Firing on a
+    // subdirectory (e.g. /docs/) would append `en/` -> `/docs/en/` and 404.
+    const isFile = window.location.protocol === 'file:';
+    const isRoot = isFile
+        ? path.endsWith('/index.html') || path.endsWith('/')
+        : path === '' || path === '/' || path === '/index.html';
     if (!isRoot) return;
 
-    const targetPath = window.location.protocol === 'file:' ? 'en/index.html' : 'en/';
+    const targetPath = isFile ? 'en/index.html' : 'en/';
     const target = new URL(targetPath, window.location.href).toString();
     window.location.replace(target);
 }
