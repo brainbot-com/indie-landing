@@ -257,6 +257,35 @@ function normalizeIsoDateTime(value) {
   return !normalized || /^\d{4}-\d{2}-\d{2}(?:T[\d:.+-]+Z?)?$/.test(normalized) ? normalized : '';
 }
 
+// Parses a user-entered amount (e.g. "4499", "4.499,00", "4499.00") into a
+// canonical "1234.56" string used across the order model. Returns '' if the
+// value is not a positive number.
+function normalizeAmountEur(value) {
+  const raw = sanitizeSingleLineInput(value, 24);
+  if (!raw) return '';
+  let cleaned = raw.replace(/[^0-9.,]/g, '');
+  if (cleaned.includes(',') && cleaned.includes('.')) {
+    // Assume "." thousands + "," decimals (German formatting) → drop dots, comma→dot
+    cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+  } else if (cleaned.includes(',')) {
+    cleaned = cleaned.replace(',', '.');
+  }
+  const amount = Number.parseFloat(cleaned);
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+  return amount.toFixed(2);
+}
+
+function normalizeHttpUrl(value, maxLength = 500) {
+  const raw = sanitizeSingleLineInput(value, maxLength);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
 function normalizeEnum(value, allowedValues) {
   const normalized = sanitizeSingleLineInput(value, 64);
   return allowedValues.has(normalized) ? normalized : '';
@@ -965,7 +994,7 @@ async function sendTemplatedMail(template, order, context) {
   return { delivered: true, recipient };
 }
 
-async function triggerNotificationEvent(event, order, source) {
+async function triggerNotificationEvent(event, order, source, { force = false } = {}) {
   if (!mailNotificationsEnabled()) {
     return { delivered: 0, skipped: 'mail_not_configured' };
   }
@@ -988,8 +1017,12 @@ async function triggerNotificationEvent(event, order, source) {
   for (const template of templates) {
     if (!templateMatchesOrderLocale(template, order)) continue;
 
-    const idempotencyKey = `notification_sent:${template.key}:${order.id}`;
-    if (alreadySentKeys.has(idempotencyKey)) continue;
+    // On a forced manual resend, use a unique key so the send is not blocked
+    // by the idempotency guard and each resend is recorded separately.
+    const idempotencyKey = force
+      ? `notification_sent:${template.key}:${order.id}:${new Date().toISOString()}`
+      : `notification_sent:${template.key}:${order.id}`;
+    if (!force && alreadySentKeys.has(idempotencyKey)) continue;
 
     try {
       const result = await sendTemplatedMail(template, order, context);
@@ -1568,6 +1601,92 @@ function buildOrderFromRequest(body) {
     updatedAt: now,
     paidAt: null
   };
+}
+
+// Builds an order that an admin enters manually for a project box paid by
+// invoice (no Mollie involvement). Relaxed vs. buildOrderFromRequest: no
+// payment method / terms acceptance required, custom amount, shipping optional.
+// Returns { order } or { error } for a 400.
+function buildInvoiceOrderFromAdmin(body) {
+  const firstName = normalizeName(body.firstName);
+  const lastName = normalizeName(body.lastName);
+  const email = normalizeEmail(body.email);
+  const company = normalizeName(body.company, 160);
+  const billingStreet = normalizeAddressLine(body.billingStreet);
+  const billingZip = normalizePostalCodeDe(body.billingZip);
+  const billingCity = normalizeName(body.billingCity, 120);
+  const billingCountry = normalizeCountryCode(body.billingCountry) || 'DE';
+  const shippingDifferent = body.shippingDifferent === 'on' || body.shippingDifferent === true;
+  const shippingStreet = normalizeAddressLine(body.shippingStreet);
+  const shippingZip = normalizePostalCodeDe(body.shippingZip);
+  const shippingCity = normalizeName(body.shippingCity, 120);
+  const shippingCountry = normalizeCountryCode(body.shippingCountry) || 'DE';
+  const amount = normalizeAmountEur(body.amount);
+  const productKey = sanitizeSingleLineInput(body.product, 160) || config.checkoutProductName;
+  const locale = body.locale === 'en' ? 'en' : 'de';
+
+  if (firstName.length < 2 || lastName.length < 2) return { error: 'customer_name_required' };
+  if (!isValidEmail(email)) return { error: 'invalid_email' };
+  if (!billingStreet || !billingZip || !billingCity || billingCountry !== 'DE') return { error: 'invalid_billing_address' };
+  if (!amount) return { error: 'invalid_amount' };
+  if (shippingDifferent && (!shippingStreet || !shippingZip || !shippingCity)) return { error: 'invalid_shipping_address' };
+
+  const now = new Date().toISOString();
+
+  const order = {
+    id: crypto.randomUUID(),
+    statusToken: crypto.randomUUID(),
+    locale,
+    runtime: config.appRuntimeName,
+    status: 'open',
+    product: productKey,
+    amount,
+    currency: 'EUR',
+    customer: {
+      firstName,
+      lastName,
+      email,
+      phone: normalizePhone(body.phone),
+      company,
+      vatId: normalizeVatId(body.vatId)
+    },
+    billingAddress: {
+      street: billingStreet,
+      zip: billingZip,
+      city: billingCity,
+      country: billingCountry
+    },
+    shippingAddress: shippingDifferent
+      ? {
+          careOf: normalizeName(body.shippingCareOf, 160),
+          street: shippingStreet,
+          zip: shippingZip,
+          city: shippingCity,
+          country: shippingCountry
+        }
+      : {},
+    notes: sanitizeMultilineInput(body.notes, 2000),
+    paymentProvider: 'invoice',
+    paymentMethodRequested: '',
+    paymentMethod: 'invoice',
+    paymentId: '',
+    paymentStatus: 'invoice_open',
+    checkoutUrl: '',
+    mollieMode: '',
+    mollieProfileId: '',
+    molliePayload: null,
+    metadata: {
+      source: 'admin_invoice',
+      projectReference: sanitizeSingleLineInput(body.projectReference, 200),
+      billomatNumber: sanitizeSingleLineInput(body.billomatNumber, 100),
+      billomatUrl: normalizeHttpUrl(body.billomatUrl)
+    },
+    createdAt: now,
+    updatedAt: now,
+    paidAt: null
+  };
+
+  return { order };
 }
 
 function mergePaymentIntoOrder(order, payment) {
@@ -3058,6 +3177,101 @@ app.post('/api/admin/orders/:orderId/archive', adminRateLimit, requireAdmin, (re
   }
   store.archiveOrder(orderId);
   return res.json({ ok: true });
+});
+
+// Manually create an order for a project box paid by invoice (no Mollie).
+app.post('/api/admin/orders', adminRateLimit, requireAdmin, (req, res) => {
+  const built = buildInvoiceOrderFromAdmin(req.body || {});
+  if (built.error) {
+    return res.status(400).json({ error: built.error });
+  }
+
+  const order = built.order;
+  const saved = store.saveOrder(order);
+  store.recordPaymentEvent({
+    orderId: saved.id,
+    source: 'admin',
+    eventType: 'invoice_order_created',
+    paymentStatus: saved.paymentStatus,
+    idempotencyKey: `invoice-order-created:${saved.id}`,
+    payload: summarizeOrder(saved)
+  });
+
+  return res.status(201).json({ order: saved });
+});
+
+// Mark an invoice order as paid (payment happens outside Mollie).
+app.post('/api/admin/orders/:orderId/mark-paid', adminRateLimit, requireAdmin, (req, res) => {
+  const order = store.getOrder(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'order_not_found' });
+  }
+  if (order.paymentProvider !== 'invoice') {
+    return res.status(400).json({ error: 'not_an_invoice_order' });
+  }
+  if (order.status === 'paid' && order.paymentStatus === 'paid') {
+    return res.json({ order });
+  }
+
+  const now = new Date().toISOString();
+  const saved = store.saveOrder({
+    ...order,
+    status: 'paid',
+    paymentStatus: 'paid',
+    paidAt: order.paidAt || now,
+    updatedAt: now
+  });
+  syncOrderAllocation(saved);
+  store.recordPaymentEvent({
+    orderId: saved.id,
+    source: 'admin',
+    eventType: 'invoice_marked_paid',
+    paymentStatus: saved.paymentStatus,
+    idempotencyKey: `invoice-marked-paid:${saved.id}`,
+    payload: summarizeOrder(saved)
+  });
+
+  return res.json({ order: saved });
+});
+
+// Update the Billomat reference / project reference on an order.
+app.put('/api/admin/orders/:orderId/billomat', adminRateLimit, requireAdmin, (req, res) => {
+  const order = store.getOrder(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'order_not_found' });
+  }
+
+  const now = new Date().toISOString();
+  const saved = store.saveOrder({
+    ...order,
+    metadata: {
+      ...(order.metadata || {}),
+      projectReference: sanitizeSingleLineInput(req.body.projectReference, 200),
+      billomatNumber: sanitizeSingleLineInput(req.body.billomatNumber, 100),
+      billomatUrl: normalizeHttpUrl(req.body.billomatUrl)
+    },
+    updatedAt: now
+  });
+
+  return res.json({ order: saved });
+});
+
+// Manually (re)send the order confirmation notification on demand.
+app.post('/api/admin/orders/:orderId/send-confirmation', adminRateLimit, requireAdmin, async (req, res) => {
+  const order = store.getOrder(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'order_not_found' });
+  }
+  if (!mailNotificationsEnabled()) {
+    return res.status(503).json({ error: 'mail_not_configured' });
+  }
+
+  try {
+    const result = await triggerNotificationEvent('order.paid', order, 'admin_manual', { force: true });
+    return res.json({ ok: true, delivered: result.delivered || 0, skipped: result.skipped || null });
+  } catch (error) {
+    return res.status(502).json({ error: 'send_failed', message: error.message });
+  }
 });
 
 app.post('/api/admin/orders/:orderId/order-device', adminRateLimit, requireAdmin, (req, res) => {

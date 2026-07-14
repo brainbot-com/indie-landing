@@ -1898,6 +1898,7 @@ function setupAdminOrders() {
     const fulfilmentFilter = app.querySelector('[data-admin-fulfilment-filter]');
     const orderCount = app.querySelector('[data-admin-order-count]');
     const reloadButton = app.querySelector('[data-admin-reload-orders]');
+    const newInvoiceButton = app.querySelector('[data-admin-new-invoice-order]');
     const feedback = app.querySelector('[data-admin-feedback]');
     const stockBar = app.querySelector('[data-admin-stock-bar]');
     const lpfx = (loc) => loc === 'en' ? '/en/' : '/';
@@ -2061,6 +2062,7 @@ function setupAdminOrders() {
     const normalizePaymentFilter = (status) => {
         switch (status) {
             case 'paid': return 'paid';
+            case 'invoice_open': return 'open';
             case 'authorized': case 'pending': case 'open': case 'payment_created': return 'open';
             case 'failed': return 'failed';
             case 'expired': return 'expired';
@@ -2115,6 +2117,7 @@ function setupAdminOrders() {
             case 'failed': return { symbol: icon('x'), tone: 'danger', label: 'Failed' };
             case 'expired': return { symbol: icon('clock'), tone: 'danger', label: 'Expired' };
             case 'canceled': case 'cancelled': return { symbol: icon('rotate-ccw'), tone: 'danger', label: 'Cancelled' };
+            case 'invoice_open': return { symbol: icon('ellipsis'), tone: 'warning', label: 'Invoice open' };
             case 'authorized': case 'pending': case 'open': case 'payment_created':
                 return { symbol: icon('ellipsis'), tone: 'warning', label: 'Open' };
             default: return { symbol: icon('circle'), tone: 'neutral', label: (status || 'draft').toUpperCase() };
@@ -2213,6 +2216,8 @@ function setupAdminOrders() {
         const recentEvents = Array.isArray(events) ? events.slice(0, 4) : [];
         const allocStatus = allocation?.status || (isPaid ? 'reserved' : '');
         const isTerminal = ['released', 'cancelled'].includes(allocStatus);
+        const isInvoice = order.paymentProvider === 'invoice';
+        const meta = order.metadata || {};
 
         detailPane.innerHTML = `
             <div class="admin-detail-head">
@@ -2331,10 +2336,119 @@ function setupAdminOrders() {
                 </ul>
             </div>` : ''}
 
+            ${isInvoice ? `
+            <div class="admin-detail-section admin-detail-section--compact" data-billomat-section data-order-id="${esc(order.id)}">
+                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Invoice</div>
+                <div class="admin-detail-head__right" style="margin-bottom:0.5rem">
+                    <span class="admin-badge admin-badge--neutral">Invoice / by bill</span>
+                    <span class="admin-badge admin-badge--neutral">${isPaid ? 'Paid' : 'Open invoice'}</span>
+                    ${meta.billomatUrl ? `<a href="${esc(meta.billomatUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">Open invoice ↗</a>` : ''}
+                </div>
+                <div class="admin-detail-form-grid">
+                    <div class="form-row">
+                        <label class="form-label">Billomat invoice no.</label>
+                        <input class="form-input" type="text" name="billomatNumber" value="${esc(meta.billomatNumber || '')}" placeholder="e.g. RE-2026-0042">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Project reference</label>
+                        <input class="form-input" type="text" name="projectReference" value="${esc(meta.projectReference || '')}">
+                    </div>
+                    <div class="form-row form-row--full">
+                        <label class="form-label">Billomat link</label>
+                        <input class="form-input" type="url" name="billomatUrl" value="${esc(meta.billomatUrl || '')}" placeholder="https://…billomat.net/invoices/show/…">
+                    </div>
+                </div>
+                <div class="admin-detail-actions" style="margin-top:0.5rem">
+                    <button type="button" class="button button--plain-dark button--pill button--sm" data-save-billomat>Save invoice ref</button>
+                    ${!isPaid ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-mark-paid>Mark as paid</button>` : ''}
+                    <button type="button" class="button button--plain-light button--pill button--sm" data-send-confirmation>Send confirmation email</button>
+                </div>
+            </div>` : ''}
+
             <div class="admin-detail-section admin-detail-section--compact admin-detail-section--danger">
                 <button type="button" class="button button--plain-light button--pill button--sm admin-danger-btn" data-archive-order data-order-id="${esc(order.id)}">${t.archive}</button>
             </div>
         `;
+    };
+
+    const renderInvoiceForm = () => {
+        if (!detailPane) return;
+        selectedOrderId = null;
+        refreshList();
+        detailPane.innerHTML = `
+            <form class="admin-detail-invoice-form" data-invoice-form>
+                <div class="admin-detail-head">
+                    <div class="admin-detail-head__left"><span class="admin-detail-head__number">New invoice order</span></div>
+                </div>
+                <p style="margin:0 0 0.6rem;font-size:0.82rem;color:var(--color-fg-muted)">For a box ordered inside a customer project and paid by invoice. No payment is collected here.</p>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Customer</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row"><label class="form-label">First name *</label><input class="form-input" type="text" name="firstName" required></div>
+                        <div class="form-row"><label class="form-label">Last name *</label><input class="form-input" type="text" name="lastName" required></div>
+                        <div class="form-row"><label class="form-label">Email *</label><input class="form-input" type="email" name="email" required></div>
+                        <div class="form-row"><label class="form-label">Phone</label><input class="form-input" type="text" name="phone"></div>
+                        <div class="form-row"><label class="form-label">Company</label><input class="form-input" type="text" name="company"></div>
+                        <div class="form-row"><label class="form-label">VAT ID</label><input class="form-input" type="text" name="vatId"></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Billing address</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row form-row--full"><label class="form-label">Street *</label><input class="form-input" type="text" name="billingStreet" required></div>
+                        <div class="form-row"><label class="form-label">ZIP *</label><input class="form-input" type="text" name="billingZip" required></div>
+                        <div class="form-row"><label class="form-label">City *</label><input class="form-input" type="text" name="billingCity" required></div>
+                    </div>
+                    <label class="admin-checkbox" style="margin-top:0.4rem;display:flex;gap:0.4rem;align-items:center;font-size:0.85rem">
+                        <input type="checkbox" name="shippingDifferent" data-toggle-shipping> Different shipping address
+                    </label>
+                    <div class="admin-detail-form-grid" data-shipping-fields hidden style="margin-top:0.4rem">
+                        <div class="form-row form-row--full"><label class="form-label">c/o</label><input class="form-input" type="text" name="shippingCareOf"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Street</label><input class="form-input" type="text" name="shippingStreet"></div>
+                        <div class="form-row"><label class="form-label">ZIP</label><input class="form-input" type="text" name="shippingZip"></div>
+                        <div class="form-row"><label class="form-label">City</label><input class="form-input" type="text" name="shippingCity"></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Order &amp; invoice</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row"><label class="form-label">Amount (EUR) *</label><input class="form-input" type="text" name="amount" inputmode="decimal" placeholder="4499.00" required></div>
+                        <div class="form-row"><label class="form-label">Product</label><input class="form-input" type="text" name="product" placeholder="Indiebox AI-Workstation"></div>
+                        <div class="form-row"><label class="form-label">Billomat invoice no.</label><input class="form-input" type="text" name="billomatNumber" placeholder="e.g. RE-2026-0042"></div>
+                        <div class="form-row"><label class="form-label">Project reference</label><input class="form-input" type="text" name="projectReference"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Billomat link</label><input class="form-input" type="url" name="billomatUrl" placeholder="https://…billomat.net/invoices/show/…"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Notes</label><textarea class="form-textarea" name="notes" rows="2"></textarea></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-actions">
+                    <button type="submit" class="button button--plain-dark button--pill button--sm">Create invoice order</button>
+                    <button type="button" class="button button--plain-light button--pill button--sm" data-cancel-invoice-form>Cancel</button>
+                </div>
+            </form>
+        `;
+    };
+
+    const createInvoiceOrder = async (form) => {
+        const payload = Object.fromEntries(Array.from(form.querySelectorAll('[name]')).map((f) => [
+            f.name,
+            f.type === 'checkbox' ? (f.checked ? 'on' : '') : f.value
+        ]));
+        try {
+            const result = await adminFetch('/api/admin/orders', { method: 'POST', body: JSON.stringify(payload) });
+            setFeedback('Invoice order created.', false);
+            await loadOrders();
+            if (result.order?.id) {
+                selectedOrderId = result.order.id;
+                refreshList();
+                await loadOrderDetail(result.order.id);
+            }
+        } catch (error) {
+            setFeedback(error.message || 'Could not create invoice order.', true);
+        }
     };
 
     const getFilteredOrders = () => {
@@ -2531,6 +2645,61 @@ function setupAdminOrders() {
                     await loadOrders();
                 } catch (error) { setFeedback(error.message || t.loadFailed, true); }
             }, t.confirmYes, t.confirmNo);
+            return;
+        }
+
+        const cancelFormBtn = event.target.closest('[data-cancel-invoice-form]');
+        if (cancelFormBtn) {
+            renderDetail(null);
+            return;
+        }
+
+        const billomatSection = event.target.closest('[data-billomat-section]');
+
+        const markPaidBtn = event.target.closest('[data-mark-paid]');
+        if (markPaidBtn && billomatSection) {
+            const orderId = billomatSection.getAttribute('data-order-id');
+            showInlineConfirm(markPaidBtn, async () => {
+                try {
+                    await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-paid`, { method: 'POST' });
+                    setFeedback('Order marked as paid.', false);
+                    await loadOrders();
+                    if (selectedOrderId === orderId) await loadOrderDetail(orderId);
+                } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+            }, 'Mark paid', 'Cancel');
+            return;
+        }
+
+        const sendConfirmBtn = event.target.closest('[data-send-confirmation]');
+        if (sendConfirmBtn && billomatSection) {
+            const orderId = billomatSection.getAttribute('data-order-id');
+            showInlineConfirm(sendConfirmBtn, async () => {
+                try {
+                    const result = await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/send-confirmation`, { method: 'POST' });
+                    setFeedback(result.delivered ? `Confirmation email sent (${result.delivered}).` : `No email sent (${result.skipped || 'no recipients'}).`, !result.delivered);
+                } catch (error) { setFeedback(error.message || 'Could not send email.', true); }
+            }, 'Send', 'Cancel');
+            return;
+        }
+
+        const saveBillomatBtn = event.target.closest('[data-save-billomat]');
+        if (saveBillomatBtn && billomatSection) {
+            const orderId = billomatSection.getAttribute('data-order-id');
+            const fields = Object.fromEntries(Array.from(billomatSection.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+            try {
+                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/billomat`, { method: 'PUT', body: JSON.stringify(fields) });
+                setFeedback('Invoice reference saved.', false);
+                if (selectedOrderId === orderId) await loadOrderDetail(orderId);
+            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+            return;
+        }
+    });
+
+    detailPane?.addEventListener('change', (event) => {
+        const shippingToggle = event.target.closest('[data-toggle-shipping]');
+        if (shippingToggle) {
+            const fields = detailPane.querySelector('[data-shipping-fields]');
+            if (fields) fields.hidden = !shippingToggle.checked;
         }
     });
 
@@ -2544,6 +2713,14 @@ function setupAdminOrders() {
     paymentFilter?.addEventListener('change', () => { refreshList(); });
     fulfilmentFilter?.addEventListener('change', () => { refreshList(); });
     reloadButton?.addEventListener('click', () => { loadOrders(); });
+    newInvoiceButton?.addEventListener('click', () => { renderInvoiceForm(); });
+
+    detailPane?.addEventListener('submit', (event) => {
+        const form = event.target.closest('[data-invoice-form]');
+        if (!form) return;
+        event.preventDefault();
+        createInvoiceOrder(form);
+    });
 
     authShell.loadAuthState();
 }
