@@ -8,6 +8,15 @@ SSH_KEY="${INDIEBOX_DEPLOY_KEY:-$HOME/.ssh/indiebox_ionos}"
 APP_PATH="${INDIEBOX_APP_PATH:-/srv/indiebox/app/}"
 CONFIG_PATH="${INDIEBOX_CONFIG_PATH:-/srv/edge/config/}"
 
+# Deploy target. Default deploys the whole stack (staging + live). Pass
+# --staging to rebuild ONLY the backend-staging container, leaving the live
+# backend, live env, Caddyfile and Caddy container untouched — for verifying
+# a backend change on staging before it reaches production.
+TARGET="all"
+if [[ "${1:-}" == "--staging" ]]; then
+  TARGET="staging"
+fi
+
 if [[ ! -f "$SSH_KEY" ]]; then
   echo "SSH key not found: $SSH_KEY" >&2
   exit 1
@@ -38,6 +47,22 @@ rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/docker-compose.yml" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${APP_PATH}docker-compose.yml"
 
+rsync -av -e "ssh -i $SSH_KEY" \
+  "$ROOT_DIR/deploy/env/.env.staging" \
+  "${DEPLOY_USER}@${DEPLOY_HOST}:/srv/staging.indiebox/config/runtime.staging.env"
+
+if [[ "$TARGET" == "staging" ]]; then
+  echo "→ Backing up staging database before deploy..."
+  bash "$(dirname "${BASH_SOURCE[0]}")/backup-remote-sqlite.sh" staging
+
+  echo "→ Deploying backend-staging only (live + Caddy untouched)..."
+  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+    "install -d -m 755 /srv/staging.indiebox/site /srv/staging.indiebox/config /srv/staging.indiebox/data /srv/staging.indiebox/backups && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build backend-staging"
+
+  echo "✓ Staging backend deployed. Verify at https://staging.indiebox.ai/admin/orders.html"
+  exit 0
+fi
+
 # --inplace preserves the inode on the host so the Caddy container's
 # bind mount (/srv/edge/config/Caddyfile → /etc/caddy/Caddyfile) keeps
 # pointing at the right file. Without it, rsync replaces the file
@@ -46,10 +71,6 @@ rsync -av -e "ssh -i $SSH_KEY" \
 rsync -av --inplace -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/caddy/Caddyfile" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}Caddyfile"
-
-rsync -av -e "ssh -i $SSH_KEY" \
-  "$ROOT_DIR/deploy/env/.env.staging" \
-  "${DEPLOY_USER}@${DEPLOY_HOST}:/srv/staging.indiebox/config/runtime.staging.env"
 
 rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/env/.env.live" \
