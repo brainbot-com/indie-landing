@@ -994,7 +994,7 @@ async function sendTemplatedMail(template, order, context) {
   return { delivered: true, recipient };
 }
 
-async function triggerNotificationEvent(event, order, source, { force = false } = {}) {
+async function triggerNotificationEvent(event, order, source) {
   if (!mailNotificationsEnabled()) {
     return { delivered: 0, skipped: 'mail_not_configured' };
   }
@@ -1017,12 +1017,8 @@ async function triggerNotificationEvent(event, order, source, { force = false } 
   for (const template of templates) {
     if (!templateMatchesOrderLocale(template, order)) continue;
 
-    // On a forced manual resend, use a unique key so the send is not blocked
-    // by the idempotency guard and each resend is recorded separately.
-    const idempotencyKey = force
-      ? `notification_sent:${template.key}:${order.id}:${new Date().toISOString()}`
-      : `notification_sent:${template.key}:${order.id}`;
-    if (!force && alreadySentKeys.has(idempotencyKey)) continue;
+    const idempotencyKey = `notification_sent:${template.key}:${order.id}`;
+    if (alreadySentKeys.has(idempotencyKey)) continue;
 
     try {
       const result = await sendTemplatedMail(template, order, context);
@@ -1638,7 +1634,9 @@ function buildInvoiceOrderFromAdmin(body) {
     statusToken: crypto.randomUUID(),
     locale,
     runtime: config.appRuntimeName,
-    status: 'open',
+    // Paid-equivalent from creation so it flows exactly like a paid Mollie
+    // order (fulfilment workflow + device assignment available immediately).
+    status: 'paid',
     product: productKey,
     amount,
     currency: 'EUR',
@@ -1670,20 +1668,20 @@ function buildInvoiceOrderFromAdmin(body) {
     paymentMethodRequested: '',
     paymentMethod: 'invoice',
     paymentId: '',
-    paymentStatus: 'invoice_open',
+    paymentStatus: 'paid',
     checkoutUrl: '',
     mollieMode: '',
     mollieProfileId: '',
     molliePayload: null,
     metadata: {
       source: 'admin_invoice',
+      amountType: 'indiebox_net',
       projectReference: sanitizeSingleLineInput(body.projectReference, 200),
-      billomatNumber: sanitizeSingleLineInput(body.billomatNumber, 100),
       billomatUrl: normalizeHttpUrl(body.billomatUrl)
     },
     createdAt: now,
     updatedAt: now,
-    paidAt: null
+    paidAt: now
   };
 
   return { order };
@@ -3188,6 +3186,9 @@ app.post('/api/admin/orders', adminRateLimit, requireAdmin, (req, res) => {
 
   const order = built.order;
   const saved = store.saveOrder(order);
+  // Paid-equivalent: reserve a box automatically, exactly like a paid Mollie
+  // order. No customer notification is sent for admin-created invoice orders.
+  syncOrderAllocation(saved);
   store.recordPaymentEvent({
     orderId: saved.id,
     source: 'admin',
@@ -3200,78 +3201,23 @@ app.post('/api/admin/orders', adminRateLimit, requireAdmin, (req, res) => {
   return res.status(201).json({ order: saved });
 });
 
-// Mark an invoice order as paid (payment happens outside Mollie).
-app.post('/api/admin/orders/:orderId/mark-paid', adminRateLimit, requireAdmin, (req, res) => {
-  const order = store.getOrder(req.params.orderId);
-  if (!order) {
-    return res.status(404).json({ error: 'order_not_found' });
-  }
-  if (order.paymentProvider !== 'invoice') {
-    return res.status(400).json({ error: 'not_an_invoice_order' });
-  }
-  if (order.status === 'paid' && order.paymentStatus === 'paid') {
-    return res.json({ order });
-  }
-
-  const now = new Date().toISOString();
-  const saved = store.saveOrder({
-    ...order,
-    status: 'paid',
-    paymentStatus: 'paid',
-    paidAt: order.paidAt || now,
-    updatedAt: now
-  });
-  syncOrderAllocation(saved);
-  store.recordPaymentEvent({
-    orderId: saved.id,
-    source: 'admin',
-    eventType: 'invoice_marked_paid',
-    paymentStatus: saved.paymentStatus,
-    idempotencyKey: `invoice-marked-paid:${saved.id}`,
-    payload: summarizeOrder(saved)
-  });
-
-  return res.json({ order: saved });
-});
-
-// Update the Billomat reference / project reference on an order.
+// Update the Billomat link / project reference on an order.
 app.put('/api/admin/orders/:orderId/billomat', adminRateLimit, requireAdmin, (req, res) => {
   const order = store.getOrder(req.params.orderId);
   if (!order) {
     return res.status(404).json({ error: 'order_not_found' });
   }
 
-  const now = new Date().toISOString();
-  const saved = store.saveOrder({
-    ...order,
-    metadata: {
-      ...(order.metadata || {}),
-      projectReference: sanitizeSingleLineInput(req.body.projectReference, 200),
-      billomatNumber: sanitizeSingleLineInput(req.body.billomatNumber, 100),
-      billomatUrl: normalizeHttpUrl(req.body.billomatUrl)
-    },
-    updatedAt: now
-  });
+  const metadata = { ...(order.metadata || {}) };
+  if (req.body.billomatUrl !== undefined) {
+    metadata.billomatUrl = normalizeHttpUrl(req.body.billomatUrl);
+  }
+  if (req.body.projectReference !== undefined) {
+    metadata.projectReference = sanitizeSingleLineInput(req.body.projectReference, 200);
+  }
 
+  const saved = store.saveOrder({ ...order, metadata, updatedAt: new Date().toISOString() });
   return res.json({ order: saved });
-});
-
-// Manually (re)send the order confirmation notification on demand.
-app.post('/api/admin/orders/:orderId/send-confirmation', adminRateLimit, requireAdmin, async (req, res) => {
-  const order = store.getOrder(req.params.orderId);
-  if (!order) {
-    return res.status(404).json({ error: 'order_not_found' });
-  }
-  if (!mailNotificationsEnabled()) {
-    return res.status(503).json({ error: 'mail_not_configured' });
-  }
-
-  try {
-    const result = await triggerNotificationEvent('order.paid', order, 'admin_manual', { force: true });
-    return res.json({ ok: true, delivered: result.delivered || 0, skipped: result.skipped || null });
-  } catch (error) {
-    return res.status(502).json({ error: 'send_failed', message: error.message });
-  }
 });
 
 app.post('/api/admin/orders/:orderId/order-device', adminRateLimit, requireAdmin, (req, res) => {

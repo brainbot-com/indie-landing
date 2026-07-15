@@ -2062,7 +2062,6 @@ function setupAdminOrders() {
     const normalizePaymentFilter = (status) => {
         switch (status) {
             case 'paid': return 'paid';
-            case 'invoice_open': return 'open';
             case 'authorized': case 'pending': case 'open': case 'payment_created': return 'open';
             case 'failed': return 'failed';
             case 'expired': return 'expired';
@@ -2117,7 +2116,6 @@ function setupAdminOrders() {
             case 'failed': return { symbol: icon('x'), tone: 'danger', label: 'Failed' };
             case 'expired': return { symbol: icon('clock'), tone: 'danger', label: 'Expired' };
             case 'canceled': case 'cancelled': return { symbol: icon('rotate-ccw'), tone: 'danger', label: 'Cancelled' };
-            case 'invoice_open': return { symbol: icon('ellipsis'), tone: 'warning', label: 'Invoice open' };
             case 'authorized': case 'pending': case 'open': case 'payment_created':
                 return { symbol: icon('ellipsis'), tone: 'warning', label: 'Open' };
             default: return { symbol: icon('circle'), tone: 'neutral', label: (status || 'draft').toUpperCase() };
@@ -2228,7 +2226,7 @@ function setupAdminOrders() {
                 </div>
                 <div class="admin-detail-head__right">
                     ${order.paymentMethod ? `<span class="admin-badge admin-badge--neutral">${esc(order.paymentMethod)}</span>` : ''}
-                    <span class="admin-badge admin-badge--neutral">${esc(order.amount)} ${esc(order.currency)}</span>
+                    <span class="admin-badge admin-badge--neutral">${esc(order.amount)} ${esc(order.currency)}${order.paymentProvider === 'invoice' ? ' net' : ''}</span>
                 </div>
             </div>
             <div class="admin-info-content" data-info-target="order-id" style="padding:0 0 0.5rem;font-size:0.72rem;color:rgba(15,23,42,0.4);font-family:ui-monospace,monospace;word-break:break-all">${esc(order.id)}</div>
@@ -2318,7 +2316,18 @@ function setupAdminOrders() {
                     <a href="${mailTo}" class="admin-mailto-link">${t.mailCustomer} ↗</a>
                     ${statusUrl ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
                     ${order.paymentId && mollieOrgId ? `<a href="https://my.mollie.com/dashboard/${esc(mollieOrgId)}/payments/${esc(order.paymentId)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.molliePayment}</a>` : ''}
+                    ${isInvoice && meta.billomatUrl ? `<a href="${esc(meta.billomatUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">Open invoice ↗</a>` : ''}
+                    ${isInvoice ? `<button type="button" class="admin-mailto-link" data-edit-invoice-link style="background:none;border:none;cursor:pointer;padding:0;font:inherit;color:var(--color-accent,#2563eb)">${meta.billomatUrl ? 'Edit invoice link' : '+ Add invoice link'}</button>` : ''}
                 </div>
+                ${isInvoice ? `<div class="admin-detail-form-grid" data-invoice-link-editor data-order-id="${esc(order.id)}" style="display:none;margin-top:0.5rem">
+                    <div class="form-row form-row--full">
+                        <label class="form-label">Billomat link</label>
+                        <input class="form-input" type="url" name="billomatUrl" value="${esc(meta.billomatUrl || '')}" placeholder="https://…billomat.net/invoices/show/…">
+                    </div>
+                    <div class="admin-detail-actions">
+                        <button type="button" class="button button--plain-dark button--pill button--sm" data-save-invoice-link>Save</button>
+                    </div>
+                </div>` : ''}
             </div>
 
 
@@ -2334,35 +2343,6 @@ function setupAdminOrders() {
                         </li>
                     `).join('')}
                 </ul>
-            </div>` : ''}
-
-            ${isInvoice ? `
-            <div class="admin-detail-section admin-detail-section--compact" data-billomat-section data-order-id="${esc(order.id)}">
-                <div style="font-size:0.78rem;font-weight:600;color:rgba(15,23,42,0.5);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.4rem">Invoice</div>
-                <div class="admin-detail-head__right" style="margin-bottom:0.5rem">
-                    <span class="admin-badge admin-badge--neutral">Invoice / by bill</span>
-                    <span class="admin-badge admin-badge--neutral">${isPaid ? 'Paid' : 'Open invoice'}</span>
-                    ${meta.billomatUrl ? `<a href="${esc(meta.billomatUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">Open invoice ↗</a>` : ''}
-                </div>
-                <div class="admin-detail-form-grid">
-                    <div class="form-row">
-                        <label class="form-label">Billomat invoice no.</label>
-                        <input class="form-input" type="text" name="billomatNumber" value="${esc(meta.billomatNumber || '')}" placeholder="e.g. RE-2026-0042">
-                    </div>
-                    <div class="form-row">
-                        <label class="form-label">Project reference</label>
-                        <input class="form-input" type="text" name="projectReference" value="${esc(meta.projectReference || '')}">
-                    </div>
-                    <div class="form-row form-row--full">
-                        <label class="form-label">Billomat link</label>
-                        <input class="form-input" type="url" name="billomatUrl" value="${esc(meta.billomatUrl || '')}" placeholder="https://…billomat.net/invoices/show/…">
-                    </div>
-                </div>
-                <div class="admin-detail-actions" style="margin-top:0.5rem">
-                    <button type="button" class="button button--plain-dark button--pill button--sm" data-save-billomat>Save invoice ref</button>
-                    ${!isPaid ? `<button type="button" class="button button--plain-dark button--pill button--sm" data-mark-paid>Mark as paid</button>` : ''}
-                    <button type="button" class="button button--plain-light button--pill button--sm" data-send-confirmation>Send confirmation email</button>
-                </div>
             </div>` : ''}
 
             <div class="admin-detail-section admin-detail-section--compact admin-detail-section--danger">
@@ -2404,7 +2384,7 @@ function setupAdminOrders() {
                     <label class="admin-checkbox" style="margin-top:0.4rem;display:flex;gap:0.4rem;align-items:center;font-size:0.85rem">
                         <input type="checkbox" name="shippingDifferent" data-toggle-shipping> Different shipping address
                     </label>
-                    <div class="admin-detail-form-grid" data-shipping-fields hidden style="margin-top:0.4rem">
+                    <div class="admin-detail-form-grid" data-shipping-fields style="display:none;margin-top:0.4rem">
                         <div class="form-row form-row--full"><label class="form-label">c/o</label><input class="form-input" type="text" name="shippingCareOf"></div>
                         <div class="form-row form-row--full"><label class="form-label">Street</label><input class="form-input" type="text" name="shippingStreet"></div>
                         <div class="form-row"><label class="form-label">ZIP</label><input class="form-input" type="text" name="shippingZip"></div>
@@ -2415,9 +2395,11 @@ function setupAdminOrders() {
                 <div class="admin-detail-section admin-detail-section--compact">
                     <div class="admin-form-section__label">Order &amp; invoice</div>
                     <div class="admin-detail-form-grid">
-                        <div class="form-row"><label class="form-label">Amount (EUR) *</label><input class="form-input" type="text" name="amount" inputmode="decimal" placeholder="4499.00" required></div>
-                        <div class="form-row"><label class="form-label">Product</label><input class="form-input" type="text" name="product" placeholder="Indiebox AI-Workstation"></div>
-                        <div class="form-row"><label class="form-label">Billomat invoice no.</label><input class="form-input" type="text" name="billomatNumber" placeholder="e.g. RE-2026-0042"></div>
+                        <div class="form-row">
+                            <label class="form-label">Indiebox net amount (EUR) *</label>
+                            <input class="form-input" type="text" name="amount" inputmode="decimal" placeholder="3999.00" required>
+                            <span style="font-size:0.75rem;color:var(--color-fg-muted);margin-top:0.2rem">Net price of the Indiebox only — excl. VAT and services.</span>
+                        </div>
                         <div class="form-row"><label class="form-label">Project reference</label><input class="form-input" type="text" name="projectReference"></div>
                         <div class="form-row form-row--full"><label class="form-label">Billomat link</label><input class="form-input" type="url" name="billomatUrl" placeholder="https://…billomat.net/invoices/show/…"></div>
                         <div class="form-row form-row--full"><label class="form-label">Notes</label><textarea class="form-textarea" name="notes" rows="2"></textarea></div>
@@ -2654,41 +2636,22 @@ function setupAdminOrders() {
             return;
         }
 
-        const billomatSection = event.target.closest('[data-billomat-section]');
-
-        const markPaidBtn = event.target.closest('[data-mark-paid]');
-        if (markPaidBtn && billomatSection) {
-            const orderId = billomatSection.getAttribute('data-order-id');
-            showInlineConfirm(markPaidBtn, async () => {
-                try {
-                    await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-paid`, { method: 'POST' });
-                    setFeedback('Order marked as paid.', false);
-                    await loadOrders();
-                    if (selectedOrderId === orderId) await loadOrderDetail(orderId);
-                } catch (error) { setFeedback(error.message || t.loadFailed, true); }
-            }, 'Mark paid', 'Cancel');
+        const editLinkBtn = event.target.closest('[data-edit-invoice-link]');
+        if (editLinkBtn) {
+            const editor = detailPane.querySelector('[data-invoice-link-editor]');
+            if (editor) editor.style.display = editor.style.display === 'none' ? '' : 'none';
             return;
         }
 
-        const sendConfirmBtn = event.target.closest('[data-send-confirmation]');
-        if (sendConfirmBtn && billomatSection) {
-            const orderId = billomatSection.getAttribute('data-order-id');
-            showInlineConfirm(sendConfirmBtn, async () => {
-                try {
-                    const result = await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/send-confirmation`, { method: 'POST' });
-                    setFeedback(result.delivered ? `Confirmation email sent (${result.delivered}).` : `No email sent (${result.skipped || 'no recipients'}).`, !result.delivered);
-                } catch (error) { setFeedback(error.message || 'Could not send email.', true); }
-            }, 'Send', 'Cancel');
-            return;
-        }
-
-        const saveBillomatBtn = event.target.closest('[data-save-billomat]');
-        if (saveBillomatBtn && billomatSection) {
-            const orderId = billomatSection.getAttribute('data-order-id');
-            const fields = Object.fromEntries(Array.from(billomatSection.querySelectorAll('[name]')).map((f) => [f.name, f.value]));
+        const saveLinkBtn = event.target.closest('[data-save-invoice-link]');
+        if (saveLinkBtn) {
+            const editor = saveLinkBtn.closest('[data-invoice-link-editor]');
+            if (!editor) return;
+            const orderId = editor.getAttribute('data-order-id');
+            const billomatUrl = editor.querySelector('[name="billomatUrl"]')?.value || '';
             try {
-                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/billomat`, { method: 'PUT', body: JSON.stringify(fields) });
-                setFeedback('Invoice reference saved.', false);
+                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/billomat`, { method: 'PUT', body: JSON.stringify({ billomatUrl }) });
+                setFeedback('Invoice link saved.', false);
                 if (selectedOrderId === orderId) await loadOrderDetail(orderId);
             } catch (error) { setFeedback(error.message || t.loadFailed, true); }
             return;
@@ -2699,7 +2662,9 @@ function setupAdminOrders() {
         const shippingToggle = event.target.closest('[data-toggle-shipping]');
         if (shippingToggle) {
             const fields = detailPane.querySelector('[data-shipping-fields]');
-            if (fields) fields.hidden = !shippingToggle.checked;
+            // Toggle inline display; the `hidden` attribute is overridden by the
+            // grid's `display:grid` class rule, so it would not hide the fields.
+            if (fields) fields.style.display = shippingToggle.checked ? '' : 'none';
         }
     });
 
