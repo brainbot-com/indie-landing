@@ -136,3 +136,56 @@ indiebox.ai, www.indiebox.ai {
     }
   }
 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# brainbot relaunch (bb-relaunch-web-2026). These share this Caddy instance and
+# host. They MUST live here: push-stack.sh overwrites this whole file, so any
+# vhost missing here is dropped on the next deploy. Site content is deployed
+# separately from the bb repo via its own push-site.sh into /srv/bb-*/site.
+# ─────────────────────────────────────────────────────────────────────────────
+
+staging.brainbot.com {
+  import security_headers
+  import tls_security_headers
+
+  root * /srv/bb-staging/site
+  encode zstd gzip
+  file_server
+}
+
+brainbot.com {
+  import security_headers
+  import tls_security_headers
+
+  root * /srv/bb-live/site
+  encode zstd gzip
+
+  # legacy WordPress slug redirects (bb repo docs/site.md)
+  redir /services /loesungen permanent
+  redir /development /loesungen permanent
+  redir /smart-contract-audits /loesungen permanent
+  redir /smart-contract-audits-landing /loesungen permanent
+  redir /development-landing /loesungen permanent
+  redir /consulting /wie-wir-arbeiten permanent
+  redir /venture-builder / permanent
+  redir /founder-in-residence / permanent
+  redir /web3-founder-in-residence / permanent
+  redir /ventures / permanent
+  redir /hackathons / permanent
+  redir /dappwatcher-explainer-video / permanent
+  redir /web3-jobs /ueber-brainbot permanent
+  redir /web3-careers /ueber-brainbot permanent
+  redir /thank-you /kontakt permanent
+  redir /imprint /impressum permanent
+  redir /privacy-policy /datenschutz permanent
+  redir /cookie-policy-eu /datenschutz permanent
+
+  try_files {path} {path}/ {path}.html
+  file_server
+}
+
+www.brainbot.com {
+  import security_headers
+  import tls_security_headers
+  redir https://brainbot.com{uri} permanent
+}

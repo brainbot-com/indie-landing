@@ -15,6 +15,9 @@ services:
       - /srv/edge/config/Caddyfile:/etc/caddy/Caddyfile:ro
       - /srv/indiebox/app/site:/srv/site:ro
       - /srv/staging.indiebox/site:/srv/staging.indiebox/site:ro
+      # brainbot relaunch (shared Caddy hosts brainbot.com too — see Caddyfile)
+      - /srv/bb-staging/site:/srv/bb-staging/site:ro
+      - /srv/bb-live/site:/srv/bb-live/site:ro
       - /srv/indiebox/data/caddy_data:/data
       - /srv/indiebox/data/caddy_config:/config
 

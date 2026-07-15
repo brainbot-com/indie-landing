@@ -37,6 +37,40 @@ EOF
   exit 1
 fi
 
+# ── Safety guard ──────────────────────────────────────────────────────────
+# This script overwrites the SHARED Caddyfile and docker-compose.yml, which
+# also host other projects (e.g. brainbot.com) on the same Caddy. Abort if the
+# repo copies would remove a hostname or Caddy bind mount that is currently live
+# on the server — that is exactly how brainbot.com was taken down. Add the
+# missing vhost/mount to this repo, or override deliberately with
+# ALLOW_VHOST_REMOVAL=1 (only when you truly mean to remove it).
+# Extractors read a real file path ($1) — piping via /dev/stdin is unreliable.
+caddy_hosts()  { grep -oE '^[A-Za-z0-9*][A-Za-z0-9.,*_ -]*\{' "$1" | sed 's/{.*//' | tr ',' '\n' | tr -s ' ' '\n' | grep -E '\.' | sort -u; }
+caddy_mounts() { awk '/^  [A-Za-z0-9_-]+:[[:space:]]*$/{s=$1} s=="caddy:" && /^[[:space:]]*-[[:space:]]*\//{print}' "$1" | sed -E 's/^[[:space:]]*-[[:space:]]*//; s/:.*//' | sort -u; }
+
+GUARD_TMP_COMPOSE="$(mktemp)"; GUARD_TMP_CADDY="$(mktemp)"
+trap 'rm -f "$GUARD_TMP_COMPOSE" "$GUARD_TMP_CADDY"' EXIT
+ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "cat ${APP_PATH}docker-compose.yml" > "$GUARD_TMP_COMPOSE" 2>/dev/null || true
+MISSING_MOUNTS="$(comm -23 <(caddy_mounts "$GUARD_TMP_COMPOSE") <(caddy_mounts "$ROOT_DIR/docker-compose.yml") || true)"
+
+MISSING_HOSTS=""
+if [[ "$TARGET" == "all" ]]; then
+  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "cat ${CONFIG_PATH}Caddyfile" > "$GUARD_TMP_CADDY" 2>/dev/null || true
+  MISSING_HOSTS="$(comm -23 <(caddy_hosts "$GUARD_TMP_CADDY") <(caddy_hosts "$ROOT_DIR/deploy/caddy/Caddyfile") || true)"
+fi
+
+if [[ -n "${MISSING_HOSTS}${MISSING_MOUNTS}" && "${ALLOW_VHOST_REMOVAL:-0}" != "1" ]]; then
+  {
+    echo "ABORT: this deploy would drop config that is currently LIVE on the server:"
+    [[ -n "$MISSING_HOSTS" ]]  && { echo "  Caddy vhosts:";      echo "$MISSING_HOSTS"  | sed 's/^/    - /'; }
+    [[ -n "$MISSING_MOUNTS" ]] && { echo "  Caddy bind mounts:"; echo "$MISSING_MOUNTS" | sed 's/^/    - /'; }
+    echo "These likely belong to another project sharing this host/Caddy."
+    echo "Add them to deploy/caddy/Caddyfile and docker-compose.yml, or, only if"
+    echo "you really mean to remove them, re-run with ALLOW_VHOST_REMOVAL=1."
+  } >&2
+  exit 1
+fi
+
 rsync -av --delete --delete-excluded -e "ssh -i $SSH_KEY" \
   --exclude ".DS_Store" \
   --exclude "node_modules/" \
