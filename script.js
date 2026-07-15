@@ -2314,7 +2314,7 @@ function setupAdminOrders() {
                 </div>
                 <div class="admin-detail-actions" style="margin-top:0.5rem">
                     <a href="${mailTo}" class="admin-mailto-link">${t.mailCustomer} ↗</a>
-                    ${statusUrl ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
+                    ${statusUrl && !isInvoice ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
                     ${order.paymentId && mollieOrgId ? `<a href="https://my.mollie.com/dashboard/${esc(mollieOrgId)}/payments/${esc(order.paymentId)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.molliePayment}</a>` : ''}
                     ${isInvoice && meta.billomatUrl ? `<a href="${esc(meta.billomatUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">Open invoice ↗</a>` : ''}
                     ${isInvoice ? `<button type="button" class="admin-mailto-link" data-edit-invoice-link style="background:none;border:none;cursor:pointer;padding:0;font:inherit;color:var(--color-accent,#2563eb)">${meta.billomatUrl ? 'Edit invoice link' : '+ Add invoice link'}</button>` : ''}
