@@ -38,12 +38,12 @@ EOF
 fi
 
 # ── Safety guard ──────────────────────────────────────────────────────────
-# This script overwrites the SHARED Caddyfile and docker-compose.yml, which
-# also host other projects (e.g. brainbot.com) on the same Caddy. Abort if the
-# repo copies would remove a hostname or Caddy bind mount that is currently live
-# on the server — that is exactly how brainbot.com was taken down. Add the
-# missing vhost/mount to this repo, or override deliberately with
-# ALLOW_VHOST_REMOVAL=1 (only when you truly mean to remove it).
+# This script deploys the SHARED core Caddyfile + this repo's own vhost snippet
+# (conf.d/indiebox.caddy) and docker-compose.yml. It NEVER touches other
+# projects' conf.d/*.caddy (e.g. brainbot.caddy). Abort if the deploy would drop
+# a hostname this repo owns, or a Caddy bind mount that is currently live on the
+# server — that is how brainbot.com was once taken down. Override deliberately
+# with ALLOW_VHOST_REMOVAL=1 (only when you truly mean to remove it).
 # Extractors read a real file path ($1) — piping via /dev/stdin is unreliable.
 caddy_hosts()  { grep -oE '^[A-Za-z0-9*][A-Za-z0-9.,*_ -]*\{' "$1" | sed 's/{.*//' | tr ',' '\n' | tr -s ' ' '\n' | grep -E '\.' | sort -u; }
 caddy_mounts() { awk '/^  [A-Za-z0-9_-]+:[[:space:]]*$/{s=$1} s=="caddy:" && /^[[:space:]]*-[[:space:]]*\//{print}' "$1" | sed -E 's/^[[:space:]]*-[[:space:]]*//; s/:.*//' | sort -u; }
@@ -55,8 +55,10 @@ MISSING_MOUNTS="$(comm -23 <(caddy_mounts "$GUARD_TMP_COMPOSE") <(caddy_mounts "
 
 MISSING_HOSTS=""
 if [[ "$TARGET" == "all" ]]; then
-  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "cat ${CONFIG_PATH}Caddyfile" > "$GUARD_TMP_CADDY" 2>/dev/null || true
-  MISSING_HOSTS="$(comm -23 <(caddy_hosts "$GUARD_TMP_CADDY") <(caddy_hosts "$ROOT_DIR/deploy/caddy/Caddyfile") || true)"
+  # Compare only THIS repo's snippet against the one live on the server. Other
+  # projects' snippets are never read or written here, so they can't be dropped.
+  ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "cat ${CONFIG_PATH}conf.d/indiebox.caddy" > "$GUARD_TMP_CADDY" 2>/dev/null || true
+  MISSING_HOSTS="$(comm -23 <(caddy_hosts "$GUARD_TMP_CADDY") <(caddy_hosts "$ROOT_DIR/deploy/caddy/conf.d/indiebox.caddy") || true)"
 fi
 
 if [[ -n "${MISSING_HOSTS}${MISSING_MOUNTS}" && "${ALLOW_VHOST_REMOVAL:-0}" != "1" ]]; then
@@ -97,14 +99,17 @@ if [[ "$TARGET" == "staging" ]]; then
   exit 0
 fi
 
-# --inplace preserves the inode on the host so the Caddy container's
-# bind mount (/srv/edge/config/Caddyfile → /etc/caddy/Caddyfile) keeps
-# pointing at the right file. Without it, rsync replaces the file
-# (new inode) and the container keeps reading the old one until it is
-# restarted, which silently breaks proxy header injection.
+# Deploy the CORE Caddyfile (globals/snippets/import) and THIS repo's vhost
+# snippet only. Never touch other projects' conf.d/*.caddy — a single-file rsync
+# with --inplace, never a --delete on the conf.d directory. --inplace keeps the
+# bind-mounted inode stable so the container keeps reading the right file.
+ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "install -d -m 755 ${CONFIG_PATH}conf.d"
 rsync -av --inplace -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/caddy/Caddyfile" \
   "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}Caddyfile"
+rsync -av --inplace -e "ssh -i $SSH_KEY" \
+  "$ROOT_DIR/deploy/caddy/conf.d/indiebox.caddy" \
+  "${DEPLOY_USER}@${DEPLOY_HOST}:${CONFIG_PATH}conf.d/indiebox.caddy"
 
 rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/deploy/env/.env.live" \
@@ -113,13 +118,20 @@ rsync -av -e "ssh -i $SSH_KEY" \
 echo "→ Backing up live database before deploy..."
 bash "$(dirname "${BASH_SOURCE[0]}")/backup-remote-sqlite.sh" live
 
+# Validate the ASSEMBLED config (core + every conf.d snippet) inside the running
+# Caddy — it has the real env and the conf.d mount. validate only reads, it does
+# not apply, so a bad config here changes nothing live.
+echo "→ Validating assembled Caddy config..."
+ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+  "sudo -n docker exec indiebox-caddy caddy validate --adapter caddyfile --config /etc/caddy/Caddyfile"
+
 echo "→ Deploying stack..."
 ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
   "install -d -m 755 /srv/staging.indiebox/site /srv/staging.indiebox/config /srv/staging.indiebox/data /srv/staging.indiebox/backups /srv/indiebox/data/backend-live /srv/edge/config && if [ ! -f ${CONFIG_PATH}caddy.env ]; then install -m 600 /dev/null ${CONFIG_PATH}caddy.env; fi && sudo -n docker compose -f ${APP_PATH}docker-compose.yml up -d --build"
 
-# docker compose only restarts containers whose image/config changed —
-# Caddy keeps running on bind-mount edits. Restart (not just reload) so
-# Caddyfile *and* caddy.env changes both take effect. ~1s downtime.
-echo "→ Restarting Caddy..."
+# Apply the new Caddy config with zero downtime. reload re-validates internally
+# and keeps the running config if the new one fails. (If compose recreated Caddy
+# above, this is a harmless no-op.)
+echo "→ Reloading Caddy..."
 ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" \
-  "sudo -n docker restart indiebox-caddy"
+  "sudo -n docker exec indiebox-caddy caddy reload --adapter caddyfile --config /etc/caddy/Caddyfile"
