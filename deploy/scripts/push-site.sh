@@ -117,5 +117,23 @@ if [[ "$TARGET" == "staging" || "$TARGET" == "both" ]]; then
   if [[ -n "$STAGING_PATH" ]]; then
     echo "→ staging: ${DEPLOY_USER}@${DEPLOY_HOST}:${STAGING_PATH}"
     rsync "${RSYNC_BASE_ARGS[@]}" "$ROOT_DIR/" "${DEPLOY_USER}@${DEPLOY_HOST}:${STAGING_PATH}"
+    # Staging bekommt dieselben Dateien wie Produktion, darf aber weder gecrawlt
+    # noch indexiert werden; nur nutzergetriggerte Live-Abruf-Bots bleiben erlaubt.
+    # Deshalb wird die Prod-robots.txt nach dem rsync remote überschrieben.
+    if [[ "$DRY_RUN" != true ]]; then
+      ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "cat > ${STAGING_PATH}robots.txt" <<'EOF'
+User-agent: Claude-User
+User-agent: ChatGPT-User
+User-agent: Perplexity-User
+User-agent: MistralAI-User
+User-agent: meta-externalfetcher
+User-agent: Amzn-User
+Allow: /
+
+User-agent: *
+Disallow: /
+EOF
+      echo "→ staging robots.txt überschrieben (Crawling gesperrt, Live-Abrufe erlaubt)"
+    fi
   fi
 fi
