@@ -144,66 +144,31 @@
       <div class="ibx-modal__dialog" role="dialog" aria-modal="true" aria-label="Compare models">
         <button type="button" class="ibx-modal__close" data-close aria-label="Close">&times;</button>
         <section class="ibx">
-      <h2>Three models, three characters</h2>
-      <p class="sub">All run locally on our own cluster – your inputs never leave the building. Choose by task, not by tech. You can switch anytime.</p>
+      <h2>Two models, two characters</h2>
+      <p class="sub">Both run locally on our own cluster – your inputs never leave the building. Choose by task, not by tech. You can switch anytime.</p>
 
       <div class="ibx-grid">
 
-        <!-- QWEN — The Fast One -->
-        <div class="ibx-card">
-          <div class="ibx-badge-row"></div>
-          <div class="ibx-head">
-            <span class="ibx-ico" style="background:#E1F5EE;color:#0F6E56;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></span>
-            <span class="ibx-role">The Fast One</span>
-          </div>
-          <p class="ibx-model">Qwen3.6-35B</p>
-          <p class="ibx-desc">Lightning fast and the only model with eyes: understands images and very long documents.</p>
-          <div class="ibx-lbl"><span>Speed</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:78%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:75%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#1D9E75;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>35B parameters (3B active)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context up to ~1M tokens</span>
-          </div>
-        </div>
-
-        <!-- MINIMAX — The All-Rounder (Recommended) -->
+        <!-- GLM - The All-Rounder (Recommended) -->
         <div class="ibx-card rec">
           <div class="ibx-badge-row"><span class="ibx-badge">Recommended</span></div>
           <div class="ibx-head">
             <span class="ibx-ico" style="background:#FAECE7;color:#993C1D;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg></span>
             <span class="ibx-role">The All-Rounder</span>
           </div>
-          <p class="ibx-model">MiniMax-M2.7</p>
-          <p class="ibx-desc">The balanced default. Decides for itself how much thinking a question needs.</p>
-          <div class="ibx-lbl"><span>Speed</span><span>variable</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:68%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:80%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:82%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>medium</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:50%;background:#D85A30;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>230B parameters (10B active)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context ~205K tokens</span>
-          </div>
+          <p class="ibx-model">GLM-5.2</p>
+          <p class="ibx-desc">The balanced default. Answers directly and quickly – a good fit for most everyday questions.</p>
         </div>
 
-        <!-- KIMI — The Deep Thinker -->
+        <!-- QWEN - The Thinker -->
         <div class="ibx-card">
           <div class="ibx-badge-row"></div>
           <div class="ibx-head">
-            <span class="ibx-ico" style="background:#EEEDFE;color:#3C3489;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M8 14a5 5 0 1 1 8 0c-.6.7-1 1.3-1 2H9c0-.7-.4-1.3-1-2z"/></svg></span>
-            <span class="ibx-role">The Deep Thinker</span>
+            <span class="ibx-ico" style="background:#E1F5EE;color:#0F6E56;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></span>
+            <span class="ibx-role">The Thinker</span>
           </div>
-          <p class="ibx-model">Kimi-K2.6</p>
-          <p class="ibx-desc">The largest model. Strong on tricky, multi-step tasks and long tool chains.</p>
-          <div class="ibx-lbl"><span>Speed</span><span>deliberate</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:40%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:97%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>medium</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:38%;background:#534AB7;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>~1T parameters (32B active)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context ~256K tokens</span>
-          </div>
+          <p class="ibx-model">Qwen3.6</p>
+          <p class="ibx-desc">In Thinking mode it shows its reasoning live – strong on multi-step questions.</p>
         </div>
 
       </div>

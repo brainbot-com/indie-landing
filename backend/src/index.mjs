@@ -46,7 +46,21 @@ const config = {
   apiKeyPrefix: process.env.APP_ENV === 'production' ? 'ind_bo_live_' : process.env.APP_ENV === 'staging' ? 'ind_bo_stg_' : 'ind_bo_dev_',
   litellmBaseUrl: (process.env.LITELLM_BASE_URL || 'https://studiollm.brainbot.com').replace(/\/$/, ''),
   litellmApiKey: process.env.LITELLM_API_KEY || '',
-  litellmModel: process.env.LITELLM_MODEL || 'Qwen3.6-35B-A3B-8bit',
+  litellmModel: process.env.LITELLM_MODEL || 'GLM-5.2-mxfp4',
+  // The gateway's /v1/models only exposes the (non-callable) access-group alias
+  // "all-team-models" for our virtual key, not the real deployment names, so we
+  // pin the callable models here. Comma-separated; the first one that isn't
+  // overridden by LITELLM_MODEL is the default. If the gateway ever starts
+  // returning real ids, fetchChatModels() prefers those automatically.
+  litellmModels: (process.env.LITELLM_MODELS || 'GLM-5.2-mxfp4,qwen3.6:35b')
+    .split(',').map((s) => s.trim()).filter(Boolean),
+  // Substrings identifying models that accept the `reasoning_effort` parameter
+  // (used to switch off the chain-of-thought for the Instant answer mode). Only
+  // these get the param - sending it to a model that rejects it (e.g. GLM-5.2)
+  // is a hard 400, so unknown/new models are left untouched and just answer in
+  // their default mode. Add a new model's name fragment here once verified.
+  litellmReasoningModels: (process.env.LITELLM_REASONING_MODELS || 'qwen')
+    .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
   chatSystemPrompt: process.env.CHAT_SYSTEM_PROMPT
     || 'Du bist der Indie.assistant und läufst lokal auf dem Indie.cluster – verteilt auf mehreren Mac Studios, keine Cloud, volle Datenhoheit. Antworte freundlich, präzise und auf Deutsch. Wenn du etwas nicht sicher weißt, sage es ehrlich.',
   chatSystemPromptEn: process.env.CHAT_SYSTEM_PROMPT_EN
@@ -2212,6 +2226,10 @@ let chatModelsCache = null;
 let chatModelsCacheAt = 0;
 const CHAT_MODELS_TTL_MS = 5 * 60 * 1000;
 
+// LiteLLM access-group placeholders that appear in /v1/models but cannot be
+// used as a model in a chat request - they must be filtered out.
+const CHAT_MODEL_ALIASES = new Set(['all-team-models', 'all-proxy-models']);
+
 async function fetchChatModels() {
   if (!config.litellmApiKey || !config.litellmBaseUrl) return [];
   if (chatModelsCache && (Date.now() - chatModelsCacheAt) < CHAT_MODELS_TTL_MS) {
@@ -2221,19 +2239,25 @@ async function fetchChatModels() {
     const upstream = await fetch(`${config.litellmBaseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${config.litellmApiKey}`, Accept: 'application/json' }
     });
-    if (!upstream.ok) return chatModelsCache || [];
+    if (!upstream.ok) return chatModelsCache || config.litellmModels;
     const data = await upstream.json();
     const ids = Array.isArray(data?.data)
-      ? data.data.map((m) => m && m.id).filter((id) => typeof id === 'string' && id)
+      ? data.data
+        .map((m) => m && m.id)
+        .filter((id) => typeof id === 'string' && id && !CHAT_MODEL_ALIASES.has(id))
       : [];
-    if (ids.length) {
-      chatModelsCache = ids;
+    // The gateway currently only returns the non-callable access-group alias, so
+    // after filtering there are no real ids - fall back to the pinned list. If
+    // the gateway is fixed to expose real ids, they take precedence here.
+    const models = ids.length ? ids : config.litellmModels;
+    if (models.length) {
+      chatModelsCache = models;
       chatModelsCacheAt = Date.now();
     }
-    return ids.length ? ids : (chatModelsCache || []);
+    return models.length ? models : (chatModelsCache || []);
   } catch (error) {
     console.error('chat_models_fetch_failed', { message: error.message });
-    return chatModelsCache || [];
+    return chatModelsCache || config.litellmModels;
   }
 }
 
@@ -2242,7 +2266,10 @@ app.get('/api/chat/models', async (_req, res) => {
     return res.status(503).json({ error: 'chat_unavailable' });
   }
   const models = await fetchChatModels();
-  res.json({ models, default: config.litellmModel });
+  // Only advertise a default the client can actually select; a stale configured
+  // model (e.g. left over in the settings DB) would otherwise point at nothing.
+  const def = models.includes(config.litellmModel) ? config.litellmModel : (models[0] || '');
+  res.json({ models, default: def });
 });
 
 app.post('/api/chat', chatJsonParser, async (req, res) => {
@@ -2262,11 +2289,13 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
   // Let the client pick a model from the gateway's list; fall back to the
   // configured default and ignore anything not in the allow-list.
   const requestedModel = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
-  let model = config.litellmModel;
-  if (requestedModel && requestedModel !== model) {
-    const allowed = await fetchChatModels();
-    if (allowed.includes(requestedModel)) model = requestedModel;
-  }
+  const allowed = await fetchChatModels();
+  // Use the requested model if it is callable, otherwise the configured default
+  // if that is callable, otherwise the first available model. This keeps chat
+  // working even when the request omits a model or a stale default lingers.
+  let model = allowed.includes(requestedModel) ? requestedModel
+    : allowed.includes(config.litellmModel) ? config.litellmModel
+      : (allowed[0] || config.litellmModel);
   // Pick the system prompt in the user's language so the model stays in it.
   const systemPrompt = req.body?.lang === 'en' ? config.chatSystemPromptEn : config.chatSystemPrompt;
   const payload = {
@@ -2277,9 +2306,13 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
       ...messages
     ]
   };
-  if (!think) {
-    // Verified against the studiollm gateway: reasoning_effort:'none' disables
-    // the chain-of-thought (chat_template_kwargs / enable_thinking are ignored).
+  // Verified against the studiollm gateway: reasoning_effort:'none' disables the
+  // chain-of-thought (chat_template_kwargs / enable_thinking are ignored). Only
+  // send it to models that accept the param - GLM-5.2 rejects it with a hard 400,
+  // so gating here keeps every model working regardless of the requested mode.
+  const modelSupportsReasoningToggle = config.litellmReasoningModels
+    .some((frag) => model.toLowerCase().includes(frag));
+  if (!think && modelSupportsReasoningToggle) {
     payload.reasoning_effort = 'none';
   }
 

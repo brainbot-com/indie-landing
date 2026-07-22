@@ -144,66 +144,31 @@
       <div class="ibx-modal__dialog" role="dialog" aria-modal="true" aria-label="Modelle vergleichen">
         <button type="button" class="ibx-modal__close" data-close aria-label="Schließen">&times;</button>
         <section class="ibx">
-      <h2>Drei Modelle, drei Charaktere</h2>
-      <p class="sub">Alle laufen lokal auf unserem eigenen Cluster – deine Eingaben verlassen das Haus nicht. Wähle nach Aufgabe, nicht nach Technik. Du kannst jederzeit wechseln.</p>
+      <h2>Zwei Modelle, zwei Charaktere</h2>
+      <p class="sub">Beide laufen lokal auf unserem eigenen Cluster – deine Eingaben verlassen das Haus nicht. Wähle nach Aufgabe, nicht nach Technik. Du kannst jederzeit wechseln.</p>
 
       <div class="ibx-grid">
 
-        <!-- QWEN — Der Schnelle -->
-        <div class="ibx-card">
-          <div class="ibx-badge-row"></div>
-          <div class="ibx-head">
-            <span class="ibx-ico" style="background:#E1F5EE;color:#0F6E56;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></span>
-            <span class="ibx-role">Der Schnelle</span>
-          </div>
-          <p class="ibx-model">Qwen3.6-35B</p>
-          <p class="ibx-desc">Blitzschnell und als einziges Modell mit Augen: versteht Bilder und sehr lange Dokumente.</p>
-          <div class="ibx-lbl"><span>Tempo</span><span>sehr hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:78%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Agenten &amp; Tools</span><span>hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:75%;background:#1D9E75;"></div></div>
-          <div class="ibx-lbl"><span>Bilder &amp; lange Docs</span><span>sehr hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#1D9E75;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>35 Mrd. Parameter (3 Mrd. aktiv)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Kontext bis ~1 Mio. Token</span>
-          </div>
-        </div>
-
-        <!-- MINIMAX — Der Allrounder (Empfehlung) -->
+        <!-- GLM - Der Allrounder (Empfehlung) -->
         <div class="ibx-card rec">
           <div class="ibx-badge-row"><span class="ibx-badge">Empfehlung</span></div>
           <div class="ibx-head">
             <span class="ibx-ico" style="background:#FAECE7;color:#993C1D;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg></span>
             <span class="ibx-role">Der Allrounder</span>
           </div>
-          <p class="ibx-model">MiniMax-M2.7</p>
-          <p class="ibx-desc">Die ausgewogene Standardwahl. Entscheidet selbst, wie viel Nachdenken eine Frage braucht.</p>
-          <div class="ibx-lbl"><span>Tempo</span><span>variabel</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:68%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:80%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Agenten &amp; Tools</span><span>hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:82%;background:#D85A30;"></div></div>
-          <div class="ibx-lbl"><span>Bilder &amp; lange Docs</span><span>mittel</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:50%;background:#D85A30;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>230 Mrd. Parameter (10 Mrd. aktiv)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Kontext ~205K Token</span>
-          </div>
+          <p class="ibx-model">GLM-5.2</p>
+          <p class="ibx-desc">Die ausgewogene Standardwahl: direkte, schnelle Antworten für die meisten Fragen im Alltag.</p>
         </div>
 
-        <!-- KIMI — Der Tiefdenker -->
+        <!-- QWEN - Der Denker -->
         <div class="ibx-card">
           <div class="ibx-badge-row"></div>
           <div class="ibx-head">
-            <span class="ibx-ico" style="background:#EEEDFE;color:#3C3489;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M8 14a5 5 0 1 1 8 0c-.6.7-1 1.3-1 2H9c0-.7-.4-1.3-1-2z"/></svg></span>
-            <span class="ibx-role">Der Tiefdenker</span>
+            <span class="ibx-ico" style="background:#E1F5EE;color:#0F6E56;"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></span>
+            <span class="ibx-role">Der Denker</span>
           </div>
-          <p class="ibx-model">Kimi-K2.6</p>
-          <p class="ibx-desc">Das größte Modell. Stark bei kniffligen, mehrstufigen Aufgaben und langen Werkzeug-Ketten.</p>
-          <div class="ibx-lbl"><span>Tempo</span><span>bedächtig</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:40%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Reasoning</span><span>sehr hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:97%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Agenten &amp; Tools</span><span>sehr hoch</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#534AB7;"></div></div>
-          <div class="ibx-lbl"><span>Bilder &amp; lange Docs</span><span>mittel</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:38%;background:#534AB7;"></div></div>
-          <div class="ibx-specs">
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>~1 Bio. Parameter (32 Mrd. aktiv)</span>
-            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Kontext ~256K Token</span>
-          </div>
+          <p class="ibx-model">Qwen3.6</p>
+          <p class="ibx-desc">Zeigt im Thinking-Modus seinen Gedankengang live mit – stark bei mehrstufigen Fragen.</p>
         </div>
 
       </div>

@@ -97,9 +97,18 @@
     // "Thinking Mode" (reasoning on, with the live chain-of-thought shown).
     let thinkMode = false;   // effective flag sent to the backend
     let userMode = false;    // the user's chosen mode for toggle-capable models
-    // MiniMax M2 always reasons; no parameter disables it, so the mode toggle is
-    // meaningless there — those models show a static "Auto" instead.
-    function modelSupportsModeToggle(id) { return !/minimax/i.test(id || ''); }
+    // The Instant/Thinking toggle only applies to models whose chain-of-thought
+    // can actually be switched off via `reasoning_effort` (verified: Qwen3.6).
+    // Others show a static "Auto" instead: GLM-5.2 always answers directly and
+    // rejects the reasoning parameter, MiniMax always reasons. Keeping this a
+    // whitelist means a new model defaults to the safe static state until its
+    // capability is confirmed (mirror this list in the backend's
+    // LITELLM_REASONING_MODELS).
+    function modelSupportsModeToggle(id) { return /qwen/i.test(id || ''); }
+    // Non-toggle models fall into two camps: GLM-5.2 always answers directly and
+    // rejects reasoning_effort, so its fixed mode is the Instant answer; other
+    // non-toggle models (e.g. MiniMax) always reason and show "Auto".
+    function modelAlwaysDirect(id) { return /glm/i.test(id || ''); }
     let setModeForModel = function () {};   // wired up by initModeMenu
     let setMode = function () {};           // wired up by initModeMenu (used by chips)
 
@@ -151,13 +160,22 @@
                 current.textContent = userMode ? thinkingLabel : instantLabel;
                 setActive(userMode);
             } else {
-                // Always-reasoning model: no choice. Show a static "Auto"; the
-                // reasoning streams into the thinking box live regardless.
+                // No mode choice for this model - show a fixed, honest state.
                 dd.setOpen(false);
                 dd.button.disabled = true;
                 dd.root.classList.add('chat-mode--static');
-                current.textContent = 'Auto';
-                thinkMode = true;
+                if (modelAlwaysDirect(model)) {
+                    // GLM-5.2 answers directly and rejects reasoning_effort, so
+                    // its fixed mode is Instant - and think:false is safe because
+                    // the backend never sends reasoning_effort to this model.
+                    current.textContent = instantLabel;
+                    thinkMode = false;
+                } else {
+                    // Always-reasoning model: the reasoning streams into the
+                    // thinking box live regardless of the flag.
+                    current.textContent = 'Auto';
+                    thinkMode = true;
+                }
             }
         };
     })();
@@ -165,9 +183,10 @@
     // Friendly metadata for the known models (drives the rich picker).
     function modelMeta(id) {
         const x = (id || '').toLowerCase();
-        if (/qwen/.test(x)) return { short: 'Qwen3.6', role: isEnglish ? 'The Fast One' : 'Der Schnelle', tag: isEnglish ? 'speed, images & long docs' : 'Tempo, Bilder & lange Docs', rec: false };
-        if (/minimax/.test(x)) return { short: 'MiniMax M2.7', role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'balanced default' : 'ausgewogen, Standardwahl', rec: true };
-        if (/kimi/.test(x)) return { short: 'Kimi K2.6', role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks' : 'mehrstufige Aufgaben', rec: false };
+        if (/glm/.test(x)) return { short: 'GLM-5.2', role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'direct, fast answers for everyday tasks' : 'direkte, schnelle Antworten für den Alltag', rec: true };
+        if (/qwen/.test(x)) return { short: 'Qwen3.6', role: isEnglish ? 'The Thinker' : 'Der Denker', tag: isEnglish ? 'shows its reasoning, for multi-step questions' : 'zeigt seinen Gedankengang, für mehrstufige Fragen', rec: false };
+        if (/minimax/.test(x)) return { short: 'MiniMax M3', role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks, always reasons' : 'mehrstufige Aufgaben, denkt immer mit', rec: false };
+        // Unknown model id: show it as-is, no invented claims.
         return { short: id, role: id, tag: '', rec: false };
     }
     let openCompare = function () {};   // wired up by initCompareModal
