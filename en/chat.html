@@ -144,8 +144,8 @@
       <div class="ibx-modal__dialog" role="dialog" aria-modal="true" aria-label="Compare models">
         <button type="button" class="ibx-modal__close" data-close aria-label="Close">&times;</button>
         <section class="ibx">
-      <h2>Two models, two characters</h2>
-      <p class="sub">Both run locally on our own cluster – your inputs never leave the building. Choose by task, not by tech. You can switch anytime.</p>
+      <h2>Three models, three characters</h2>
+      <p class="sub">All run locally on our own cluster – your inputs never leave the building. Choose by task, not by tech. You can switch anytime.</p>
 
       <div class="ibx-grid">
 
@@ -158,6 +158,14 @@
           </div>
           <p class="ibx-model">GLM-5.2</p>
           <p class="ibx-desc">The balanced default. Answers directly and quickly – a good fit for most everyday questions.</p>
+          <div class="ibx-lbl"><span>Speed</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:85%;background:#D85A30;"></div></div>
+          <div class="ibx-lbl"><span>Reasoning</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:78%;background:#D85A30;"></div></div>
+          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:82%;background:#D85A30;"></div></div>
+          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>medium</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:55%;background:#D85A30;"></div></div>
+          <div class="ibx-specs">
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>~355B parameters (32B active)</span>
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context ~200K tokens</span>
+          </div>
         </div>
 
         <!-- QWEN - The Thinker -->
@@ -169,6 +177,33 @@
           </div>
           <p class="ibx-model">Qwen3.6</p>
           <p class="ibx-desc">In Thinking mode it shows its reasoning live – strong on multi-step questions.</p>
+          <div class="ibx-lbl"><span>Speed</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:82%;background:#1D9E75;"></div></div>
+          <div class="ibx-lbl"><span>Reasoning</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:90%;background:#1D9E75;"></div></div>
+          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:80%;background:#1D9E75;"></div></div>
+          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:85%;background:#1D9E75;"></div></div>
+          <div class="ibx-specs">
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>35B parameters (3B active)</span>
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context up to ~1M tokens</span>
+          </div>
+        </div>
+
+        <!-- MINIMAX - The Deep Thinker -->
+        <div class="ibx-card">
+          <div class="ibx-badge-row"></div>
+          <div class="ibx-head">
+            <span class="ibx-ico" style="background:#EEEDFE;color:#3C3489;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M8 14a5 5 0 1 1 8 0c-.6.7-1 1.3-1 2H9c0-.7-.4-1.3-1-2z"/></svg></span>
+            <span class="ibx-role">The Deep Thinker</span>
+          </div>
+          <p class="ibx-model">MiniMax M3</p>
+          <p class="ibx-desc">Reasons on every task. Strong on tricky, multi-step questions and long tool chains.</p>
+          <div class="ibx-lbl"><span>Speed</span><span>deliberate</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:45%;background:#534AB7;"></div></div>
+          <div class="ibx-lbl"><span>Reasoning</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:95%;background:#534AB7;"></div></div>
+          <div class="ibx-lbl"><span>Agents &amp; tools</span><span>very high</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:92%;background:#534AB7;"></div></div>
+          <div class="ibx-lbl"><span>Images &amp; long docs</span><span>medium</span></div><div class="ibx-trk"><div class="ibx-fill" style="width:50%;background:#534AB7;"></div></div>
+          <div class="ibx-specs">
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M10 2v3M14 2v3M10 19v3M14 19v3M2 10h3M2 14h3M19 10h3M19 14h3"/></svg>~230B parameters (10B active)</span>
+            <span class="ibx-spec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Context ~205K tokens</span>
+          </div>
         </div>
 
       </div>
