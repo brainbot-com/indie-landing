@@ -21,7 +21,7 @@ const config = {
   mollieMode: process.env.MOLLIE_MODE || 'test',
   mollieApiKey: process.env.MOLLIE_API_KEY || '',
   mollieProfileId: process.env.MOLLIE_PROFILE_ID || '',
-  checkoutPriceEur: process.env.CHECKOUT_PRICE_EUR || '3999.00',
+  checkoutPriceEur: process.env.CHECKOUT_PRICE_EUR || '5500.00',
   checkoutProductName: process.env.CHECKOUT_PRODUCT_NAME || 'Indiebox AI-Workstation',
   checkoutProductKey: process.env.CHECKOUT_PRODUCT_KEY || 'indiebox-ai-workstation',
   adminApiToken: process.env.ADMIN_API_TOKEN || '',

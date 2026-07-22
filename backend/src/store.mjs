@@ -1664,7 +1664,7 @@ export async function createStore({ dataDir, logger = console }) {
       id: 1,
       slug: 'indiebox-base',
       product_key: 'indiebox-ai-workstation',
-      base_price_cents: 399900,
+      base_price_cents: 550000,
       base_currency: 'EUR',
       display_order: 0,
       is_active: 1,
@@ -1689,13 +1689,13 @@ export async function createStore({ dataDir, logger = console }) {
       name: 'Indie.box',
       tagline: 'Private KI. Bereit zum Start.',
       cta_buy: 'Kaufen',
-      price_label: '3.999 €'
+      price_label: '5.500 €'
     });
     seedContent('en', {
       name: 'Indie.box',
       tagline: 'Private AI. Ready to go.',
       cta_buy: 'Buy',
-      price_label: '€3,999'
+      price_label: '€5,500'
     });
     return true;
   }
