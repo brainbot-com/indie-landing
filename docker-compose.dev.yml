@@ -1,0 +1,28 @@
+# Local-only compose for testing the backend in Docker the same way prod does
+# (env_file injection, same image build). NOT used in deployment.
+#
+#   1. Create backend/.env.local with your LITELLM_* keys (gitignored).
+#   2. docker compose -f docker-compose.local.yml up --build
+#   3. Backend on http://127.0.0.1:8080  →  then run the static preview:
+#        node deploy/scripts/local-preview.mjs   (serves the site, proxies /api/*)
+#
+# This mirrors the prod `env_file` mechanism: Docker reads the file and injects
+# the variables into the container process; the Node code only reads process.env.
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: indiebox-backend-local
+    env_file:
+      - ./backend/.env.local
+    environment:
+      APP_ENV: development
+      ENABLE_ADMIN_API: "true"
+      CHECKOUT_PRICE_EUR: "3999.00"
+      CHECKOUT_PRODUCT_NAME: Indiebox AI-Workstation
+      DATA_DIR: /app/data
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./.local-data:/app/data
