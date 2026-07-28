@@ -10,10 +10,15 @@ function redirectToEnglishIfNeeded() {
     const preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
     if (!preferred.toLowerCase().startsWith('en')) return;
 
-    const isRoot = path === '' || path === '/' || path.endsWith('/index.html') || path.endsWith('/');
+    // Only auto-redirect from the site root homepage. Firing on a
+    // subdirectory (e.g. /docs/) would append `en/` -> `/docs/en/` and 404.
+    const isFile = window.location.protocol === 'file:';
+    const isRoot = isFile
+        ? path.endsWith('/index.html') || path.endsWith('/')
+        : path === '' || path === '/' || path === '/index.html';
     if (!isRoot) return;
 
-    const targetPath = window.location.protocol === 'file:' ? 'en/index.html' : 'en/';
+    const targetPath = isFile ? 'en/index.html' : 'en/';
     const target = new URL(targetPath, window.location.href).toString();
     window.location.replace(target);
 }
@@ -1893,6 +1898,7 @@ function setupAdminOrders() {
     const fulfilmentFilter = app.querySelector('[data-admin-fulfilment-filter]');
     const orderCount = app.querySelector('[data-admin-order-count]');
     const reloadButton = app.querySelector('[data-admin-reload-orders]');
+    const newInvoiceButton = app.querySelector('[data-admin-new-invoice-order]');
     const feedback = app.querySelector('[data-admin-feedback]');
     const stockBar = app.querySelector('[data-admin-stock-bar]');
     const lpfx = (loc) => loc === 'en' ? '/en/' : '/';
@@ -2208,6 +2214,8 @@ function setupAdminOrders() {
         const recentEvents = Array.isArray(events) ? events.slice(0, 4) : [];
         const allocStatus = allocation?.status || (isPaid ? 'reserved' : '');
         const isTerminal = ['released', 'cancelled'].includes(allocStatus);
+        const isInvoice = order.paymentProvider === 'invoice';
+        const meta = order.metadata || {};
 
         detailPane.innerHTML = `
             <div class="admin-detail-head">
@@ -2218,7 +2226,7 @@ function setupAdminOrders() {
                 </div>
                 <div class="admin-detail-head__right">
                     ${order.paymentMethod ? `<span class="admin-badge admin-badge--neutral">${esc(order.paymentMethod)}</span>` : ''}
-                    <span class="admin-badge admin-badge--neutral">${esc(order.amount)} ${esc(order.currency)}</span>
+                    <span class="admin-badge admin-badge--neutral">${esc(order.amount)} ${esc(order.currency)}${order.paymentProvider === 'invoice' ? ' net' : ''}</span>
                 </div>
             </div>
             <div class="admin-info-content" data-info-target="order-id" style="padding:0 0 0.5rem;font-size:0.72rem;color:rgba(15,23,42,0.4);font-family:ui-monospace,monospace;word-break:break-all">${esc(order.id)}</div>
@@ -2306,9 +2314,20 @@ function setupAdminOrders() {
                 </div>
                 <div class="admin-detail-actions" style="margin-top:0.5rem">
                     <a href="${mailTo}" class="admin-mailto-link">${t.mailCustomer} ↗</a>
-                    ${statusUrl ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
+                    ${statusUrl && !isInvoice ? `<a href="${esc(statusUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.statusPage} ↗</a>` : ''}
                     ${order.paymentId && mollieOrgId ? `<a href="https://my.mollie.com/dashboard/${esc(mollieOrgId)}/payments/${esc(order.paymentId)}" target="_blank" rel="noopener" class="admin-mailto-link">${t.molliePayment}</a>` : ''}
+                    ${isInvoice && meta.billomatUrl ? `<a href="${esc(meta.billomatUrl)}" target="_blank" rel="noopener" class="admin-mailto-link">Open invoice ↗</a>` : ''}
+                    ${isInvoice ? `<button type="button" class="admin-mailto-link" data-edit-invoice-link style="background:none;border:none;cursor:pointer;padding:0;font:inherit;color:var(--color-accent,#2563eb)">${meta.billomatUrl ? 'Edit invoice link' : '+ Add invoice link'}</button>` : ''}
                 </div>
+                ${isInvoice ? `<div class="admin-detail-form-grid" data-invoice-link-editor data-order-id="${esc(order.id)}" style="display:none;margin-top:0.5rem">
+                    <div class="form-row form-row--full">
+                        <label class="form-label">Billomat link</label>
+                        <input class="form-input" type="url" name="billomatUrl" value="${esc(meta.billomatUrl || '')}" placeholder="https://…billomat.net/invoices/show/…">
+                    </div>
+                    <div class="admin-detail-actions">
+                        <button type="button" class="button button--plain-dark button--pill button--sm" data-save-invoice-link>Save</button>
+                    </div>
+                </div>` : ''}
             </div>
 
 
@@ -2330,6 +2349,88 @@ function setupAdminOrders() {
                 <button type="button" class="button button--plain-light button--pill button--sm admin-danger-btn" data-archive-order data-order-id="${esc(order.id)}">${t.archive}</button>
             </div>
         `;
+    };
+
+    const renderInvoiceForm = () => {
+        if (!detailPane) return;
+        selectedOrderId = null;
+        refreshList();
+        detailPane.innerHTML = `
+            <form class="admin-detail-invoice-form" data-invoice-form>
+                <div class="admin-detail-head">
+                    <div class="admin-detail-head__left"><span class="admin-detail-head__number">New invoice order</span></div>
+                </div>
+                <p style="margin:0 0 0.6rem;font-size:0.82rem;color:var(--color-fg-muted)">For a box ordered inside a customer project and paid by invoice. No payment is collected here.</p>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Customer</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row"><label class="form-label">First name *</label><input class="form-input" type="text" name="firstName" required></div>
+                        <div class="form-row"><label class="form-label">Last name *</label><input class="form-input" type="text" name="lastName" required></div>
+                        <div class="form-row"><label class="form-label">Email *</label><input class="form-input" type="email" name="email" required></div>
+                        <div class="form-row"><label class="form-label">Phone</label><input class="form-input" type="text" name="phone"></div>
+                        <div class="form-row"><label class="form-label">Company</label><input class="form-input" type="text" name="company"></div>
+                        <div class="form-row"><label class="form-label">VAT ID</label><input class="form-input" type="text" name="vatId"></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Billing address</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row form-row--full"><label class="form-label">Street *</label><input class="form-input" type="text" name="billingStreet" required></div>
+                        <div class="form-row"><label class="form-label">ZIP *</label><input class="form-input" type="text" name="billingZip" required></div>
+                        <div class="form-row"><label class="form-label">City *</label><input class="form-input" type="text" name="billingCity" required></div>
+                    </div>
+                    <label class="admin-checkbox" style="margin-top:0.4rem;display:flex;gap:0.4rem;align-items:center;font-size:0.85rem">
+                        <input type="checkbox" name="shippingDifferent" data-toggle-shipping> Different shipping address
+                    </label>
+                    <div class="admin-detail-form-grid" data-shipping-fields style="display:none;margin-top:0.4rem">
+                        <div class="form-row form-row--full"><label class="form-label">c/o</label><input class="form-input" type="text" name="shippingCareOf"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Street</label><input class="form-input" type="text" name="shippingStreet"></div>
+                        <div class="form-row"><label class="form-label">ZIP</label><input class="form-input" type="text" name="shippingZip"></div>
+                        <div class="form-row"><label class="form-label">City</label><input class="form-input" type="text" name="shippingCity"></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-section admin-detail-section--compact">
+                    <div class="admin-form-section__label">Order &amp; invoice</div>
+                    <div class="admin-detail-form-grid">
+                        <div class="form-row">
+                            <label class="form-label">Indiebox net amount (EUR) *</label>
+                            <input class="form-input" type="text" name="amount" inputmode="decimal" placeholder="3999.00" required>
+                            <span style="font-size:0.75rem;color:var(--color-fg-muted);margin-top:0.2rem">Net price of the Indiebox only — excl. VAT and services.</span>
+                        </div>
+                        <div class="form-row"><label class="form-label">Project reference</label><input class="form-input" type="text" name="projectReference"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Billomat link</label><input class="form-input" type="url" name="billomatUrl" placeholder="https://…billomat.net/invoices/show/…"></div>
+                        <div class="form-row form-row--full"><label class="form-label">Notes</label><textarea class="form-textarea" name="notes" rows="2"></textarea></div>
+                    </div>
+                </div>
+
+                <div class="admin-detail-actions">
+                    <button type="submit" class="button button--plain-dark button--pill button--sm">Create invoice order</button>
+                    <button type="button" class="button button--plain-light button--pill button--sm" data-cancel-invoice-form>Cancel</button>
+                </div>
+            </form>
+        `;
+    };
+
+    const createInvoiceOrder = async (form) => {
+        const payload = Object.fromEntries(Array.from(form.querySelectorAll('[name]')).map((f) => [
+            f.name,
+            f.type === 'checkbox' ? (f.checked ? 'on' : '') : f.value
+        ]));
+        try {
+            const result = await adminFetch('/api/admin/orders', { method: 'POST', body: JSON.stringify(payload) });
+            setFeedback('Invoice order created.', false);
+            await loadOrders();
+            if (result.order?.id) {
+                selectedOrderId = result.order.id;
+                refreshList();
+                await loadOrderDetail(result.order.id);
+            }
+        } catch (error) {
+            setFeedback(error.message || 'Could not create invoice order.', true);
+        }
     };
 
     const getFilteredOrders = () => {
@@ -2526,6 +2627,44 @@ function setupAdminOrders() {
                     await loadOrders();
                 } catch (error) { setFeedback(error.message || t.loadFailed, true); }
             }, t.confirmYes, t.confirmNo);
+            return;
+        }
+
+        const cancelFormBtn = event.target.closest('[data-cancel-invoice-form]');
+        if (cancelFormBtn) {
+            renderDetail(null);
+            return;
+        }
+
+        const editLinkBtn = event.target.closest('[data-edit-invoice-link]');
+        if (editLinkBtn) {
+            const editor = detailPane.querySelector('[data-invoice-link-editor]');
+            if (editor) editor.style.display = editor.style.display === 'none' ? '' : 'none';
+            return;
+        }
+
+        const saveLinkBtn = event.target.closest('[data-save-invoice-link]');
+        if (saveLinkBtn) {
+            const editor = saveLinkBtn.closest('[data-invoice-link-editor]');
+            if (!editor) return;
+            const orderId = editor.getAttribute('data-order-id');
+            const billomatUrl = editor.querySelector('[name="billomatUrl"]')?.value || '';
+            try {
+                await adminFetch(`/api/admin/orders/${encodeURIComponent(orderId)}/billomat`, { method: 'PUT', body: JSON.stringify({ billomatUrl }) });
+                setFeedback('Invoice link saved.', false);
+                if (selectedOrderId === orderId) await loadOrderDetail(orderId);
+            } catch (error) { setFeedback(error.message || t.loadFailed, true); }
+            return;
+        }
+    });
+
+    detailPane?.addEventListener('change', (event) => {
+        const shippingToggle = event.target.closest('[data-toggle-shipping]');
+        if (shippingToggle) {
+            const fields = detailPane.querySelector('[data-shipping-fields]');
+            // Toggle inline display; the `hidden` attribute is overridden by the
+            // grid's `display:grid` class rule, so it would not hide the fields.
+            if (fields) fields.style.display = shippingToggle.checked ? '' : 'none';
         }
     });
 
@@ -2539,6 +2678,14 @@ function setupAdminOrders() {
     paymentFilter?.addEventListener('change', () => { refreshList(); });
     fulfilmentFilter?.addEventListener('change', () => { refreshList(); });
     reloadButton?.addEventListener('click', () => { loadOrders(); });
+    newInvoiceButton?.addEventListener('click', () => { renderInvoiceForm(); });
+
+    detailPane?.addEventListener('submit', (event) => {
+        const form = event.target.closest('[data-invoice-form]');
+        if (!form) return;
+        event.preventDefault();
+        createInvoiceOrder(form);
+    });
 
     authShell.loadAuthState();
 }
@@ -3455,7 +3602,7 @@ function setupAdminNotifications() {
             id: 'preview-order',
             orderNumber: 999,
             product: 'Indiebox AI-Workstation',
-            amount: '4499.00',
+            amount: '5500.00',
             currency: 'EUR',
             paymentMethod: 'creditcard',
             paidAt: new Date().toISOString().slice(0, 16).replace('T', ' '),

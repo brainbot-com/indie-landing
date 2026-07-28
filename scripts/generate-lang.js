@@ -62,7 +62,11 @@ output = output.replace(/<html\b([^>]*?)\blang=\"[^\"]*\"/i, '<html$1lang="' + l
 // Ensure asset references work from /en/ by making relative src/href point to parent.
 // Keep HTML page links relative so they resolve to `/en/...` (e.g. `terms.html` -> `/en/terms.html`).
 output = output.replace(/\b(href|src)=\"(?!https?:|mailto:|#|\/)([^\"]+)\"/g, (match, attr, value) => {
-  if (attr === "href" && /\.html(?:[?#]|$)/i.test(value)) {
+  // Keep internal page links relative so they resolve under /en/ (e.g.
+  // `terms.html` -> `/en/terms.html`, directory links like `docs/` ->
+  // `/en/docs/`). Asset references (css/js/images) get `../` so they still
+  // resolve at the site root.
+  if (attr === "href" && (/\.html(?:[?#]|$)/i.test(value) || /\/(?:[?#]|$)/.test(value))) {
     return match;
   }
 

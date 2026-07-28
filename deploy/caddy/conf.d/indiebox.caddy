@@ -1,0 +1,109 @@
+# indiebox vhosts — owned & deployed by the indie-landing repo.
+# Snippets (security_headers, tls_security_headers, admin_basic_auth) are defined
+# in the core Caddyfile.
+
+staging.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
+  @adminPages path /admin* /en/admin*
+  handle @adminPages {
+    import admin_basic_auth
+    root * /srv/staging.indiebox/site
+    encode zstd gzip
+    file_server
+  }
+
+  handle /api/* {
+    request_header X-Proxy-Auth {$PROXY_INTERNAL_TOKEN}
+    reverse_proxy backend-staging:8080
+  }
+
+  handle /mail/* {
+    reverse_proxy backend-staging:8080
+  }
+
+  # bb relaunch — staging preview
+  handle /bb/staging/* {
+    uri strip_prefix /bb/staging
+    root * /srv/bb-staging/site
+    encode zstd gzip
+    file_server
+  }
+
+  root * /srv/staging.indiebox/site
+  encode zstd gzip
+  file_server
+
+  handle_errors {
+    root * /srv/staging.indiebox/site
+    @404 expression {http.error.status_code} == 404
+    handle @404 {
+      @en expression `{http.request.orig_uri}.startsWith("/en")`
+      handle @en {
+        rewrite * /en/404.html
+        file_server
+      }
+      handle {
+        rewrite * /404.html
+        file_server
+      }
+    }
+  }
+}
+
+docs.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
+  root * /srv/site
+  encode zstd gzip
+
+  @docsRoot path /
+  rewrite @docsRoot /docs/index.html
+  try_files /docs{path} {path}
+
+  file_server
+}
+
+indiebox.ai, www.indiebox.ai {
+  import security_headers
+  import tls_security_headers
+
+  @adminPages path /admin* /en/admin*
+  handle @adminPages {
+    import admin_basic_auth
+    root * /srv/site
+    encode zstd gzip
+    file_server
+  }
+
+  handle /api/* {
+    request_header X-Proxy-Auth {$PROXY_INTERNAL_TOKEN}
+    reverse_proxy backend-live:8080
+  }
+
+  handle /mail/* {
+    reverse_proxy backend-live:8080
+  }
+
+  root * /srv/site
+  encode zstd gzip
+  file_server
+
+  handle_errors {
+    root * /srv/site
+    @404 expression {http.error.status_code} == 404
+    handle @404 {
+      @en expression `{http.request.orig_uri}.startsWith("/en")`
+      handle @en {
+        rewrite * /en/404.html
+        file_server
+      }
+      handle {
+        rewrite * /404.html
+        file_server
+      }
+    }
+  }
+}

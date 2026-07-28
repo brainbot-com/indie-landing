@@ -21,7 +21,7 @@ const config = {
   mollieMode: process.env.MOLLIE_MODE || 'test',
   mollieApiKey: process.env.MOLLIE_API_KEY || '',
   mollieProfileId: process.env.MOLLIE_PROFILE_ID || '',
-  checkoutPriceEur: process.env.CHECKOUT_PRICE_EUR || '3999.00',
+  checkoutPriceEur: process.env.CHECKOUT_PRICE_EUR || '5500.00',
   checkoutProductName: process.env.CHECKOUT_PRODUCT_NAME || 'Indiebox AI-Workstation',
   checkoutProductKey: process.env.CHECKOUT_PRODUCT_KEY || 'indiebox-ai-workstation',
   adminApiToken: process.env.ADMIN_API_TOKEN || '',
@@ -46,7 +46,21 @@ const config = {
   apiKeyPrefix: process.env.APP_ENV === 'production' ? 'ind_bo_live_' : process.env.APP_ENV === 'staging' ? 'ind_bo_stg_' : 'ind_bo_dev_',
   litellmBaseUrl: (process.env.LITELLM_BASE_URL || 'https://studiollm.brainbot.com').replace(/\/$/, ''),
   litellmApiKey: process.env.LITELLM_API_KEY || '',
-  litellmModel: process.env.LITELLM_MODEL || 'Qwen3.6-35B-A3B-8bit',
+  litellmModel: process.env.LITELLM_MODEL || 'GLM-5.2-mxfp4',
+  // The gateway's /v1/models only exposes the (non-callable) access-group alias
+  // "all-team-models" for our virtual key, not the real deployment names, so we
+  // pin the callable models here. Comma-separated; the first one that isn't
+  // overridden by LITELLM_MODEL is the default. If the gateway ever starts
+  // returning real ids, fetchChatModels() prefers those automatically.
+  litellmModels: (process.env.LITELLM_MODELS || 'GLM-5.2-mxfp4,qwen3.6:35b')
+    .split(',').map((s) => s.trim()).filter(Boolean),
+  // Substrings identifying models that accept the `reasoning_effort` parameter
+  // (used to switch off the chain-of-thought for the Instant answer mode). Only
+  // these get the param - sending it to a model that rejects it (e.g. GLM-5.2)
+  // is a hard 400, so unknown/new models are left untouched and just answer in
+  // their default mode. Add a new model's name fragment here once verified.
+  litellmReasoningModels: (process.env.LITELLM_REASONING_MODELS || 'qwen')
+    .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
   chatSystemPrompt: process.env.CHAT_SYSTEM_PROMPT
     || 'Du bist der Indie.assistant und läufst lokal auf dem Indie.cluster – verteilt auf mehreren Mac Studios, keine Cloud, volle Datenhoheit. Antworte freundlich, präzise und auf Deutsch. Wenn du etwas nicht sicher weißt, sage es ehrlich.',
   chatSystemPromptEn: process.env.CHAT_SYSTEM_PROMPT_EN
@@ -255,6 +269,35 @@ function normalizeIsoDate(value) {
 function normalizeIsoDateTime(value) {
   const normalized = sanitizeSingleLineInput(value, 50);
   return !normalized || /^\d{4}-\d{2}-\d{2}(?:T[\d:.+-]+Z?)?$/.test(normalized) ? normalized : '';
+}
+
+// Parses a user-entered amount (e.g. "4499", "4.499,00", "4499.00") into a
+// canonical "1234.56" string used across the order model. Returns '' if the
+// value is not a positive number.
+function normalizeAmountEur(value) {
+  const raw = sanitizeSingleLineInput(value, 24);
+  if (!raw) return '';
+  let cleaned = raw.replace(/[^0-9.,]/g, '');
+  if (cleaned.includes(',') && cleaned.includes('.')) {
+    // Assume "." thousands + "," decimals (German formatting) → drop dots, comma→dot
+    cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+  } else if (cleaned.includes(',')) {
+    cleaned = cleaned.replace(',', '.');
+  }
+  const amount = Number.parseFloat(cleaned);
+  if (!Number.isFinite(amount) || amount <= 0) return '';
+  return amount.toFixed(2);
+}
+
+function normalizeHttpUrl(value, maxLength = 500) {
+  const raw = sanitizeSingleLineInput(value, maxLength);
+  if (!raw) return '';
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : '';
+  } catch {
+    return '';
+  }
 }
 
 function normalizeEnum(value, allowedValues) {
@@ -1570,6 +1613,94 @@ function buildOrderFromRequest(body) {
   };
 }
 
+// Builds an order that an admin enters manually for a project box paid by
+// invoice (no Mollie involvement). Relaxed vs. buildOrderFromRequest: no
+// payment method / terms acceptance required, custom amount, shipping optional.
+// Returns { order } or { error } for a 400.
+function buildInvoiceOrderFromAdmin(body) {
+  const firstName = normalizeName(body.firstName);
+  const lastName = normalizeName(body.lastName);
+  const email = normalizeEmail(body.email);
+  const company = normalizeName(body.company, 160);
+  const billingStreet = normalizeAddressLine(body.billingStreet);
+  const billingZip = normalizePostalCodeDe(body.billingZip);
+  const billingCity = normalizeName(body.billingCity, 120);
+  const billingCountry = normalizeCountryCode(body.billingCountry) || 'DE';
+  const shippingDifferent = body.shippingDifferent === 'on' || body.shippingDifferent === true;
+  const shippingStreet = normalizeAddressLine(body.shippingStreet);
+  const shippingZip = normalizePostalCodeDe(body.shippingZip);
+  const shippingCity = normalizeName(body.shippingCity, 120);
+  const shippingCountry = normalizeCountryCode(body.shippingCountry) || 'DE';
+  const amount = normalizeAmountEur(body.amount);
+  const productKey = sanitizeSingleLineInput(body.product, 160) || config.checkoutProductName;
+  const locale = body.locale === 'en' ? 'en' : 'de';
+
+  if (firstName.length < 2 || lastName.length < 2) return { error: 'customer_name_required' };
+  if (!isValidEmail(email)) return { error: 'invalid_email' };
+  if (!billingStreet || !billingZip || !billingCity || billingCountry !== 'DE') return { error: 'invalid_billing_address' };
+  if (!amount) return { error: 'invalid_amount' };
+  if (shippingDifferent && (!shippingStreet || !shippingZip || !shippingCity)) return { error: 'invalid_shipping_address' };
+
+  const now = new Date().toISOString();
+
+  const order = {
+    id: crypto.randomUUID(),
+    statusToken: crypto.randomUUID(),
+    locale,
+    runtime: config.appRuntimeName,
+    // Paid-equivalent from creation so it flows exactly like a paid Mollie
+    // order (fulfilment workflow + device assignment available immediately).
+    status: 'paid',
+    product: productKey,
+    amount,
+    currency: 'EUR',
+    customer: {
+      firstName,
+      lastName,
+      email,
+      phone: normalizePhone(body.phone),
+      company,
+      vatId: normalizeVatId(body.vatId)
+    },
+    billingAddress: {
+      street: billingStreet,
+      zip: billingZip,
+      city: billingCity,
+      country: billingCountry
+    },
+    shippingAddress: shippingDifferent
+      ? {
+          careOf: normalizeName(body.shippingCareOf, 160),
+          street: shippingStreet,
+          zip: shippingZip,
+          city: shippingCity,
+          country: shippingCountry
+        }
+      : {},
+    notes: sanitizeMultilineInput(body.notes, 2000),
+    paymentProvider: 'invoice',
+    paymentMethodRequested: '',
+    paymentMethod: 'invoice',
+    paymentId: '',
+    paymentStatus: 'paid',
+    checkoutUrl: '',
+    mollieMode: '',
+    mollieProfileId: '',
+    molliePayload: null,
+    metadata: {
+      source: 'admin_invoice',
+      amountType: 'indiebox_net',
+      projectReference: sanitizeSingleLineInput(body.projectReference, 200),
+      billomatUrl: normalizeHttpUrl(body.billomatUrl)
+    },
+    createdAt: now,
+    updatedAt: now,
+    paidAt: now
+  };
+
+  return { order };
+}
+
 function mergePaymentIntoOrder(order, payment) {
   const nextStatus = orderStatusFromPayment(payment);
   const paidAt = nextStatus === 'paid' ? (order.paidAt || new Date().toISOString()) : order.paidAt;
@@ -2095,6 +2226,10 @@ let chatModelsCache = null;
 let chatModelsCacheAt = 0;
 const CHAT_MODELS_TTL_MS = 5 * 60 * 1000;
 
+// LiteLLM access-group placeholders that appear in /v1/models but cannot be
+// used as a model in a chat request - they must be filtered out.
+const CHAT_MODEL_ALIASES = new Set(['all-team-models', 'all-proxy-models']);
+
 async function fetchChatModels() {
   if (!config.litellmApiKey || !config.litellmBaseUrl) return [];
   if (chatModelsCache && (Date.now() - chatModelsCacheAt) < CHAT_MODELS_TTL_MS) {
@@ -2104,19 +2239,25 @@ async function fetchChatModels() {
     const upstream = await fetch(`${config.litellmBaseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${config.litellmApiKey}`, Accept: 'application/json' }
     });
-    if (!upstream.ok) return chatModelsCache || [];
+    if (!upstream.ok) return chatModelsCache || config.litellmModels;
     const data = await upstream.json();
     const ids = Array.isArray(data?.data)
-      ? data.data.map((m) => m && m.id).filter((id) => typeof id === 'string' && id)
+      ? data.data
+        .map((m) => m && m.id)
+        .filter((id) => typeof id === 'string' && id && !CHAT_MODEL_ALIASES.has(id))
       : [];
-    if (ids.length) {
-      chatModelsCache = ids;
+    // The gateway currently only returns the non-callable access-group alias, so
+    // after filtering there are no real ids - fall back to the pinned list. If
+    // the gateway is fixed to expose real ids, they take precedence here.
+    const models = ids.length ? ids : config.litellmModels;
+    if (models.length) {
+      chatModelsCache = models;
       chatModelsCacheAt = Date.now();
     }
-    return ids.length ? ids : (chatModelsCache || []);
+    return models.length ? models : (chatModelsCache || []);
   } catch (error) {
     console.error('chat_models_fetch_failed', { message: error.message });
-    return chatModelsCache || [];
+    return chatModelsCache || config.litellmModels;
   }
 }
 
@@ -2125,7 +2266,10 @@ app.get('/api/chat/models', async (_req, res) => {
     return res.status(503).json({ error: 'chat_unavailable' });
   }
   const models = await fetchChatModels();
-  res.json({ models, default: config.litellmModel });
+  // Only advertise a default the client can actually select; a stale configured
+  // model (e.g. left over in the settings DB) would otherwise point at nothing.
+  const def = models.includes(config.litellmModel) ? config.litellmModel : (models[0] || '');
+  res.json({ models, default: def });
 });
 
 app.post('/api/chat', chatJsonParser, async (req, res) => {
@@ -2145,11 +2289,13 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
   // Let the client pick a model from the gateway's list; fall back to the
   // configured default and ignore anything not in the allow-list.
   const requestedModel = typeof req.body?.model === 'string' ? req.body.model.trim() : '';
-  let model = config.litellmModel;
-  if (requestedModel && requestedModel !== model) {
-    const allowed = await fetchChatModels();
-    if (allowed.includes(requestedModel)) model = requestedModel;
-  }
+  const allowed = await fetchChatModels();
+  // Use the requested model if it is callable, otherwise the configured default
+  // if that is callable, otherwise the first available model. This keeps chat
+  // working even when the request omits a model or a stale default lingers.
+  let model = allowed.includes(requestedModel) ? requestedModel
+    : allowed.includes(config.litellmModel) ? config.litellmModel
+      : (allowed[0] || config.litellmModel);
   // Pick the system prompt in the user's language so the model stays in it.
   const systemPrompt = req.body?.lang === 'en' ? config.chatSystemPromptEn : config.chatSystemPrompt;
   const payload = {
@@ -2160,9 +2306,13 @@ app.post('/api/chat', chatJsonParser, async (req, res) => {
       ...messages
     ]
   };
-  if (!think) {
-    // Verified against the studiollm gateway: reasoning_effort:'none' disables
-    // the chain-of-thought (chat_template_kwargs / enable_thinking are ignored).
+  // Verified against the studiollm gateway: reasoning_effort:'none' disables the
+  // chain-of-thought (chat_template_kwargs / enable_thinking are ignored). Only
+  // send it to models that accept the param - GLM-5.2 rejects it with a hard 400,
+  // so gating here keeps every model working regardless of the requested mode.
+  const modelSupportsReasoningToggle = config.litellmReasoningModels
+    .some((frag) => model.toLowerCase().includes(frag));
+  if (!think && modelSupportsReasoningToggle) {
     payload.reasoning_effort = 'none';
   }
 
@@ -3058,6 +3208,49 @@ app.post('/api/admin/orders/:orderId/archive', adminRateLimit, requireAdmin, (re
   }
   store.archiveOrder(orderId);
   return res.json({ ok: true });
+});
+
+// Manually create an order for a project box paid by invoice (no Mollie).
+app.post('/api/admin/orders', adminRateLimit, requireAdmin, (req, res) => {
+  const built = buildInvoiceOrderFromAdmin(req.body || {});
+  if (built.error) {
+    return res.status(400).json({ error: built.error });
+  }
+
+  const order = built.order;
+  const saved = store.saveOrder(order);
+  // Paid-equivalent: reserve a box automatically, exactly like a paid Mollie
+  // order. No customer notification is sent for admin-created invoice orders.
+  syncOrderAllocation(saved);
+  store.recordPaymentEvent({
+    orderId: saved.id,
+    source: 'admin',
+    eventType: 'invoice_order_created',
+    paymentStatus: saved.paymentStatus,
+    idempotencyKey: `invoice-order-created:${saved.id}`,
+    payload: summarizeOrder(saved)
+  });
+
+  return res.status(201).json({ order: saved });
+});
+
+// Update the Billomat link / project reference on an order.
+app.put('/api/admin/orders/:orderId/billomat', adminRateLimit, requireAdmin, (req, res) => {
+  const order = store.getOrder(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'order_not_found' });
+  }
+
+  const metadata = { ...(order.metadata || {}) };
+  if (req.body.billomatUrl !== undefined) {
+    metadata.billomatUrl = normalizeHttpUrl(req.body.billomatUrl);
+  }
+  if (req.body.projectReference !== undefined) {
+    metadata.projectReference = sanitizeSingleLineInput(req.body.projectReference, 200);
+  }
+
+  const saved = store.saveOrder({ ...order, metadata, updatedAt: new Date().toISOString() });
+  return res.json({ order: saved });
 });
 
 app.post('/api/admin/orders/:orderId/order-device', adminRateLimit, requireAdmin, (req, res) => {
