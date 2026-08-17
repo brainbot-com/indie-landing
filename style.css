@@ -5623,18 +5623,18 @@ ul {
     }
 
     .combi-pill--animated {
-        animation: none;
+        animation: none !important;
         clip-path: inset(0 0 0 0 round 999px);
     }
 
     .combi-pill-text--animated {
-        animation: none;
+        animation: none !important;
         opacity: 1;
         transform: scale(1);
     }
 
     .combi-pill--animated .combi-pill-action--icon {
-        animation: none;
+        animation: none !important;
         opacity: 1;
         transform: translateY(0) scale(1);
     }
@@ -8910,4 +8910,18 @@ div[id].anchor-target {
         padding: 0.45rem 0.8rem;
         font-size: 0.8rem;
     }
+}
+
+/* Loop-1-Nachbesserungen */
+.promise-note {
+    margin-top: clamp(1.5rem, 4vh, 2.25rem);
+    font-size: var(--t-body-sm);
+    color: var(--text-light);
+    max-width: 46em;
+}
+
+.hero-solutions__demo-link {
+    font-size: var(--t-body-sm);
+    color: rgba(236, 242, 248, 0.75);
+    text-shadow: 0 1px 10px rgba(5, 11, 19, 0.85);
 }

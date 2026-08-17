@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datenschutz-Prinzipien – Indie.box</title>
+    <title>Datensicherheit | indie.solutions</title>
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <meta name="description" content="Datenschutz by Design: Wie Indie.box sicherstellt, dass Ihre Daten vollständig lokal bleiben - ohne Cloud-Abhängigkeit, DSGVO-konform durch Architektur." />
@@ -18,24 +18,48 @@
     <meta property="og:image" content="https://indiebox.ai/assets/Indiebox.Frontpage.jpg" />
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-    <script src="matomo.js" defer></script>
 </head>
 <body>
     <nav class="nav-bar" aria-label="Hauptmenü">
         <div class="container nav-container">
-            <a class="nav-logo" href="index.html" aria-label="Indie.box Home">Indie<span class="brand-dot">.</span>box</a>
+            <a class="nav-logo" href="/" aria-label="indie.solutions Startseite">indie<span class="brand-dot">.</span>solutions</a>
             <div class="nav-links" id="nav-links">
-                <a href="privacy.html" aria-current="page">Datensicherheit</a>
-                <a href="betriebs.html">Betrieb</a>
-                <a href="index.html#spezifikation">Spezifikation</a>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Produkte
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="/produkte/indie-box/">Indie.box <small>5.500 €</small></a>
+                        <a href="/produkte/indie-booster/">Indie.booster <small>8.000 €</small></a>
+                        <a href="/produkte/indie-workstation/">Indie.workstation <small>12.000 €</small></a>
+                        <a href="/produkte/indie-rack/">Indie.rack <small>auf Anfrage</small></a>
+                    </div>
+                </div>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Software
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="/software/indie-chat/">Indie.chat</a>
+                        <a href="/software/indie-brain/">Indie.brain</a>
+                        <a href="/software/agent-command-center/">Agent Command Center</a>
+                        <a href="/software/agent-studio/">Agent Studio</a>
+                        <a href="/software/indie-router/">Indie.router <span class="badge-soon">Bald</span></a>
+                    </div>
+                </div>
+                <a href="/privacy.html" aria-current="page">Datensicherheit</a>
+                <a href="/referenzen/">Referenzen</a>
+                <a href="/care/">Care</a>
+                <a href="/docs/">Docs</a>
             </div>
             <div class="nav-actions">
-                <a href="checkout.html" class="button button--pill button--sm nav-buy">Kaufen</a>
+                <span class="nav-lang" aria-label="Sprachauswahl">
+                    <span class="nav-lang__item" aria-current="true" lang="de">DE</span>
+                    <span class="nav-lang__item nav-lang__item--disabled" lang="en" title="English version folgt">EN</span>
+                </span>
+                <a href="/#kontakt" class="button button--solid button--pill button--sm nav-buy">Beratung anfragen</a>
                 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
                     <span class="sr-only">Menü</span>
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -54,7 +78,7 @@
             </h1>
             <p class="legal-subtitle">
                 Die Indie.box ist kein Cloud-Dienst. Sie ist ein eigenständiges System, das dort arbeitet, wo Ihre Daten entstehen:
-                lokal, kontrollierbar — ohne Mithören, ohne Klassifizierung, ohne Weitergabe.
+                lokal, kontrollierbar: ohne Mithören, ohne Klassifizierung, ohne Weitergabe.
             </p>
             <p class="legal-note">Datenschutz ist bei der Indie.box kein Feature. Es ist die Grundlage der Architektur.</p>
         </header>
@@ -250,19 +274,20 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h4>Indie<span class="brand-dot">.</span>box</h4>
-                    <p data-i18n="footer.tagline">Private KI. Komplett lokal. Direkt Einsatsbereit.</p>
+                    <h4>indie<span class="brand-dot">.</span>solutions</h4>
+                    <p>Souveräne KI für den Arbeitsalltag.</p>
+                    <p class="footer-sov">Diese Website lädt nichts von Dritten. So wie unsere Produkte.</p>
                 </div>
                 <div class="footer-contact">
                     <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <div data-i18n="footer.copyright">© 2026 Indie.box</div>
+                <div>© 2026 brainbot GmbH</div>
                 <div class="legal-links">
-                    <a href="terms.html" data-i18n="footer.terms">AGB</a>
-                    <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
-                    <a href="impressum.html" data-i18n="footer.impressum">Impressum</a>
+                    <a href="/terms.html">AGB</a>
+                    <a href="/datenschutz.html">Datenschutz</a>
+                    <a href="/impressum.html">Impressum</a>
                 </div>
             </div>
         </div>
