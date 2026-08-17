@@ -184,6 +184,7 @@
     function modelMeta(id) {
         const x = (id || '').toLowerCase();
         if (/glm/.test(x)) return { short: 'GLM-5.2', role: isEnglish ? 'The All-Rounder' : 'Der Allrounder', tag: isEnglish ? 'direct, fast answers for everyday tasks' : 'direkte, schnelle Antworten für den Alltag', rec: true };
+        if (/qwen3\.8/.test(x)) return { short: 'Qwen3.8', role: isEnglish ? 'The New One' : 'Das Neue', tag: isEnglish ? 'brand new, dense, currently still rather slow' : 'brandneu, dense, aktuell noch recht langsam', rec: false };
         if (/qwen/.test(x)) return { short: 'Qwen3.6', role: isEnglish ? 'The Fast One' : 'Der Schnelle', tag: isEnglish ? 'fast & efficient, long docs too' : 'schnell & effizient, auch lange Docs', rec: false };
         if (/minimax/.test(x)) return { short: 'MiniMax M3', role: isEnglish ? 'The Deep Thinker' : 'Der Tiefdenker', tag: isEnglish ? 'multi-step tasks, always reasons' : 'mehrstufige Aufgaben, denkt immer mit', rec: false };
         // Unknown model id: show it as-is, no invented claims.

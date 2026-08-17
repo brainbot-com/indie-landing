@@ -52,7 +52,7 @@ const config = {
   // pin the callable models here. Comma-separated; the first one that isn't
   // overridden by LITELLM_MODEL is the default. If the gateway ever starts
   // returning real ids, fetchChatModels() prefers those automatically.
-  litellmModels: (process.env.LITELLM_MODELS || 'GLM-5.2-mxfp4,qwen3.6:35b')
+  litellmModels: (process.env.LITELLM_MODELS || 'GLM-5.2-mxfp4,qwen3.6:35b,m3/MiniMax-M3-mixed,rtx5090/qwen3.8:27b')
     .split(',').map((s) => s.trim()).filter(Boolean),
   // Substrings identifying models that accept the `reasoning_effort` parameter
   // (used to switch off the chain-of-thought for the Instant answer mode). Only
@@ -2226,12 +2226,15 @@ let chatModelsCache = null;
 let chatModelsCacheAt = 0;
 const CHAT_MODELS_TTL_MS = 5 * 60 * 1000;
 
-// LiteLLM access-group placeholders that appear in /v1/models but cannot be
-// used as a model in a chat request - they must be filtered out.
-const CHAT_MODEL_ALIASES = new Set(['all-team-models', 'all-proxy-models']);
-
+// The demo picker shows a CURATED set (config.litellmModels), not the gateway's
+// raw /v1/models list - that list also contains embedding models and
+// hardware-variant duplicates (m3/…, rocm/…, rtx5090/…) that don't belong in a
+// customer-facing picker. We still consult the gateway to drop any curated model
+// that is momentarily unavailable, preserving the curated order; if the gateway
+// is unreachable we fall back to the full curated list.
 async function fetchChatModels() {
-  if (!config.litellmApiKey || !config.litellmBaseUrl) return [];
+  const curated = config.litellmModels;
+  if (!config.litellmApiKey || !config.litellmBaseUrl) return curated;
   if (chatModelsCache && (Date.now() - chatModelsCacheAt) < CHAT_MODELS_TTL_MS) {
     return chatModelsCache;
   }
@@ -2239,25 +2242,21 @@ async function fetchChatModels() {
     const upstream = await fetch(`${config.litellmBaseUrl}/v1/models`, {
       headers: { Authorization: `Bearer ${config.litellmApiKey}`, Accept: 'application/json' }
     });
-    if (!upstream.ok) return chatModelsCache || config.litellmModels;
+    if (!upstream.ok) return chatModelsCache || curated;
     const data = await upstream.json();
-    const ids = Array.isArray(data?.data)
-      ? data.data
-        .map((m) => m && m.id)
-        .filter((id) => typeof id === 'string' && id && !CHAT_MODEL_ALIASES.has(id))
-      : [];
-    // The gateway currently only returns the non-callable access-group alias, so
-    // after filtering there are no real ids - fall back to the pinned list. If
-    // the gateway is fixed to expose real ids, they take precedence here.
-    const models = ids.length ? ids : config.litellmModels;
-    if (models.length) {
-      chatModelsCache = models;
-      chatModelsCacheAt = Date.now();
-    }
-    return models.length ? models : (chatModelsCache || []);
+    const available = new Set(
+      Array.isArray(data?.data)
+        ? data.data.map((m) => m && m.id).filter((id) => typeof id === 'string' && id)
+        : []
+    );
+    const models = curated.filter((id) => available.has(id));
+    const result = models.length ? models : curated;
+    chatModelsCache = result;
+    chatModelsCacheAt = Date.now();
+    return result;
   } catch (error) {
     console.error('chat_models_fetch_failed', { message: error.message });
-    return chatModelsCache || config.litellmModels;
+    return chatModelsCache || curated;
   }
 }
 
