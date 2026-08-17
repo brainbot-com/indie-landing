@@ -154,6 +154,7 @@
   "capabilities.models.items.1": "Vision &amp; audio",
   "capabilities.models.items.2": "Tool calls",
   "capabilities.models.items.3": "High local performance",
+  "capabilities.models.link": "See the preinstalled models in detail →",
   "dataSafety.title": "Your data stays with you",
   "dataSafety.lead": "By default, not a single byte leaves your network.<br>No cloud. No telemetry.",
   "dataSafety.body": "External services, model downloads, or support access are always disabled and can only be explicitly enabled.",
