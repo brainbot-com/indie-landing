@@ -22,7 +22,8 @@ Bevor irgendeine Datei entsteht, diese Entscheidungen abfragen und die Antworten
 4. **Staging ja/nein?** (Empfehlung: ja, sobald die Seite öffentlich ist)
 5. **Sprachen**: nur DE, oder DE als Quelle + generiertes EN (wie bei indiebox)?
 6. **Backend nötig?** (Formulare, Checkout, API). Wenn nein: reine statische Seite, deutlich einfacher. Wenn ja: separates Backend-Deployment nach dem Muster `push-stack.sh` einplanen.
-7. **Design**: gibt es Vorgaben (Farben, Fonts, Logo)? Ergebnis früh in `STYLE_GUIDE.md` festhalten.
+7. **Design**: gibt es Vorgaben (Farben, Fonts, Logo)? Ablauf der Design-Phase: Abschnitt 4. Ergebnis früh in `STYLE_GUIDE.md` festhalten.
+8. **Ausgangsmaterial**: In welcher Form kommen Texte und Bilder (Word, PDF, Fotos)? Aufbereitung: Abschnitt 3.
 
 ---
 
@@ -32,6 +33,7 @@ Kernprinzip aus indie-landing: **statische Seite, keine Frameworks, kein Build-T
 
 ```
 <projekt>/
+  intake/                  # Rohmaterial im Anlieferungszustand (Word, PDF, Originalfotos)
   content/                 # QUELLE DER WAHRHEIT für alle Texte
     index.md               # eine Markdown-Datei pro Seite
     ueber-uns.md
@@ -42,6 +44,7 @@ Kernprinzip aus indie-landing: **statische Seite, keine Frameworks, kein Build-T
   templates/               # HTML-Layouts und Sektions-Templates
     layout.html            # Grundgerüst (head, header, footer)
     sections/              # optional: wiederverwendbare Sektionstypen
+  mock/                    # Wegwerf-Layoutentwürfe der Design-Phase (wird nie deployt)
   site/                    # GENERIERTER Output, nur dieser wird deployt
   scripts/
     build.mjs              # content/ + templates/ + assets/ -> site/
@@ -96,11 +99,50 @@ Text zur Feature-Karte ...
 
 ---
 
-## 3. Lokale Vorschau
+## 3. Material-Eingang und Aufbereitung (Word/PDF/Bilder → content/ + assets/)
+
+Typischer Startzustand: Die Texte kommen als Word-Dokumente oder PDFs vom Auftraggeber, dazu ein Satz vorhandener Fotos (häufig Personenfotos). Diese Rohlinge sind NICHT die Quelle der Wahrheit. Sie werden einmalig nach `content/` und `assets/` überführt und ab dann nur noch dort gepflegt.
+
+### Ablage
+
+- Alles Angelieferte unverändert nach `intake/` legen (Texte nach `intake/texte/`, Fotos nach `intake/bilder/`). Das ist die Nachschlage- und Vergleichsbasis, wenn später Fragen kommen ("stand das so im Original?").
+- Bei großen Originaldateien entscheiden: `intake/` versionieren, per Git LFS, oder unversioniert lassen. Die Entscheidung in `CLAUDE.md` festhalten.
+
+### Texte überführen
+
+- **PDFs** kann Claude direkt lesen (Read-Tool), daraus die Inhalte extrahieren.
+- **Word-Dokumente** vorher konvertieren: `pandoc intake/texte/xyz.docx -t gfm -o intake/texte/xyz.md --extract-media=intake/media` (eingebettete Bilder landen mit in `intake/media/`).
+- Dann **kuratieren statt kopieren**: Die Rohtexte in die Seitenstruktur überführen (`content/<seite>.md` mit Frontmatter und Sektionen). Word-Prosa ist fast immer zu lang fürs Web; kürzen, in Sektionen gliedern, Überschriften-Hierarchie neu denken. Lücken (fehlende Meta-Descriptions, CTAs, Bildunterschriften) als offene Fragen sammeln, nicht erfinden.
+- Wo vom Originaltext inhaltlich abgewichen wird, die Abweichung mit dem Auftraggeber rückkoppeln, bevor sie live geht.
+
+### Bilder überführen
+
+- Originale bleiben in `intake/bilder/`. Nach `assets/` kommen nur web-fertige Kopien: sprechende Dateinamen (`vorname-nachname.webp` statt `IMG_4711.jpg`), auf Zielgröße skaliert, als WebP konvertiert (macOS: `sips`, alternativ `cwebp` oder ImageMagick).
+- **EXIF-Metadaten entfernen** (enthalten oft GPS-Position und Gerätedaten): `exiftool -all= assets/*.webp` oder bei der Konvertierung strippen.
+- **Personenfotos:** Vor Live-Gang klären, dass jede abgebildete Person der Veröffentlichung zugestimmt hat (Recht am eigenen Bild, DSGVO). Der Staging-robots-Schutz ist keine rechtliche Absicherung, Staging ist öffentlich erreichbar. Zusagen schriftlich beim Auftraggeber einholen und den Stand im Konzeptdokument vermerken.
+- Alt-Texte für jedes Bild direkt im Markdown pflegen (`![Alt-Text](assets/...)`); bei Personen nur mit Namen, wenn das gewollt ist.
+
+---
+
+## 4. Design-Phase mit Claude
+
+Eigene Phase zwischen Material-Aufbereitung und Build-System. Design entsteht direkt im Dialog mit Claude, kein zusätzlicher Skill nötig. Reihenfolge ist entscheidend: erst echte Inhalte (Abschnitt 3), dann Layout. Ein Layout um Platzhaltertexte kippt später immer.
+
+1. **Design-Kontext festhalten**, bevor die erste Zeile CSS entsteht: Zielgruppe, Tonalität, 2-3 Referenzseiten und was daran konkret gefällt, vorhandene Vorgaben (Logo, Farben, Fonts). Ergebnis ins Konzeptdokument.
+2. **Wegwerf-Mocks statt Templates:** In `mock/` eine einzelne HTML-Seite mit den echten Texten und Bildern aus `content/` und `assets/` bauen, davon 2-3 bewusst unterschiedliche Varianten (z. B. ruhig/editorial vs. kräftig/plakativ). Über den Preview-Server im Browser anschauen.
+3. **Feedback-Schleife:** Heiko schaut im Browser und gibt Feedback; bei Bedarf Screenshots in den Chat, dann sieht Claude denselben Stand. In dieser Phase ist Iterieren billig, weil noch kein Build-System dranhängt.
+4. **Einfrieren:** Wenn eine Richtung gewonnen hat, Tokens (Farben, Typo-Skala, Abstände, Radien) in `STYLE_GUIDE.md` plus eine zentrale Token-CSS extrahieren. Ab hier gilt die Kanon-Regel: Design-Fragen werden gegen die Datei entschieden, nicht gegen Chat-Erinnerung.
+5. **Erst jetzt Templates bauen:** `templates/layout.html` und Sektions-Templates aus dem Gewinner-Mock ableiten, dann das Build-Skript verdrahten. Die unterlegenen Mock-Varianten löschen oder als `mock/archiv/` behalten.
+
+Optional lässt sich später ein Design-Skill wie [impeccable](https://github.com/pbakaus/impeccable) für Audit- und Polish-Pässe ergänzen; für den Start ist er nicht nötig.
+
+---
+
+## 5. Lokale Vorschau
 
 Vorlage: `deploy/scripts/local-preview.mjs` aus indie-landing (dependency-freier Node-HTTP-Server, ~120 Zeilen). Anpassungen für das neue Muster:
 
-- `projectRoot` auf `site/` zeigen lassen statt auf den Repo-Root.
+- `projectRoot` auf `site/` zeigen lassen statt auf den Repo-Root (in der Design-Phase vorübergehend auf `mock/`, z. B. per Env-Variable umschaltbar).
 - Den `/api/*`-Proxy-Teil nur übernehmen, wenn es ein Backend gibt (Proxy auf `http://127.0.0.1:8080`, steuerbar über `API_ORIGIN`).
 - Start: `node deploy/scripts/local-preview.mjs` → `http://127.0.0.1:3000`.
 
@@ -108,7 +150,7 @@ Workflow lokal: `build.mjs` (watch) + `local-preview.mjs` parallel laufen lassen
 
 ---
 
-## 4. Deployment
+## 6. Deployment
 
 ### Grundmuster (beide Varianten)
 
@@ -158,7 +200,7 @@ In der GitHub-Variante als letzten Step im Staging-Workflow, in der manuellen Va
 
 ---
 
-## 5. Serverseite (Caddy)
+## 7. Serverseite (Caddy)
 
 Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
@@ -170,7 +212,7 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
 ---
 
-## 6. Gelernte Regeln und Fallstricke (das eigentliche Gold)
+## 8. Gelernte Regeln und Fallstricke (das eigentliche Gold)
 
 1. **Kanon in Dateien, nicht im Chat.** Entscheidungen zu Konzept, Stil, Architektur sofort in `CLAUDE.md` / `STYLE_GUIDE.md` / Konzeptdokument schreiben. Chat-Kontext geht verloren, Dateien nicht.
 2. **`rsync --delete --delete-excluded` ist scharf.** Alles, was nicht explizit excludiert ist, wird auf dem Server GELÖSCHT, wenn es lokal fehlt. Deshalb: nur `site/` deployen (kleine Exclude-Liste) und vor dem ersten echten Lauf immer `--dry-run`.
@@ -187,22 +229,24 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
 ---
 
-## 7. Bootstrap-Checkliste für die neue Session
+## 9. Bootstrap-Checkliste für die neue Session
 
 1. Init-Interview führen (Abschnitt 1), Antworten in `CLAUDE.md` + Konzeptdokument schreiben.
 2. Projektordner + Git-Repo anlegen (`git init`, auch ohne GitHub). Bei GitHub-Variante: `gh repo create`.
 3. Ordnerstruktur aus Abschnitt 2 anlegen, `.gitignore` (`site/` NICHT ignorieren, wenn CI ohne Build deployen soll; sonst `site/` ignorieren und im CI bauen, empfohlen).
-4. `templates/layout.html` + minimale `content/index.md` + `scripts/build.mjs` schreiben, bis `node scripts/build.mjs` eine Seite erzeugt.
-5. `local-preview.mjs` aus indie-landing kopieren und auf `site/` anpassen; lokal anschauen.
-6. `STYLE_GUIDE.md` mit den abgestimmten Tokens anlegen, CSS darauf aufbauen.
-7. Deploy vorbereiten: Server-Verzeichnisse + Caddy-Snippet (additiv!) + DNS. Erst Staging verdrahten und mit `--dry-run` testen.
-8. Variante A: Workflows kopieren/anpassen, Secrets setzen, Push → Staging prüfen. Variante B: `push-site.sh` anpassen, Preflight testen.
-9. Staging-`robots.txt`-Override einbauen und verifizieren (`curl https://staging.<domain>/robots.txt`).
-10. Erst wenn Staging rund läuft: Live-Pfad verdrahten (Release bzw. `--production`).
+4. Rohmaterial nach `intake/` übernehmen und zu `content/*.md` + `assets/` aufbereiten (Abschnitt 3). Offene Fragen an den Auftraggeber sammeln.
+5. `local-preview.mjs` aus indie-landing kopieren und anpassen; dient in der Design-Phase schon als Mock-Viewer.
+6. Design-Phase durchlaufen (Abschnitt 4): Mocks mit echten Inhalten, Feedback-Schleife, Ergebnis in `STYLE_GUIDE.md` + Token-CSS einfrieren.
+7. `templates/` + `scripts/build.mjs` aus dem Gewinner-Mock ableiten, bis `node scripts/build.mjs` alle Seiten erzeugt und die Vorschau auf `site/` läuft.
+8. Deploy vorbereiten: Server-Verzeichnisse + Caddy-Snippet (additiv!) + DNS. Erst Staging verdrahten und mit `--dry-run` testen.
+9. Variante A: Workflows kopieren/anpassen, Secrets setzen, Push → Staging prüfen. Variante B: `push-site.sh` anpassen, Preflight testen.
+10. Staging-`robots.txt`-Override einbauen und verifizieren (`curl https://staging.<domain>/robots.txt`).
+11. Vor Live-Gang: Einwilligungen für Personenfotos bestätigt? (Abschnitt 3)
+12. Erst wenn Staging rund läuft und Punkt 11 geklärt ist: Live-Pfad verdrahten (Release bzw. `--production`).
 
 ---
 
-## 8. Referenzdateien in indie-landing
+## 10. Referenzdateien in indie-landing
 
 | Zweck | Datei |
 |---|---|
