@@ -24,6 +24,7 @@ Bevor irgendeine Datei entsteht, diese Entscheidungen abfragen und die Antworten
 6. **Backend nötig?** (Formulare, Checkout, API). Wenn nein: reine statische Seite, deutlich einfacher. Wenn ja: separates Backend-Deployment nach dem Muster `push-stack.sh` einplanen.
 7. **Design**: gibt es Vorgaben (Farben, Fonts, Logo)? Ablauf der Design-Phase: Abschnitt 4. Ergebnis früh in `STYLE_GUIDE.md` festhalten.
 8. **Ausgangsmaterial**: In welcher Form kommen Texte und Bilder (Word, PDF, Fotos)? Aufbereitung: Abschnitt 3.
+9. **KI-Crawler-Policy**: Dürfen Modelltraining-Crawler (GPTBot, ClaudeBot usw.) die Seite nutzen, oder nur Suche und KI-Live-Abrufe? Steuert die robots.txt (Abschnitt 5).
 
 ---
 
@@ -94,7 +95,7 @@ Text zur Feature-Karte ...
 ### Build-Skript (`scripts/build.mjs`)
 
 - Node.js, eine einzige Dependency ist erlaubt und pragmatisch: `marked` (Markdown-Parser). Alternativ komplett dependency-frei mit eigenem Mini-Parser, wenn der Markdown-Umfang klein bleibt.
-- Ablauf: `content/*.md` lesen → Frontmatter parsen → Sektionen splitten → in Templates einsetzen → `site/<slug>.html` schreiben → `assets/` nach `site/assets/` spiegeln → `sitemap.xml` und `robots.txt` generieren.
+- Ablauf: `content/*.md` lesen → Frontmatter parsen → Sektionen splitten → in Templates einsetzen → `site/<slug>.html` schreiben → `assets/` nach `site/assets/` spiegeln → `sitemap.xml`, `robots.txt` und `llms.txt` generieren (Details: Abschnitt 5).
 - `node scripts/build.mjs` baut alles; `node --watch scripts/build.mjs` oder ein simpler fs.watch-Modus für Live-Arbeit.
 
 ---
@@ -138,7 +139,44 @@ Optional lässt sich später ein Design-Skill wie [impeccable](https://github.co
 
 ---
 
-## 5. Lokale Vorschau
+## 5. SEO und AEO (Templates, robots.txt, llms.txt)
+
+Sichtbarkeit in klassischer Suche (SEO) und in KI-Antwortmaschinen (AEO) ist Template- und Build-Sache, nicht nachträgliche Kür. Alles hier wird vom Build-Skript aus `content/` generiert, nichts von Hand in einzelne HTML-Dateien gepflegt.
+
+### Head-Block im Template (pro Seite, aus Frontmatter)
+
+Muster: `index.html` Zeilen 10-33 in indie-landing. `templates/layout.html` enthält diesen Block mit Platzhaltern:
+
+- `<title>` und `<meta name="description">` aus Frontmatter (Pflichtfelder, Build bricht ab, wenn sie fehlen).
+- `<link rel="canonical">` mit absoluter URL.
+- Bei Zweisprachigkeit: `hreflang`-Trio pro Seite (`de`, `en`, `x-default`), beide Richtungen konsistent.
+- Open Graph (`og:type`, `og:title`, `og:description`, `og:url`, `og:image` mit absoluter URL) und Twitter Card (`summary_large_image`). Ein Share-Bild pro Seite im Frontmatter, Fallback auf ein Site-Default.
+- **JSON-LD (Schema.org) pro Seitentyp**, gesteuert über ein Frontmatter-Feld: `Organization`/`LocalBusiness` auf der Startseite, `Product` mit `offers` inkl. `price`, `priceCurrency`, `availability` (Learning: das fehlende `price`-Feld fiel erst spät auf), `FAQPage` bei FAQ-Sektionen, `Person` bei Team-Seiten (relevant bei Projekten mit Personenfotos). Validieren mit dem Google Rich Results Test.
+- Semantik: genau eine `h1` pro Seite, saubere Überschriften-Hierarchie, Alt-Texte (Abschnitt 3).
+
+### robots.txt (Produktion)
+
+Muster: `robots.txt` in indie-landing. Drei Bot-Klassen bewusst getrennt behandeln:
+
+1. **Klassische Suche und KI-Suche/Live-Abruf**: erlaubt (Google, Bing, nutzergetriggerte Abrufe wie Claude-User, ChatGPT-User, Perplexity-User).
+2. **Modelltraining-Crawler**: bei indiebox gesperrt (GPTBot, ClaudeBot, Google-Extended, Applebot-Extended, meta-externalagent, CCBot, Bytespider, Amazonbot, AI2Bot). Das ist eine Geschäftsentscheidung, pro Projekt im Init-Interview neu treffen. Für maximale AEO-Reichweite kann es richtig sein, sie zuzulassen.
+3. **Private Pfade** für alle sperren: Admin, Checkout, Preview- und Testseiten.
+
+Dazu die `Sitemap:`-Zeile mit absoluter URL. Die Datei vom Build-Skript generieren lassen, damit gesperrte Seiten und Sitemap-Pfad nicht auseinanderlaufen. Staging bekommt beim Deploy die strengere Override-Datei (Abschnitt Deployment).
+
+### llms.txt (AEO)
+
+Muster: `llms.txt` in indie-landing. Eine kompakte Markdown-Selbstbeschreibung unter `https://<domain>/llms.txt`: Einzeiler-Claim, kurze Produkt-/Firmenbeschreibung, Key Features als Liste, kommentierte Links auf die wichtigsten Seiten, Firmenangaben und Kontakt. KI-Systeme nutzen sie als Zitiergrundlage. Bei Relaunch-Texten aus `content/` generieren oder bewusst von Hand pflegen, aber im Build-Repo versionieren und bei inhaltlichen Änderungen mitziehen.
+
+Für AEO zusätzlich in den Inhalten selbst: klare, zitierfähige Faktensätze (Zahlen, Ortsangaben, Preise konsistent über alle Seiten), eine FAQ-Sektion mit echten Fragen in natürlicher Sprache, und `llms.txt`/Schema/Copy dürfen sich nicht widersprechen.
+
+### sitemap.xml
+
+Vom Build-Skript generieren: alle indexierbaren Seiten mit absoluter URL, bei Zweisprachigkeit mit hreflang-Alternates; gesperrte Seiten (Checkout, Admin, Previews) tauchen nicht auf.
+
+---
+
+## 6. Lokale Vorschau
 
 Vorlage: `deploy/scripts/local-preview.mjs` aus indie-landing (dependency-freier Node-HTTP-Server, ~120 Zeilen). Anpassungen für das neue Muster:
 
@@ -150,7 +188,7 @@ Workflow lokal: `build.mjs` (watch) + `local-preview.mjs` parallel laufen lassen
 
 ---
 
-## 6. Deployment
+## 7. Deployment
 
 ### Grundmuster (beide Varianten)
 
@@ -200,7 +238,7 @@ In der GitHub-Variante als letzten Step im Staging-Workflow, in der manuellen Va
 
 ---
 
-## 7. Serverseite (Caddy)
+## 8. Serverseite (Caddy)
 
 Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
@@ -212,7 +250,7 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
 ---
 
-## 8. Gelernte Regeln und Fallstricke (das eigentliche Gold)
+## 9. Gelernte Regeln und Fallstricke (das eigentliche Gold)
 
 1. **Kanon in Dateien, nicht im Chat.** Entscheidungen zu Konzept, Stil, Architektur sofort in `CLAUDE.md` / `STYLE_GUIDE.md` / Konzeptdokument schreiben. Chat-Kontext geht verloren, Dateien nicht.
 2. **`rsync --delete --delete-excluded` ist scharf.** Alles, was nicht explizit excludiert ist, wird auf dem Server GELÖSCHT, wenn es lokal fehlt. Deshalb: nur `site/` deployen (kleine Exclude-Liste) und vor dem ersten echten Lauf immer `--dry-run`.
@@ -223,13 +261,13 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 7. **Style Guide als Datei** (`STYLE_GUIDE.md` + CSS-Tokens in einer zentralen CSS-Datei). Jede Design-Frage wird gegen diese Datei entschieden, nicht gegen Erinnerung.
 8. **Texte kritikfest schreiben:** pro Sektion fragen "wo würde ein kritischer Leser nachhaken?" und dort eine optionale Detail-Ebene anbieten (FAQ, Accordion, Infobox). Hauptfläche knapp halten.
 9. **404 sauber behandeln** (eigene `404.html`, in Caddy via `handle_errors` verdrahtet, bei Zweisprachigkeit pro Sprache).
-10. **SEO-Basics von Anfang an generieren:** `sitemap.xml`, `robots.txt`, Meta-Description aus dem Frontmatter, ggf. Schema.org-Markup (Learning: fehlendes `price`-Feld im Product-Schema fiel erst spät auf).
+10. **SEO und AEO von Anfang an generieren, nicht nachrüsten:** Head-Block, `sitemap.xml`, `robots.txt`, `llms.txt` und Schema.org-Markup kommen aus dem Build (Details: Abschnitt 5; Learning: fehlendes `price`-Feld im Product-Schema fiel erst spät auf).
 11. **Echte Bilder statt CGI-Platzhalter** wirken auf Landingpages messbar besser (Hero-Learning).
 12. **Falls Backend/Datenbank:** vor jedem Stack-Deploy automatisches Backup, Deploy bricht ab, wenn das Backup scheitert (Muster: `push-stack.sh`). Secrets nur in Env-Dateien auf dem Server, nie im Repo.
 
 ---
 
-## 9. Bootstrap-Checkliste für die neue Session
+## 10. Bootstrap-Checkliste für die neue Session
 
 1. Init-Interview führen (Abschnitt 1), Antworten in `CLAUDE.md` + Konzeptdokument schreiben.
 2. Projektordner + Git-Repo anlegen (`git init`, auch ohne GitHub). Bei GitHub-Variante: `gh repo create`.
@@ -237,7 +275,7 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 4. Rohmaterial nach `intake/` übernehmen und zu `content/*.md` + `assets/` aufbereiten (Abschnitt 3). Offene Fragen an den Auftraggeber sammeln.
 5. `local-preview.mjs` aus indie-landing kopieren und anpassen; dient in der Design-Phase schon als Mock-Viewer.
 6. Design-Phase durchlaufen (Abschnitt 4): Mocks mit echten Inhalten, Feedback-Schleife, Ergebnis in `STYLE_GUIDE.md` + Token-CSS einfrieren.
-7. `templates/` + `scripts/build.mjs` aus dem Gewinner-Mock ableiten, bis `node scripts/build.mjs` alle Seiten erzeugt und die Vorschau auf `site/` läuft.
+7. `templates/` + `scripts/build.mjs` aus dem Gewinner-Mock ableiten, bis `node scripts/build.mjs` alle Seiten erzeugt und die Vorschau auf `site/` läuft. Inklusive SEO/AEO-Schicht: Head-Block, `sitemap.xml`, `robots.txt`, `llms.txt`, Schema-Markup (Abschnitt 5, Rich-Results-Test).
 8. Deploy vorbereiten: Server-Verzeichnisse + Caddy-Snippet (additiv!) + DNS. Erst Staging verdrahten und mit `--dry-run` testen.
 9. Variante A: Workflows kopieren/anpassen, Secrets setzen, Push → Staging prüfen. Variante B: `push-site.sh` anpassen, Preflight testen.
 10. Staging-`robots.txt`-Override einbauen und verifizieren (`curl https://staging.<domain>/robots.txt`).
@@ -246,7 +284,7 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 
 ---
 
-## 10. Referenzdateien in indie-landing
+## 11. Referenzdateien in indie-landing
 
 | Zweck | Datei |
 |---|---|
@@ -258,4 +296,7 @@ Auf dem vorhandenen IONOS-Server (und als Muster für neue Server):
 | Caddy-Vhost-Muster (Live + Staging + 404 + Admin-Gate) | `deploy/caddy/conf.d/indiebox.caddy` |
 | Backend-Stack-Deploy mit Backup-Gate (nur bei Backend) | `deploy/scripts/push-stack.sh` |
 | DE→EN-Generator | `scripts/generate-lang.js` + `i18n/` |
+| robots.txt-Muster (Suche erlaubt, Trainings-Crawler gesperrt, private Pfade) | `robots.txt` |
+| llms.txt-Muster (AEO-Selbstbeschreibung) | `llms.txt` |
+| SEO-Head-Block-Muster (canonical, hreflang, OG, Twitter, JSON-LD) | `index.html` Zeilen 10-33 |
 | Agent-Arbeitsregeln (Muster) | `AGENTS.md` |
