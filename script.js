@@ -23,7 +23,10 @@ function redirectToEnglishIfNeeded() {
     window.location.replace(target);
 }
 
-redirectToEnglishIfNeeded();
+// Relaunch indie.solutions: EN-Auto-Redirect pausiert, bis die neue EN-Version
+// existiert (Vertiefungs-Schritt 6 im Master-Prompt). Die alte /en/-Seite ist
+// der indiebox.ai-Stand und passt nicht mehr zur neuen DE-Startseite.
+// redirectToEnglishIfNeeded();
 
 function resolveHeroVariant() {
     const params = new URLSearchParams(window.location.search);
@@ -56,7 +59,10 @@ function setupAnimations() {
 
     document.querySelectorAll('[data-animate="fade-up"]').forEach(el => observer.observe(el));
 
-    const disableParallax = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    const disableParallax = window.matchMedia && (
+        window.matchMedia('(max-width: 768px)').matches ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
     if (disableParallax) return;
 
     const parallaxItems = document.querySelectorAll('.parallax-bg');
@@ -274,6 +280,102 @@ function setupMobileNav() {
             setOpen(false);
         }
     });
+}
+
+function setupNavDropdowns() {
+    const items = document.querySelectorAll('.nav-item[data-dropdown]');
+    if (!items.length) return;
+
+    const closeAll = (except) => {
+        items.forEach((item) => {
+            if (item === except) return;
+            item.classList.remove('is-open');
+            const btn = item.querySelector('.nav-drop-btn');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        });
+    };
+
+    items.forEach((item) => {
+        const btn = item.querySelector('.nav-drop-btn');
+        if (!btn) return;
+
+        const setOpen = (open) => {
+            item.classList.toggle('is-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) closeAll(item);
+        };
+
+        btn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            setOpen(!item.classList.contains('is-open'));
+        });
+
+        // Desktop: Hover öffnet zusätzlich zum Klick (Touch/Keyboard bleibt Klick).
+        item.addEventListener('mouseenter', () => {
+            if (window.matchMedia('(min-width: 769px)').matches) setOpen(true);
+        });
+        item.addEventListener('mouseleave', () => {
+            if (window.matchMedia('(min-width: 769px)').matches) setOpen(false);
+        });
+        item.addEventListener('focusout', (event) => {
+            if (!item.contains(event.relatedTarget)) setOpen(false);
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        if (![...items].some((item) => item.contains(event.target))) closeAll(null);
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeAll(null);
+    });
+}
+
+function setupStickyPill() {
+    const pill = document.querySelector('.sticky-pill');
+    if (!pill) return;
+
+    const textEl = pill.querySelector('.combi-pill-text');
+    const actionEl = pill.querySelector('.combi-pill-action');
+    const defaults = {
+        label: textEl ? textEl.textContent : '',
+        href: actionEl ? actionEl.getAttribute('href') : '#',
+        cta: actionEl ? actionEl.textContent : ''
+    };
+
+    // Sichtbarkeit: erscheint, sobald der Hero (oder ein Sentinel) aus dem Viewport ist.
+    const sentinel = document.querySelector('[data-pill-sentinel]') || document.querySelector('.hero-overlay');
+    if (sentinel && 'IntersectionObserver' in window) {
+        const visObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                pill.classList.toggle('is-visible', !entry.isIntersecting);
+            });
+        }, { threshold: 0.05 });
+        visObserver.observe(sentinel);
+    } else {
+        pill.classList.add('is-visible');
+    }
+
+    // Produktwechsel: Sektionen mit data-pill-label/-href/-cta übernehmen die Pill.
+    const products = document.querySelectorAll('[data-pill-label]');
+    if (!products.length || !('IntersectionObserver' in window)) return;
+
+    const apply = (label, href, cta) => {
+        if (textEl) textEl.textContent = label;
+        if (actionEl && href) actionEl.setAttribute('href', href);
+        if (actionEl && cta) actionEl.textContent = cta;
+    };
+
+    const prodObserver = new IntersectionObserver((entries) => {
+        const active = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (active) {
+            const el = active.target;
+            apply(el.dataset.pillLabel, el.dataset.pillHref || defaults.href, el.dataset.pillCta || defaults.cta);
+        }
+    }, { threshold: [0.4, 0.6] });
+
+    products.forEach((el) => prodObserver.observe(el));
 }
 
 function setupSpecExplorer() {
@@ -4269,6 +4371,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStoryScroll();
     setupNavReveal();
     setupMobileNav();
+    setupNavDropdowns();
+    setupStickyPill();
     setupSpecExplorer();
     setupCtaOverlays();
     setupMailtoForms();
