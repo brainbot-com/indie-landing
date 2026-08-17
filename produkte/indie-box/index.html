@@ -20,14 +20,58 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Indie.box",
-      "description": "Lokaler KI-Server mit 128 GB RAM für quantisierte Großmodelle bis zur 400B-Klasse. AMD Ryzen AI Max 395, 16 Kerne, 2 TB NVMe, NPU mit 50 TOPS.",
-      "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg",
-      "brand": { "@type": "Brand", "name": "Indie.Solutions" },
-      "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
-      "url": "https://indie.solutions/produkte/indie-box/",
-      "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/checkout.html" }
+      "@graph": [
+        {
+          "@type": "Product",
+          "name": "Indie.box",
+          "description": "Lokaler KI-Server mit 128 GB RAM für quantisierte Großmodelle bis zur 400B-Klasse. AMD Ryzen AI Max 395, 16 Kerne, 2 TB NVMe, NPU mit 50 TOPS.",
+          "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg",
+          "brand": { "@type": "Brand", "name": "Indie.Solutions" },
+          "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
+          "url": "https://indie.solutions/produkte/indie-box/",
+          "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/checkout.html" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Was passiert nach den ersten 3 Monaten Indie.care Basis?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Die ersten 3 Monate Indie.care Basis sind im Kaufpreis der Indie.box enthalten. Danach ist Indie.care optional und kostenpflichtig, monatlich kündbar. Ohne Indie.care läuft das System unbegrenzt weiter, es gibt keinen Zwang zum Abo." }
+            },
+            {
+              "@type": "Question",
+              "name": "Läuft die Indie.box auch ohne Internetverbindung?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ja. Die Indie.box arbeitet standardmäßig vollständig ohne externe KI-Dienste, die Modelle laufen lokal und benötigen keine Internetverbindung. Ein Betrieb vollständig ohne Internetanbindung, Air-Gap genannt, ist damit möglich." }
+            },
+            {
+              "@type": "Question",
+              "name": "Wer kann auf die gespeicherten Daten zugreifen?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Inhalte werden ausschließlich lokal verarbeitet, es gibt keine automatische Übertragung an Dritte und keine Telemetrie. Ein Administrator kann wie bei jedem lokalen IT-System technisch auf gespeicherte Inhalte zugreifen, dieser Administrator gehört jedoch zur eigenen Organisation." }
+            },
+            {
+              "@type": "Question",
+              "name": "Können eigene Modelle nachgeladen werden?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Zusätzlich zu den vorinstallierten Modellen lassen sich weitere Modelle über Ollama nachladen. Nachgeladene Modelle sind nicht Teil der vorkonfigurierten Umgebung, sie können aber jederzeit wieder entfernt werden." }
+            },
+            {
+              "@type": "Question",
+              "name": "Was, wenn später mehr Geschwindigkeit gebraucht wird?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation mit fest eingebauter GPU für viele Nutzer im Dauerbetrieb ausgelegt." }
+            },
+            {
+              "@type": "Question",
+              "name": "Braucht es dafür eigene IT?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Der Normalbetrieb läuft über Dashboard und Admin-Interface im Browser, ein tägliches Arbeiten auf Betriebssystem-Ebene ist nicht nötig. Für Netzintegration, Business-Login oder eigene Workflows ist technisches Verständnis hilfreich." }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie kommen die Nutzer an das System?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Chat, Workflows, Dashboard und Administration sind Weboberflächen und per Browser erreichbar, auf Desktop wie auf Mobilgerät. Nutzer werden lokal angelegt und verwaltet, im Business-Kontext lässt sich die Anmeldung optional an bestehende Systeme anbinden (SSO/LDAP)." }
+            }
+          ]
+        }
+      ]
     }
     </script>
 
@@ -108,87 +152,276 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="spezifikation">
         <div class="container">
             <header data-animate="fade-up">
                 <p class="kicker">Spezifikation</p>
                 <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Ausgelegt auf Modellgröße.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    128 GB gemeinsamer High-Speed-Speicher sind die Voraussetzung, um Modelle wie
-                    Llama 4 Maverick (400B MoE) oder GPT-OSS 120B lokal zu betreiben. Das Alltagsmodell
-                    Qwen 3.6 35B-A3B läuft parallel für schnelle Standardaufgaben.
+                    Vier Bereiche bestimmen, was die Indie.box leisten kann: Rechenleistung, Speicher,
+                    der vorinstallierte Software-Stack und die Anbindung ins Netzwerk.
                 </p>
             </header>
-            <div class="grid-2" style="margin-top: 2rem;">
-                <div class="card" data-animate="fade-up">
-                    <h3>Hardware</h3>
-                    <ul class="spec-list">
-                        <li><span>Prozessor</span><strong>AMD Ryzen AI Max 395, 16 Kerne</strong></li>
-                        <li><span>KI-Beschleuniger</span><strong>NPU mit 50 TOPS</strong></li>
-                        <li><span>Arbeitsspeicher</span><strong>128 GB High-Speed RAM</strong></li>
-                        <li><span>Speicher</span><strong>2 TB NVMe SSD</strong></li>
-                    </ul>
-                </div>
-                <div class="card" data-animate="fade-up" data-stagger="1">
-                    <h3>Modell-Lineup</h3>
-                    <ul class="spec-list">
-                        <li><span>Flaggschiff</span><strong>Llama 4 Maverick (400B MoE)</strong></li>
-                        <li><span>Reasoning-Klasse</span><strong>GPT-OSS 120B</strong></li>
-                        <li><span>Alltagsmodell</span><strong>Qwen 3.6 35B-A3B</strong></li>
-                        <li><span>Geschwindigkeit</span><strong>Tokens/s folgen*</strong></li>
-                    </ul>
-                    <p style="font-size: var(--t-small); color: var(--text-light); margin-top: 0.75rem;">
-                        * Platzhalter: Werte werden auf der Zielhardware gemessen und dann veröffentlicht.
-                    </p>
-                </div>
+            <div data-animate="fade-up" data-stagger="1" style="overflow-x: auto; margin-top: 2rem;">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Bereich</th>
+                            <th scope="col">Merkmal</th>
+                            <th scope="col">Angabe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rechenleistung</td>
+                            <td>Prozessor</td>
+                            <td>AMD Ryzen AI Max 395, 16 Kerne</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>KI-Beschleuniger</td>
+                            <td>NPU mit 50 TOPS</td>
+                        </tr>
+                        <tr>
+                            <td>Speicher</td>
+                            <td>Arbeitsspeicher</td>
+                            <td>128 GB High-Speed RAM, gemeinsam genutzt</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Massenspeicher</td>
+                            <td>2 TB NVMe SSD</td>
+                        </tr>
+                        <tr>
+                            <td>Software-Stack</td>
+                            <td>Modell-Lineup</td>
+                            <td>Llama 4 Maverick (400B MoE), GPT-OSS 120B, Qwen 3.6 35B-A3B</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Software-Suite</td>
+                            <td>Indie.chat, Indie.brain, Agent Command Center, Agent Studio</td>
+                        </tr>
+                        <tr>
+                            <td>Anschluss und Betrieb</td>
+                            <td>Netzwerk</td>
+                            <td>Ethernet oder WLAN, Einrichtung per Installationsassistent</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Zugriff</td>
+                            <td>Browser im lokalen Netzwerk, HTTPS</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Nutzerverwaltung</td>
+                            <td>Lokal, optional Business-Login (SSO/LDAP)</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" style="margin-top: 2.5rem;">
+            <p style="color: var(--text-light); max-width: 56ch; margin-top: 1.5rem;" data-animate="fade-up" data-stagger="2">
+                128 GB gemeinsamer High-Speed-Speicher sind die Voraussetzung, damit ein Modell der
+                400B-Klasse quantisiert überhaupt in den Arbeitsspeicher passt. Genau das unterscheidet
+                die Box von einer GPU-Karte mit 32 GB: nicht mehr Tempo, sondern mehr Modell.
+            </p>
+            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" data-stagger="3" style="margin-top: 2.5rem;">
                 Ein 400-Milliarden-Parameter-Modell. Im eigenen Haus.
             </p>
         </div>
     </section>
 
-    <section class="section" style="background-color: var(--bg-light);">
+    <section class="section" id="einsatz" style="background-color: var(--bg-light);">
         <div class="container">
             <header data-animate="fade-up">
-                <p class="kicker">Software-Suite enthalten</p>
-                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Im Kaufpreis. Ohne Nutzergebühren.</h2>
+                <p class="kicker">Was damit möglich ist</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Vier Arbeitssituationen, ein System.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Der komplette Arbeitsalltag ist abgedeckt, ohne Zusatzlizenzen: Indie.chat für Antworten
-                    aus den eigenen Unterlagen, Indie.brain als gemeinsame Wissensbasis, Agent Command Center
-                    und Agent Studio für Aufgaben und Teams. Alle Angebote gelten für die aktuelle
-                    Produktversion zum Kaufzeitpunkt.
+                    Die komplette Software-Suite ist im Kaufpreis enthalten, ohne Nutzergebühren.
+                    Vier Situationen aus dem Arbeitsalltag zeigen, wofür die Rechenleistung genutzt wird.
                 </p>
             </header>
-            <div class="crosslinks" data-animate="fade-up">
+            <div class="grid-3" style="margin-top: 2rem;">
+                <div class="card" data-animate="fade-up" data-stagger="1">
+                    <p class="kicker">Dokumente befragen</p>
+                    <h3>Antworten mit Fundstelle statt Copy-Paste</h3>
+                    <p>Wer eine Frage zu einem Vertrag, einem Protokoll oder einer Spezifikation hat, bekommt über Indie.chat eine Antwort direkt aus den eigenen Unterlagen, mit Verweis auf die Fundstelle.</p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="2">
+                    <p class="kicker">Firmenwissen durchsuchen</p>
+                    <h3>Gefunden statt gesucht</h3>
+                    <p>Indie.brain bündelt Dokumente, Notizen und Wissen der Organisation in einer gemeinsamen Wissensbasis. Statt Ordnerstrukturen zu durchsuchen, wird die Frage direkt gestellt.</p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="3">
+                    <p class="kicker">Aufgaben abgeben</p>
+                    <h3>Agenten übernehmen wiederkehrende Aufgaben</h3>
+                    <p>Über das Agent Command Center lassen sich Aufgaben an Agenten übergeben, die mehrstufig arbeiten. Modelle wie Llama 4 Maverick oder GPT-OSS 120B liefern dafür die nötige Urteilsfähigkeit.</p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="4">
+                    <p class="kicker">Teams trennen</p>
+                    <h3>Geschützte Bereiche je Team</h3>
+                    <p>Agent Studio richtet abgegrenzte Arbeitsbereiche für einzelne Teams ein. Inhalte und Konfigurationen eines Bereichs sind für andere Teams nicht automatisch sichtbar.</p>
+                </div>
+            </div>
+            <div class="crosslinks" data-animate="fade-up" data-stagger="5">
                 <a class="crosslink" href="/software/indie-chat/">Indie.chat<small>Antworten mit Fundstelle</small></a>
                 <a class="crosslink" href="/software/indie-brain/">Indie.brain<small>Firmenwissen, gefunden statt gesucht</small></a>
                 <a class="crosslink" href="/software/agent-command-center/">Agent Command Center<small>Aufgaben erledigen</small></a>
                 <a class="crosslink" href="/software/agent-studio/">Agent Studio<small>Geschützte Team-Bereiche</small></a>
             </div>
-            <div class="hero-actions" data-animate="fade-up" style="margin-top: 2rem;">
+            <div class="hero-actions" data-animate="fade-up" data-stagger="6" style="margin-top: 2rem;">
                 <a href="/chat.html" class="button button--plain-light button--pill button--md">Live-Demo im Browser</a>
             </div>
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="lieferumfang">
         <div class="container">
             <header data-animate="fade-up">
-                <p class="kicker">Upgrade-Pfad</p>
-                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Keine Investition ist verloren.</h2>
+                <p class="kicker">Lieferumfang und Grenzen</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Was drin ist. Und was nicht.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Wächst der Bedarf, wächst das System mit: Der Indie.booster rüstet Geschwindigkeit
-                    nach, ohne dass die Box ersetzt wird. Der Vollausbau aus Box und Booster ist das
-                    einzige Setup, das große Modelle und Geschwindigkeit kann.
+                    Die Indie.box ist ein vollständiges System, kein Baukasten mit Zusatzkosten.
+                    Ebenso wichtig ist, wofür diese Stufe nicht gedacht ist.
+                </p>
+            </header>
+            <div class="grid-2" style="margin-top: 2rem; align-items: start;">
+                <div data-animate="fade-up" data-stagger="1">
+                    <h3>Im Lieferumfang enthalten</h3>
+                    <ul class="spec-checks">
+                        <li>Hardware: AMD Ryzen AI Max 395, 128 GB RAM, 2 TB NVMe SSD, NPU mit 50 TOPS</li>
+                        <li>Vorinstallierter Software-Stack, einsatzbereit</li>
+                        <li>Komplette Software-Suite: Indie.chat, Indie.brain, Agent Command Center, Agent Studio, ohne Nutzergebühren</li>
+                        <li>Setup, Lieferzeit normalerweise 14 Tage</li>
+                        <li>Erste 3 Monate Indie.care Basis</li>
+                        <li>14 Tage Geld-zurück-Garantie</li>
+                    </ul>
+                </div>
+                <div class="honest-box" data-animate="fade-up" data-stagger="2">
+                    <p class="honest-box__title">Was nicht dabei ist</p>
+                    <ul>
+                        <li>Keine gemessenen Tokens/s-Werte. Sie werden auf der Zielhardware gemessen und anschließend veröffentlicht.</li>
+                        <li>Geschwindigkeit ist nicht die Stärke dieser Stufe. Wer kurze Antwortzeiten bei vielen gleichzeitigen Anfragen braucht, ist mit Indie.booster oder Indie.workstation besser bedient.</li>
+                        <li>Indie.care ist nur die ersten 3 Monate enthalten, danach optional und kostenpflichtig.</li>
+                        <li>Indie.router ist ein separates Modul und noch nicht verfügbar.</li>
+                    </ul>
+                    <p class="honest-box__note">Diese Grenzen stehen hier bewusst. Wer eine andere Stufe braucht, findet sie in der Abgrenzung weiter unten.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="betrieb" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Inbetriebnahme und Betrieb</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Auspacken. Anschließen. Loslegen.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Die Indie.box wird im eigenen Netzwerk betrieben und stellt Chat, Workflows,
+                    Agenten und Administration als Weboberflächen bereit.
+                </p>
+            </header>
+            <div class="grid-2" style="margin-top: 2rem; align-items: start;">
+                <div data-animate="fade-up" data-stagger="1">
+                    <h3>Netzwerk und Zugriff</h3>
+                    <p style="color: var(--text-light);">Per Netzwerkkabel angeschlossen ist die Box nach dem Einschalten im lokalen Netz erreichbar. Für WLAN führt ein QR-Code zum Installationsassistenten. Chat, Workflows, Dashboard und Administration sind Weboberflächen und per Browser erreichbar, auf Desktop wie auf Mobilgerät.</p>
+                </div>
+                <div data-animate="fade-up" data-stagger="2">
+                    <h3>Nutzer und Anmeldung</h3>
+                    <p style="color: var(--text-light);">Nutzer werden zunächst lokal angelegt und verwaltet, Rollen und Rechte trennen normale Nutzung von Administration. Im Business-Kontext lässt sich die Anmeldung optional an vorhandene Systeme anbinden (SSO/LDAP).</p>
+                </div>
+                <div data-animate="fade-up" data-stagger="3">
+                    <h3>Getrennte Container je Anwendung</h3>
+                    <p style="color: var(--text-light);">Jede Anwendung läuft in einem eigenen Container und ist unabhängig von den anderen steuerbar, über Dashboard und Admin-Interface. Ein Update oder Neustart einer Anwendung betrifft nicht automatisch die übrigen.</p>
+                </div>
+                <div data-animate="fade-up" data-stagger="4">
+                    <h3>Updates, Backup und Wiederherstellung</h3>
+                    <p style="color: var(--text-light);">Updates werden über das Admin-Interface angestoßen, standardmäßig manuell und auf Wunsch automatisch. Persistente Daten liegen gebündelt in einem zentralen Datenbereich, getrennt nach Anwendung. Wiederherstellung erfolgt über den Installer: Grundsystem installieren, Datenbereich zurückspielen, Anwendungen starten.</p>
+                </div>
+            </div>
+            <p data-animate="fade-up" data-stagger="5" style="margin-top: 2rem;">
+                <a class="text-link" href="/betriebs.html">Betrieb im Detail</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="sicherheit">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Datensicherheit auf dieser Stufe</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Lokal verarbeitet. Nicht mitgelesen.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Die Indie.box ist kein Cloud-Dienst. Inhalte werden ausschließlich lokal
+                    verarbeitet, es gibt keine Telemetrie und keine automatische Übertragung an Dritte.
+                </p>
+            </header>
+            <p data-animate="fade-up" data-stagger="1" style="color: var(--text-light); max-width: 62ch; margin-top: 1.5rem;">
+                Externe KI-Dienste sind standardmäßig deaktiviert und werden nur bewusst und gezielt
+                freigegeben, etwa über MCP oder API. Ein Betrieb vollständig ohne Internetanbindung,
+                Air-Gap genannt, ist damit möglich. Administratorzugriff bleibt technisch möglich, wie
+                bei jedem lokalen IT-System, gehört aber zur eigenen Organisation. Die Kontrolle
+                bleibt intern.
+            </p>
+            <p data-animate="fade-up" data-stagger="2" style="margin-top: 1.5rem;">
+                <a class="text-link" href="/privacy.html">Datensicherheit im Detail</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="abgrenzung" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Abgrenzung</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Wann diese Stufe, wann eine andere.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Die Box ist auf Modellgröße ausgelegt, nicht auf Tempo. Wächst der Bedarf in
+                    eine andere Richtung, wächst das System mit, ohne dass die Investition verloren geht.
                 </p>
             </header>
             <div class="crosslinks" data-animate="fade-up">
-                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: Geschwindigkeit nachrüsten</small></a>
-                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: viele Nutzer im Dauerbetrieb</small></a>
-                <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: 100 bis 1.000+ Nutzer</small></a>
-                <a class="crosslink" href="/care/">Indie.care<small>Der Stack bleibt aktuell, ab 79 €/Monat</small></a>
-                <a class="crosslink" href="/betriebs.html">Betrieb im Detail<small>Inbetriebnahme, Updates, Netzintegration</small></a>
+                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: wenn Geschwindigkeit dazukommen soll, ohne die Box zu ersetzen</small></a>
+                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: wenn viele Nutzer im Dauerbetrieb kurze Antwortzeiten brauchen</small></a>
+                <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: wenn 100 bis über 1.000 Nutzer versorgt werden müssen</small></a>
+                <a class="crosslink" href="/care/">Indie.care<small>Ab 79 €/Monat: wenn der Stack dauerhaft aktuell gehalten werden soll</small></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">FAQ</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Häufige Fragen zur Indie.box.</h2>
+            </header>
+            <div class="faq-list" data-animate="fade-up">
+                <details class="faq-item">
+                    <summary>Was passiert nach den ersten 3 Monaten Indie.care Basis?</summary>
+                    <div class="faq-item__body"><p>Die ersten 3 Monate Indie.care Basis sind im Kaufpreis der Indie.box enthalten. Danach ist Indie.care optional und kostenpflichtig, monatlich kündbar. Ohne Indie.care läuft das System unbegrenzt weiter, es gibt keinen Zwang zum Abo.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Läuft die Indie.box auch ohne Internetverbindung?</summary>
+                    <div class="faq-item__body"><p>Ja. Die Indie.box arbeitet standardmäßig vollständig ohne externe KI-Dienste, die Modelle laufen lokal und benötigen keine Internetverbindung. Ein Betrieb vollständig ohne Internetanbindung, Air-Gap genannt, ist damit möglich.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wer kann auf die gespeicherten Daten zugreifen?</summary>
+                    <div class="faq-item__body"><p>Inhalte werden ausschließlich lokal verarbeitet, es gibt keine automatische Übertragung an Dritte und keine Telemetrie. Ein Administrator kann wie bei jedem lokalen IT-System technisch auf gespeicherte Inhalte zugreifen, dieser Administrator gehört jedoch zur eigenen Organisation.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Können eigene Modelle nachgeladen werden?</summary>
+                    <div class="faq-item__body"><p>Zusätzlich zu den vorinstallierten Modellen lassen sich weitere Modelle über Ollama nachladen. Nachgeladene Modelle sind nicht Teil der vorkonfigurierten Umgebung, sie können aber jederzeit wieder entfernt werden.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Was, wenn später mehr Geschwindigkeit gebraucht wird?</summary>
+                    <div class="faq-item__body"><p>Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation mit fest eingebauter GPU für viele Nutzer im Dauerbetrieb ausgelegt.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Braucht es dafür eigene IT?</summary>
+                    <div class="faq-item__body"><p>Der Normalbetrieb läuft über Dashboard und Admin-Interface im Browser, ein tägliches Arbeiten auf Betriebssystem-Ebene ist nicht nötig. Für Netzintegration, Business-Login oder eigene Workflows ist technisches Verständnis hilfreich.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wie kommen die Nutzer an das System?</summary>
+                    <div class="faq-item__body"><p>Chat, Workflows, Dashboard und Administration sind Weboberflächen und per Browser erreichbar, auf Desktop wie auf Mobilgerät. Nutzer werden lokal angelegt und verwaltet, im Business-Kontext lässt sich die Anmeldung optional an bestehende Systeme anbinden (SSO/LDAP).</p></div>
+                </details>
             </div>
         </div>
     </section>

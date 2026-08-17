@@ -9063,3 +9063,33 @@ div[id].anchor-target {
     font-size: var(--t-body-sm);
     color: var(--text-light);
 }
+
+/* ---------- .text-link: globale Basis ----------
+   Bisher war .text-link nur unter .info-section, .legal-header und
+   .legal-content gestylt; frei stehend (Startseite, Produktseiten) griff
+   nichts. Die Basis erbt die Kontextfarbe und funktioniert dadurch auf
+   hellen wie dunklen Flächen. Spezifität 0,1,0, die bestehenden
+   kontextgebundenen Regeln gewinnen weiterhin. */
+.text-link {
+    display: inline-block;
+    width: fit-content;
+    font-size: var(--t-ui);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: inherit;
+    opacity: 0.82;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.15rem;
+    transition: opacity 0.2s ease;
+}
+
+.text-link:hover {
+    opacity: 1;
+}
+
+.text-link:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
+    border-radius: 4px;
+    opacity: 1;
+}

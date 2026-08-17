@@ -20,14 +20,71 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Indie.workstation",
-      "description": "Lokales KI-System für viele Nutzer im Dauerbetrieb: RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmtes Gehäuse, 24/7-tauglich, ausbaufähig um eine zweite GPU oder 2 × 2 TB Speicher.",
-      "image": "https://indie.solutions/assets/indie-solutions/products/indie-workstation_web.jpg",
-      "brand": { "@type": "Brand", "name": "Indie.Solutions" },
-      "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
-      "url": "https://indie.solutions/produkte/indie-workstation/",
-      "offers": { "@type": "Offer", "price": "12000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-workstation/" }
+      "@graph": [
+        {
+          "@type": "Product",
+          "name": "Indie.workstation",
+          "description": "Lokales KI-System für viele Nutzer im Dauerbetrieb: RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmtes Gehäuse, 24/7-tauglich, ausbaufähig um eine zweite GPU oder 2 × 2 TB Speicher.",
+          "image": "https://indie.solutions/assets/indie-solutions/products/indie-workstation_web.jpg",
+          "brand": { "@type": "Brand", "name": "Indie.Solutions" },
+          "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
+          "url": "https://indie.solutions/produkte/indie-workstation/",
+          "offers": { "@type": "Offer", "price": "12000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-workstation/" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Warum hat die Indie.workstation weniger Arbeitsspeicher als die Indie.box?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Die Indie.box ist mit 128 GB RAM auf maximale Modellgröße ausgelegt, bis zur 400B-Klasse. Die Indie.workstation setzt mit 64 GB RAM und einer fest eingebauten RTX 5090 auf Tempo: kurze Antwortzeiten auch bei mehreren gleichzeitigen Anfragen. Zwei unterschiedliche Optimierungsziele, keine Rangfolge."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Kann ich den Indie.booster an der Workstation betreiben?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Nein. Der Indie.booster läuft ausschließlich an der Indie.box und ist mit der Indie.workstation nicht kombinierbar."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie laut ist die Workstation im Büroeinsatz?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Das Gehäuse ist schallgedämmt für den Einsatz im Büro ausgelegt. Konkrete Werte in Dezibel liegen noch nicht vor: Sie werden auf der Zielhardware gemessen und dann hier veröffentlicht."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Läuft die Workstation wirklich rund um die Uhr?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ja. Die Workstation ist 24/7-tauglich ausgelegt, für den Dauerbetrieb mit vielen Nutzern."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Was kostet der Ausbau mit zweiter GPU oder zusätzlichem Speicher?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Die Workstation ist ausbaufähig um eine zweite GPU oder 2 × 2 TB Speicher. Der Ausbau selbst ist nicht im Kaufpreis von 12.000 € enthalten. Umfang und Kosten klären wir im Gespräch."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Für wie viele Nutzer reicht die Workstation?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Das hängt weniger von der reinen Nutzerzahl ab als von der Zahl gleichzeitiger Anfragen. Die Workstation ist für viele Nutzer im Dauerbetrieb ausgelegt. Die passende Dimensionierung für die eigene Organisation klären wir im Gespräch."
+              }
+            }
+          ]
+        }
+      ]
     }
     </script>
 
@@ -108,63 +165,293 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="spezifikation">
         <div class="container">
             <header data-animate="fade-up">
                 <p class="kicker">Spezifikation</p>
                 <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Ausgelegt auf Dauerbetrieb.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
                     Wer viele Nutzer gleichzeitig bedient, braucht ein System, das durchläuft:
-                    schallgedämmt fürs Büro, 24/7-tauglich für den Serverschrank. Die RTX 5090
-                    ist fest eingebaut, 64 GB RAM halten die Modelle und die parallelen Anfragen.
+                    schallgedämmt fürs Büro, 24/7-tauglich für den Serverschrank. Die folgende
+                    Übersicht zeigt, was in Rechenleistung, Speicher, Software-Stack sowie
+                    Anschluss und Betrieb enthalten ist.
                 </p>
             </header>
-            <div class="grid-2" style="margin-top: 2rem;">
-                <div class="card" data-animate="fade-up">
-                    <h3>Hardware</h3>
-                    <ul class="spec-list">
-                        <li><span>GPU</span><strong>RTX 5090, fest eingebaut</strong></li>
-                        <li><span>Arbeitsspeicher</span><strong>64 GB RAM</strong></li>
-                        <li><span>Gehäuse</span><strong>Schallgedämmt</strong></li>
-                        <li><span>Betrieb</span><strong>24/7-tauglich</strong></li>
-                    </ul>
-                </div>
-                <div class="card" data-animate="fade-up" data-stagger="1">
-                    <h3>Ausbau und Leistung</h3>
-                    <ul class="spec-list">
-                        <li><span>Ausbaustufe 1</span><strong>Zweite GPU nachrüstbar</strong></li>
-                        <li><span>Ausbaustufe 2</span><strong>2 × 2 TB Speicher</strong></li>
-                        <li><span>Nutzer</span><strong>Viele Nutzer im Dauerbetrieb</strong></li>
-                        <li><span>Geschwindigkeit</span><strong>Tokens/s folgen*</strong></li>
-                    </ul>
-                    <p style="font-size: var(--t-small); color: var(--text-light); margin-top: 0.75rem;">
-                        * Platzhalter: Werte werden auf der Zielhardware gemessen und dann veröffentlicht.
-                    </p>
-                </div>
+            <div style="overflow-x: auto; margin-top: 2rem;" data-animate="fade-up" data-stagger="1">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Bereich</th>
+                            <th>Merkmal</th>
+                            <th>Wert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rechenleistung</td>
+                            <td>GPU</td>
+                            <td>RTX 5090, fest eingebaut</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Ausbaustufe</td>
+                            <td>Zweite GPU nachrüstbar, nicht im Kaufpreis enthalten</td>
+                        </tr>
+                        <tr>
+                            <td>Speicher</td>
+                            <td>Arbeitsspeicher</td>
+                            <td>64 GB RAM</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Ausbaustufe</td>
+                            <td>2 × 2 TB Speicher nachrüstbar, nicht im Kaufpreis enthalten</td>
+                        </tr>
+                        <tr>
+                            <td>Software-Stack</td>
+                            <td>Software-Suite</td>
+                            <td>Indie.chat, Indie.brain, Agent Command Center, Agent Studio, im Kaufpreis enthalten</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Pflege</td>
+                            <td>Erste 3 Monate Indie.care Basis enthalten</td>
+                        </tr>
+                        <tr>
+                            <td>Anschluss und Betrieb</td>
+                            <td>Gehäuse</td>
+                            <td>Schallgedämmt</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Laufzeit</td>
+                            <td>24/7-tauglich</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Zugriff</td>
+                            <td>Browser im lokalen Netz</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Auslegung</td>
+                            <td>Viele Nutzer im Dauerbetrieb</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" style="margin-top: 2.5rem;">
-                Ein Gerät. Ein Preis. Keine Nutzergebühren.
+            <p style="color: var(--text-light); max-width: 56ch; margin-top: 1.5rem;" data-animate="fade-up" data-stagger="2">
+                Die fest eingebaute GPU liefert kurze Antwortzeiten auch bei mehreren
+                gleichzeitigen Anfragen. Die 64 GB Systemspeicher sind bewusst kleiner als
+                bei der Indie.box: Diese Stufe optimiert Tempo, nicht maximale Modellgröße.
+            </p>
+            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" data-stagger="3" style="margin-top: 2.5rem;">
+                Eine GPU, fest eingebaut. Ausgelegt auf viele, nicht auf eine Anfrage.
             </p>
         </div>
     </section>
 
-    <section class="section" style="background-color: var(--bg-light);">
+    <section class="section" id="einsatz" style="background-color: var(--bg-light);">
         <div class="container">
             <header data-animate="fade-up">
-                <p class="kicker">Verwandte Produkte</p>
-                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Die passende Stufe für jeden Bedarf.</h2>
+                <p class="kicker">Was damit möglich ist</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Ein System. Mehrere Teams gleichzeitig.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Die Software-Suite ist auf jeder Hardware im Kaufpreis enthalten, ohne
-                    Nutzergebühren. Wer maximale Modellgröße statt Nutzerzahl braucht, findet sie
-                    im Vollausbau aus Indie.box und Indie.booster für 13.500 €. Alle Angebote
-                    gelten für die aktuelle Produktversion zum Kaufzeitpunkt.
+                    Die Software-Suite ist im Kaufpreis enthalten, ohne Nutzergebühren.
+                    Die feste GPU macht sich vor allem dann bemerkbar, wenn mehrere
+                    Nutzer parallel arbeiten.
                 </p>
             </header>
-            <div class="crosslinks" data-animate="fade-up">
-                <a class="crosslink" href="/produkte/indie-box/">Indie.box<small>5.500 €: Großmodelle im eigenen Haus</small></a>
-                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: Geschwindigkeit nachrüsten</small></a>
-                <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: 100 bis 1.000+ Nutzer</small></a>
-                <a class="crosslink" href="/care/">Indie.care<small>Der Stack bleibt aktuell, ab 79 €/Monat</small></a>
+            <div class="grid-3" style="margin-top: 2rem;">
+                <div class="card" data-animate="fade-up">
+                    <p class="kicker">Paralleler Betrieb</p>
+                    <h3>Mehrere Anfragen gleichzeitig beantworten</h3>
+                    <p style="color: var(--text-light);">
+                        Ein Team stellt gleichzeitig Fragen an Indie.chat, jede Antwort mit
+                        Fundstelle aus den eigenen Unterlagen. Die fest eingebaute RTX 5090
+                        hält die Antwortzeiten kurz, auch wenn mehrere Anfragen parallel laufen.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="1">
+                    <p class="kicker">Wissensbasis</p>
+                    <h3>Firmenwissen durchsuchen</h3>
+                    <p style="color: var(--text-light);">
+                        Indie.brain macht das gesammelte Wissen der Organisation durchsuchbar,
+                        für Menschen und Agenten. Im Dauerbetrieb bleibt diese Wissensbasis
+                        für viele Nutzer gleichzeitig erreichbar.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="2">
+                    <p class="kicker">Automatisierung</p>
+                    <h3>Aufgaben von Agenten erledigen lassen</h3>
+                    <p style="color: var(--text-light);">
+                        Über das Agent Command Center übernehmen Agenten wiederkehrende
+                        Aufgaben und liefern fertige Ergebnisse. Die Workstation bleibt
+                        reaktionsfähig, auch wenn mehrere Agenten gleichzeitig aktiv sind.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="3">
+                    <p class="kicker">Zugriff und Rollen</p>
+                    <h3>Team-Bereiche trennen</h3>
+                    <p style="color: var(--text-light);">
+                        Agent Studio trennt Bereiche und Rechte zwischen Teams. Gerade wenn
+                        viele Nutzer gleichzeitig auf einer Maschine arbeiten, hält das
+                        Zugänge und Ergebnisse sauber getrennt.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="lieferumfang">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Lieferumfang und Grenzen</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Ehrlich, was drin ist. Und was nicht.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Der Kaufpreis deckt Hardware, Stack und die ersten drei Monate Pflege ab.
+                    Was darüber hinausgeht, steht hier genauso klar wie das, was enthalten ist.
+                </p>
+            </header>
+            <div class="grid-2" style="margin-top: 2rem; align-items: start;">
+                <div data-animate="fade-up">
+                    <h3>Im Lieferumfang enthalten</h3>
+                    <ul class="spec-checks">
+                        <li>Indie.workstation: RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmtes, 24/7-taugliches Gehäuse</li>
+                        <li>Vorinstallierter Software-Stack</li>
+                        <li>Vollständige Software-Suite: Indie.chat, Indie.brain, Agent Command Center, Agent Studio, ohne Nutzergebühren</li>
+                        <li>Erste 3 Monate Indie.care Basis</li>
+                        <li>Setup bei der Inbetriebnahme, Lieferzeit normalerweise 14 Tage</li>
+                    </ul>
+                </div>
+                <div class="honest-box" data-animate="fade-up" data-stagger="1">
+                    <p class="honest-box__title">Was nicht dabei ist</p>
+                    <ul>
+                        <li>Keine Modelle der 400B-Klasse wie bei der Indie.box: 64 GB Arbeitsspeicher sind kleiner dimensioniert als die 128 GB der Box.</li>
+                        <li>Keine gemessenen Benchmark-Werte. Sie werden auf der Zielhardware gemessen und dann hier veröffentlicht.</li>
+                        <li>Der Indie.booster läuft ausschließlich an der Indie.box, nicht an der Workstation.</li>
+                        <li>Ausbau mit zweiter GPU oder zusätzlichem Speicher ist nicht im Kaufpreis von 12.000 € enthalten.</li>
+                    </ul>
+                    <p class="honest-box__note">Wer in erster Linie Modellgröße statt Tempo braucht, ist mit der Indie.box besser bedient.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="betrieb" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Inbetriebnahme und Betrieb</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Auspacken. Anschließen. Loslegen.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Nach dem Anschließen ist die Workstation im lokalen Netz erreichbar. Chat,
+                    Workflows, Dashboard und Administration laufen als Weboberflächen im
+                    Browser, auf Desktop und Mobilgerät.
+                </p>
+            </header>
+            <ul class="spec-checks" style="margin-top: 1.5rem; max-width: 64ch;" data-animate="fade-up" data-stagger="1">
+                <li>Jede Anwendung läuft in einem eigenen Container und ist unabhängig verwaltbar.</li>
+                <li>Nutzerverwaltung lokal, optional per Business-Login an vorhandene Systeme angebunden (SSO/LDAP).</li>
+                <li>Updates werden über das Admin-Interface angestoßen, planbar und auf Wunsch automatisch.</li>
+                <li>Daten liegen getrennt nach Anwendung in einem zentralen Datenbereich, mit Backup und Wiederherstellung.</li>
+                <li>Netzintegration und HTTPS über die Konfigurationsoberfläche der Workstation.</li>
+            </ul>
+            <p style="color: var(--text-light); max-width: 56ch; margin-top: 1.5rem;" data-animate="fade-up" data-stagger="2">
+                So bleibt der Normalbetrieb bei Weboberflächen: für viele Nutzer im
+                Dauerbetrieb ausgelegt, ohne tägliche Arbeit auf Betriebssystem-Ebene.
+            </p>
+            <p data-animate="fade-up" data-stagger="3" style="margin-top: 1rem;">
+                <a class="text-link" href="/betriebs.html">Betrieb im Detail →</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="sicherheit">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Datensicherheit auf dieser Stufe</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Lokal verarbeitet. Nicht beobachtet.</h2>
+                <p style="color: var(--text-light); max-width: 60ch;">
+                    Anfragen, Dokumente und Antworten werden ausschließlich lokal auf der
+                    Workstation verarbeitet, es gibt keine Telemetrie und keine
+                    Nutzungsprofile. Externe Dienste sind standardmäßig deaktiviert und
+                    werden nur bewusst freigegeben, etwa für Websuche oder zusätzliche
+                    Werkzeuge über MCP. Air-Gap-Betrieb ohne Internetverbindung ist möglich.
+                    Administratorzugriff auf die Inhalte bleibt bei der eigenen Organisation,
+                    nicht bei uns.
+                </p>
+            </header>
+            <p data-animate="fade-up" data-stagger="1" style="margin-top: 1rem;">
+                <a class="text-link" href="/privacy.html">Datensicherheit im Detail →</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="abgrenzung" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Abgrenzung</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Wann diese Stufe passt. Und wann eine andere.</h2>
+                <p style="color: var(--text-light); max-width: 60ch;">
+                    Die Workstation optimiert Tempo für viele gleichzeitige Nutzer, nicht
+                    maximale Modellgröße. Wer in erster Linie ein sehr großes Modell braucht,
+                    ist mit der 128 GB großen Indie.box besser bedient. Wer zusätzlich zur
+                    Box noch Tempo braucht, rüstet den Indie.booster an der Box nach, nicht
+                    an dieser Workstation: Der Booster läuft ausschließlich an der Box.
+                </p>
+            </header>
+            <div class="crosslinks" data-animate="fade-up" data-stagger="1">
+                <a class="crosslink" href="/produkte/indie-box/">Indie.box<small>5.500 €: Modellgröße wichtiger als Tempo, bis zur 400B-Klasse</small></a>
+                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 € an der Box: Geschwindigkeit nachrüsten, läuft nicht an der Workstation</small></a>
+                <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: 100 bis 1.000+ Nutzer, Verwaltung und Konzerne</small></a>
+                <a class="crosslink" href="/care/">Indie.care<small>Ab 79 €/Monat: Stack bleibt aktuell, nach den ersten 3 Monaten Basis</small></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Häufige Fragen</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Fragen zur Indie.workstation.</h2>
+            </header>
+            <div class="faq-list" data-animate="fade-up" data-stagger="1">
+                <details class="faq-item">
+                    <summary>Warum hat die Indie.workstation weniger Arbeitsspeicher als die Indie.box?</summary>
+                    <div class="faq-item__body">
+                        <p>Die Indie.box ist mit 128 GB RAM auf maximale Modellgröße ausgelegt, bis zur 400B-Klasse. Die Indie.workstation setzt mit 64 GB RAM und einer fest eingebauten RTX 5090 auf Tempo: kurze Antwortzeiten auch bei mehreren gleichzeitigen Anfragen. Zwei unterschiedliche Optimierungsziele, keine Rangfolge.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>Kann ich den Indie.booster an der Workstation betreiben?</summary>
+                    <div class="faq-item__body">
+                        <p>Nein. Der Indie.booster läuft ausschließlich an der Indie.box und ist mit der Indie.workstation nicht kombinierbar.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wie laut ist die Workstation im Büroeinsatz?</summary>
+                    <div class="faq-item__body">
+                        <p>Das Gehäuse ist schallgedämmt für den Einsatz im Büro ausgelegt. Konkrete Werte in Dezibel liegen noch nicht vor: Sie werden auf der Zielhardware gemessen und dann hier veröffentlicht.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>Läuft die Workstation wirklich rund um die Uhr?</summary>
+                    <div class="faq-item__body">
+                        <p>Ja. Die Workstation ist 24/7-tauglich ausgelegt, für den Dauerbetrieb mit vielen Nutzern.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>Was kostet der Ausbau mit zweiter GPU oder zusätzlichem Speicher?</summary>
+                    <div class="faq-item__body">
+                        <p>Die Workstation ist ausbaufähig um eine zweite GPU oder 2 × 2 TB Speicher. Der Ausbau selbst ist nicht im Kaufpreis von 12.000 € enthalten. Umfang und Kosten klären wir im Gespräch.</p>
+                    </div>
+                </details>
+                <details class="faq-item">
+                    <summary>Für wie viele Nutzer reicht die Workstation?</summary>
+                    <div class="faq-item__body">
+                        <p>Das hängt weniger von der reinen Nutzerzahl ab als von der Zahl gleichzeitiger Anfragen. Die Workstation ist für viele Nutzer im Dauerbetrieb ausgelegt. Die passende Dimensionierung für die eigene Organisation klären wir im Gespräch.</p>
+                    </div>
+                </details>
             </div>
         </div>
     </section>

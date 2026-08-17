@@ -20,13 +20,52 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Indie.rack",
-      "description": "Dedizierte 19-Zoll-Server für Verwaltung, öffentliche Hand und Konzerne: KI-Infrastruktur für 100 bis über 1.000 Nutzer im eigenen Rechenzentrum.",
-      "image": "https://indie.solutions/assets/indie-solutions/products/indie-rack_web.jpg",
-      "brand": { "@type": "Brand", "name": "Indie.Solutions" },
-      "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
-      "url": "https://indie.solutions/produkte/indie-rack/"
+      "@graph": [
+        {
+          "@type": "Product",
+          "name": "Indie.rack",
+          "description": "Dedizierte 19-Zoll-Server für Verwaltung, öffentliche Hand und Konzerne: KI-Infrastruktur für 100 bis über 1.000 Nutzer im eigenen Rechenzentrum.",
+          "image": "https://indie.solutions/assets/indie-solutions/products/indie-rack_web.jpg",
+          "brand": { "@type": "Brand", "name": "Indie.Solutions" },
+          "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
+          "url": "https://indie.solutions/produkte/indie-rack/"
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Wie läuft eine Beschaffung über ein Systemhaus?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Systemhaus ist im Anfrageformular als Beschaffungsweg auswählbar. Die Anfrage geht in dem Fall genauso an uns, die Abwicklung erfolgt dann über das jeweilige Systemhaus." }
+            },
+            {
+              "@type": "Question",
+              "name": "Können wir das Indie.rack ausschreiben?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ja. Ausschreibung ist als eigener Beschaffungsweg im Anfrageformular vorgesehen und wird entsprechend bearbeitet." }
+            },
+            {
+              "@type": "Question",
+              "name": "Ist Air-Gap-Betrieb möglich?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ja, Air-Gap-Betrieb ist möglich. Er ist nicht automatisch im Lieferumfang enthalten, sondern wird als Einzelvertrag vereinbart." }
+            },
+            {
+              "@type": "Question",
+              "name": "Wer betreibt die Hardware im Alltag?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Die Server laufen im eigenen Netz der Organisation. Betrieb und Administration erfolgen über Dashboard und Admin-Interface, Nutzerverwaltung lokal oder per Business-Login." }
+            },
+            {
+              "@type": "Question",
+              "name": "Was passiert, wenn die Organisation wächst?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Das Indie.rack ist auf einen Bereich von 100 bis über 1.000 Nutzer ausgelegt. Wächst der Bedarf über die ursprüngliche Konfiguration hinaus, wird das im Gespräch mit dem bestehenden Ansprechpartner besprochen." }
+            },
+            {
+              "@type": "Question",
+              "name": "Bekommen wir Unterlagen für die Vergabeakte?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Welche Unterlagen für die Vergabeakte benötigt werden, klären wir im Gespräch. Eine feste Liste an Standardunterlagen ist derzeit noch in Klärung." }
+            }
+          ]
+        }
+      ]
     }
     </script>
 
@@ -107,63 +146,254 @@
         </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="spezifikation">
         <div class="container">
             <header data-animate="fade-up">
-                <p class="kicker">Fakten</p>
-                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Ausgelegt auf Organisationen.</h2>
+                <p class="kicker">Spezifikation</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Dimensioniert für die Organisation, nicht ab Lager.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Verwaltung, öffentliche Hand und Konzerne haben eigene Anforderungen an
-                    Betrieb, Sicherheit und Beschaffung. Das Indie.rack wird dafür als dedizierte
-                    19-Zoll-Server-Infrastruktur geplant und geliefert. SLA, Air-Gap-Pakete und
-                    Vor-Ort-Konzepte sind Einzelvertrag.
+                    Verwaltung, öffentliche Hand und Konzerne unterscheiden sich stark in Größe,
+                    Netzanbindung und Sicherheitsvorgaben. Deshalb gibt es beim Indie.rack keine
+                    Standardkonfiguration von der Stange, sondern eine Auslegung, die für jede
+                    Organisation eigens entsteht.
                 </p>
             </header>
-            <div class="grid-2" style="margin-top: 2rem;">
-                <div class="card" data-animate="fade-up">
-                    <h3>Infrastruktur</h3>
-                    <ul class="spec-list">
-                        <li><span>Bauform</span><strong>Dedizierte 19-Zoll-Server</strong></li>
-                        <li><span>Nutzer</span><strong>100 bis über 1.000</strong></li>
-                        <li><span>Zielgruppen</span><strong>Verwaltung, öffentliche Hand, Konzerne</strong></li>
-                        <li><span>Preis</span><strong>Auf Anfrage</strong></li>
-                    </ul>
-                </div>
-                <div class="card" data-animate="fade-up" data-stagger="1">
-                    <h3>Software und Betrieb</h3>
-                    <ul class="spec-list">
-                        <li><span>Software-Suite</span><strong>Im Kaufpreis enthalten</strong></li>
-                        <li><span>Nutzergebühren</span><strong>Keine</strong></li>
-                        <li><span>Ohne Indie.care</span><strong>System läuft unbegrenzt weiter</strong></li>
-                        <li><span>SLA, Air-Gap, Vor-Ort</span><strong>Einzelvertrag</strong></li>
-                    </ul>
-                    <p style="font-size: var(--t-small); color: var(--text-light); margin-top: 0.75rem;">
-                        Alle Angebote gelten für die aktuelle Produktversion zum Kaufzeitpunkt.
-                    </p>
-                </div>
+            <div style="overflow-x: auto; margin-top: 2rem;" data-animate="fade-up" data-stagger="1">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Was dimensioniert wird</th>
+                            <th>Wie es für die Organisation festgelegt wird</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Rechenleistung</td>
+                            <td>Richtet sich nach Nutzerzahl und gleichzeitiger Arbeitslast, für 100 bis über 1.000 Nutzer.</td>
+                        </tr>
+                        <tr>
+                            <td>Speicher</td>
+                            <td>Kapazität und Ablagestruktur werden nach Datenvolumen und Aufbewahrungspflichten geplant.</td>
+                        </tr>
+                        <tr>
+                            <td>Nutzerzahl</td>
+                            <td>Von 100 bis über 1.000 Nutzern, die Server-Konfiguration skaliert mit dieser Zahl.</td>
+                        </tr>
+                        <tr>
+                            <td>Netzanbindung</td>
+                            <td>Einbindung in das bestehende Netz der Organisation, abgestimmt auf deren Sicherheitsvorgaben.</td>
+                        </tr>
+                        <tr>
+                            <td>Redundanz</td>
+                            <td>Ausfallsicherheit wird nach Kritikalität des Einsatzes geplant, bis zu Vor-Ort-Konzepten als Einzelvertrag.</td>
+                        </tr>
+                        <tr>
+                            <td>Formfaktor, Energie, Kühlung</td>
+                            <td>Höheneinheiten, Leistungsaufnahme und Kühlung sind Teil des Angebots, das nach der Anfrage erstellt wird.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" style="margin-top: 2.5rem;">
-                Über 1.000 Nutzer. Keine Daten außer Haus.
+            <p style="color: var(--text-light); max-width: 56ch; margin-top: 1.5rem;" data-animate="fade-up" data-stagger="2">
+                Die Spanne von 100 bis über 1.000 Nutzern ist bewusst weit: Eine Kommunalverwaltung
+                braucht eine andere Auslegung als ein Konzern mit mehreren Standorten. Genau deshalb
+                steht am Anfang eine Anfrage und keine Bestellung aus einem Katalog.
             </p>
         </div>
     </section>
 
-    <section class="section" style="background-color: var(--bg-light);">
+    <section class="section" id="einsatz" style="background-color: var(--bg-light);">
         <div class="container">
             <header data-animate="fade-up">
-                <p class="kicker">Verwandte Produkte</p>
-                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Klein anfangen ist erlaubt.</h2>
+                <p class="kicker">Im Alltag</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Was mit der ganzen Organisation möglich wird.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Ein Pilot mit einzelnen Teams lässt sich mit kleineren Stufen starten, bevor
-                    die eigene Infrastruktur kommt. Die Software-Suite ist auf jeder Hardware im
-                    Kaufpreis enthalten, ohne Nutzergebühren.
+                    Die komplette Software-Suite ist im Angebot enthalten und läuft auf der
+                    Rack-Hardware für alle vorgesehenen Nutzer, ohne separate Lizenzgebühren pro Kopf.
+                </p>
+            </header>
+            <div class="grid-3" style="margin-top: 2rem;">
+                <div class="card" data-animate="fade-up">
+                    <p class="kicker">Wissensarbeit</p>
+                    <h3>Fragen zu Vorschriften und Verträgen klären.</h3>
+                    <p style="color: var(--text-light);">
+                        Fachwissen aus Vorschriften, Verträgen und Protokollen liegt in Verwaltung
+                        und Konzernen oft verteilt über viele Abteilungen. Indie.chat beantwortet
+                        Fragen dazu direkt aus den eigenen Dokumenten, mit Verweis auf die Fundstelle.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="1">
+                    <p class="kicker">Firmenwissen</p>
+                    <h3>Wissen mehrerer Abteilungen zusammenführen.</h3>
+                    <p style="color: var(--text-light);">
+                        Statt in einzelnen Laufwerken und Postfächern verstreut, wird Firmenwissen
+                        über Indie.brain durchsuchbar. Für die gesamte Nutzerzahl, für die das Rack
+                        ausgelegt ist.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="2">
+                    <p class="kicker">Automatisierung</p>
+                    <h3>Wiederkehrende Aufgaben an Agenten übergeben.</h3>
+                    <p style="color: var(--text-light);">
+                        Agent Command Center übernimmt definierte Aufgaben eigenständig, von
+                        Dateneingabe bis Auswertung, im eigenen Netz und ohne dass Daten es verlassen.
+                    </p>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="3">
+                    <p class="kicker">Struktur</p>
+                    <h3>Abteilungen und Ämter sauber trennen.</h3>
+                    <p style="color: var(--text-light);">
+                        Agent Studio richtet geschützte Bereiche ein. Große Organisationen mit
+                        vielen Teams oder Ämtern betreiben so getrennte Arbeitsbereiche auf
+                        derselben Infrastruktur.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="lieferumfang">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Lieferumfang</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Was im Angebot steckt, und was nicht.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Jedes Angebot wird für die anfragende Organisation zusammengestellt. Enthalten
+                    ist immer die komplette Software-Suite, ohne Nutzergebühren.
+                </p>
+            </header>
+            <div class="grid-2" style="margin-top: 2rem;">
+                <div data-animate="fade-up">
+                    <h3 style="margin-bottom: 0.75rem;">Im Angebot enthalten</h3>
+                    <ul class="spec-checks">
+                        <li>Dedizierte 19-Zoll-Server-Hardware, dimensioniert für die anfragende Organisation</li>
+                        <li>Vollständige Software-Suite: Indie.chat, Indie.brain, Agent Command Center, Agent Studio</li>
+                        <li>Keine Nutzergebühren, unabhängig von der Größe der Organisation</li>
+                        <li>Abstimmung von Rechenleistung, Speicher, Netzanbindung und Redundanz vor der Lieferung</li>
+                        <li>Individuelles Angebot passend zum gewählten Beschaffungsweg</li>
+                    </ul>
+                </div>
+                <div class="honest-box" data-animate="fade-up" data-stagger="1">
+                    <p class="honest-box__title">Was nicht dabei ist</p>
+                    <ul>
+                        <li>Kein Listenpreis und keine Standardkonfiguration: Jede Lieferung wird für die Organisation geplant.</li>
+                        <li>SLA-Vereinbarungen und Air-Gap-Pakete sind nicht automatisch enthalten, ebenso Vor-Ort-Konzepte. Alle drei sind Einzelvertrag.</li>
+                        <li>Keine Selbstbedienung über einen Checkout: Die Beschaffung läuft über Anfrage, Systemhaus oder Ausschreibung.</li>
+                    </ul>
+                    <p class="honest-box__note">Diese Grenzen stehen hier bewusst, damit das Angebot am Ende zur Anfrage passt.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="betrieb" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Inbetriebnahme und Betrieb</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Eingebunden in das bestehende Netz.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Die Server werden an Strom und Datennetz der Organisation angeschlossen, danach
+                    folgen Netzintegration, Nutzerverwaltung und die ersten Anwendungen.
+                </p>
+            </header>
+            <div class="grid-2" style="margin-top: 2rem;">
+                <div class="card" data-animate="fade-up">
+                    <h3>Zugriff und Nutzerverwaltung</h3>
+                    <ul class="feature-points">
+                        <li>Chat, Workflows, Dashboard und Administration als Weboberflächen, erreichbar per Browser im lokalen Netz</li>
+                        <li>Zugriff von außerhalb wird bewusst freigeschaltet, etwa per VPN, statt die Server offen ins Internet zu stellen</li>
+                        <li>Start mit lokaler Nutzerverwaltung möglich, Anbindung an bestehende Systeme per Business-Login (SSO/LDAP) optional ergänzbar</li>
+                    </ul>
+                </div>
+                <div class="card" data-animate="fade-up" data-stagger="1">
+                    <h3>Alltag und Wartung</h3>
+                    <ul class="feature-points">
+                        <li>Jede Anwendung läuft in einem eigenen Container, unabhängig verwaltbar und aktualisierbar</li>
+                        <li>Updates werden über das Admin-Interface angestoßen, planbar und auf Wunsch automatisch</li>
+                        <li>Daten liegen in einem zentralen, nach Anwendungen getrennten Datenbereich, als Grundlage für Backup und Wiederherstellung</li>
+                    </ul>
+                </div>
+            </div>
+            <p style="margin-top: 2rem;" data-animate="fade-up" data-stagger="2">
+                <a href="/betriebs.html" class="text-link">Betrieb im Detail</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="sicherheit">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Datensicherheit</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Dedizierte Hardware, keine geteilte Infrastruktur.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Jede Organisation erhält eigene, dedizierte Server. Es gibt keine gemeinsam
+                    genutzte Infrastruktur mit anderen Kunden.
+                </p>
+            </header>
+            <p style="color: var(--text-light); max-width: 62ch; margin-top: 1.25rem;" data-animate="fade-up" data-stagger="1">
+                Verarbeitung findet lokal statt, es gibt keine Telemetrie an Dritte, und externe
+                Dienste sind standardmäßig deaktiviert und werden nur bewusst freigegeben. Für
+                Verwaltung, öffentliche Hand und Konzerne mit entsprechenden Anforderungen ist
+                Air-Gap-Betrieb, vollständig getrennt vom Internet, als Einzelvertrag möglich.
+                Administratorzugriff bleibt bei der eigenen Organisation.
+            </p>
+            <p style="margin-top: 1.5rem;" data-animate="fade-up" data-stagger="2">
+                <a href="/privacy.html" class="text-link">Datensicherheit im Detail</a>
+            </p>
+        </div>
+    </section>
+
+    <section class="section" id="abgrenzung" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Abgrenzung</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Nicht jede Organisation braucht ein Rack.</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Unterhalb von rund 100 Nutzern oder für einzelne Abteilungen ist eine kleinere
+                    Stufe meist die passendere Wahl. Das Indie.rack lohnt sich, wenn eine ganze
+                    Organisation im dreistelligen oder vierstelligen Nutzerbereich mit KI arbeitet.
                 </p>
             </header>
             <div class="crosslinks" data-animate="fade-up">
-                <a class="crosslink" href="/produkte/indie-box/">Indie.box<small>5.500 €: Großmodelle im eigenen Haus</small></a>
-                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: Geschwindigkeit nachrüsten</small></a>
-                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: viele Nutzer im Dauerbetrieb</small></a>
-                <a class="crosslink" href="/care/">Indie.care<small>Der Stack bleibt aktuell, ab 79 €/Monat</small></a>
+                <a class="crosslink" href="/produkte/indie-box/">Indie.box<small>5.500 €: einzelne Teams starten mit Großmodellen im eigenen Haus</small></a>
+                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: Geschwindigkeit für eine bestehende Box nachrüsten</small></a>
+                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: viele Nutzer im Dauerbetrieb, unterhalb der Rack-Größenordnung</small></a>
+                <a class="crosslink" href="/care/">Indie.care<small>Laufender Support, ergänzt jede Hardware-Stufe</small></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="faq">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Häufige Fragen</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Fragen zu Beschaffung und Betrieb.</h2>
+            </header>
+            <div class="faq-list" data-animate="fade-up">
+                <details class="faq-item">
+                    <summary>Wie läuft eine Beschaffung über ein Systemhaus?</summary>
+                    <div class="faq-item__body"><p>Systemhaus ist im Anfrageformular als Beschaffungsweg auswählbar. Die Anfrage geht in dem Fall genauso an uns, die Abwicklung erfolgt dann über das jeweilige Systemhaus.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Können wir das Indie.rack ausschreiben?</summary>
+                    <div class="faq-item__body"><p>Ja. Ausschreibung ist als eigener Beschaffungsweg im Anfrageformular vorgesehen und wird entsprechend bearbeitet.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Ist Air-Gap-Betrieb möglich?</summary>
+                    <div class="faq-item__body"><p>Ja, Air-Gap-Betrieb ist möglich. Er ist nicht automatisch im Lieferumfang enthalten, sondern wird als Einzelvertrag vereinbart.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wer betreibt die Hardware im Alltag?</summary>
+                    <div class="faq-item__body"><p>Die Server laufen im eigenen Netz der Organisation. Betrieb und Administration erfolgen über Dashboard und Admin-Interface, Nutzerverwaltung lokal oder per Business-Login.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Was passiert, wenn die Organisation wächst?</summary>
+                    <div class="faq-item__body"><p>Das Indie.rack ist auf einen Bereich von 100 bis über 1.000 Nutzer ausgelegt. Wächst der Bedarf über die ursprüngliche Konfiguration hinaus, wird das im Gespräch mit dem bestehenden Ansprechpartner besprochen.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Bekommen wir Unterlagen für die Vergabeakte?</summary>
+                    <div class="faq-item__body"><p>Welche Unterlagen für die Vergabeakte benötigt werden, klären wir im Gespräch. Eine feste Liste an Standardunterlagen ist derzeit noch in Klärung.</p></div>
+                </details>
             </div>
         </div>
     </section>
