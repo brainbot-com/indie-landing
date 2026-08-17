@@ -2,7 +2,9 @@
 # Snippets (security_headers, tls_security_headers, admin_basic_auth) are defined
 # in the core Caddyfile.
 
-staging.indiebox.ai {
+# staging.indie.solutions spiegelt das komplette Staging (Site + backend-staging):
+# hier entsteht der Neuaufbau als indie.solutions, bis zum Cutover auf live.
+staging.indiebox.ai, staging.indie.solutions {
   import security_headers
   import tls_security_headers
 
