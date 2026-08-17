@@ -90,6 +90,8 @@ Struktur: nav.nav-bar > .container.nav-container > a.nav-logo (+ span.brand-dot)
 - Formulare: .form-grid, .form-row (+ --full), .form-label, .form-input, .form-textarea, .form-actions, .field-required; Mailto-Versand via form[data-mailto-to] + setupMailtoForms. NEU: .form-select im gleichen Stil.
 - Tabellen: .docs-table (Content), .specs-table/.spec-row (Pseudo-Tabelle).
 - Akkordeon: details.docs-details bzw. .form-details.
+- FAQ (Vertiefung): div.faq-list > details.faq-item > summary + div.faq-item__body; Variante .faq-list--on-dark für dunkle Sektionen. Chevron per CSS, reduced-motion abgedeckt.
+- Ehrlichkeits-Box (Vertiefung): .honest-box mit .honest-box__title, Liste und optionaler .honest-box__note. Für "Was nicht dabei ist"-Abschnitte auf hellen Flächen.
 
 ## 6. Hell/Dunkel-Kapitellogik
 
