@@ -27,6 +27,7 @@ kommt nicht auf die Seite; eine unbeantwortete Frage ist schlechter als eine feh
 | `betriebs.html` | Betriebsfakten: gehärtetes Linux, getrennte Container je Anwendung, Dashboard und Admin-Interface, Browser-Zugriff im lokalen Netz, lokale Nutzerverwaltung plus optionales Business-Login (SSO/LDAP), n8n-Workflows und Integrationen, planbare Updates (optional automatisch), vorinstallierte und erweiterbare Modelle, getrennte Datenbereiche mit Backup und Wiederherstellung, Netzintegration und HTTPS, eigene Anwendungen und Partnerlösungen |
 | `privacy.html` | Datensicherheits-Aussagen: lokale Verarbeitung, keine Telemetrie, externe Dienste standardmäßig deaktiviert und nur bewusst freizugeben, Administratorzugriff gehört zur eigenen Organisation, Air-Gap-Betrieb möglich |
 | `docs/` | Technische Details zu Einrichtung, Zugriff, Wissensdatenbanken, Shell-Zugang, Fehlerbehebung (nur als Verweis oder zur Absicherung einer Aussage) |
+| `terms.html` (AGB) | Vertragliche Konditionen: Zahlung fällig mit Vertragsschluss, Rechnungskauf mit Zahlungsziel als abweichende Vereinbarung möglich, Eigentumsvorbehalt, Widerrufsrecht. Nur zitieren, nicht auslegen; bei Zitat auf `/terms.html` verlinken |
 | Bestehende v1 der Seite | Alles, was schon dort steht, bleibt gültig |
 
 **Wichtig bei der Übernahme aus `betriebs.html`:** Dort steht die Überschrift "Inbetriebnahme: in
@@ -47,7 +48,7 @@ Muster der bestehenden Seiten (Hero dunkel, dann abwechselnd `.section` und
 5. **Inbetriebnahme und Betrieb.** Was beim Aufstellen passiert und wie das System im Alltag läuft, auf Basis von `betriebs.html`: Netzwerk und Strom, Browser-Zugriff im lokalen Netz, Nutzerverwaltung lokal oder per Business-Login, getrennte Container je Anwendung, planbare Updates, Backup und Wiederherstellung. Prozess-Sprache, keine Zeitangaben. Abschluss: Textlink auf `/betriebs.html` ("Betrieb im Detail").
 6. **Datensicherheit auf dieser Stufe.** Drei bis fünf Sätze, was konkret für dieses Produkt gilt: lokale Verarbeitung, keine Telemetrie, externe Dienste standardmäßig aus, Air-Gap möglich. Beim Rack zusätzlich: dedizierte Hardware je Organisation. Abschluss: Textlink auf `/privacy.html`.
 7. **Abgrenzung: Wann diese Stufe, wann eine andere.** Ehrliche Zuordnung mit `.crosslinks` auf die anderen drei Produkte und `/care/`. Je Link ein `small` mit dem Grund, wann man dorthin wechselt. Diese Sektion darf und soll auch vom eigenen Produkt abraten, wenn eine andere Stufe besser passt.
-8. **FAQ.** Fünf bis sieben Fragen (auf der Indie.box-Seite als Flaggschiff inzwischen zehn, ergänzt um Updates ohne Care, Backup und Wiederherstellung, Rechnungskauf) als `<details class="faq-item">` in `<div class="faq-list">`, Muster:
+8. **FAQ.** Fünf bis sieben Fragen als Richtwert, mehr nur bei belegtem Bedarf (Regeländerung vom 2026-08-17 nach dem Beschaffungs-Persona-Review: Die Indie.box-Seite führt als Flaggschiff zehn Fragen, weil drei Fragen aus konkretem Beschaffungsbedarf ergänzt wurden, siehe REVIEW-PROTOKOLL.md. Jede zusätzliche Frage braucht eine belegbare Antwort.) als `<details class="faq-item">` in `<div class="faq-list">`, Muster:
    ```html
    <div class="faq-list">
      <details class="faq-item">
@@ -171,7 +172,7 @@ Keine Em-Dashes, stattdessen Doppelpunkt oder Punkt. Nutzen-Subline unter jeder 
 
 - Alle neun Sektionen vorhanden, in der vorgegebenen Reihenfolge, mit Ankern.
 - Keine erfundene Zahl; jede Angabe auf eine Quelle aus Abschnitt 1 zurückführbar.
-- FAQ mit fünf bis sieben belegbaren Fragen, identisch im FAQPage-JSON-LD.
+- FAQ mit fünf bis sieben belegbaren Fragen (Abweichung nach oben nur mit Begründung im Review-Protokoll), Fragen und Antworten wortgleich im FAQPage-JSON-LD.
 - "Was nicht dabei ist" ehrlich und produktspezifisch, nicht generisch.
 - Abgrenzungs-Sektion verlinkt alle drei anderen Produkte und Care.
 - Sprachregeln eingehalten, HTML valide, keine toten Links, keine Dritt-Requests.

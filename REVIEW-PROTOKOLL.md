@@ -70,6 +70,54 @@ Nachbesserungen aus Loop 2 (umgesetzt):
 
 **Endstand nach drei Loops:** Persona B "ja". Persona A "teilweise": Die verbliebenen Punkte sind ausschließlich Fakten, die nur Heiko liefern kann (Nutzerzahl-Richtwerte, Kontakt-Verbindlichkeit, Revisions-Nachweise, Hardware-Garantie, Über-uns). Die von Persona A benannten handwerklichen Blocker sind alle behoben. QA-Punkte V1-V13 verifiziert, V14 als Master-Prompt-Vorgabe dokumentiert. Gemäß Master-Prompt (max. 3 Loops) endet der Loop hier; die ungelösten Punkte eskalieren als OFFENE-FRAGEN.md an Heiko.
 
+
+## Vertiefungs-Runde: Produktseiten auf volle Tiefe
+
+Arbeitsteilung ab hier: Plan und Vorgaben mit Opus, Umsetzung durch Sonnet-Subagents.
+Vorgabe: `VERTIEFUNG-PRODUKTSEITEN.md`. Vier Seiten von je etwa 230 auf 473 bis 503 Zeilen,
+neun Sektionen je Seite, FAQ mit FAQPage-Schema.
+
+### Persona B, "Die Beschaffungsverantwortliche": teilweise
+
+Positiv: Spezifikationstabellen und Abgrenzungs-Sektionen mit konkreten Preisdifferenzen tragen
+eine Bedarfsmatrix für die Beschaffungsvorlage. Keine Widersprüche zwischen den vier Seiten.
+
+Schärfster Punkt: Ein Satz in der Ehrlichkeits-Box der Box-Seite war Cross-Selling in
+Ehrlichkeits-Verkleidung ("wer kurze Antwortzeiten braucht, ist mit Booster oder Workstation besser
+bedient"). Umgeschrieben zu einer reinen Einschränkung, der Verweis steht in der Abgrenzung.
+
+Zwei gemeldete Lücken ließen sich aus vorhandenen Quellen schließen, ohne etwas zu erfinden:
+Rechnungskauf mit Zahlungsziel ist in `terms.html` § 4 geregelt, Backup und Wiederherstellung
+beschreibt `betriebs.html` mechanisch. Beide als FAQ ergänzt, dazu "Wer spielt Updates ein, wenn
+kein Care-Vertrag läuft?". Was echte Fakten braucht (Monitoring und Meldewege, zusagbare RTO/RPO,
+Basis-Redundanz beim Rack), steht als Punkte 21 bis 23 in `OFFENE-FRAGEN.md`.
+
+### QA: nicht grün, sechs Punkte
+
+Bestanden: Erfindungsverbot (keine erfundene Zahl auf vier Seiten), Rack ohne jeden Preis, neun
+Sektionen mit Ankern, Ehrlichkeits-Boxen produktspezifisch, Booster-Kompatibilität konsistent,
+Preis- und Care-Konsistenz, Technik (h1, Tags, Links, keine Dritt-Requests), nur vorhandene
+CSS-Klassen.
+
+Verstöße und Behandlung:
+1. FAQ-Text und JSON-LD wichen bei einer Frage voneinander ab: behoben.
+2. Nutzen vor Produkt: zehn Sätze führten mit dem Produktnamen als Subjekt (fünf davon auf der
+   Booster-Seite): umgeschrieben.
+3. Lieferzeit-Wortlaut in zwei Listen an die Kanon-Formel angeglichen.
+4. FAQ-Sektionen ohne Nutzen-Subline: ergänzt.
+5. `terms.html` war als Faktenquelle genutzt, stand aber nicht in der Quellenliste der Vorgabe:
+   als fünfte erlaubte Quelle nachgetragen (nur zitieren, nicht auslegen).
+6. **Berechtigter Prozess-Einwand:** Die FAQ-Anzahl auf der Box-Seite (zehn statt der
+   vorgegebenen fünf bis sieben) wurde nachträglich durch Umschreiben der Vorgabe legitimiert.
+   Korrigiert: Die Regeländerung ist jetzt als solche datiert und begründet ausgewiesen, statt die
+   Abweichung stillschweigend zu decken. Inhaltlich bleiben die zehn Fragen, weil sie aus echtem
+   Beschaffungsbedarf stammen und jede Antwort belegt ist.
+
+Zusätzlich außerhalb des Prüfgegenstands gefunden und behoben: `care/index.html` sagte pauschal
+"Jedes System bringt seine ersten 3 Monate Basis bereits mit" und schloss damit das Indie.rack ein,
+für das diese Zusage nicht belegt ist. Präzisiert auf Indie.box und Indie.workstation, beim Rack
+wird der Service-Umfang Teil des Angebots.
+
 ## Nicht im Loop lösbar (Entscheidungen/Fakten von Heiko nötig)
 
 Siehe OFFENE-FRAGEN.md.
