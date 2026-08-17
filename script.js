@@ -234,6 +234,21 @@ function setupHeroCinematicSequence() {
 }
 
 function setupNavReveal() {
+    const sentinel = document.querySelector('[data-nav-sentinel]');
+    const floatingNav = document.querySelector('.nav-bar--floating');
+    if (sentinel && floatingNav && 'IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                floatingNav.classList.toggle('nav-bar--visible', !entry.isIntersecting);
+            });
+        }, { threshold: 0.05 });
+        obs.observe(sentinel);
+        return;
+    }
+    return legacyNavReveal();
+}
+
+function legacyNavReveal() {
     const nav = document.querySelector('.nav-bar--floating');
     const hero = document.querySelector('.hero-overlay');
     if (!nav || !hero) return;
@@ -569,19 +584,21 @@ function setupMailtoForms() {
             const subject = form.getAttribute('data-mailto-subject') || 'Anfrage';
             const formData = new FormData(form);
 
-            const name = String(formData.get('name') || '').trim();
-            const email = String(formData.get('email') || '').trim();
-            const url = String(formData.get('url') || '').trim();
-            const message = String(formData.get('message') || '').trim();
-
-            const lines = [
-                `Name: ${name || '-'}`,
-                `E-Mail: ${email || '-'}`,
-                `URL: ${url || '-'}`,
-                '',
-                'Beschreibung:',
-                message || '-',
-            ];
+            // Generisch: jedes Feld landet als "Label: Wert" im Mail-Body.
+            // Das Label kommt aus data-mailto-label am Feld, sonst aus name.
+            const lines = [];
+            let message = '';
+            formData.forEach((value, key) => {
+                const field = form.querySelector(`[name="${key}"]`);
+                const label = (field && field.getAttribute('data-mailto-label')) || key;
+                const text = String(value || '').trim();
+                if (key === 'message') {
+                    message = text;
+                    return;
+                }
+                lines.push(`${label}: ${text || '-'}`);
+            });
+            lines.push('', 'Nachricht:', message || '-');
 
             const mailtoHref = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
             window.location.href = mailtoHref;

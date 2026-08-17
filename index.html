@@ -4,60 +4,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="head.title">Indie.box – Private KI. Sofort startklar.</title>
+    <title>indie.solutions – Souveräne KI für den Arbeitsalltag</title>
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <meta name="description" content="Indie.box ist Ihre private KI-Box fürs Büro. Chatbots, Dokumentenanalyse und KI-Agenten - vollständig lokal, keine Cloud, Ihre Daten bleiben im Netzwerk." />
-    <link rel="canonical" href="https://indiebox.ai/" />
-    <link rel="alternate" hreflang="de" href="https://indiebox.ai/" />
-    <link rel="alternate" hreflang="en" href="https://indiebox.ai/en/" />
-    <link rel="alternate" hreflang="x-default" href="https://indiebox.ai/" />
+    <meta name="description" content="Souveräne KI für den Arbeitsalltag: Hardware, Software und Lösungen aus einer Hand. Komplett lokal, einmal kaufen, keine Nutzergebühren. Von der Indie.box bis zum Indie.rack." />
+    <link rel="canonical" href="https://indie.solutions/" />
+    <link rel="alternate" hreflang="de" href="https://indie.solutions/" />
+    <link rel="alternate" hreflang="x-default" href="https://indie.solutions/" />
+    <!-- EN folgt (Vertiefungs-Schritt 6): <link rel="alternate" hreflang="en" href="https://indie.solutions/en/" /> -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Indie.box – Private KI fürs Büro. Sofort startklar." />
-    <meta property="og:description" content="Chatbots, Dokumentenanalyse und KI-Agenten - vollständig lokal auf Ihrer eigenen Hardware. Keine Cloud, keine Datenweitergabe." />
-    <meta property="og:url" content="https://indiebox.ai/" />
-    <meta property="og:image" content="https://indiebox.ai/assets/Indiebox.Frontpage.jpg" />
+    <meta property="og:title" content="indie.solutions – Souveräne KI für den Arbeitsalltag" />
+    <meta property="og:description" content="Hardware, Software und Lösungen aus einer Hand. Komplett lokal, einmal kaufen, keine Nutzergebühren." />
+    <meta property="og:url" content="https://indie.solutions/" />
+    <meta property="og:image" content="https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Indie.box – Private KI fürs Büro. Sofort startklar." />
-    <meta name="twitter:description" content="Chatbots, Dokumentenanalyse und KI-Agenten - vollständig lokal auf Ihrer eigenen Hardware. Keine Cloud, keine Datenweitergabe." />
-    <meta name="twitter:image" content="https://indiebox.ai/assets/Indiebox.Frontpage.jpg" />
+    <meta name="twitter:title" content="indie.solutions – Souveräne KI für den Arbeitsalltag" />
+    <meta name="twitter:description" content="Hardware, Software und Lösungen aus einer Hand. Komplett lokal, einmal kaufen, keine Nutzergebühren." />
+    <meta name="twitter:image" content="https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Product",
-      "name": "Indie.box",
-      "description": "Private AI appliance for businesses. Runs LLMs, document analysis, and AI agents entirely on-premise.",
-      "brand": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
-      "url": "https://indiebox.ai/",
-      "image": "https://indiebox.ai/assets/Indiebox.Frontpage.jpg",
-      "offers": { "@type": "Offer", "url": "https://indiebox.ai/checkout.html", "price": "4499", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" }
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "Indie.Solutions",
+          "url": "https://indie.solutions/",
+          "email": "contact@brainbot.com",
+          "parentOrganization": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
+          "address": { "@type": "PostalAddress", "streetAddress": "Taunusstrasse 61", "postalCode": "55120", "addressLocality": "Mainz", "addressCountry": "DE" }
+        },
+        {
+          "@type": "ItemList",
+          "name": "Produktfamilie",
+          "itemListElement": [
+            { "@type": "Product", "position": 1, "name": "Indie.box", "url": "https://indie.solutions/produkte/indie-box/", "description": "Lokaler KI-Server mit 128 GB RAM für quantisierte Großmodelle bis zur 400B-Klasse.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg", "brand": { "@type": "Brand", "name": "Indie.Solutions" }, "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-box/" } },
+            { "@type": "Product", "position": 2, "name": "Indie.booster", "url": "https://indie.solutions/produkte/indie-booster/", "description": "Externe GPU-Erweiterung mit RTX 5090 (32 GB), nachrüstbar an jede Indie.box.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-booster_web.jpg", "brand": { "@type": "Brand", "name": "Indie.Solutions" }, "offers": { "@type": "Offer", "price": "8000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-booster/" } },
+            { "@type": "Product", "position": 3, "name": "Indie.workstation", "url": "https://indie.solutions/produkte/indie-workstation/", "description": "KI-Workstation mit fest eingebauter RTX 5090, 64 GB RAM, schallgedämmt und 24/7-tauglich.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-workstation_web.jpg", "brand": { "@type": "Brand", "name": "Indie.Solutions" }, "offers": { "@type": "Offer", "price": "12000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-workstation/" } },
+            { "@type": "Product", "position": 4, "name": "Indie.rack", "url": "https://indie.solutions/produkte/indie-rack/", "description": "Dedizierte 19-Zoll-Server für Verwaltung, öffentliche Hand und Konzerne, 100 bis über 1.000 Nutzer.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-rack_web.jpg", "brand": { "@type": "Brand", "name": "Indie.Solutions" } }
+          ]
+        }
+      ]
     }
     </script>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
-    <script src="matomo.js" defer></script>
 </head>
 
 <body>
     <nav class="nav-bar nav-bar--floating" aria-label="Hauptmenü">
         <div class="container nav-container">
-            <a class="nav-logo" href="#top" aria-label="Indie.box Home">Indie<span class="brand-dot">.</span>box</a>
+            <a class="nav-logo" href="./" aria-label="indie.solutions Startseite">indie<span class="brand-dot">.</span>solutions</a>
             <div class="nav-links" id="nav-links">
-                <a href="docs/" data-i18n="nav.docs">Docs</a>
-                <a href="#datensicherheit" data-i18n="nav.security">Datensicherheit</a>
-                <a href="betriebs.html" data-i18n="nav.operations">Betrieb</a>
-                <a href="#spezifikation" data-i18n="nav.spec">Spezifikation</a>
-                <a href="chat.html" data-i18n="nav.chat">Demo</a>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Produkte
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="produkte/indie-box/">Indie.box <small>5.500 €</small></a>
+                        <a href="produkte/indie-booster/">Indie.booster <small>8.000 €</small></a>
+                        <a href="produkte/indie-workstation/">Indie.workstation <small>12.000 €</small></a>
+                        <a href="produkte/indie-rack/">Indie.rack <small>auf Anfrage</small></a>
+                    </div>
+                </div>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Software
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="software/indie-chat/">Indie.chat</a>
+                        <a href="software/indie-brain/">Indie.brain</a>
+                        <a href="software/agent-command-center/">Agent Command Center</a>
+                        <a href="software/agent-studio/">Agent Studio</a>
+                        <a href="software/indie-router/">Indie.router <span class="badge-soon">Bald</span></a>
+                    </div>
+                </div>
+                <a href="privacy.html">Datensicherheit</a>
+                <a href="referenzen/">Referenzen</a>
+                <a href="care/">Care</a>
+                <a href="docs/">Docs</a>
             </div>
             <div class="nav-actions">
-                <a href="checkout.html" class="button button--pill button--sm nav-buy" data-i18n="nav.buy" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_nav">Kaufen</a>
+                <span class="nav-lang" aria-label="Sprachauswahl">
+                    <span class="nav-lang__item" aria-current="true" lang="de">DE</span>
+                    <span class="nav-lang__item nav-lang__item--disabled" lang="en" title="English version folgt">EN</span>
+                </span>
+                <a href="#kontakt" class="button button--solid button--pill button--sm nav-buy">Beratung anfragen</a>
                 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
-                    <span class="sr-only" data-i18n="nav.menu">Menü</span>
+                    <span class="sr-only">Menü</span>
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
@@ -65,922 +98,539 @@
             </div>
         </div>
     </nav>
-    <!-- Hero -->
-    <section class="hero-overlay parallax-container" id="top" data-hero-seq="cinematic">
-        <img src="assets/Indiebox.Frontpage.jpg" alt="Indie.box" class="hero-bg-image parallax-bg" data-speed="0.5">
 
-        <div class="hero-stage" aria-hidden="true">
-            <div class="hero-stage-brand">indie<span class="brand-dot">.</span>solutions</div>
-        </div>
-
-        <div class="hero-fly" aria-hidden="true">
-            <div class="hero-fly-cloud" data-i18n="hero.fly.cloud">Keine Cloud.</div>
-        </div>
-
-        <div class="container hero-content-overlay" data-hero-variant="a" data-hero-seq-enabled="true">
-            <div class="hero-headline">
-                <h1 class="hero-title">
-                    <span class="hero-line hero-line-1" data-i18n="hero.title.line1">Ihre Daten. Ihre KI.</span>
-                    <span class="hero-line hero-line-2 hero-highlight" data-i18n="hero.title.line2">Keine Cloud.</span>
-                </h1>
-            </div>
-
-            <div class="hero-rest">
-                <p class="hero-subtitle hero-subtitle-anim" data-i18n="hero.subtitle" data-i18n-html="true">
-                    Indie.box ist ein lokaler KI-Server für leistungsstarke Modelle.<br>
-                    Privat, schnell und ohne Subscriptions.
-                </p>
-            </div>
-        </div>
-
-        <div class="hero-actions hero-actions-pill">
-            <div class="combi-pill">
-                <span class="combi-pill-text" data-i18n="hero.price">5.500 €</span>
-                <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="hero.cta.buy" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_hero">Kaufen</a>
-            </div>
-        </div>
-
-        <div class="container hero-content-overlay" data-hero-variant="alt2" data-animate="fade-up" hidden>
-            <h1 class="hero-title" data-i18n="hero.alt.title">
-                Indie.box
+    <!-- Kapitel 1: Hero (dunkel) -->
+    <section class="hero-solutions parallax-container" id="top" data-nav-sentinel data-pill-sentinel>
+        <img src="assets/indie-solutions/backgrounds/background-03_dark-cinematic_web.jpg" alt="" aria-hidden="true" class="hero-solutions__floor parallax-bg" data-speed="0.15">
+        <div class="container hero-solutions__center">
+            <p class="kicker kicker--on-dark" data-animate="fade-up">indie<span class="brand-dot">.</span>solutions</p>
+            <h1 class="hero-solutions__title" data-animate="fade-up">
+                <span class="hero-line-main">Souveräne KI für den Arbeitsalltag.</span>
+                <span class="hero-line-accent">Komplett lokal.</span>
             </h1>
-            <p class="hero-subtitle" data-i18n="hero.alt.subtitle" data-i18n-html="true">
-                Echte Intelligenz. Sofort verfügbar.<br>
-                Leistung. Unter Kontrolle. Super einfach.
+            <p class="hero-solutions__sub" data-animate="fade-up" data-stagger="1">
+                Wir machen souveräne KI einfach.<br>
+                Hardware, Software und Lösungen aus einer Hand.
             </p>
-            <div class="hero-actions">
-                <a href="#demo" class="button button--solid button--pill button--lg" data-i18n="hero.alt.cta">Jetzt starten</a>
+
+            <div class="hero-solutions__video" data-animate="fade-up" data-stagger="2">
+                <div class="video-ph" role="img" aria-label="Platzhalter für das Erklärvideo">
+                    <span class="video-ph__play" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" /></svg>
+                    </span>
+                    <span class="video-ph__note">Video folgt in Kürze</span>
+                </div>
+            </div>
+
+            <div class="hero-solutions__actions" data-animate="fade-up" data-stagger="3">
+                <a href="#kontakt" class="button button--solid button--pill button--lg">Beratung anfragen</a>
+                <span class="hero-solutions__process">Auspacken, anschließen, loslegen.</span>
             </div>
         </div>
     </section>
 
-    <!-- Scroll Story (Panels) -->
-    <section class="story-panel story-panel--intro" data-scroll-panel="intro">
-        <div class="story-panel-sticky">
-            <div class="story-content">
-                <div class="story-content-inner">
-                    <p class="story-text" data-animate="fade-up" data-i18n="story.intro.main" data-i18n-html="true">
-                        Die Indie.box ist aus gutem Grund die neue Referenz für lokale KI. <br> <br>
-                        Private KI ohne Cloud, ohne Telemetrie, 100% lokal.
-                    </p>                    
-                    <p class="story-subline" data-animate="fade-up" data-stagger="1" data-i18n="story.intro.subline">
-                        Mit 128 GB Speicher für moderne Reasoning-Modelle (Schlussfolgerung).
+    <!-- Kapitel 2: Versprechen (hell) -->
+    <section class="promise-section" id="versprechen">
+        <div class="container">
+            <p class="promise-line" data-animate="fade-up">Auspacken. Anschließen. Loslegen.</p>
+            <p class="promise-line" data-animate="fade-up" data-stagger="1">Die Daten bleiben im Haus. <em>Nachweisbar.</em></p>
+            <p class="promise-line" data-animate="fade-up" data-stagger="2">Einmal kaufen. Für immer besitzen.</p>
+        </div>
+    </section>
+
+    <!-- Kapitel 3: Produktfamilie (hell) -->
+    <section class="section" id="produkte">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Produktfamilie · Für Teams bis Rechenzentren</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Eine Plattform. Vier Stufen.</h2>
+                <p style="color: var(--text-light); max-width: 56ch; margin-bottom: 1rem;">
+                    Jede Organisation bekommt die passende Größe: vom kompakten Server fürs Team bis zum
+                    19-Zoll-Rack für über 1.000 Nutzer. Auf jeder Stufe läuft dieselbe Software-Suite,
+                    im Kaufpreis enthalten, ohne Nutzergebühren.
+                </p>
+            </header>
+
+            <div class="family-grid">
+                <article class="family-card" data-animate="fade-up" data-pill-label="Indie.box · 5.500 €" data-pill-href="produkte/indie-box/" data-pill-cta="Ansehen">
+                    <div class="family-card__media">
+                        <img src="assets/indie-solutions/products/indie-box_web.jpg" alt="Indie.box, kompakter lokaler KI-Server" loading="lazy" width="1200" height="799">
+                    </div>
+                    <h3 class="family-card__name">Indie<span class="brand-dot">.</span>box</h3>
+                    <p class="family-card__role">Das Gedächtnis</p>
+                    <p class="family-card__benefit">
+                        Großmodelle bis zur 400B-Klasse im eigenen Haus: 128 GB RAM, AMD Ryzen AI Max 395
+                        mit 16 Kernen, 2 TB NVMe, NPU mit 50 TOPS.
                     </p>
+                    <div class="family-card__meta">
+                        <span class="family-card__price">5.500 €<small>einmalig</small></span>
+                        <a href="produkte/indie-box/" class="button button--solid button--pill button--sm">Ansehen</a>
+                    </div>
+                    <p class="family-card__note">Lieferzeit normalerweise 14 Tage, inklusive Setup.</p>
+                </article>
+
+                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="Indie.booster · 8.000 €" data-pill-href="produkte/indie-booster/" data-pill-cta="Ansehen">
+                    <div class="family-card__media">
+                        <img src="assets/indie-solutions/products/indie-booster_web.jpg" alt="Indie.booster, externe GPU-Erweiterung für die Indie.box" loading="lazy" width="1200" height="703">
+                    </div>
+                    <h3 class="family-card__name">Indie<span class="brand-dot">.</span>booster</h3>
+                    <p class="family-card__role">Die Geschwindigkeit</p>
+                    <p class="family-card__benefit">
+                        Antworten in einem Bruchteil der Zeit: RTX 5090 mit 32 GB im externen Gehäuse,
+                        nachrüstbar an jede Indie.box. Läuft ausschließlich an der Box.
+                    </p>
+                    <div class="family-card__meta">
+                        <span class="family-card__price">8.000 €<small>einmalig</small></span>
+                        <a href="produkte/indie-booster/" class="button button--solid button--pill button--sm">Ansehen</a>
+                    </div>
+                    <p class="family-card__note">Lieferzeit normalerweise 14 Tage, inklusive Setup.</p>
+                </article>
+
+                <article class="family-card" data-animate="fade-up" data-pill-label="Indie.workstation · 12.000 €" data-pill-href="produkte/indie-workstation/" data-pill-cta="Ansehen">
+                    <div class="family-card__media">
+                        <img src="assets/indie-solutions/products/indie-workstation_web.jpg" alt="Indie.workstation, schallgedämmte KI-Workstation" loading="lazy" width="621" height="662">
+                    </div>
+                    <h3 class="family-card__name">Indie<span class="brand-dot">.</span>workstation</h3>
+                    <p class="family-card__role">Das Arbeitstier</p>
+                    <p class="family-card__benefit">
+                        Viele Nutzer im Dauerbetrieb: RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmt,
+                        24/7-tauglich. Ausbaufähig mit zweiter GPU oder 2 × 2 TB Speicher.
+                    </p>
+                    <div class="family-card__meta">
+                        <span class="family-card__price">12.000 €<small>einmalig</small></span>
+                        <a href="produkte/indie-workstation/" class="button button--solid button--pill button--sm">Ansehen</a>
+                    </div>
+                    <p class="family-card__note">Lieferzeit normalerweise 14 Tage, inklusive Setup.</p>
+                </article>
+
+                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="Indie.rack · auf Anfrage" data-pill-href="produkte/indie-rack/" data-pill-cta="Anfragen">
+                    <div class="family-card__media">
+                        <img src="assets/indie-solutions/products/indie-rack_web.jpg" alt="Indie.rack, dedizierter 19-Zoll-Server" loading="lazy" width="544" height="176">
+                    </div>
+                    <h3 class="family-card__name">Indie<span class="brand-dot">.</span>rack</h3>
+                    <p class="family-card__role">Das Rechenzentrum</p>
+                    <p class="family-card__benefit">
+                        Souveräne KI für die ganze Organisation: dedizierte 19-Zoll-Server für Verwaltung,
+                        öffentliche Hand und Konzerne. Ausgelegt für 100 bis über 1.000 Nutzer.
+                    </p>
+                    <div class="family-card__meta">
+                        <span class="family-card__price">auf Anfrage<small>Direktkauf, Systemhaus oder Ausschreibung</small></span>
+                        <a href="produkte/indie-rack/" class="button button--solid button--pill button--sm">Anfragen</a>
+                    </div>
+                </article>
+            </div>
+
+            <div data-animate="fade-up">
+                <div class="matrix" role="img" aria-label="Zwei-Achsen-Matrix: Modellgröße gegen Geschwindigkeit. Indie.box steht für große Modelle, Indie.workstation für hohe Geschwindigkeit, der Vollausbau aus Box und Booster für beides.">
+                    <span class="matrix__label-y">Modellgröße</span>
+                    <span class="matrix__label-x">Geschwindigkeit</span>
+                    <span class="matrix__dot" style="left: 26%; bottom: 74%;"><span>Indie.box</span><small>Große Modelle</small></span>
+                    <span class="matrix__dot" style="left: 76%; bottom: 38%;"><span>Indie.workstation</span><small>Hohes Tempo</small></span>
+                    <span class="matrix__dot matrix__dot--hollow" style="left: 78%; bottom: 76%;"><span>Vollausbau: Box + Booster</span><small>Beides</small></span>
+                </div>
+                <p class="matrix-note">Indie.rack skaliert beide Achsen und wird pro Organisation dimensioniert.</p>
+            </div>
+
+            <div data-animate="fade-up">
+                <div class="upath">
+                    <div class="upath__step">
+                        <p class="upath__step-name">Indie.box</p>
+                        <p class="upath__step-desc">Der Einstieg: große Modelle für das ganze Team.</p>
+                        <p class="upath__step-price">5.500 €</p>
+                    </div>
+                    <div class="upath__link" aria-hidden="true"></div>
+                    <div class="upath__step">
+                        <p class="upath__step-name">+ Indie.booster</p>
+                        <p class="upath__step-desc">Geschwindigkeit nachrüsten, sobald sie gebraucht wird.</p>
+                        <p class="upath__step-price">+ 8.000 €</p>
+                    </div>
+                    <div class="upath__link" aria-hidden="true"></div>
+                    <div class="upath__step">
+                        <p class="upath__step-name">Vollausbau</p>
+                        <p class="upath__step-desc">Das einzige Setup, das große Modelle und Geschwindigkeit kann.</p>
+                        <p class="upath__step-price">13.500 €</p>
+                    </div>
+                </div>
+                <p class="upath-note">Jeder Weg beginnt mit einer Box. Keine Investition ist verloren.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kapitel 4: Software-Suite (dunkel) -->
+    <section class="section capability-cards capability-cards--dark" id="software">
+        <div class="container">
+            <header class="cap-header" data-animate="fade-up">
+                <div class="cap-eyebrow">Software-Suite · Auf jeder Hardware enthalten</div>
+                <h2 class="cap-headline">Im Kaufpreis. Ohne Nutzergebühren.</h2>
+                <p class="cap-sub">
+                    Fünf Module decken den Arbeitsalltag ab: von Antworten aus den eigenen Unterlagen
+                    bis zu Agenten, die Aufgaben erledigen. Alle Angebote gelten für die aktuelle
+                    Produktversion zum Kaufzeitpunkt.
+                </p>
+            </header>
+
+            <div class="cap-list">
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">01 / Indie.chat</div>
+                        <h3 class="cap-card__title">Antworten aus den eigenen Unterlagen. <em>Sofort.</em></h3>
+                        <p class="cap-card__body">Verträge, Berichte und Dokumente werden befragbar: jede Antwort mit Fundstelle, und kein Byte verlässt das Haus.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Antwort mit Fundstelle</span>
+                            <span class="cap-pill">PDF, Office &amp; mehr</span>
+                            <span class="cap-pill">Wissensdatenbanken</span>
+                            <span class="cap-pill">100 % lokal</span>
+                        </div>
+                        <a class="text-link" href="chat.html">Live-Demo im Browser →</a>
+                    </div>
+                    <div class="cap-card__visual">
+                        <img src="assets/OpenWebUI.De.preview.png" alt="Indie.chat: Chat mit Dokumenten" loading="lazy">
+                    </div>
+                </article>
+
+                <article class="cap-card cap-card--flip" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">02 / Indie.brain</div>
+                        <h3 class="cap-card__title">Das gesamte Firmenwissen. <em>Gefunden</em> statt gesucht.</h3>
+                        <p class="cap-card__body">Laufwerke, Wikis, E-Mail und Fachsysteme werden über Konnektoren zu einer gemeinsamen Wissensbasis für Menschen und Agenten, immer mit Quellenangabe. Der Curator verdichtet daraus ein kuratiertes LLM-Wiki: neu geschriebenes, geprüftes Unternehmenswissen.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Konnektoren</span>
+                            <span class="cap-pill">Immer mit Quelle</span>
+                            <span class="cap-pill">Kuratiertes LLM-Wiki</span>
+                            <span class="cap-pill">Für Menschen &amp; Agenten</span>
+                        </div>
+                        <a class="text-link" href="software/indie-brain/">Mehr zu Indie.brain →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">03 / Agent Command Center</div>
+                        <h3 class="cap-card__title">Aufgaben <em>erledigen</em>. Nicht nur Fragen stellen.</h3>
+                        <p class="cap-card__body">Im Dialog mit einem Experten-Agenten entstehen fertige Ergebnisse als bedienbare Apps: persistent, interaktiv und mit den eigenen Daten verbunden, weit über einfache Text-Artefakte hinaus. Bei Bedarf entwickeln Agenten die Apps weiter.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Experten-Dialog</span>
+                            <span class="cap-pill">Bedienbare Apps</span>
+                            <span class="cap-pill">Datenverbunden</span>
+                            <span class="cap-pill">Persistent</span>
+                        </div>
+                        <a class="text-link" href="software/agent-command-center/">Mehr zum Command Center →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card cap-card--flip" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">04 / Agent Studio</div>
+                        <h3 class="cap-card__title">Jedes Team arbeitet <em>geschützt</em> in seinem Bereich.</h3>
+                        <p class="cap-card__body">Granulare Berechtigungen auf Bereiche und Wissensquellen, mit Guardrails je Bereich: HR und Produktentwicklung arbeiten auf derselben Maschine, ohne die Daten des jeweils anderen zu sehen.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Berechtigungen</span>
+                            <span class="cap-pill">Guardrails je Bereich</span>
+                            <span class="cap-pill">Getrennte Wissensquellen</span>
+                            <span class="cap-pill">Eine Maschine, viele Teams</span>
+                        </div>
+                        <a class="text-link" href="software/agent-studio/">Mehr zum Agent Studio →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">05 / Indie.router <span class="badge-soon badge-soon--on-dark">Bald verfügbar</span></div>
+                        <h3 class="cap-card__title">Die größten Modelle. <em>Nachweisbar</em> vertraulich.</h3>
+                        <p class="cap-card__body">Für Aufgaben, die mehr brauchen als lokale Modelle: Anfragen gehen verschlüsselt in attestierte Enklaven (Trusted Execution Environments). Die Daten verlassen das Haus, bleiben aber nachweisbar geschützt: auch der Partner kann nicht mitlesen. Die Box bleibt der einzige Endpoint.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">TEE-Enklaven, attestiert</span>
+                            <span class="cap-pill">Geplant: 19 €/Monat</span>
+                            <span class="cap-pill">X Tokens/Monat inklusive*</span>
+                        </div>
+                        <a class="text-link" href="software/indie-router/">Vormerken →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>Bald verfügbar</span>
+                    </div>
+                </article>
+            </div>
+
+            <div data-animate="fade-up">
+                <div class="stack">
+                    <p class="stack__title">Der Indie-Stack: eine Plattform auf jeder Stufe</p>
+                    <div class="stack__layer stack__layer--apps">Anwendungen &amp; Agents</div>
+                    <div class="stack__layer">API &amp; Integration</div>
+                    <div class="stack__layer">Orchestrierung &amp; Workflows</div>
+                    <div class="stack__row">
+                        <div class="stack__layer">Modell-Management</div>
+                        <div class="stack__layer">Daten &amp; Knowledge</div>
+                        <div class="stack__layer">Sicherheit &amp; Governance</div>
+                    </div>
+                    <div class="stack__layer">Inferenz-Engine</div>
+                    <div class="stack__layer">Hardware-Abstraktion</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="story-panel-wrap story-panel-wrap--light" data-scroll-panel="focus-wrap">
-        <section class="story-panel story-panel--focus story-panel--light" data-scroll-panel="focus">
-            <div class="story-panel-sticky">
-                <div class="story-surface">
-                    <div class="story-content">
-                        <div class="story-content-inner">
-                            <div class="story-headline" data-animate="fade-up" data-stagger="1">
-                                <div class="story-kicker" data-i18n="story.focus.kicker">Einsatzbereit</div>
-                                <div class="story-display gradient-signature" data-i18n="story.focus.title">Gemacht für produktive KI vor Ort</div>
-                            </div>
-                            <div class="story-text-inline">
-                                <p class="story-text story-text-inline-copy" data-animate="fade-up" data-stagger="2" data-i18n="story.focus.text" data-i18n-html="true">
-                                    Chat, Automatisierung und Agenten laufen auf der Plattform.<br>
-                                    Alles ist eingerichtet, optimiert und sofort einsatzbereit.<br>
-                                    Ausgelegt, um zu wachsen.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Box Stack -->
-    <section class="box-stack">
-        <div class="box-stack-container">
-            <div class="box" id="datensicherheit">
-                <div class="box-head">
-                    <div class="box-kicker" data-i18n="boxes.privacy.kicker">PRIVATSPHÄRE</div>
-                    <div class="box-display" data-animate="fade-up" data-i18n="boxes.privacy.title">ALLES BLEIBT AUF DER BOX</div>
-                </div>
-                <p class="box-body" data-animate="fade-up" data-i18n="boxes.privacy.body">
-                    Indie.box verarbeitet Prompts, Dateien und Antworten komplett lokal auf der Box. Standardmäßig geht nichts in die Cloud, keine Telemetrie, keine versteckten Hintergrundverbindungen. Externe Dienste, Modell-Downloads oder Support-Zugriff gibt es nur, wenn es bewusst eingeschaltet wird, und es ist im Netzwerk nachvollziehbar.
+    <!-- Kapitel 5: Orientierung (hell) -->
+    <section class="section" id="orientierung" style="background-color: var(--bg-light);">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker">Orientierung · Für Entscheider und IT</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Welche Stufe passt?</h2>
+                <p style="color: var(--text-light); max-width: 56ch;">
+                    Zwei Achsen entscheiden: Wie groß müssen die Modelle sein, und wie schnell müssen
+                    die Antworten kommen? Daraus ergibt sich die passende Hardware.
                 </p>
-                <div class="box-meta" data-animate="fade-up">
-                    <span class="box-tag" data-i18n="boxes.privacy.tag">Für Datenschutz-Enthusiasten</span>
-                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-privacy" aria-controls="overlay-privacy" aria-haspopup="dialog">
-                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.privacy.cta">Mehr zur Datensicherheit</span>
-                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
-                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                        <span class="sr-only" data-i18n="boxes.privacy.cta">Details zu Privatsphäre und Datensicherheit</span>
-                    </button>
-                </div>
+            </header>
+
+            <div data-animate="fade-up" style="overflow-x: auto; margin-top: 2rem;">
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Anforderung</th>
+                            <th scope="col">Empfehlung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chat und Dokumente für ein Team</td>
+                            <td><a href="produkte/indie-box/">Indie.box</a></td>
+                        </tr>
+                        <tr>
+                            <td>Höchste Qualität, große Modelle</td>
+                            <td><a href="produkte/indie-box/">Indie.box</a>, bei Tempo-Bedarf plus <a href="produkte/indie-booster/">Indie.booster</a></td>
+                        </tr>
+                        <tr>
+                            <td>Viele Nutzer im Dauerbetrieb</td>
+                            <td><a href="produkte/indie-workstation/">Indie.workstation</a></td>
+                        </tr>
+                        <tr>
+                            <td>Über 100 Nutzer oder Rechenzentrum</td>
+                            <td><a href="produkte/indie-rack/">Indie.rack</a></td>
+                        </tr>
+                        <tr>
+                            <td>Vorhandene Box beschleunigen</td>
+                            <td><a href="produkte/indie-booster/">Indie.booster</a></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="box">
-                <div class="box-head">
-                    <div class="box-kicker" data-i18n="boxes.usage.kicker">NUTZUNG</div>
-                    <div class="box-display" data-animate="fade-up" data-i18n="boxes.usage.title">SOFORT EINSATZBEREIT</div>
-                </div>
-                <p class="box-body" data-animate="fade-up" data-i18n="boxes.usage.body">
-                    Auspacken, verbinden, loslegen. Die Indie.box ist vorkonfiguriert, Updates auf Knopfdruck, und
-                    Teams starten ohne technische Hürden.
+            <div class="hero-actions" data-animate="fade-up" style="margin-top: 2.5rem;">
+                <a href="#kontakt" class="button button--solid button--pill button--md">Beratung anfragen</a>
+            </div>
+            <p class="matrix-note" data-animate="fade-up" style="margin-top: 0.9rem;">
+                Unverbindlich und kostenlos. Antwort von Menschen, die die Systeme selbst betreiben.
+            </p>
+        </div>
+    </section>
+
+    <!-- Kapitel 6: Referenzen (dunkel) -->
+    <section class="section refs-section" id="referenzen">
+        <div class="container">
+            <header data-animate="fade-up">
+                <p class="kicker kicker--on-dark">Referenzen · Branchen statt Logos</p>
+                <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem; color: #f3f7fb;">Im Einsatz, wo Daten wirklich sensibel sind.</h2>
+                <p style="color: rgba(236, 242, 248, 0.7); max-width: 56ch;">
+                    Vier laufende Einsätze. Die Firmennamen nennen wir erst mit schriftlicher Freigabe,
+                    die Branchen und Aufgaben sind echt.
                 </p>
-                <div class="box-meta" data-animate="fade-up">
-                    <span class="box-tag" data-i18n="boxes.usage.tag">Für Teams und Unternehmen</span>
-                    <a href="betriebs.html" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="usage_more">
-                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.usage.cta">Mehr zur Nutzung</span>
-                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
-                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                        <span class="sr-only" data-i18n="boxes.usage.cta">Mehr zur Nutzung</span>
-                    </a>
-                </div>
+            </header>
+
+            <div class="ref-grid">
+                <article class="ref-card" data-animate="fade-up">
+                    <p class="ref-card__kicker">Finanzwirtschaft</p>
+                    <p class="ref-card__challenge">Bonitätsdaten sind zu sensibel für jede Cloud, KI-Unterstützung war trotzdem gefordert.</p>
+                    <p class="ref-card__solution">Dokumentenanalyse und interne Suche laufen vollständig lokal; die Daten bleiben im eigenen Netz.</p>
+                </article>
+                <article class="ref-card" data-animate="fade-up" data-stagger="1">
+                    <p class="ref-card__kicker">Industrie &amp; Fertigungstechnologie</p>
+                    <p class="ref-card__challenge">Fertigungswissen ist der Wettbewerbsvorteil und darf das Haus nicht verlassen.</p>
+                    <p class="ref-card__solution">Wissensbasis und Assistenten laufen auf eigener Hardware im Werksnetz, ohne externe Dienste.</p>
+                </article>
+                <article class="ref-card" data-animate="fade-up">
+                    <p class="ref-card__kicker">Gesundheitswesen</p>
+                    <p class="ref-card__challenge">Hospital-Consulting arbeitet mit Berichten und Daten, die unter besonderem Schutz stehen.</p>
+                    <p class="ref-card__solution">Auswertung und Berichtserstellung passieren lokal; nichts davon erreicht einen fremden Server.</p>
+                </article>
+                <article class="ref-card" data-animate="fade-up" data-stagger="1">
+                    <p class="ref-card__kicker">Sicherheit &amp; Verteidigung</p>
+                    <p class="ref-card__challenge">In der Drohnenentwicklung dürfen Konstruktionsdaten das Netz zu keinem Zeitpunkt verlassen.</p>
+                    <p class="ref-card__solution">Die Systeme laufen isoliert, auf Wunsch vollständig air-gapped, ohne jede externe Verbindung.</p>
+                </article>
             </div>
 
-            <div class="box">
-                <div class="box-head">
-                    <div class="box-kicker" data-i18n="boxes.future.kicker">ZUKUNFTSFÄHIG</div>
-                    <div class="box-display" data-animate="fade-up" data-i18n="boxes.future.title">GEMACHT ZUM WACHSEN</div>
-                </div>
-                <p class="box-body" data-animate="fade-up" data-i18n="boxes.future.body">
-                    Eine stabile Umgebung mit Perspektive. Funktionen lassen sich erweitern, ohne bestehendes zu verändern.
-                    Partner und Teams bauen eigene Lösungen darauf auf. Alles läuft in einer sicheren, funktionierenden Basis.
-                </p>
-                <div class="box-meta" data-animate="fade-up">
-                    <span class="box-tag" data-i18n="boxes.future.tag">Für Partner, Teams und Unternehmen</span>
-                    <button type="button" class="box-cta combi-pill combi-pill--animated combi-pill--flat" data-overlay-open="overlay-partner" aria-controls="overlay-partner" aria-haspopup="dialog" data-matomo-category="cta" data-matomo-action="overlay_open" data-matomo-label="partner_become">
-                        <span class="combi-pill-text combi-pill-text--animated" data-i18n="boxes.future.cta">Partner werden</span>
-                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
-                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </span>
-                        <span class="sr-only" data-i18n="boxes.future.cta">Partner werden</span>
-                    </button>
-                </div>
+            <div class="hero-actions" data-animate="fade-up" style="margin-top: 2.5rem;">
+                <a href="referenzen/" class="button button--plain-dark button--pill button--md">Mehr zu den Einsätzen</a>
             </div>
         </div>
     </section>
 
-    <div class="cta-overlay cta-overlay--dark" id="overlay-privacy" aria-hidden="true">
-        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-privacy-title">
-            <button class="cta-overlay__close" type="button" data-overlay-close>
-                <span aria-hidden="true">&times;</span>
-                <span class="sr-only" data-i18n="overlay.common.close">Overlay schließen</span>
-            </button>
-            <div class="cta-overlay__inner">
-                <p class="cta-overlay__kicker">PRIVATSPHÄRE</p>
-                <h3 class="cta-overlay__title cta-overlay__title--display-2" id="overlay-privacy-title">
-                    <span class="cta-overlay__title-line gradient-signature">Privatsphäre &amp; Datensicherheit.</span>
-                    <span class="cta-overlay__title-line gradient-hero-dark">Von Grund auf gedacht.</span>
-                </h3>
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Grundprinzipien der Indie.box</h4>
-                    <p class="cta-overlay__copy">
-                        Indie.box wurde nach folgenden Prinzipien entwickelt:
-                    </p>
-                    <ul class="cta-overlay__list">
-                        <li><span>Inhaltsdaten verbleiben auf dem System.</span></li>
-                        <li><span>Es erfolgt keine versteckte Übertragung von Inhalts- oder Nutzungsdaten an den Anbieter.</span></li>
-                        <li><span>Das System ist vollständig offline und air gapped betreibbar.</span></li>
-                        <li><span>Kontrolle über Modelle, Fähigkeiten und Integrationen liegt beim Eigentümer bzw. der administrativen Instanz des Systems.</span></li>
-                    </ul>
-                    <p class="cta-overlay__copy">
-                        „Inhalte“ meint eigene Daten wie Prompts, Chatverläufe, Uploads, Dokumente, erzeugte Ergebnisse sowie daraus abgeleitete Indizes. Diese verbleiben physisch auf der Box. Die Einhaltung ist durch Architektur, eingesetzte Komponenten sowie durch Kontrolle des ausgehenden Netzwerkverkehrs überprüfbar.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Die Nutzungsmöglichkeiten für Anwender werden durch die administrativen Einstellungen definiert. Änderungen an Modellen oder systemweiten Fähigkeiten erfolgen ausschließlich durch die dafür berechtigte Instanz.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Wie die Indie.box arbeitet</h4>
-                    <p class="cta-overlay__copy">
-                        Prompts, Dokumente und Antworten werden lokal verarbeitet. Es gibt keine versteckte Inhalts-Telemetrie oder Weitergabe von Inhalts- oder Nutzungsdaten.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        „Versteckte Telemetrie“ bezeichnet Mechanismen, bei denen Systeme im Hintergrund Informationen wie Fragen, Eingaben, Nutzungsmuster oder Systemzustände an externe Server übertragen, ohne dass dies funktional erforderlich oder transparent konfiguriert ist. Eine solche Übertragung findet nicht statt.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Netzwerkverkehr im technischen Sinn kann bestehen, etwa für Infrastrukturprotokolle wie DNS oder NTP oder um das System erreichbar zu machen. Ausgehender Verkehr ins Internet entsteht ausschließlich, wenn:
-                    </p>
-                    <ul class="cta-overlay__list">
-                        <li><span>Updates angestoßen werden</span></li>
-                        <li><span>externe Informationsquellen aktiv genutzt werden</span></li>
-                        <li><span>Integrationen oder Tools bewusst konfiguriert und verwendet werden</span></li>
-                    </ul>
-                    <p class="cta-overlay__copy">
-                        Es erfolgt keine eigenständige Übermittlung von Inhalts- oder Nutzungsdaten ins Internet.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Offline- und Air-Gap-Betrieb</h4>
-                    <p class="cta-overlay__copy">
-                        Das System ist fertig installiert und einsatzbereit. Es sind keine zusätzlichen Installationen erforderlich, um die Kernfunktionen zu nutzen. Zur Inbetriebnahme wird das System entweder einem bestehenden Netzwerk zugeordnet oder stellt ein eigenes lokales WLAN bereit. Auch ein vollständig isolierter Betrieb ohne Internetanbindung ist möglich.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Chat, Analyse bereitgestellter Daten sowie Generierung von Inhalten funktionieren ohne externe Abhängigkeiten. Modelle sind lokal installiert und lauffähig.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Updates können auch air gapped durchgeführt werden, indem geprüfte Update-Pakete kontrolliert übertragen und eingespielt werden.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Modelle, Kontrolle, Zensur</h4>
-                    <p class="cta-overlay__copy">
-                        Indie.box verwendet etablierte offene Modelle, die lokal ausgeführt werden. Es gibt keine nachgelagerte Filterung, Protokollierung oder inhaltliche Steuerung durch den Anbieter.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Die Eigenschaften eines Systems hinsichtlich Antwortstil, inhaltlicher Zurückhaltung oder möglicher Einschränkungen ergeben sich aus dem gewählten Modell selbst. Eine zentrale Instanz, die Antworten überwacht oder verändert, existiert nicht.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Welche Modelle installiert, entfernt oder produktiv genutzt werden, wird durch die administrative Ebene festgelegt. Anwender können diese Konfiguration nicht eigenständig verändern.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Der Austausch von Modellen ist möglich. Die Bewertung von Qualität, Eignung und möglichen inhaltlichen Ausprägungen liegt in der Verantwortung des Eigentümers bzw. der administrativen Instanz.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Integrationen und externe Zugriffe</h4>
-                    <p class="cta-overlay__copy">
-                        Standardmäßig verbleiben Inhaltsdaten lokal. Externe Integrationen sind optional und müssen aktiv konfiguriert werden, etwa für:
-                    </p>
-                    <ul class="cta-overlay__list">
-                        <li><span>Webrecherche</span></li>
-                        <li><span>externe KI-Dienste</span></li>
-                        <li><span>Datenbanken, APIs oder MCP</span></li>
-                        <li><span>interne Unternehmenssysteme und Netzlaufwerke</span></li>
-                    </ul>
-                    <p class="cta-overlay__copy">
-                        Vor Aktivierung solcher Funktionen sind die Auswirkungen auf Datenschutz, Informationsabfluss und Systemverhalten zu prüfen. Bei Webrecherchen werden zwangsläufig Informationen über das jeweilige Interessensgebiet nach außen sichtbar. Bei der Anbindung externer Dienste verlassen Daten das lokale System.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Zusätzlich ist das Risiko von Prompt Injection zu berücksichtigen. Bei einfachen Chat-Szenarien ist dies in der Regel beherrschbar. Bei Agenten mit weitergehenden System- oder Datenzugriffen kann eine unzureichende Validierung externer Inhalte zu Manipulationen führen. Der Einsatz solcher Funktionen erfordert daher eine bewusste Risikobewertung.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Multi-User-Betrieb und Rollen</h4>
-                    <p class="cta-overlay__copy">
-                        Indie.box unterstützt den Betrieb mit mehreren Nutzern. Benutzerbereiche sind voneinander getrennt. Inhalte sind nicht für andere Nutzer sichtbar, sofern keine entsprechenden Rechte vergeben wurden.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Administrative Konten besitzen systembedingte Zugriffsrechte, wie bei jedem lokal betriebenen IT-System. Diese Kontrolle liegt vollständig in der eigenen Organisation.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Rollen, Rechte und Modellzugriffe werden lokal definiert und verwaltet.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">Datenhaltung, Aufbewahrung, Löschung</h4>
-                    <p class="cta-overlay__copy">
-                        Indie.box speichert Arbeitsstände lokal, je nach Nutzung zum Beispiel Chats, Uploads und erzeugte Indizes.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Die Datenhaltung ist technisch nachvollziehbar und erfolgt ausschließlich innerhalb der eigenen Infrastruktur. Lösch- und Aufbewahrungsregeln werden auf System- oder Objektebene gesteuert, etwa durch das Entfernen von Chats, Projekten oder Datenbeständen. Eine selektive Entfernung einzelner Inhalte innerhalb eines bestehenden Chatverlaufs ist systembedingt nicht in jedem Fall vorgesehen.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Es erfolgt keine parallele oder verdeckte Speicherung außerhalb des Systems.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">DSGVO in der Praxis</h4>
-                    <p class="cta-overlay__copy">
-                        Im rein lokalen Betrieb treten keine neuen externen Drittverarbeiter hinzu. Es findet keine automatische Einbindung externer KI-Anbieter oder Cloud-Dienste statt. Damit entsteht kein zusätzlicher Auftragsverarbeitungsvertrag allein durch den Einsatz des Systems.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Die Verarbeitung erfolgt innerhalb der eigenen Infrastruktur, vergleichbar mit einer selbst betriebenen Datenbank, einem Fileserver oder einem Dokumentenmanagementsystem. Verantwortlichkeiten verbleiben in der eigenen Organisation.
-                    </p>
-                    <p class="cta-overlay__copy">
-                        Werden personenbezogene Daten verarbeitet, stellt dies einen Verarbeitungsvorgang im Sinne der DSGVO dar. Die rechtliche Bewertung, Zweckdefinition und Festlegung von Aufbewahrungsfristen obliegen dem Verantwortlichen. Solange keine externen Integrationen aktiviert werden, bleibt der Kreis der Empfänger technisch auf die eigene Organisation begrenzt.
-                    </p>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title">FAQ</h4>
-                    <details class="cta-overlay__details">
-                        <summary>Kann ich prüfen, was bei mir läuft?</summary>
-                        <div class="cta-overlay__details-body">
-                            <p>
-                                Ja. Es lässt sich jederzeit selbst prüfen, welche Modelle installiert sind und welche Software-Komponenten laufen. Modellstände sind in diesem Setup über eindeutige Digests/Hashes referenzierbar: wenn ein erwarteter Digest vorliegt, lässt sich verifizieren, dass genau dieser Modellstand lokal vorhanden ist und verwendet wird. Gleiches gilt für die Komponenten im Stack: sie laufen im Netzwerk und sind für das Team beobachtbar.
-                            </p>
-                        </div>
-                    </details>
-                    <details class="cta-overlay__details">
-                        <summary>Wie weiß ich als privater Nutzer, dass mein Verhalten nicht analysiert wird?</summary>
-                        <div class="cta-overlay__details-body">
-                            <p>
-                                Indie.box ist so ausgelegt, dass es <strong>keine Verhaltensanalyse</strong> und <strong>keine Telemetrie</strong> über Nutzungsmuster gibt. Wenn maximale Sicherheit gewünscht ist, wird das System <strong>offline</strong> betrieben oder ausgehende Verbindungen in Router/Firewall blockiert. Dann kann das System keine Nutzungsdaten übertragen, selbst wenn es irgendwo einen Fehler gäbe.
-                            </p>
-                        </div>
-                    </details>
-                    <details class="cta-overlay__details">
-                        <summary>Gehen meine Inhalte jemals nach außen?</summary>
-                        <div class="cta-overlay__details-body">
-                            <p>
-                                Standardmäßig nicht. Inhalte verlassen das System nur, wenn externe Funktionen aktiviert werden, etwa externe KI-Dienste, Tools oder Connectoren. Ein Admin entscheidet, ob solche Anbindungen existieren und welche Datenquellen sie nutzen.
-                            </p>
-                        </div>
-                    </details>
-                    <details class="cta-overlay__details">
-                        <summary>Was passiert, wenn ich Tools, Suche, MCP-Services oder Connectoren aktiviere?</summary>
-                        <div class="cta-overlay__details-body">
-                            <p>
-                                Dann kann Indie.box gezielt mit der Umgebung oder externen Diensten interagieren, genau dafür sind diese Integrationen da. Anbindungen funktionieren nur, wenn sie konfiguriert sind (Ziele, Credentials, Rechte). Damit wird bestimmt, welche Systeme erreichbar sind und welche Daten in Workflows überhaupt auftauchen dürfen.
-                            </p>
-                        </div>
-                    </details>
-                    <details class="cta-overlay__details">
-                        <summary>Wo liegen meine Daten, und wie bekomme ich sie wieder weg?</summary>
-                        <div class="cta-overlay__details-body">
-                            <p>
-                                Die Daten liegen lokal auf der Box, inklusive abgeleiteter Daten wie Indizes. Löschen ist damit eine lokale Betriebsfrage: es wird gesteuert, was gespeichert wird, wie lange es bleibt und wann es entfernt wird.
-                            </p>
-                        </div>
-                    </details>
-                </section>
-
-                <div class="cta-overlay__actions">
-                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
-                </div>
-            </div>
-        </article>
-    </div>
-
-    <div class="cta-overlay cta-overlay--metal" id="overlay-usage" aria-hidden="true">
-        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-usage-title">
-            <button class="cta-overlay__close" type="button" data-overlay-close>
-                <span aria-hidden="true">&times;</span>
-                <span class="sr-only" data-i18n="overlay.common.close">Overlay schließen</span>
-            </button>
-            <div class="cta-overlay__inner">
-                <p class="cta-overlay__kicker" data-i18n="overlay.usage.kicker">NUTZUNG</p>
-                <h3 class="cta-overlay__title" id="overlay-usage-title" data-i18n="overlay.usage.title">Warum Teams schnell produktiv werden.</h3>
-                <p class="cta-overlay__body" data-i18n="overlay.usage.body">
-                    Business Owner brauchen Ergebnisse ohne langes Integrationsprojekt. Indie.box reduziert Reibung im Alltag und gibt Teams einen klaren Startpunkt.
-                </p>
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.usage.arguments.title">Wesentliche Argumente</h4>
-                    <ul class="cta-overlay__list">
-                        <li>
-                            <strong data-i18n="overlay.usage.arguments.items.0.title">Schneller Wert statt langer Einführungsphase.</strong>
-                            <span data-i18n="overlay.usage.arguments.items.0.body">Vom Setup bis zum ersten produktiven Workflow vergehen Stunden statt Wochen.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.usage.arguments.items.1.title">Geringere operative Komplexität.</strong>
-                            <span data-i18n="overlay.usage.arguments.items.1.body">Teammitglieder arbeiten mit derselben stabilen Umgebung statt mit individuell gebauten Workarounds.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.usage.arguments.items.2.title">Planbare Kosten und Verantwortung.</strong>
-                            <span data-i18n="overlay.usage.arguments.items.2.body">Keine wechselnden Cloud-Rechnungen durch unklare Nutzungspfade.</span>
-                        </li>
-                    </ul>
-                </section>
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.usage.assurance.title">Wie wir das sicherstellen</h4>
-                    <ul class="cta-overlay__list">
-                        <li>
-                            <strong data-i18n="overlay.usage.assurance.items.0.title">Vorkonfigurierte Kern-Workflows.</strong>
-                            <span data-i18n="overlay.usage.assurance.items.0.body">Modelle, Basis-Tools und typische Abläufe sind so vorbereitet, dass Teams direkt loslegen.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.usage.assurance.items.1.title">Kontrollierte Updates.</strong>
-                            <span data-i18n="overlay.usage.assurance.items.1.body">Änderungen passieren nachvollziehbar und ohne Überraschungen im laufenden Betrieb.</span>
-                        </li>
-                        <li>
-                            <strong data-i18n="overlay.usage.assurance.items.2.title">Klare Betriebsgrenzen.</strong>
-                            <span data-i18n="overlay.usage.assurance.items.2.body">Lokal betriebene KI reduziert externe Abhängigkeiten und macht Verantwortlichkeiten eindeutig.</span>
-                        </li>
-                    </ul>
-                </section>
-                <div class="cta-overlay__actions">
-                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
-                </div>
-            </div>
-        </article>
-    </div>
-
-    <div class="cta-overlay cta-overlay--dark" id="overlay-partner" aria-hidden="true">
-        <article class="cta-overlay__dialog" role="dialog" aria-modal="true" aria-labelledby="overlay-partner-title">
-            <button class="cta-overlay__close" type="button" data-overlay-close>
-                <span aria-hidden="true">&times;</span>
-                <span class="sr-only" data-i18n="overlay.common.close">Overlay schließen</span>
-            </button>
-            <div class="cta-overlay__inner">
-                <p class="cta-overlay__kicker" data-i18n="overlay.partner.kicker">PARTNERPROGRAMM</p>
-                <h3 class="cta-overlay__title" id="overlay-partner-title" data-i18n="overlay.partner.title">Kundenlösungen lokal umsetzen</h3>
-                <p class="cta-overlay__body" data-i18n="overlay.partner.body" data-i18n-html="true">
-                    Indie.box ist die Plattform für Partner, die Kundenlösungen <strong>lokal</strong> umsetzen. Für Projekte mit Anforderungen an <strong>Datenhoheit</strong>, <strong>Sicherheit</strong> und <strong>kalkulierbare</strong> Laufzeitkosten.
-                </p>
-                <p class="cta-overlay__copy" data-i18n="overlay.partner.target" data-i18n-html="true">
-                    Gedacht für Partner, die gezielt ein <strong>lokales Setup</strong> einsetzen, um Kundenanforderungen <strong>wirtschaftlich</strong> umzusetzen.
-                </p>
-
-                <section class="cta-overlay__section cta-overlay__picker">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.picker.title">Wofür wird eine Indie.box-Basis gesucht?</h4>
-                    <p class="cta-overlay__section-subline" data-i18n="overlay.partner.picker.subline">Wähle den Typ, der am besten zum Geschäft passt.</p>
-                    <div class="cta-overlay__pick-grid">
-                        <a class="cta-overlay__pick" href="#partner-model-custom" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_picker_custom">
-                            <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.0.title">Für individuelle Kundenlösungen</h5>
-                            <ul class="cta-overlay__list cta-overlay__pick-list">
-                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.0">Konzipieren und implementieren kundenspezifische Lösungen</span></li>
-                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.1">Stabile Basis für Datenhoheit &amp; Security</span></li>
-                                <li><span data-i18n="overlay.partner.picker.items.0.bullets.2">Wiederholbar liefern, ohne Infrastruktur zu bauen</span></li>
-                            </ul>
-                        </a>
-                        <a class="cta-overlay__pick" href="#partner-model-packages" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_picker_packages">
-                            <h5 class="cta-overlay__pick-title gradient-signature" data-i18n="overlay.partner.picker.items.1.title">Für KI-Software Pakete</h5>
-                            <ul class="cta-overlay__list cta-overlay__pick-list">
-                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.0">KI-Produkt (z. B. RAG, Agent) als Paket</span></li>
-                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.1">Plug-and-Play beim Kunden ohne Setup-Projekt</span></li>
-                                <li><span data-i18n="overlay.partner.picker.items.1.bullets.2">Lizenz-, Preis- und Vertriebsmodelle frei gestalten</span></li>
-                            </ul>
-                        </a>
-                    </div>
-                </section>
-
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.value.title">Der Mehrwert für Partner</h4>
-                    <p class="cta-overlay__copy" data-i18n="overlay.partner.value.body" data-i18n-html="true">
-                        Indie.box ermöglicht lokalen Betrieb <strong>ohne eigenes Infrastrukturprojekt</strong> und <strong>ohne nutzungsabhängige Kostenmodelle</strong>.
-                    </p>
-                    <p class="cta-overlay__copy" data-i18n="overlay.partner.value.body2">
-                        So entstehen Lösungen, die langfristig stabil laufen und auch bei dauerhafter Nutzung wirtschaftlich bleiben.
-                    </p>
-                    <ul class="cta-overlay__list">
-                        <li>
-                            <span data-i18n="overlay.partner.value.items.0">Lokaler Betrieb zur Erfüllung von Datenhoheits- und Sicherheitsanforderungen</span>
-                        </li>
-                        <li>
-                            <span data-i18n="overlay.partner.value.items.1">Kostenstabile Laufzeitmodelle ohne token- oder verbrauchsabhängige Abrechnung</span>
-                        </li>
-                        <li>
-                            <span data-i18n="overlay.partner.value.items.2">Lang laufende Agenten und Automatisierungen ohne steigende Nutzungskosten</span>
-                        </li>
-                        <li>
-                            <span data-i18n="overlay.partner.value.items.3">Projektumsätze und Kundenbeziehung verbleiben vollständig beim Partner</span>
-                        </li>
-                    </ul>
-                </section>
-                <section class="cta-overlay__section">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.models.title">Partner-Modelle</h4>
-                    <p class="cta-overlay__section-subline" data-i18n="overlay.partner.models.subline">Zwei typische Wege, wie Partner mit Indie.box arbeiten.</p>
-
-                    <div class="cta-overlay__model" id="partner-model-custom">
-                        <h5 class="cta-overlay__model-title gradient-signature" data-i18n="overlay.partner.models.items.0.title">Individuelle Kundenlösungen</h5>
-                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.0.body1">
-                            Indie.box eignet sich für Partner, die kundenspezifische Lösungen konzipieren und implementieren und dafür eine lokal betriebene Plattform benötigen.
-                        </p>
-                        <p class="cta-overlay__copy">
-                            <strong data-i18n="overlay.partner.models.focusLabel">Fokus:</strong>
-                            <span data-i18n="overlay.partner.models.items.0.body2">Der Fokus liegt auf Fachlogik, Integration und Business-Anforderungen. Die Plattform stellt den lokalen Betrieb sicher.</span>
-                        </p>
-                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.0.benefitsLead">Was Partner davon haben:</p>
-                        <ul class="cta-overlay__list">
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.0">Zugang zu Kundenprojekten mit klaren Anforderungen an Lokalität und Datenhoheit</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.1">Kalkulierbare Projektaufwände durch eine einheitliche technische Basis</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.2">Wirtschaftlicher Betrieb unabhängig von Nutzung oder Laufzeit</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.3">Konzentration auf Lösung und Mehrwert statt Infrastruktur</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.4">Volle Kontrolle über Kundenbeziehung und Abrechnung</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.0.benefits.5">Sonderkonditionen ab dem ersten Kunden</span></li>
-                        </ul>
-                        <div class="cta-overlay__actions cta-overlay__actions--start">
-                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_contact_custom">Kontakt aufnehmen</a>
-                        </div>
-                    </div>
-
-                    <div class="cta-overlay__model" id="partner-model-packages">
-                        <h5 class="cta-overlay__model-title gradient-signature" data-i18n="overlay.partner.models.items.1.title">Eigene Lösungen auf lokaler Laufzeitumgebung ausliefern</h5>
-                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.body1">
-                            Indie.box bietet eine lokale Laufzeitumgebung, um eigene Lösungen mit großen Modellen direkt beim Kunden produktiv zu betreiben. Die Umgebung ist sofort einsatzbereit und als vertrauenswürdige Basis für sensible und dauerhaft laufende Systeme ausgelegt.
-                        </p>
-                        <p class="cta-overlay__copy">
-                            <strong data-i18n="overlay.partner.models.idealLabel">Ideal wenn:</strong>
-                            <span data-i18n="overlay.partner.models.items.1.body2">Eine bestehende Lösung wie ein Legal-System, ein RAG-Setup oder ein autonomer Agent als Produkt zum Kunden gebracht werden soll und dafür eine lokale Laufzeitumgebung mit großen Modellen fehlt.</span>
-                        </p>
-                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.offersLead">Indie.box bietet:</p>
-                        <ul class="cta-overlay__list">
-                            <li><span data-i18n="overlay.partner.models.items.1.offers.0">eine einsatzbereite lokale Laufzeitumgebung für große Modelle</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.offers.1">Plug-and-Play beim Kunden ohne Projekt- oder Setup-Phase</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.offers.2">lokalen Betrieb als Vertrauens- und Compliance-Grundlage</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.offers.3">Entlastung von Infrastruktur, Auslieferung und Plattformbetrieb</span></li>
-                        </ul>
-                        <p class="cta-overlay__copy" data-i18n="overlay.partner.models.items.1.enablesLead">Dies ermöglicht:</p>
-                        <ul class="cta-overlay__list">
-                            <li><span data-i18n="overlay.partner.models.items.1.enables.0">Fokus auf Produkt, Funktionalität und Vertrieb</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.enables.1">freie Gestaltung von Lizenz-, Preis- und Vertriebsmodellen</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.enables.2">Integration als App oder dedizierte Lösung, auch exklusiv oder vertikal</span></li>
-                            <li><span data-i18n="overlay.partner.models.items.1.enables.3">produktiven Betrieb ohne Cloud- oder verbrauchsbasierte Abrechnung</span></li>
-                        </ul>
-                        <div class="cta-overlay__actions cta-overlay__actions--start">
-                            <a href="#partner-contact" class="button button--plain-dark button--pill button--sm" data-i18n="overlay.partner.contact.cta" data-matomo-category="partner" data-matomo-action="jump" data-matomo-label="partner_contact_packages">Kontakt aufnehmen</a>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="cta-overlay__section" id="partner-contact">
-                    <h4 class="cta-overlay__section-title" data-i18n="overlay.partner.contact.title">Kontakt aufnehmen</h4>
-                    <form class="cta-overlay__form" data-mailto-to="contact@brainbot.com" data-mailto-subject="Partneranfrage Indie.box">
-                        <div class="form-grid">
-                            <div class="form-row">
-                                <label class="form-label" for="partner-name"><span data-i18n="overlay.partner.contact.fields.name.label">Name</span><span class="field-required">*</span></label>
-                                <input class="form-input" type="text" id="partner-name" name="name" autocomplete="name" required>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="partner-email"><span data-i18n="overlay.partner.contact.fields.email.label">E-Mail</span><span class="field-required">*</span></label>
-                                <input class="form-input" type="email" id="partner-email" name="email" autocomplete="email" required>
-                            </div>
-                            <div class="form-row">
-                                <label class="form-label" for="partner-url" data-i18n="overlay.partner.contact.fields.url.label">URL</label>
-                                <input class="form-input" type="url" id="partner-url" name="url" autocomplete="url" placeholder="https://">
-                            </div>
-                            <div class="form-row form-row--full">
-                                <label class="form-label" for="partner-message"><span data-i18n="overlay.partner.contact.fields.message.label">Beschreibung</span><span class="field-required">*</span></label>
-                                <textarea class="form-textarea" id="partner-message" name="message" required></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="button button--solid button--pill button--sm" data-i18n="overlay.partner.contact.submit" data-matomo-category="partner" data-matomo-action="submit" data-matomo-label="partner_contact_submit">Anfrage senden</button>
-                        </div>
-                    </form>
-                </section>
-                <div class="cta-overlay__actions">
-                    <button type="button" class="button button--plain-dark button--pill button--sm" data-overlay-close data-i18n="overlay.common.back">Zurück</button>
-                </div>
-            </div>
-        </article>
-    </div>
-
-
-    <!-- Vergleich + Warum -->
-    <section class="section comparison-section">
-        <div class="container" data-animate="fade-up">
+    <!-- Kapitel 7: Vergleich und Vertrauen (hell) -->
+    <section class="section comparison-section" id="vergleich">
+        <div class="container">
             <div class="compare-headline" data-animate="fade-up">
-                <h2 class="compare-title gradient-light" data-i18n="comparison.title">Warum Indie.box?</h2>
-                <p class="compare-subline" data-i18n="comparison.subline">Vergleiche Optionen und sieh, warum Indie.box die beste Wahl für private KI ist.</p>
+                <h2 class="compare-title gradient-light">EU-Hosting ist nicht Souveränität.</h2>
+                <p class="compare-subline">Souverän ist, was im eigenen Haus läuft. Der ehrliche Vergleich der vier Optionen.</p>
             </div>
-            <div class="comparison-grid">
+            <div class="comparison-grid comparison-grid--four">
                 <div class="comparison-item" data-animate="fade-up">
                     <div class="comparison-card comparison-card--negative">
-                    <div class="comparison-head">
-                        <h3 data-i18n="comparison.cloud.title">Cloud-KI</h3>
-                        <span class="comparison-label" data-i18n="comparison.cloud.badge">Nicht privat</span>
+                        <div class="comparison-head">
+                            <h3>Cloud-KI (US)</h3>
+                            <span class="comparison-label">Nicht souverän</span>
+                        </div>
+                        <ul class="symbol-list">
+                            <li>Daten auf fremden Servern</li>
+                            <li>Abo pro Nutzer und Monat</li>
+                            <li>Nutzungs- und Rate-Limits</li>
+                            <li>US Cloud Act greift direkt</li>
+                        </ul>
                     </div>
-                    <ul class="symbol-list">
-                        <li data-i18n="comparison.cloud.items.0">Monatliche Kosten</li>
-                        <li data-i18n="comparison.cloud.items.1">Daten auf fremden Servern</li>
-                        <li data-i18n="comparison.cloud.items.2">Nutzungs- und Rate-Limits</li>
-                        <li data-i18n="comparison.cloud.items.3">Internet zwingend erforderlich</li>
-                    </ul>
+                </div>
+
+                <div class="comparison-item" data-animate="fade-up">
+                    <div class="comparison-card comparison-card--negative">
+                        <div class="comparison-head">
+                            <h3>EU-gehostete KI</h3>
+                            <span class="comparison-label">Nicht souverän</span>
+                        </div>
+                        <ul class="symbol-list">
+                            <li>Betrieb oft bei US-Hyperscalern in EU-Regionen</li>
+                            <li>Cloud-Act-Risiko bleibt bestehen</li>
+                            <li>Üblich: 40 bis 75 € je Nutzer und Monat</li>
+                            <li>Limits und Vertragsbindung</li>
+                        </ul>
                     </div>
                 </div>
 
                 <div class="comparison-item comparison-item--highlight" data-animate="fade-up">
                     <div class="comparison-card comparison-card--positive">
                         <div class="comparison-head">
-                            <h3 data-i18n="comparison.indie.title">Indie.box</h3>
-                            <span class="comparison-label comparison-label--best" data-i18n="comparison.indie.badge">Beste Wahl</span>
+                            <h3>Indie.Solutions</h3>
+                            <span class="comparison-label comparison-label--best">Souverän</span>
                         </div>
                         <ul class="symbol-list">
-                            <li data-i18n="comparison.indie.items.0">Einmal kaufen, keine Abos</li>
-                            <li data-i18n="comparison.indie.items.1">Daten bleiben lokal</li>
-                            <li data-i18n="comparison.indie.items.2">Volle Leistung ohne Limits</li>
-                            <li data-i18n="comparison.indie.items.3">In Minuten startklar</li>
-                            <li data-i18n="comparison.indie.items.4">Ausgelegt für große Modelle</li>
+                            <li>Daten bleiben im Haus, nachweisbar</li>
+                            <li>Einmal kaufen statt pro Kopf zahlen</li>
+                            <li>Volle Leistung ohne Limits</li>
+                            <li>Offline und air-gapped betreibbar</li>
+                            <li>Software-Suite im Kaufpreis</li>
                         </ul>
                     </div>
                 </div>
 
                 <div class="comparison-item" data-animate="fade-up">
                     <div class="comparison-card comparison-card--negative">
-                    <div class="comparison-head">
-                        <h3 data-i18n="comparison.self.title">selbst betreiben</h3>
-                        <span class="comparison-label" data-i18n="comparison.self.badge">Komplex</span>
-                    </div>
-                    <ul class="symbol-list">
-                        <li data-i18n="comparison.self.items.0">Tage oder Wochen Setup-Zeit</li>
-                        <li data-i18n="comparison.self.items.1">Technisches Expertenwissen nötig</li>
-                        <li data-i18n="comparison.self.items.2">Hardware- und Treiberprobleme</li>
-                        <li data-i18n="comparison.self.items.3">Permanenter Wartungsaufwand</li>
-                        <li data-i18n="comparison.self.items.4">Kein verlässlicher Support</li>
-                    </ul>
+                        <div class="comparison-head">
+                            <h3>Selbst betreiben</h3>
+                            <span class="comparison-label">Komplex</span>
+                        </div>
+                        <ul class="symbol-list">
+                            <li>Wochen an Setup-Arbeit</li>
+                            <li>Expertenwissen erforderlich</li>
+                            <li>Hardware- und Treiberprobleme</li>
+                            <li>Dauerhafter Wartungsaufwand</li>
+                        </ul>
                     </div>
                 </div>
             </div>
-            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up" data-i18n="comparison.note" data-i18n-html="true">
-                Indie.box kombiniert die Privatsphäre von selbst betriebenen Systemen mit der Einfachheit von Cloud-KI.<br>
-                Ohne laufende Kosten. Ohne Basteln.
+            <p class="center-note center-note--prism gradient-signature" data-animate="fade-up">
+                Die Privatsphäre selbst betriebener Systeme. Die Einfachheit fertiger Produkte.<br>
+                Ohne laufende Kosten pro Kopf.
             </p>
+            <div class="hero-actions" data-animate="fade-up" style="margin-top: 1.5rem;">
+                <a href="privacy.html" class="button button--plain-light button--pill button--md">Wie wir Datensicherheit nachweisen</a>
+            </div>
         </div>
     </section>
-    <!-- Privates KI-Ökosystem -->
-    <section class="showcase-section parallax-container" id="demo">
-        <div class="showcase-container">
-            <img src="assets/image.png" alt="Indie.box" class="showcase-image parallax-bg" data-speed="0.3">
-            <div class="showcase-content">
-                <h2 class="showcase-title" data-animate="fade-up" data-i18n="showcase.title">Privates KI-Ökosystem</h2>
-                <p class="showcase-text" data-animate="fade-up" data-i18n="showcase.text" data-i18n-html="true">
-                    Nutze ein kuratiertes Ökosystem professioneller KI-Anwendungen.<br>
-                    Ein Klick zur Installation, Updates auf Knopfdruck und kein Datenabfluss.
+
+    <!-- Kapitel 8: Demo, Care, Kontakt (dunkel) -->
+    <section class="box-stack" id="kontakt-stack">
+        <div class="box-stack-container">
+            <div class="box" id="demo">
+                <div class="box-head">
+                    <div class="box-kicker">Demo</div>
+                    <div class="box-display" data-animate="fade-up">Selbst ausprobieren</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Die Chat-Demo läuft im Browser gegen echte lokale Modelle, ohne Anmeldung.
+                    Eine Vorführung von Agent Command Center und Agent Studio zeigen wir
+                    persönlich, auf Wunsch mit den eigenen Beispieldokumenten.
                 </p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Wie es funktioniert -->
-    <section class="section" style="background-color: var(--bg-light);">
-        <div class="container">
-            <div class="grid-3">
-                <div class="card" data-animate="fade-up">
-                    <h3 data-i18n="howto.items.0.title">1. Auspacken &amp; Verbinden</h3>
-                    <p class="card-lead" data-i18n="howto.items.0.body" data-i18n-html="true">
-                        Schließe die Indie.box an Strom und Netzwerk an.<br>
-                        WLAN oder Ethernet, fertig.
-                    </p>
-                </div>
-                <div class="card" data-animate="fade-up">
-                    <h3 data-i18n="howto.items.1.title">2. Browser öffnen</h3>
-                    <p class="card-lead" data-i18n="howto.items.1.body" data-i18n-html="true">
-                        Öffne die lokale Adresse im Browser.<br>
-                        Keine App. Kein Cloud-Login.
-                    </p>
-                </div>
-                <div class="card" data-animate="fade-up">
-                    <h3 data-i18n="howto.items.2.title">3. Loslegen</h3>
-                    <p class="card-lead" data-i18n="howto.items.2.body" data-i18n-html="true">
-                        Alle Modelle sind vorbereitet.<br>
-                        Sofort einsatzbereit, ohne Konfiguration.
-                    </p>
+                <div class="box-meta" data-animate="fade-up">
+                    <span class="box-tag">Ohne Anmeldung</span>
+                    <a href="chat.html" class="box-cta combi-pill combi-pill--flat">
+                        <span class="combi-pill-text">Demo starten</span>
+                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
+                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Einsatz -->
-    <section class="section capability-cards" id="einsatz">
-        <div class="container">
-            <header class="cap-header" data-animate="fade-up">
-                <div class="cap-eyebrow" data-i18n="capabilities.kicker">Anwendungsfälle</div>
-                <h2 class="cap-headline" data-i18n="capabilities.headline" data-i18n-html="true">Was Indie.box<br>möglich macht</h2>
-                <p class="cap-sub" data-i18n="capabilities.sub">Chat, Automatisierung und Agenten laufen vollständig auf der eigenen Plattform. Alles ist sofort eingerichtet, optimiert und einsatzbereit. Keine Cloud erforderlich.</p>
-            </header>
+            <div class="box" id="care">
+                <div class="box-head">
+                    <div class="box-kicker">Indie.care</div>
+                    <div class="box-display" data-animate="fade-up">Der Stack bleibt aktuell</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Stack-Updates, Sicherheitspatches und kuratierte Modell-Updates:
+                    Basis für 79 €/Monat, Business mit Prioritäts-Support und Fernwartung nach
+                    Freigabe für 179 €/Monat. Die ersten 3 Monate Basis sind im Kauf enthalten,
+                    monatlich kündbar. Und ohne Care läuft jedes System unbegrenzt weiter.
+                </p>
+                <div class="box-meta" data-animate="fade-up">
+                    <span class="box-tag">Je System, monatlich kündbar</span>
+                    <a href="care/" class="box-cta combi-pill combi-pill--flat">
+                        <span class="combi-pill-text">Mehr zu Indie.care</span>
+                        <span class="button button--solid button--pill button--sm combi-pill-action combi-pill-action--icon" aria-hidden="true">
+                            <svg class="combi-pill-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                                <path d="M8 3.2v9.6M3.2 8h9.6" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </a>
+                </div>
+            </div>
 
-            <div class="cap-list">
-
-                <!-- 1: Mit Dokumenten chatten -->
-                <article class="cap-card" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">01 / Dokumente</div>
-                        <h3 class="cap-card__title" data-i18n="capabilities.docs.title" data-i18n-html="true">Chatten mit <em>Dokumenten</em></h3>
-                        <p class="cap-card__body" data-i18n="capabilities.docs.body">PDFs, Verträge und Berichte hochladen, Inhalte analysieren, zusammenfassen und gezielt Fragen stellen. Alles bleibt im eigenen Netzwerk – kein einziges Byte verlässt die eigene Infrastruktur.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill" data-i18n="capabilities.docs.items.0">Viele Dateiformate</span>
-                            <span class="cap-pill" data-i18n="capabilities.docs.items.1">Wissensdatenbanken</span>
-                            <span class="cap-pill" data-i18n="capabilities.docs.items.2">Texterkennung</span>
-                            <span class="cap-pill" data-i18n="capabilities.docs.items.3">Zusammenfassungen</span>
+            <div class="box" id="kontakt">
+                <div class="box-head">
+                    <div class="box-kicker">Kontakt</div>
+                    <div class="box-display" data-animate="fade-up">Beratung anfragen</div>
+                </div>
+                <p class="box-body" data-animate="fade-up">
+                    Unverbindlich und kostenlos: Welche Stufe passt, was kostet der Vollausbau,
+                    wie läuft die Beschaffung? Antwort kommt von Menschen, die die Systeme selbst
+                    betreiben. Oder direkt an <a href="mailto:contact@brainbot.com" class="text-link">contact@brainbot.com</a>.
+                </p>
+                <form class="cta-overlay__form" data-mailto-to="contact@brainbot.com" data-mailto-subject="Beratungsanfrage indie.solutions" data-animate="fade-up">
+                    <div class="form-grid">
+                        <div class="form-row">
+                            <label class="form-label" for="contact-name"><span>Name</span><span class="field-required">*</span></label>
+                            <input class="form-input" type="text" id="contact-name" name="name" data-mailto-label="Name" autocomplete="name" required>
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label" for="contact-email"><span>E-Mail</span><span class="field-required">*</span></label>
+                            <input class="form-input" type="email" id="contact-email" name="email" data-mailto-label="E-Mail" autocomplete="email" required>
+                        </div>
+                        <div class="form-row form-row--full">
+                            <label class="form-label" for="contact-message"><span>Anliegen</span><span class="field-required">*</span></label>
+                            <textarea class="form-textarea" id="contact-message" name="message" required></textarea>
                         </div>
                     </div>
-                    <div class="cap-card__visual">
-                        <img src="assets/OpenWebUI.De.preview.png" data-full="assets/OpenWebUI.Screenshot.De.png" alt="Chat mit Dokumenten" loading="lazy">
+                    <div class="form-actions">
+                        <button type="submit" class="button button--solid button--pill button--sm">Anfrage senden</button>
                     </div>
-                </article>
-
-                <!-- 2: Agenten & Workflows -->
-                <article class="cap-card cap-card--flip" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">02 / Automatisierung</div>
-                        <h3 class="cap-card__title" data-i18n="capabilities.agents.title" data-i18n-html="true">Agenten &amp; <em>Workflows</em></h3>
-                        <p class="cap-card__body" data-i18n="capabilities.agents.body">Agenten erstellen, die KI, Daten und Tools direkt in den eigenen Workflows verbinden. Mehrstufige Logik, autonomes Arbeiten, lokal ausgeführt – mit über 1.000 App- und API-Konnektoren.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill" data-i18n="capabilities.agents.items.0">1.000+ Konnektoren</span>
-                            <span class="cap-pill" data-i18n="capabilities.agents.items.1">Mehrstufige Workflows</span>
-                            <span class="cap-pill" data-i18n="capabilities.agents.items.2">Agenten-Teams</span>
-                            <span class="cap-pill" data-i18n="capabilities.agents.items.3">Code-erweiterbar</span>
-                        </div>
-                    </div>
-                    <div class="cap-card__visual">
-                        <img src="assets/workflows.png" alt="Agenten-Workflow" loading="lazy">
-                    </div>
-                </article>
-
-                <!-- 3: Alle Modelle lokal -->
-                <article class="cap-card" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">03 / Modelle</div>
-                        <h3 class="cap-card__title" data-i18n="capabilities.models.title" data-i18n-html="true">Alle Modelle <em>lokal</em> ausführen</h3>
-                        <p class="cap-card__body" data-i18n="capabilities.models.body">Alle gängigen KI-Modelle, lokal. Indie.box kommt mit leistungsstarken Modellen vorinstalliert. Weitere bei Bedarf hinzufügen und sofort wechseln – starke Reasoning-, Vision- und Audio-Tasks inklusive.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill" data-i18n="capabilities.models.items.0">Starke Reasoning-Modelle</span>
-                            <span class="cap-pill" data-i18n="capabilities.models.items.1">Vision &amp; Audio</span>
-                            <span class="cap-pill" data-i18n="capabilities.models.items.2">Tool-Calls</span>
-                            <span class="cap-pill" data-i18n="capabilities.models.items.3">Hohe lokale Performance</span>
-                        </div>
-                        <a class="text-link" href="betriebs.html#modelle" data-i18n="capabilities.models.link">Vorinstallierte Modelle im Detail →</a>
-                    </div>
-                    <div class="cap-card__visual">
-                        <img src="assets/models.png" alt="Verfügbare Modelle" loading="lazy">
-                    </div>
-                </article>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Data Safety -->
-    <section class="section info-section info-section--dark" id="data-safety">
-        <div class="container">
-            <div class="info-card" data-animate="fade-up">
-                <h2 class="info-title info-title--display-2" data-i18n="dataSafety.title">Daten bleiben bei der Box</h2>
-                <p class="info-text info-text--lead" data-i18n="dataSafety.lead" data-i18n-html="true">
-                    Standardmäßig verlässt kein Byte das Netzwerk.<br>
-                    Keine Cloud. Keine Telemetrie.
-                </p>
-                <p class="info-text" data-i18n="dataSafety.body">
-                    Externe Dienste, Modell-Downloads oder Support-Zugriff sind immer deaktiviert und lassen sich nur
-                    bewusst freigeben.
-                </p>
-                <a href="privacy.html" class="text-link" data-i18n="dataSafety.link">So bleibt alles lokal</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Betrieb -->
-    <section class="section info-section info-section--light" id="betrieb">
-        <div class="container">
-            <div class="info-card" data-animate="fade-up">
-                <h2 class="info-title info-title--display-2 gradient-signature" data-i18n="operations.title">Ein System,<br> das einfach läuft</h2>
-                <p class="info-text info-text--lead" data-i18n="operations.lead" data-i18n-html="true">
-                    Die Indie.box läuft auf einem gehärteten Linux-System mit klar getrennten Benutzer- und
-                    Datenbereichen.<br>
-                    Updates, Modellwechsel und Support passieren nur mit Freigabe.
-                </p>
-                <p class="info-text" data-i18n="operations.body" data-i18n-html="true">
-                    Kein versteckter Zugriff.<br>
-                    Keine Überraschungen im Betrieb.
-                </p>
-                <a href="betriebs.html" class="text-link" data-i18n="operations.link">So funktioniert der Betrieb</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Spezifikation -->
-    <section class="section spec-section" id="spezifikation">
-        <div class="container">
-            <div class="spec-card spec-card--full" data-animate="fade-up">
-                <div class="spec-visual" aria-hidden="true">
-                    <img src="assets/indiebox-white-bg.png" alt="Indie.box" class="spec-visual-image">
-                </div>
-                <div class="spec-content">
-                    <p class="spec-kicker" data-i18n="spec.kicker">Workstation-Leistungsklasse</p>
-                    <h2 class="spec-title" data-i18n="spec.title" data-i18n-html="true">Indie<span class="brand-dot">.</span>box</h2>
-                    <p class="spec-tagline" data-i18n="spec.tagline">Einmal kaufen. Für immer besitzen.</p>
-                    <div class="spec-explorer" data-spec-explorer>
-                        <div class="spec-explorer__tabs" role="tablist" aria-label="Spezifikation">
-                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-hardware" aria-controls="spec-panel-hardware" aria-selected="true" tabindex="0" data-spec-tab="hardware" data-i18n="spec.explorer.tabs.hardware">Hardware</button>
-                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-benchmarks" aria-controls="spec-panel-benchmarks" aria-selected="false" tabindex="-1" data-spec-tab="benchmarks" data-i18n="spec.explorer.tabs.benchmarks">Benchmarks</button>
-                            <button class="spec-explorer__tab" type="button" role="tab" id="spec-tab-agents" aria-controls="spec-panel-agents" aria-selected="false" tabindex="-1" data-spec-tab="agents" data-i18n="spec.explorer.tabs.agents">Agenten</button>
-                        </div>
-
-                        <div class="spec-explorer__panels">
-                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-hardware" aria-labelledby="spec-tab-hardware" data-spec-panel="hardware">
-                                <ul class="spec-list">
-                                    <li><span data-i18n="spec.items.0">Prozessor</span><strong data-i18n="spec.values.0">AMD Ryzen™ AI Max 395 (16 Kerne)</strong></li>
-                                    <li><span data-i18n="spec.items.1">KI-Leistung</span><strong data-i18n="spec.values.1">High-Performance NPU (50 TOPS)</strong></li>
-                                    <li><span data-i18n="spec.items.2">Arbeitsspeicher</span><strong data-i18n="spec.values.2">128 GB High-Speed RAM</strong></li>
-                                    <li><span data-i18n="spec.items.3">Speicher</span><strong data-i18n="spec.values.3">2 TB NVMe SSD</strong></li>
-                                </ul>
-                                <ul class="spec-checks">
-                                    <li data-i18n="spec.checks.0">Vollständig vorkonfiguriertes System</li>
-                                    <li data-i18n="spec.checks.1">Priorisierter Business-Support</li>
-                                    <li data-i18n="spec.checks.2">Agenten-Automatisierungsplattform, Chat-Plattform und Modelle integriert</li>
-                                </ul>
-                            </div>
-
-                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-benchmarks" aria-labelledby="spec-tab-benchmarks" data-spec-panel="benchmarks" hidden>
-                                <div class="bench-head">
-                                    <div class="bench-highlight">
-                                        <div class="bench-highlight__value gradient-signature" data-i18n="spec.bench.highlight.value">235B</div>
-                                        <div class="bench-highlight__label" data-i18n="spec.bench.highlight.label">Parameter, lokal lauffähig</div>
-                                    </div>
-                                    <p class="bench-sub" data-i18n="spec.bench.sub">Parametergröße und Inferenzgeschwindigkeit (Tokens/s) auf Indie.box.</p>
-                                </div>
-
-                                <div class="bench-chart" role="group" aria-label="Benchmarks">
-                                    <div class="bench-chart__header" aria-hidden="true">
-                                        <span class="bench-chart__h bench-chart__h--model" data-i18n="spec.bench.cols.model">Modell</span>
-                                        <span class="bench-chart__h bench-chart__h--params" data-i18n="spec.bench.cols.params">Parameter (bis 235B)</span>
-                                        <span class="bench-chart__h bench-chart__h--tps" data-i18n="spec.bench.cols.tps">Tokens/s (bis 40)</span>
-                                    </div>
-
-                                    <div class="bench-row" style="--param-pct: 13%; --tps-pct: 95%;">
-                                        <div class="bench-model">Qwen3 30B</div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">30B</div>
-                                        </div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">35-40 tok/s</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bench-row" style="--param-pct: 51%; --tps-pct: 75%;">
-                                        <div class="bench-model">ChatGPT-OSS 120B</div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">120B</div>
-                                        </div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">~30 tok/s</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="bench-row" style="--param-pct: 100%; --tps-pct: 28%;">
-                                        <div class="bench-model">Qwen3 235B</div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--params" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">235B</div>
-                                        </div>
-                                        <div class="bench-metric">
-                                            <div class="bench-bar bench-bar--tps" aria-hidden="true">
-                                                <div class="bench-bar__fill"></div>
-                                            </div>
-                                            <div class="bench-value">~11 tok/s</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <p class="bench-footnote" data-i18n="spec.bench.note">* Benchmarks auf Indie.box (Ryzen AI Max 395) mit 4-bit quantisierten GGUF-Modellen.</p>
-                            </div>
-
-                            <div class="spec-explorer__panel" role="tabpanel" id="spec-panel-agents" aria-labelledby="spec-tab-agents" data-spec-panel="agents" hidden>
-                                <p class="agents-lead" data-i18n="spec.agents.lead">Vorinstallierte Tools für Chat, Automatisierung und langlebige Agenten.</p>
-                                <div class="agents-grid">
-                                    <div class="agents-item">
-                                        <div class="agents-item__title">OpenWebUI</div>
-                                        <div class="agents-item__desc" data-i18n="spec.agents.items.0.desc">Chat-Oberfläche für lokale Modelle – mit Nutzerverwaltung und Dokument-Chat.</div>
-                                    </div>
-                                    <div class="agents-item">
-                                        <div class="agents-item__title">Letta</div>
-                                        <div class="agents-item__desc" data-i18n="spec.agents.items.1.desc">Agenten-Runtime für langfristige Tasks – Memory, Tools und Persistenz.</div>
-                                    </div>
-                                    <div class="agents-item">
-                                        <div class="agents-item__title">n8n</div>
-                                        <div class="agents-item__desc" data-i18n="spec.agents.items.2.desc">Workflow-Automatisierung für Integrationen, Trigger und Datenpipelines.</div>
-                                    </div>
-                                    <div class="agents-item">
-                                        <div class="agents-item__title" data-i18n="spec.agents.items.3.title">Modellbibliothek</div>
-                                        <div class="agents-item__desc" data-i18n="spec.agents.items.3.desc">Kuratiert, lokal lauffähig – mit schnellem Wechsel zwischen Modellen.</div>
-                                    </div>
-                                </div>
-                                <p class="agents-footnote" data-i18n="spec.agents.note">Alles läuft lokal und ist so konfiguriert, dass externe Zugriffe deaktiviert bleiben, bis sie aktiv freigegeben werden.</p>
-                            </div>
-                        </div>
-                    </div>
-                <div class="hero-actions spec-actions">
-                    <div class="combi-pill">
-                        <span class="combi-pill-text" data-i18n="hero.price">5.500 €</span>
-                        <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="finalCta.primary" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_specs">Jetzt kaufen</a>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final CTA -->
-    <section class="section final-cta" id="final-cta">
-        <div class="container">
-            <div class="final-cta-card">
-                <h2 class="section-heading" style="margin-bottom: 1.5rem;" data-animate="fade-up" data-i18n="finalCta.title">Bereit für lokale KI ohne Kompromisse?</h2>
-                <div class="hero-actions" data-animate="fade-up" data-stagger="1">
-                    <div class="combi-pill">
-                        <span class="combi-pill-text" data-i18n="hero.price">5.500 €</span>
-                        <a href="checkout.html" class="button button--solid button--pill button--sm combi-pill-action" data-i18n="finalCta.primary" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_final">Jetzt kaufen</a>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </section>
@@ -989,23 +639,31 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <h4>Indie<span class="brand-dot">.</span>box</h4>
-                    <p data-i18n="footer.tagline">Private KI. Komplett lokal. Direkt Einsatsbereit.</p>
+                    <h4>indie<span class="brand-dot">.</span>solutions</h4>
+                    <p>Souveräne KI für den Arbeitsalltag.</p>
+                    <p class="footer-sov">Diese Website lädt nichts von Dritten. So wie unsere Produkte.</p>
                 </div>
                 <div class="footer-contact">
                     <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <div data-i18n="footer.copyright">© 2026 Indie.box</div>
+                <div>© 2026 brainbot GmbH</div>
                 <div class="legal-links">
-                    <a href="terms.html" data-i18n="footer.terms">AGB</a>
-                    <a href="datenschutz.html" data-i18n="footer.privacy">Datenschutz</a>
-                    <a href="impressum.html" data-i18n="footer.impressum">Impressum</a>
+                    <a href="terms.html">AGB</a>
+                    <a href="datenschutz.html">Datenschutz</a>
+                    <a href="impressum.html">Impressum</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <div class="sticky-pill">
+        <div class="combi-pill">
+            <span class="combi-pill-text">Indie.box · 5.500 €</span>
+            <a href="produkte/indie-box/" class="button button--solid button--pill button--sm combi-pill-action">Ansehen</a>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

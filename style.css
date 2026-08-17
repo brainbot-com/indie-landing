@@ -8765,3 +8765,136 @@ div[id].anchor-target {
         transition: none;
     }
 }
+
+/* ---------- Relaunch-Nachträge ---------- */
+/* Produktbilder liegen auf Neutral-Hintergrund, daher contain statt cover */
+.family-card__media {
+    background: var(--bg-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.family-card__media img {
+    object-fit: contain;
+}
+
+/* Hero-Bühne: Beton-Boden-Asset als untere Bildebene, oben nahtlos --bg-dark */
+.hero-solutions {
+    position: relative;
+    background: var(--bg-dark-metal);
+    color: #f3f7fb;
+    overflow: hidden;
+    padding: clamp(5rem, 12vh, 8rem) 0 clamp(3rem, 8vh, 5.5rem);
+}
+
+.hero-solutions__floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 38%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 38%);
+}
+
+.hero-solutions .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-solutions__title {
+    font-size: var(--t-display-1);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    color: #f3f7fb;
+}
+
+@supports (-webkit-text-fill-color: transparent) {
+    .hero-solutions__title .hero-line-main {
+        background: var(--gradient-hero-dark);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+}
+
+.hero-solutions__title .hero-line-accent {
+    display: block;
+    background: var(--gradient-prism);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-solutions__sub {
+    margin: 1.4rem auto 0;
+    font-size: var(--t-subhead);
+    line-height: 1.5;
+    color: rgba(236, 242, 248, 0.82);
+    max-width: 38em;
+}
+
+.hero-solutions__center {
+    text-align: center;
+}
+
+.hero-solutions__video {
+    max-width: 760px;
+    margin: clamp(2rem, 5vh, 3.25rem) auto 0;
+}
+
+.hero-solutions__actions {
+    margin-top: clamp(1.75rem, 4vh, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.hero-solutions__process {
+    font-size: var(--t-small);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(236, 242, 248, 0.6);
+}
+
+/* Software-Suite: Platzhalter-Vignette, bis echte UI-Shots vorliegen */
+.cap-card__visual--ph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border-left: 1px solid var(--panel-border);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: var(--t-small);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 1rem;
+}
+
+@media (max-width: 900px) {
+    .cap-card__visual--ph {
+        border-left: none;
+        border-top: 1px solid var(--panel-border);
+        min-height: 140px;
+    }
+}
+
+/* Software-Suite als dunkles Kapitel */
+.capability-cards--dark {
+    background: var(--bg-dark-metal);
+}
+
+.capability-cards--dark .cap-sub {
+    color: rgba(236, 242, 248, 0.75);
+}
