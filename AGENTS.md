@@ -4,6 +4,7 @@
 - **main = Neuaufbau der Website als indie.solutions.** Jeder Push deployt automatisch nach https://staging.indie.solutions (identisch mit staging.indiebox.ai, gleiche Docroot, gleiches backend-staging).
 - **Die alte indiebox.ai-Live-Seite lebt auf dem Branch `indiebox-live`** (Referenz: Release-Tag v2026.08.17). Patches an der alten Seite: dort committen, neu taggen, GitHub-Release auf den Tag → deployt live. NIEMALS ein Release von main machen, solange der Umbau läuft.
 - Cutover am Ende: Live-Vhost indie.solutions anlegen, APP_BASE_URL umstellen, indiebox.ai wird Redirect.
+- **Kanon für den Neuaufbau: KONZEPT-INDIE-SOLUTIONS.md** (Marke, Produkte, Hero-Konzept, Farben). Sprachregel dort verbindlich: kein Du; neutral wo möglich, "Sie" wo direkte Ansprache nötig.
 
 ## Design System
 - Style Guide (Tokens, Komponenten, Animationen): `STYLE_GUIDE.md`
