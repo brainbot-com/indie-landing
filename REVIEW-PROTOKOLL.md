@@ -52,7 +52,23 @@ reduced-motion-Spezifitätsbug der Combi-Pill (V10).
 
 ## Loop 2
 
-_Wird nach Abschluss der Loop-2-Prüfung ergänzt._
+- **Persona A: teilweise, nah an ja.** Loop-1-Blocker 1 (Orientierung) und 3 (Kontakt) ausgeräumt, Blocker 2 (Datensicherheit) teilweise. Neuer Blocker: privacy.html beschrieb noch Matomo-Cloud-Analytics (InnoCraft, Neuseeland) und widersprach damit der Footer-Zusage "lädt nichts von Dritten".
+- **Persona B: teilweise.** Netto-Kennzeichnung griff auf Startseite und Produktseiten, aber der Care-Netto-Einschub war versehentlich in den head geraten (ungültiges HTML, Hinweis unsichtbar); Abo-Preise auf Startseite Kapitel 8 und Router-Preis noch ohne Netto. Checkout- und Rack-Punkte als offene Fragen akzeptiert.
+- **QA: nicht grün.** V1-V10 verifiziert behoben; neu V11 (Care-Head-Streutext), V12 (Matomo-Abschnitt privacy.html), V13 (privacy.html Canonical/OG auf indiebox.ai), V14 (Router-Seite trägt "X Tokens/Monat inklusive*").
+
+Nachbesserungen aus Loop 2 (umgesetzt):
+- Matomo vollständig entfernt: Skript-Einbindung von allen Seiten genommen (inklusive Bestand: Checkout, Chat, Betrieb, Legal), privacy.html-Abschnitt ersetzt durch "Diese Website: keine Analytics, keine Dritt-Requests".
+- Care-Head repariert; Netto-Hinweis sichtbar im Care-Hero und in der Konditionen-Passage; "jeweils netto" in der Startseiten-Care-Box; Router-Fußnote um "netto zzgl. gesetzlicher Umsatzsteuer" ergänzt; Formulierung an Box/Workstation/Booster vereinheitlicht.
+- privacy.html: Canonical, hreflang, OG auf indie.solutions (V13).
+- Rechenbeispiel um Care- und Stromkosten ergänzt, Geld-zurück-Garantie an der Box-Karte der Startseite, Footer-Link Datensicherheit.
+- Zu V14: "X Tokens/Monat inklusive*" bleibt auf der Router-Seite bewusst stehen. Der Master-Prompt schreibt genau diesen Platzhalter vor; er ist per Fußnote als Platzhalter erklärt. Die Startseite trägt die verdichtete Form "Token-Kontingent inklusive (Höhe folgt)".
+
+## Loop 3 (Finalurteile)
+
+- **Persona B: JA.** Loop-2-Blocker ausgeräumt, keine neuen Inkonsistenzen. Letzter mechanischer Punkt: alte Domain indiebox.ai in terms.html (Anbieter-Block), betriebs.html und chat.html (Canonical/OG). Nach Loop 3 behoben (Domains auf indie.solutions umgestellt).
+- **Persona A: teilweise.** Fand die restlichen Dritt-Requests, die der erste Sweep übersehen hatte: matomo.js noch in docs/, Google Fonts noch auf allen Bestandsseiten, und datenschutz.html beschrieb weiter die Matomo-Verarbeitung. Ausdrücklich als Handwerk, nicht als Heiko-Frage eingestuft. Nach Loop 3 behoben: matomo.js und Google-Fonts-Einbindungen aus sämtlichen 45 betroffenen HTML-Dateien entfernt (docs/, admin/, en/, 404, Legal), datenschutz.html-Analytics-Abschnitt durch zutreffende Aussage ersetzt (juristische Bestätigung siehe OFFENE-FRAGEN.md Nr. 16).
+
+**Endstand nach drei Loops:** Persona B "ja". Persona A "teilweise": Die verbliebenen Punkte sind ausschließlich Fakten, die nur Heiko liefern kann (Nutzerzahl-Richtwerte, Kontakt-Verbindlichkeit, Revisions-Nachweise, Hardware-Garantie, Über-uns). Die von Persona A benannten handwerklichen Blocker sind alle behoben. QA-Punkte V1-V13 verifiziert, V14 als Master-Prompt-Vorgabe dokumentiert. Gemäß Master-Prompt (max. 3 Loops) endet der Loop hier; die ungelösten Punkte eskalieren als OFFENE-FRAGEN.md an Heiko.
 
 ## Nicht im Loop lösbar (Entscheidungen/Fakten von Heiko nötig)
 
