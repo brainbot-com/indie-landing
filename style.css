@@ -8899,3 +8899,15 @@ div[id].anchor-target {
 .hero-solutions__process {
     text-shadow: 0 1px 10px rgba(5, 11, 19, 0.85), 0 0 24px rgba(5, 11, 19, 0.6);
 }
+
+/* Mobile Nav: Platz für Logo + CTA + Toggle */
+@media (max-width: 768px) {
+    .nav-lang {
+        display: none;
+    }
+
+    .nav-actions .nav-buy {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.8rem;
+    }
+}
