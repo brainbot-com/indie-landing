@@ -1,91 +1,82 @@
-# Konzept: Neuaufbau als indie.solutions
+# Konzept indie.solutions (Kanon für den Neuaufbau)
 
-Arbeitsdokument für den Umbau von indiebox.ai zu indie.solutions (Neuaufbau seit 2026-08-17, siehe `AGENTS.md`). Dieses Dokument konsolidiert den gesetzten Kanon und markiert offene Entscheidungen. Regel aus dem Playbook: Design- und Konzeptfragen werden gegen Dateien entschieden, nicht gegen Chat-Erinnerung.
+Stand: 2026-08-17. Verbindlich für alle Sessions und Agents, die am Neuaufbau arbeiten.
+Abgestimmte Inhalte hier nur ergänzen oder präzisieren, nicht neu erfinden.
+Repo-Status (main = Neuaufbau, Branch indiebox-live = alte Seite): siehe AGENTS.md.
 
-Status-Legende: **GESETZT** = bestätigter Kanon, gilt. **OFFEN** = braucht eine Entscheidung von Heiko, bevor darauf aufgebaut wird.
+## Marke & Naming
 
----
+- Marke: **indie.solutions** (klein geschrieben, mit Punkt, auch am Satzanfang).
+- Claim: **"One Platform. Four Scales."** (bleibt in beiden Sprachversionen englisch).
+- Produktlinie (Namen in Versalien, Taglines englisch, in beiden Sprachen identisch):
+  | Produkt | Tagline | Referenzbild |
+  |---|---|---|
+  | INDIE.BOX | Local AI. Compact. | assets/indie-solutions/products/indie-box_reference.png |
+  | INDIE.BOX GPU | Accelerated AI. | assets/indie-solutions/products/indie-booster_reference.jpeg |
+  | INDIE WORKSTATION | High Performance AI. | assets/indie-solutions/products/indie-workstation_reference.png |
+  | INDIE RACK | Enterprise AI. | assets/indie-solutions/products/indie-rack_asus-reference.png |
 
-## 1. Ausgangslage
+## Positionierung
 
-- **GESETZT:** `main` ist der Neuaufbau als indie.solutions. Jeder Push deployt nach https://staging.indie.solutions. Die alte indiebox.ai-Seite lebt auf Branch `indiebox-live` (Tag v2026.08.17). Kein Release von `main`, solange der Umbau läuft.
-- **GESETZT:** Marken-Schriftzug im Hero ist bereits auf `indie.solutions` umgestellt (Kleinschreibung, Punkt als `brand-dot`-Akzent: `indie.solutions`).
-- **GESETZT:** Hero-Assets für indie.solutions liegen unter `assets/indie-solutions/` (siehe Abschnitt 3).
-- Der Rest der Seite (Copy, Struktur, Bilder, `llms.txt`, Meta-Tags) spricht noch von Indie.box und muss im Umbau nachgezogen werden.
+Die gleiche souveräne KI-Plattform für jede Anforderung die passende Hardware:
+ein Software-Stack, vier Hardware-Skalen (kompakt bis Enterprise-Rack). Zielgruppe B2B.
+Nach dem Cutover wird indiebox.ai ein Redirect auf indie.solutions.
 
-## 2. Design-System (visueller Kanon)
+## Sprache & Tonalität
 
-- **GESETZT:** `STYLE_GUIDE.md` + Tokens in `style.css` bleiben die Single Source of Truth und tragen den Neuaufbau weiter. Kern:
-  - Stil-Intention: premium, ruhig, technisch. Dunkle metallische Hero-Hintergründe, helle ruhige Content-Sektionen.
-  - Prism/Orange ausschließlich als Signatur-Akzent für Schlüsselwörter, nie für UI-Chrome oder Buttons.
-  - Typografie-Tokens (`--t-display-1` bis `--t-ui`) statt Ad-hoc-Größen; nur die freigegebenen Gradients und Hintergründe (`--gradient-prism`, `--gradient-hero-dark/-light`, `--bg-dark`, `--bg-dark-metal`, `--bg-light`, `--bg-neutral`).
-  - Komponenten-Kanon: Buttons (base + pill + size + treatment), Glow-Frame, CTA-Overlay, Animations-Systeme (Scroll-Reveal, Parallax, Hero-Sequenz, Combi-Pill, Nav-Reveal).
-  - Keine neuen Akzentfarben oder Gradient-Varianten ohne Update von `STYLE_GUIDE.md`.
-- **OFFEN:** Ob indie.solutions als Dachmarke eigene visuelle Erweiterungen braucht (z. B. Farbcodierung oder Badge-System pro Produkt), oder ob alle Produkte im identischen Look laufen. Default bis zur Entscheidung: identischer Look, keine neuen Farben.
+- Deutsch ist Master, Englisch wird generiert (Workflow: TRANSLATION.md).
+- **Kein Du.** Neutral formulieren, wo es ohne direkte Ansprache geht
+  ("auf der eigenen Plattform" statt "auf deiner Plattform").
+  **"Sie"**, wo direkte Ansprache nötig ist (Checkout, Formulare, Status- und
+  Fehlermeldungen: "Sie erhalten in Kürze …").
+- Englisch bleibt "you", davon unberührt.
+- Tonalität weiterhin nach AGENTS.md: positiv, selbstbewusst, klar positioniert,
+  mit Detail-Ebenen für kritische Leser.
+- Admin-Bereich bleibt English-only (AGENTS.md).
 
-## 3. Produktfamilie und Assets
+## Hero-Konzept "Variante 1"
 
-Die angelieferten Hero-Assets (`assets/indie-solutions/`) definieren eine Vier-Produkt-Familie:
+- Bühne: dunkle, kinoartige Betonhalle; die vier Produkte stehen wie fotografiert
+  auf dem Boden, darüber schwebt das Stack-Diagramm als dezentes Panel.
+- Links: Zeile "indie.solutions", Headline "One Platform. Four Scales.", Subline
+  "Die gleiche souveräne KI-Plattform – für jede Anforderung die passende Hardware."
+- Stack-Diagramm "INDIE SOLUTIONS STACK" als HTML/CSS (kein Bild), Ebenen von oben
+  nach unten (verbindliche Begriffe):
+  1. Anwendungen & Agents: Wissensarbeit, Prozessautomatisierung, Datenanalyse,
+     Dokumentenverarbeitung, Individuelle Agents
+  2. API & Integration
+  3. Modell-Orchestrierung & Workflows
+  4. Modell-Management | Daten & Knowledge | Sicherheit & Governance (eine Reihe)
+  5. Lokale Inferenz-Engine
+  6. Hardware-Abstraktion
+- Produkte per dünner Orange-Linie mit dem Stack verbunden, Tagline mit kurzem
+  Unterstrich in Akzentfarbe.
+- Mock-Referenz: assets/indie-solutions/mockups/hero-variante-1.png (sobald eingecheckt).
 
-| Referenz-Asset | Arbeitsname |
-|---|---|
-| `products/indie-box_reference.png` | Indie.Box |
-| `products/indie-booster_reference.jpeg` | Indie.Booster (Razer-Enclosure-Referenz) |
-| `products/indie-rack_asus-reference.png` | Indie.Rack (4U-Rack, ASUS-Referenz) |
-| `products/indie-workstation_reference.png` | Indie.Workstation (Fractal-Referenz) |
+## Farben & Stil (Neuaufbau)
 
-Dazu drei Hintergründe: `background-01_dark-concrete`, `background-02_light-industrial`, `background-03_dark-cinematic` (passen zum Dunkel/Hell-Rhythmus des Style Guides).
+- Basis sind die Tokens in style.css (:root). Einziger Farbakzent: **--accent-color**
+  (#FF4D00). --primary-color (Navy) im neuen Design nicht verwenden.
+- Dunkle Flächen: --bg-dark / --bg-dark-metal oder die Hintergründe aus
+  assets/indie-solutions/backgrounds/.
+- Diagramm-/Panel-Elemente: Füllung rgba(255,255,255,0.05), Rand 1px
+  rgba(255,255,255,0.14), Trenner rgba(255,255,255,0.12), Radius ~10px.
+  Beim ersten Verwender als Tokens anlegen (--panel-fill, --panel-border,
+  --panel-divider) und danach nur noch über die Tokens nutzen.
+- Text auf Panels: Weiß ~85% Deckkraft, Uppercase, --t-small/--t-ui.
+- Icons: weiße Line-Icons als Inline-SVG (stroke: currentColor). Keine Emojis,
+  keine Icon-Fonts, keine externen Ressourcen (strikte CSP).
+- Glow sparsam, Orientierung: --shadow-glow und STYLE_GUIDE.md "Glow Frame".
 
-- **GESETZT (aus Asset-QA):** Die Referenzbilder enthalten teils erkennbare Fremd-Hardware/Logos (ASUS, Razer, Fractal). Für die finale Produktion echte bzw. lizenzrechtlich saubere Produktfotografie verwenden. Learning aus dem Playbook: echte Bilder statt CGI-Platzhalter.
-- **OFFEN:** Finale Produktnamen und Schreibweise (Indie.Box-Muster mit Punkt vs. neue Konvention), Positionierung und Preis je Produkt, Reihenfolge/Hierarchie auf der Startseite (ein Hero-Produkt plus Familie, oder gleichberechtigtes Lineup).
-- **OFFEN:** Zielgruppenschnitt je Produkt (z. B. Booster = Einstieg/Erweiterung, Rack = Server-Raum/MSP, Workstation = Einzelarbeitsplatz). Nicht erfinden, mit Heiko festlegen.
+## Assets
 
-## 4. Sprache und Tonalität
+- assets/indie-solutions/products/ — Produkt-Referenzfotos. Achtung: ASUS- und
+  Razer-Logos sichtbar; vor dem Live-Gang klären, ersetzen oder retuschieren.
+- assets/indie-solutions/backgrounds/ — drei Hero-Hintergründe (dark-concrete,
+  light-industrial, dark-cinematic).
 
-### Workflow (GESETZT, aus `TRANSLATION.md` + `AGENTS.md`)
+## Offene Punkte
 
-- Deutsch ist die Quelle der Wahrheit (`index.html` u. a.), Englisch wird generiert (`i18n/<seite>.lang.en.json` + `scripts/generate-lang.js` → `en/`). Englisch nie von Hand pflegen.
-- Für jede neue oder geänderte HTML-Seite die passende englische Seite mitgenerieren.
-- Übersetzungs-Keys stabil und semantisch (`hero.title.line1`), Englisch knapp halten (max. ~10-15 % länger als Deutsch).
-- Admin-/Backend-Seiten sind ausschließlich Englisch, keine deutschen Versionen.
-
-### Tonalität (GESETZT, aus `AGENTS.md`)
-
-- Positiv, selbstbewusst, klar in der Positionierung. Kurze, konkrete Sätze statt vager Claims (Muster aus dem Bestand: "Deine Daten. Deine KI. Keine Cloud.").
-- Kritikfest schreiben: pro Sektion fragen, wo ein kritischer Leser nachhakt, und dort eine optionale Detail-Ebene anbieten (FAQ, Accordion, Infobox, "Mehr erfahren"). Hauptfläche knapp halten.
-- Konsistenz über alle Seiten: Specs, Preise, Datenschutz-Aussagen und Overlays dürfen sich nicht widersprechen. `llms.txt`, Schema.org-Markup und Copy müssen dieselben Fakten nennen.
-
-### Anrede (OFFEN, Inkonsistenz im Bestand)
-
-Der aktuelle Bestand mischt die Anrede: Meta-Description und einzelne Sektionen siezen ("Ihre Daten"), Hero und Produkt-Copy duzen ("Deine Daten", "dein"). Für indie.solutions eine Anrede festlegen und im gesamten Bestand vereinheitlichen. Empfehlung: Du beibehalten (passt zum selbstbewussten, direkten Ton des Heros), Sie nur, falls die Zielgruppe mit Rack/Workstation stärker Richtung klassischer Unternehmens-IT rückt.
-
-### Schreibweisen (GESETZT, soweit im Bestand erkennbar)
-
-- Marke: `indie.solutions` klein mit Punkt (Hero-Schriftzug). In Fließtext-Anfängen und Titeln bis auf Weiteres ebenso klein halten, nicht "Indie Solutions".
-- Produkte bisher im Muster `Indie.box`/`Indie.Box` — finale Konvention siehe Abschnitt 3 (OFFEN), bis dahin bestehende Schreibweise nicht eigenmächtig ändern.
-
-## 5. Seitenarchitektur des Neuaufbaus
-
-- **GESETZT (Bestand, wird weitergeführt):** statische Seite ohne Frameworks, handgepflegtes HTML im Repo-Root, `style.css` + `script.js`, Backend nur für Checkout/Chat. SEO/AEO-Schicht pro Seite: Head-Block (canonical, hreflang, OG/Twitter, JSON-LD), `robots.txt` (Trainings-Crawler gesperrt, Suche und nutzergetriggerte KI-Abrufe erlaubt), `llms.txt`, `sitemap.xml`.
-- **OFFEN:** Ob der Neuaufbau bei der bestehenden Struktur bleibt oder auf das Markdown-basierte Muster aus `PLAYBOOK-NEUES-WEBPROJEKT.md` (content/ + templates/ + build.mjs → site/) migriert. Default bis zur Entscheidung: bestehende Struktur beibehalten, Playbook-Muster nur für ein etwaiges frisches Repo.
-- **Nachziehen im Umbau (Checkliste):**
-  - [ ] Hero: Copy und Bild auf indie.solutions-Lineup umstellen (neue Assets)
-  - [ ] Produktsektionen für die Vier-Produkt-Familie (nach Entscheidung Abschnitt 3)
-  - [ ] Meta-Tags, `<title>`, OG/Twitter, JSON-LD auf indie.solutions
-  - [ ] `llms.txt` neu schreiben (spricht noch komplett von Indie.box/indiebox.ai)
-  - [ ] `sitemap.xml`/`robots.txt`-URLs beim Cutover auf indie.solutions
-  - [ ] Anrede vereinheitlichen (nach Entscheidung Abschnitt 4)
-  - [ ] EN-Seiten regenerieren
-  - [ ] Cutover: Live-Vhost indie.solutions, `APP_BASE_URL`, indiebox.ai als Redirect (siehe `AGENTS.md`)
-
-## 6. Offene Entscheidungen (Sammelliste für Heiko)
-
-1. Produktnamen, Schreibweise und Positionierung der Vier-Produkt-Familie (Abschnitt 3)
-2. Preise je Produkt (Bestand nennt nur 5.500 € für die Indie.box)
-3. Anrede Du vs. Sie (Abschnitt 4, Empfehlung: Du)
-4. Startseiten-Dramaturgie: ein Hero-Produkt oder Familien-Lineup
-5. Visuelle Differenzierung der Produkte ja/nein (Abschnitt 2)
-6. Struktur beibehalten oder Playbook-Markdown-Muster (Abschnitt 5)
-7. Finale Produktfotografie (Referenz-Assets zeigen Fremd-Hardware, Abschnitt 3)
-
-Sobald ein Punkt entschieden ist: Status hier auf GESETZT ziehen und ggf. `STYLE_GUIDE.md`/`AGENTS.md` nachführen.
+- Hero-Mock einchecken (assets/indie-solutions/mockups/hero-variante-1.png).
+- Fremdlogos auf Produktbildern für den Live-Gang klären.
+- Cutover-Schritte: siehe AGENTS.md Status-Block.
