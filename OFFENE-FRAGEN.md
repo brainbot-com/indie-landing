@@ -29,6 +29,10 @@ Entscheidung mit gekennzeichneten Platzhaltern bzw. lassen die Angabe weg.
 19. **Rack-Formular erweitern:** Beschaffungsweg um "Rahmenvertrag / Vergabeplattform", optional Feld USt-IdNr./Rechnungsanschrift? (Vorschlag Persona B.)
 20. **Fremdlogos auf den Produkt-Referenzbildern** (GMKtec, Razer, ASUS, sichtbare Fremdhardware): vor Live-Gang ersetzen oder retuschieren; finale Produktfotografie nach den Bildregeln des Master-Prompts (Booster neben Box, Beleuchtung aus, keine Fremdlogos).
 
+21. **Betriebskennzahlen für Beschaffungsvorlagen** (Persona Beschaffung, Vertiefungs-Loop): Gibt es zusagbare Werte für Backup-Rhythmus und Wiederherstellungsdauer (RTO/RPO)? Die Seiten beschreiben aktuell nur die Mechanik (zentraler Datenbereich, Wiederherstellung über den Installer) und sagen ehrlich, dass Rhythmus und Aufbewahrung die Organisation festlegt. Falls es Zusagen im Rahmen von Indie.care gibt, gehören sie auf die Care-Seite.
+22. **Monitoring und Meldewege im Fehlerfall:** Gibt es Monitoring oder Alerting, und wer wird bei einem Systemausfall wie informiert? Bisher auf keiner Seite und auch nicht in `betriebs.html` belegt, deshalb nirgends behauptet.
+23. **Redundanz beim Indie.rack:** Gibt es eine Basis-Redundanzstufe im Standardangebot, oder ist jede Stufe Einzelvertrag? Die Seite sagt derzeit, dass der Umfang je Organisation festgelegt und im Angebot ausgewiesen wird.
+
 ## Bekannte, gewollte Platzhalter (laut Master-Prompt Abschnitt 9)
 
 Erklärvideo (Hero), UI-Vignetten der Software-Suite, Workstation-/Vollausbau-Benchmarks,

@@ -68,6 +68,21 @@
               "@type": "Question",
               "name": "Wie kommen die Nutzer an das System?",
               "acceptedAnswer": { "@type": "Answer", "text": "Chat, Workflows, Dashboard und Administration sind Weboberflächen und per Browser erreichbar, auf Desktop wie auf Mobilgerät. Nutzer werden lokal angelegt und verwaltet, im Business-Kontext lässt sich die Anmeldung optional an bestehende Systeme anbinden (SSO/LDAP)." }
+            },
+            {
+              "@type": "Question",
+              "name": "Wer spielt Updates ein, wenn kein Indie.care-Vertrag läuft?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Die Organisation selbst. Updates werden über das Admin-Interface angestoßen, standardmäßig manuell und auf Wunsch automatisch. Indie.care nimmt diese Arbeit ab und liefert zusätzlich kuratierte Modell-Updates und Sicherheitspatches. Ohne Vertrag läuft das System unbegrenzt weiter, die Pflege liegt dann in der eigenen Verantwortung." }
+            },
+            {
+              "@type": "Question",
+              "name": "Wie oft wird gesichert, und wie läuft eine Wiederherstellung?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Die persistenten Daten aller Anwendungen liegen gebündelt in einem zentralen Datenbereich, getrennt nach Anwendung. Die Sicherung dieses Bereichs lässt sich in die vorhandene Backup-Strategie der Organisation einhängen, Rhythmus und Aufbewahrung legt die Organisation fest. Die Wiederherstellung erfolgt über den Installer: Grundsystem installieren, Datenbereich zurückspielen, Anwendungen über das Dashboard starten." }
+            },
+            {
+              "@type": "Question",
+              "name": "Ist Rechnungskauf mit Zahlungsziel möglich?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Die Zahlung ist nach den AGB unmittelbar mit Vertragsschluss fällig, sofern keine andere Zahlungsart vereinbart wurde. Rechnungskauf mit Zahlungsziel ist als abweichende Vereinbarung vorgesehen, für Organisationen und die öffentliche Hand klären wir das vor der Bestellung." }
             }
           ]
         }
@@ -301,7 +316,7 @@
                     <p class="honest-box__title">Was nicht dabei ist</p>
                     <ul>
                         <li>Keine gemessenen Tokens/s-Werte. Sie werden auf der Zielhardware gemessen und anschließend veröffentlicht.</li>
-                        <li>Geschwindigkeit ist nicht die Stärke dieser Stufe. Wer kurze Antwortzeiten bei vielen gleichzeitigen Anfragen braucht, ist mit Indie.booster oder Indie.workstation besser bedient.</li>
+                        <li>Geschwindigkeit ist nicht die Stärke dieser Stufe. Diese Bauform ist auf Modellgröße optimiert, nicht auf kurze Antwortzeiten bei vielen gleichzeitigen Anfragen.</li>
                         <li>Indie.care ist nur die ersten 3 Monate enthalten, danach optional und kostenpflichtig.</li>
                         <li>Indie.router ist ein separates Modul und noch nicht verfügbar.</li>
                     </ul>
@@ -421,6 +436,18 @@
                 <details class="faq-item">
                     <summary>Wie kommen die Nutzer an das System?</summary>
                     <div class="faq-item__body"><p>Chat, Workflows, Dashboard und Administration sind Weboberflächen und per Browser erreichbar, auf Desktop wie auf Mobilgerät. Nutzer werden lokal angelegt und verwaltet, im Business-Kontext lässt sich die Anmeldung optional an bestehende Systeme anbinden (SSO/LDAP).</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wer spielt Updates ein, wenn kein Indie.care-Vertrag läuft?</summary>
+                    <div class="faq-item__body"><p>Die Organisation selbst. Updates werden über das Admin-Interface angestoßen, standardmäßig manuell und auf Wunsch automatisch. Indie.care nimmt diese Arbeit ab und liefert zusätzlich kuratierte Modell-Updates und Sicherheitspatches. Ohne Vertrag läuft das System unbegrenzt weiter, die Pflege liegt dann in der eigenen Verantwortung.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Wie oft wird gesichert, und wie läuft eine Wiederherstellung?</summary>
+                    <div class="faq-item__body"><p>Die persistenten Daten aller Anwendungen liegen gebündelt in einem zentralen Datenbereich, getrennt nach Anwendung. Die Sicherung dieses Bereichs lässt sich in die vorhandene Backup-Strategie der Organisation einhängen, Rhythmus und Aufbewahrung legt die Organisation fest. Die Wiederherstellung erfolgt über den Installer: Grundsystem installieren, Datenbereich zurückspielen, Anwendungen über das Dashboard starten.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Ist Rechnungskauf mit Zahlungsziel möglich?</summary>
+                    <div class="faq-item__body"><p>Die Zahlung ist nach den AGB unmittelbar mit Vertragsschluss fällig, sofern keine andere Zahlungsart vereinbart wurde. Rechnungskauf mit Zahlungsziel ist als abweichende Vereinbarung vorgesehen, für Organisationen und die öffentliche Hand klären wir das vor der Bestellung. Details in den <a href="/terms.html" class="text-link">AGB</a>.</p></div>
                 </details>
             </div>
         </div>

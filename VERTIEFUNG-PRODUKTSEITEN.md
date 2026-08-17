@@ -47,7 +47,7 @@ Muster der bestehenden Seiten (Hero dunkel, dann abwechselnd `.section` und
 5. **Inbetriebnahme und Betrieb.** Was beim Aufstellen passiert und wie das System im Alltag läuft, auf Basis von `betriebs.html`: Netzwerk und Strom, Browser-Zugriff im lokalen Netz, Nutzerverwaltung lokal oder per Business-Login, getrennte Container je Anwendung, planbare Updates, Backup und Wiederherstellung. Prozess-Sprache, keine Zeitangaben. Abschluss: Textlink auf `/betriebs.html` ("Betrieb im Detail").
 6. **Datensicherheit auf dieser Stufe.** Drei bis fünf Sätze, was konkret für dieses Produkt gilt: lokale Verarbeitung, keine Telemetrie, externe Dienste standardmäßig aus, Air-Gap möglich. Beim Rack zusätzlich: dedizierte Hardware je Organisation. Abschluss: Textlink auf `/privacy.html`.
 7. **Abgrenzung: Wann diese Stufe, wann eine andere.** Ehrliche Zuordnung mit `.crosslinks` auf die anderen drei Produkte und `/care/`. Je Link ein `small` mit dem Grund, wann man dorthin wechselt. Diese Sektion darf und soll auch vom eigenen Produkt abraten, wenn eine andere Stufe besser passt.
-8. **FAQ.** Fünf bis sieben Fragen als `<details class="faq-item">` in `<div class="faq-list">`, Muster:
+8. **FAQ.** Fünf bis sieben Fragen (auf der Indie.box-Seite als Flaggschiff inzwischen zehn, ergänzt um Updates ohne Care, Backup und Wiederherstellung, Rechnungskauf) als `<details class="faq-item">` in `<div class="faq-list">`, Muster:
    ```html
    <div class="faq-list">
      <details class="faq-item">
