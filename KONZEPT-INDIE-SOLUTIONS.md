@@ -1,57 +1,37 @@
 # Konzept indie.solutions (Kanon für den Neuaufbau)
 
-Stand: 2026-08-17. Verbindlich für alle Sessions und Agents, die am Neuaufbau arbeiten.
-Abgestimmte Inhalte hier nur ergänzen oder präzisieren, nicht neu erfinden.
+Stand: 2026-08-17, aktualisiert nach Eingang des Master-Prompts.
+**Inhaltliche Quelle der Wahrheit ist `MASTER-PROMPT-RELAUNCH.md`** (von Heiko, 2026-08-17).
+Dieses Dokument fasst den Kanon zusammen und ergänzt Design-Details, die der Master-Prompt offen lässt.
+Frühere Stände dieses Dokuments (Claim "One Platform. Four Scales.", Versalien-Namen wie INDIE.BOX GPU)
+sind durch den Master-Prompt ersetzt.
 Repo-Status (main = Neuaufbau, Branch indiebox-live = alte Seite): siehe AGENTS.md.
 
-## Marke & Naming
+## Marke & Naming (aus Master-Prompt, verbindlich)
 
-- Marke: **indie.solutions** (klein geschrieben, mit Punkt, auch am Satzanfang).
-- Claim: **"One Platform. Four Scales."** (bleibt in beiden Sprachversionen englisch).
-- Produktlinie (Namen in Versalien, Taglines englisch, in beiden Sprachen identisch):
-  | Produkt | Tagline | Referenzbild |
-  |---|---|---|
-  | INDIE.BOX | Local AI. Compact. | assets/indie-solutions/products/indie-box_reference.png |
-  | INDIE.BOX GPU | Accelerated AI. | assets/indie-solutions/products/indie-booster_reference.jpeg |
-  | INDIE WORKSTATION | High Performance AI. | assets/indie-solutions/products/indie-workstation_reference.png |
-  | INDIE RACK | Enterprise AI. | assets/indie-solutions/products/indie-rack_asus-reference.png |
+- Absender: **Indie.Solutions**. Marken-Schriftzug im Hero: `indie.solutions` (klein, Punkt als brand-dot).
+- Claim: **"Souveräne KI für den Arbeitsalltag."** Subclaim: "Wir machen souveräne KI einfach."
+- Produktnamen immer in Punkt-Schreibweise: **Indie.box, Indie.booster, Indie.workstation, Indie.rack, Indie.router, Indie.care, Indie.chat, Indie.brain** (dazu: Agent Command Center, Agent Studio).
+- Preise: Indie.box 5.500 €, Indie.booster 8.000 €, Indie.workstation 12.000 €, Vollausbau Box+Booster 13.500 €, Indie.rack auf Anfrage. Indie.care Basis 79 €/Monat, Business 179 €/Monat. Indie.router 19 €/Monat oder 190 €/Jahr (Coming soon, geplanter Einführungspreis).
 
 ## Positionierung
 
-Die gleiche souveräne KI-Plattform für jede Anforderung die passende Hardware:
-ein Software-Stack, vier Hardware-Skalen (kompakt bis Enterprise-Rack). Zielgruppe B2B.
+Souveräne, lokale KI für den deutschen Mittelstand und Verwaltungen. Eine Hardware-Familie,
+eine Software-Suite (auf jeder Hardware enthalten, ohne Nutzergebühren), ein Enterprise-Segment.
+Wettbewerbs-Kernsatz: "EU-Hosting ist nicht Souveränität."
+Qualitätsmaßstab Gestaltung: Apple, Teenage Engineering, Framework. Reduziert, präzise.
 Nach dem Cutover wird indiebox.ai ein Redirect auf indie.solutions.
 
-## Sprache & Tonalität
+## Sprache & Tonalität (aus Master-Prompt, verbindlich)
 
-- Deutsch ist Master, Englisch wird generiert (Workflow: TRANSLATION.md).
-- **Kein Du.** Neutral formulieren, wo es ohne direkte Ansprache geht
-  ("auf der eigenen Plattform" statt "auf deiner Plattform").
-  **"Sie"**, wo direkte Ansprache nötig ist (Checkout, Formulare, Status- und
-  Fehlermeldungen: "Sie erhalten in Kürze …").
-- Englisch bleibt "you", davon unberührt.
-- Tonalität weiterhin nach AGENTS.md: positiv, selbstbewusst, klar positioniert,
-  mit Detail-Ebenen für kritische Leser.
+- Deutsch ist Master, Englisch wird generiert (Workflow: TRANSLATION.md), Englisch kommt als späterer Schritt.
+- **Kein Du.** Sie oder neutral. Neutral, wo es ohne direkte Ansprache geht; "Sie" wo nötig (Formulare, Checkout, Statusmeldungen).
+- **Verboten:** zeitbasierte Produktivitätsversprechen ("Stunden statt Wochen" etc.). Stattdessen Prozess-Sprache: "Auspacken. Anschließen. Loslegen."
+- Nutzen vor Produkt: erster Satz jeder Sektion funktioniert ohne Produktnamen.
+- Kurze Sätze, Punkt-Rhythmus, keine Buzzwords, keine Superlative ohne Beleg, konkrete Zahlen statt Adjektive.
+- Sprach-Mechaniken: Nutzen-Subline unter jeder Headline, Risiko-Umkehr am CTA, Zielgruppen-Label über Sektionen, Feature-Name plus genau ein erklärender Satz.
+- Umlaute immer als ä/ö/ü/ß.
 - Admin-Bereich bleibt English-only (AGENTS.md).
-
-## Hero-Konzept "Variante 1"
-
-- Bühne: dunkle, kinoartige Betonhalle; die vier Produkte stehen wie fotografiert
-  auf dem Boden, darüber schwebt das Stack-Diagramm als dezentes Panel.
-- Links: Zeile "indie.solutions", Headline "One Platform. Four Scales.", Subline
-  "Die gleiche souveräne KI-Plattform – für jede Anforderung die passende Hardware."
-- Stack-Diagramm "INDIE SOLUTIONS STACK" als HTML/CSS (kein Bild), Ebenen von oben
-  nach unten (verbindliche Begriffe):
-  1. Anwendungen & Agents: Wissensarbeit, Prozessautomatisierung, Datenanalyse,
-     Dokumentenverarbeitung, Individuelle Agents
-  2. API & Integration
-  3. Modell-Orchestrierung & Workflows
-  4. Modell-Management | Daten & Knowledge | Sicherheit & Governance (eine Reihe)
-  5. Lokale Inferenz-Engine
-  6. Hardware-Abstraktion
-- Produkte per dünner Orange-Linie mit dem Stack verbunden, Tagline mit kurzem
-  Unterstrich in Akzentfarbe.
-- Mock-Referenz: assets/indie-solutions/mockups/hero-variante-1.png (sobald eingecheckt).
 
 ## Farben & Stil (Neuaufbau)
 
@@ -67,6 +47,18 @@ Nach dem Cutover wird indiebox.ai ein Redirect auf indie.solutions.
 - Icons: weiße Line-Icons als Inline-SVG (stroke: currentColor). Keine Emojis,
   keine Icon-Fonts, keine externen Ressourcen (strikte CSP).
 - Glow sparsam, Orientierung: --shadow-glow und STYLE_GUIDE.md "Glow Frame".
+- **Kein einziger Laufzeit-Request an Dritte** (Master-Prompt, nicht verhandelbar): Fonts self-hosten,
+  kein Tracking auf den neuen Seiten, alles gebündelt im Repo.
+
+## Stack-Diagramm (verbindliche Ebenen-Begriffe)
+
+Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
+1. Anwendungen & Agents
+2. API & Integration
+3. Orchestrierung & Workflows
+4. Modell-Management | Daten & Knowledge | Sicherheit & Governance (eine Reihe)
+5. Inferenz-Engine
+6. Hardware-Abstraktion
 
 ## Assets
 
@@ -74,9 +66,13 @@ Nach dem Cutover wird indiebox.ai ein Redirect auf indie.solutions.
   Razer-Logos sichtbar; vor dem Live-Gang klären, ersetzen oder retuschieren.
 - assets/indie-solutions/backgrounds/ — drei Hero-Hintergründe (dark-concrete,
   light-industrial, dark-cinematic).
+- Bildregeln (Master-Prompt): Booster im Bild immer neben der Box, Beleuchtung aus.
+  Indie.rack immer als 19-Zoll-Rack. Schreibtisch-Szenen nur auf der Indie.box-Produktseite.
+  Keine Fremdmarken-Pressebilder, kein Text/Logos in Bildern, im Hero Freiraum für die Headline.
 
 ## Offene Punkte
 
-- Hero-Mock einchecken (assets/indie-solutions/mockups/hero-variante-1.png).
 - Fremdlogos auf Produktbildern für den Live-Gang klären.
+- Platzhalter laut Master-Prompt: Erklärvideo, Workstation-/Vollausbau-Benchmarks,
+  Router-Token-Kontingent, Referenz-Firmennamen.
 - Cutover-Schritte: siehe AGENTS.md Status-Block.
