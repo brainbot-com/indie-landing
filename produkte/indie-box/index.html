@@ -57,7 +57,7 @@
             {
               "@type": "Question",
               "name": "Was, wenn später mehr Geschwindigkeit gebraucht wird?",
-              "acceptedAnswer": { "@type": "Answer", "text": "Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation mit fest eingebauter GPU für viele Nutzer im Dauerbetrieb ausgelegt." }
+              "acceptedAnswer": { "@type": "Answer", "text": "Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation auf Durchsatz für intensives, interaktives Arbeiten ausgelegt, etwa Coding: die richtige Wahl, wenn jemand auf die Antwort wartet statt die Arbeit im Hintergrund laufen zu lassen." }
             },
             {
               "@type": "Question",
@@ -83,6 +83,11 @@
               "@type": "Question",
               "name": "Ist Rechnungskauf mit Zahlungsziel möglich?",
               "acceptedAnswer": { "@type": "Answer", "text": "Die Zahlung ist nach den AGB unmittelbar mit Vertragsschluss fällig, sofern keine andere Zahlungsart vereinbart wurde. Rechnungskauf mit Zahlungsziel ist als abweichende Vereinbarung vorgesehen, für Organisationen und die öffentliche Hand klären wir das vor der Bestellung. Details in den AGB." }
+            },
+            {
+              "@type": "Question",
+              "name": "Was passiert bei einem Hardware-Defekt?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Es gelten die gesetzlichen Mängelhaftungsrechte. Für Unternehmen beträgt die Gewährleistungsfrist ein Jahr ab Ablieferung, für Verbraucher zwei Jahre. Bei einem Hardware-Defekt treten wir zunächst unsere Gewährleistungsansprüche gegen den Hersteller ab, da wir als Reseller auftreten. Schlägt das fehl, haften wir subsidiär. Indie.care pflegt den Software-Stack und ersetzt keine Hardware-Gewährleistung. Details in den AGB." }
             }
           ]
         }
@@ -253,7 +258,10 @@
                 <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Vier Arbeitssituationen, ein System.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
                     Die komplette Software-Suite ist im Kaufpreis enthalten, ohne Nutzergebühren.
-                    Vier Situationen aus dem Arbeitsalltag zeigen, wofür die Rechenleistung genutzt wird.
+                    Nächtliche Agentenläufe und KI-gestützte Workflows sind genau der Fall, für den
+                    diese Stufe gebaut ist: Die Arbeit läuft im Hintergrund, Modellgröße zählt mehr
+                    als Tempo. Vier Situationen aus dem Arbeitsalltag zeigen, wofür die Rechenleistung
+                    genutzt wird.
                 </p>
             </header>
             <div class="grid-3" style="margin-top: 2rem;">
@@ -270,7 +278,7 @@
                 <div class="card" data-animate="fade-up" data-stagger="3">
                     <p class="kicker">Aufgaben abgeben</p>
                     <h3>Agenten übernehmen wiederkehrende Aufgaben</h3>
-                    <p>Über das Agent Command Center lassen sich Aufgaben an Agenten übergeben, die mehrstufig arbeiten. Modelle wie Llama 4 Maverick oder GPT-OSS 120B liefern dafür die nötige Urteilsfähigkeit.</p>
+                    <p>Über das Agent Command Center lassen sich Aufgaben an Agenten übergeben, die mehrstufig arbeiten, auch über Nacht. Modelle wie Llama 4 Maverick oder GPT-OSS 120B liefern dafür die nötige Urteilsfähigkeit.</p>
                 </div>
                 <div class="card" data-animate="fade-up" data-stagger="4">
                     <p class="kicker">Teams trennen</p>
@@ -317,9 +325,10 @@
                     <p class="honest-box__title">Was nicht dabei ist</p>
                     <ul>
                         <li>Keine gemessenen Tokens/s-Werte. Sie werden auf der Zielhardware gemessen und anschließend veröffentlicht.</li>
-                        <li>Geschwindigkeit ist nicht die Stärke dieser Stufe. Diese Bauform ist auf Modellgröße optimiert, nicht auf kurze Antwortzeiten bei vielen gleichzeitigen Anfragen.</li>
+                        <li>Geschwindigkeit ist nicht die Stärke dieser Stufe. Diese Bauform ist auf Modellgröße optimiert, nicht auf Durchsatz: Wer in Echtzeit auf die Antwort wartet, ist bei einer anderen Stufe schneller bedient.</li>
                         <li>Indie.care ist nur die ersten 3 Monate enthalten, danach optional und kostenpflichtig.</li>
                         <li>Indie.router ist ein separates Modul und noch nicht verfügbar.</li>
+                        <li>Indie.care deckt den Software-Stack ab, nicht die Hardware. Für Hardware gilt die gesetzliche Gewährleistung nach AGB: ein Jahr für Unternehmen, zwei Jahre für Verbraucher.</li>
                     </ul>
                     <p class="honest-box__note">Diese Grenzen stehen hier bewusst. Wer eine andere Stufe braucht, findet sie in der Abgrenzung weiter unten.</p>
                 </div>
@@ -390,14 +399,15 @@
                 <p class="kicker">Abgrenzung</p>
                 <h2 class="section-heading" style="text-align: left; margin-bottom: 0.75rem;">Wann diese Stufe, wann eine andere.</h2>
                 <p style="color: var(--text-light); max-width: 56ch;">
-                    Maximale Modellgröße statt maximales Tempo: Darauf ist diese Stufe ausgelegt. Wächst der
-                    Bedarf in eine andere Richtung, wächst das System mit, ohne dass die Investition
-                    verloren geht.
+                    Läuft die Arbeit im Hintergrund, etwa als Agentenlauf über Nacht, zählt Modellgröße
+                    mehr als Tempo: Genau darauf ist diese Stufe ausgelegt. Wartet jemand auf die Antwort,
+                    zählt Durchsatz, und der Bedarf wächst in eine andere Richtung. Das System wächst mit,
+                    ohne dass die Investition verloren geht.
                 </p>
             </header>
             <div class="crosslinks" data-animate="fade-up">
                 <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: wenn Geschwindigkeit dazukommen soll, ohne die Box zu ersetzen</small></a>
-                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: wenn viele Nutzer im Dauerbetrieb kurze Antwortzeiten brauchen</small></a>
+                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: wenn Durchsatz zählt, weil jemand auf die Antwort wartet</small></a>
                 <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: wenn 100 bis über 1.000 Nutzer versorgt werden müssen</small></a>
                 <a class="crosslink" href="/care/">Indie.care<small>Ab 79 €/Monat: wenn der Stack dauerhaft aktuell gehalten werden soll</small></a>
             </div>
@@ -433,7 +443,7 @@
                 </details>
                 <details class="faq-item">
                     <summary>Was, wenn später mehr Geschwindigkeit gebraucht wird?</summary>
-                    <div class="faq-item__body"><p>Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation mit fest eingebauter GPU für viele Nutzer im Dauerbetrieb ausgelegt.</p></div>
+                    <div class="faq-item__body"><p>Der Indie.booster rüstet einer bestehenden Indie.box 32 GB schnellen GPU-Speicher nach, ohne dass die Box ersetzt wird. Reicht das nicht, ist die Indie.workstation auf Durchsatz für intensives, interaktives Arbeiten ausgelegt, etwa Coding: die richtige Wahl, wenn jemand auf die Antwort wartet statt die Arbeit im Hintergrund laufen zu lassen.</p></div>
                 </details>
                 <details class="faq-item">
                     <summary>Braucht es dafür eigene IT?</summary>
@@ -454,6 +464,10 @@
                 <details class="faq-item">
                     <summary>Ist Rechnungskauf mit Zahlungsziel möglich?</summary>
                     <div class="faq-item__body"><p>Die Zahlung ist nach den AGB unmittelbar mit Vertragsschluss fällig, sofern keine andere Zahlungsart vereinbart wurde. Rechnungskauf mit Zahlungsziel ist als abweichende Vereinbarung vorgesehen, für Organisationen und die öffentliche Hand klären wir das vor der Bestellung. Details in den <a href="/terms.html" class="text-link">AGB</a>.</p></div>
+                </details>
+                <details class="faq-item">
+                    <summary>Was passiert bei einem Hardware-Defekt?</summary>
+                    <div class="faq-item__body"><p>Es gelten die gesetzlichen Mängelhaftungsrechte. Für Unternehmen beträgt die Gewährleistungsfrist ein Jahr ab Ablieferung, für Verbraucher zwei Jahre. Bei einem Hardware-Defekt treten wir zunächst unsere Gewährleistungsansprüche gegen den Hersteller ab, da wir als Reseller auftreten. Schlägt das fehl, haften wir subsidiär. Indie.care pflegt den Software-Stack und ersetzt keine Hardware-Gewährleistung. Details in den <a href="/terms.html" class="text-link">AGB</a>.</p></div>
                 </details>
             </div>
         </div>
