@@ -9,16 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download stage variants
+      - name: Download 4K stage and clean up
         run: |
-          mkdir -p assets/indie-solutions/backgrounds
-          curl -fsSL -o assets/indie-solutions/backgrounds/stage-b1.png "https://d8j0ntlcm91z4.cloudfront.net/user_35jFUjZSPM83Kuji0Bw3Z0wSYDn/hf_20260818_064934_6f98f5d9-599c-43c7-b4b3-a1f07f76eef9.png"
-          curl -fsSL -o assets/indie-solutions/backgrounds/stage-b2.png "https://d8j0ntlcm91z4.cloudfront.net/user_35jFUjZSPM83Kuji0Bw3Z0wSYDn/hf_20260818_064934_13801748-a1ec-4caa-a616-2840240329c0.png"
-          ls -la assets/indie-solutions/backgrounds/
-      - name: Commit assets
-        run: |
+          curl -fsSL -o assets/indie-solutions/backgrounds/stage-b2-4k.png "https://d8j0ntlcm91z4.cloudfront.net/user_35jFUjZSPM83Kuji0Bw3Z0wSYDn/hf_20260818_065606_f9a7ba5d-7995-4e74-8e93-1679fd54b955.png"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/indie-solutions/backgrounds/stage-b1.png assets/indie-solutions/backgrounds/stage-b2.png
-          git commit -m "assets: Buehnen-Varianten B1/B2 (CI-Fetch)"
+          git add assets/indie-solutions/backgrounds/stage-b2-4k.png
+          git rm -q assets/indie-solutions/backgrounds/stage-b1.png assets/indie-solutions/backgrounds/stage-b2.png
+          git rm -q .github/workflows/fetch-stage-variants.yml
+          git commit -m "assets: Buehne B2 in 4K; Roh-Kandidaten und CI-Helfer entfernt"
           git push
