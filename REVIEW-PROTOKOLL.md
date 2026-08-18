@@ -137,3 +137,14 @@ Versprechen-Kapitel, Modul-Detailkarten (nach /indiestack), Matrix/Orientierungs
 Verifikation: Playwright-Screenshots (Hero, Full-Page, alle fünf Unterseiten), keine
 Konsolen-/HTTP-Fehler, Startseite 991 KB, genau ein h1 je Seite, 0 Em-Dashes im Fließtext.
 Keine neuen Bilder generiert; bestehende Bühne und Freisteller weiterverwendet.
+
+### Nachtrag Runde 5: flache URLs und Navigations-Rollout
+
+Entscheidungen Heiko: flache Produkt-URLs, brainbot-Link auf die Homepage, Hero-Assets folgen.
+Umgesetzt: git mv der vier Produktordner nach /, alle Verweise angepasst (HTML, Canonicals,
+JSON-LD, sitemap.xml, llms.txt); llms.txt zusätzlich auf die neue Positionierung umgeschrieben
+und um die fünf Vertiefungsseiten ergänzt. Neue Navigation samt CTA auf 18 Bestandsseiten
+ausgerollt (Prefix je Seite erkannt, aria-current gesetzt). style.css-Version site-weit auf
+20260818c gehoben, damit der Browser-Cache die neuen Klassen nicht überschreibt.
+Verifikation: Crawler über 52 Seiten, keine toten Links, keine fehlenden Ressourcen;
+Mobile 390px ohne horizontalen Überlauf, Hero-Lineup auf gemeinsame Standlinie gebracht.

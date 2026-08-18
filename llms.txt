@@ -1,15 +1,23 @@
 # indie.solutions
 
-> indie.solutions liefert souveräne KI für den Arbeitsalltag: eine Hardware-Familie, eine Software-Suite und Lösungen aus einer Hand. Alles läuft lokal im eigenen Haus, wird einmal gekauft und hat keine Nutzergebühren.
+> IndieSolutions bietet eine technologische Plattform für souveräne KI im Unternehmen. Der IndieStack verbindet Unternehmensdaten, bestehende Systeme, Anwendungen, Prozesse, Benutzer und Zugriffsregeln mit der KI, die zur jeweiligen Aufgabe passt: eigene Modelle, externe Modelle oder beides. Eigene Recheninfrastruktur ist eine mögliche physische Basis, nicht das Produktversprechen.
 
-Der Anbieter ist die brainbot GmbH aus Mainz. Zielgruppe sind der deutsche Mittelstand und Verwaltungen, die KI nutzen wollen, ohne Daten an Cloud-Anbieter zu geben. Kernsatz: EU-Hosting ist nicht Souveränität; souverän ist, was im eigenen Haus läuft. Alle Systeme sind offline und air-gapped betreibbar.
+Der Anbieter ist die brainbot GmbH aus Mainz. Zielgruppe sind der deutsche Mittelstand und Verwaltungen. Souveränität heißt hier: das Unternehmen entscheidet, welche Daten für KI verfügbar sind, welche Systeme angebunden werden, welche Benutzer und Anwendungen welche Informationen verwenden, welche Modelle zum Einsatz kommen und welche Informationen an externe Modelle übergeben werden dürfen. Das bedeutet nicht zwangsläufig, alles lokal zu betreiben; Mischbetrieb ist ausdrücklich Teil des Konzepts. Alle Systeme sind offline und air-gapped betreibbar. Die Software-Suite ist auf jeder Hardware enthalten, wird einmal gekauft und hat keine Nutzergebühren.
 
-## Produkte (Hardware-Familie)
+## Plattform und Vertiefung
 
-- [Indie.box](https://indie.solutions/produkte/indie-box/): Kompakter lokaler KI-Server, 5.500 € einmalig. 128 GB RAM, AMD Ryzen AI Max 395 (16 Kerne), 2 TB NVMe, NPU 50 TOPS. Führt quantisierte Großmodelle bis zur 400B-Klasse aus (z. B. Llama 4 Maverick 400B MoE, GPT-OSS 120B, Qwen 3.6 35B-A3B).
-- [Indie.booster](https://indie.solutions/produkte/indie-booster/): Externe GPU-Erweiterung, 8.000 € einmalig. RTX 5090 mit 32 GB, nachrüstbar an jede Indie.box, läuft nur an der Box. Vollausbau Box + Booster (13.500 €) kann als einziges Setup große Modelle und Geschwindigkeit.
-- [Indie.workstation](https://indie.solutions/produkte/indie-workstation/): KI-Workstation, 12.000 € einmalig. RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmt, 24/7-tauglich, ausbaufähig (zweite GPU oder 2 × 2 TB).
-- [Indie.rack](https://indie.solutions/produkte/indie-rack/): Dedizierte 19-Zoll-Server für Verwaltung, öffentliche Hand und Konzerne, 100 bis über 1.000 Nutzer. Preis auf Anfrage (Direktkauf, Systemhaus oder Ausschreibung).
+- [IndieStack](https://indie.solutions/indiestack/): Die Plattform. Module, Ebenen und Zusammenspiel mit Daten, Systemen und Modellen.
+- [Souveräne KI verstehen](https://indie.solutions/souveraene-ki/): Was das Unternehmen entscheidet, die vier Dimensionen Daten, Zugriff, Systeme und externe KI.
+- [Modelle und Möglichkeiten](https://indie.solutions/models/): Eigene Modelle, externe Modelle, Mischbetrieb, Bring your own model.
+- [Skalierung und Infrastruktur](https://indie.solutions/infrastruktur/): Passend starten, mit dem Bedarf weiterwachsen, Orientierung nach Nutzungsart.
+- [Integration](https://indie.solutions/integration/): Datenquellen, Systeme und Berechtigungen; professionelle Unterstützung durch brainbot als Option.
+
+## Hardware als Recheninfrastruktur
+
+- [Indie.box](https://indie.solutions/indie-box/): Kompakter lokaler KI-Server, 5.500 € einmalig. 128 GB RAM, AMD Ryzen AI Max 395 (16 Kerne), 2 TB NVMe, NPU 50 TOPS. Führt quantisierte Großmodelle bis zur 400B-Klasse aus (z. B. Llama 4 Maverick 400B MoE, GPT-OSS 120B, Qwen 3.6 35B-A3B).
+- [Indie.booster](https://indie.solutions/indie-booster/): Externe GPU-Erweiterung, 8.000 € einmalig. RTX 5090 mit 32 GB, nachrüstbar an jede Indie.box, läuft nur an der Box. Vollausbau Box + Booster (13.500 €) kann als einziges Setup große Modelle und Geschwindigkeit.
+- [Indie.workstation](https://indie.solutions/indie-workstation/): KI-Workstation, 12.000 € einmalig. RTX 5090 fest eingebaut, 64 GB RAM, schallgedämmt, 24/7-tauglich, ausbaufähig (zweite GPU oder 2 × 2 TB).
+- [Indie.rack](https://indie.solutions/indie-rack/): Dedizierte 19-Zoll-Server für Verwaltung, öffentliche Hand und Konzerne, 100 bis über 1.000 Nutzer. Preis auf Anfrage (Direktkauf, Systemhaus oder Ausschreibung).
 
 Lieferzeit normalerweise 14 Tage, inklusive Setup. Alle Angebote gelten für die aktuelle Produktversion zum Kaufzeitpunkt.
 

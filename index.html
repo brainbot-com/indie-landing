@@ -37,10 +37,10 @@
           "@type": "ItemList",
           "name": "Produktfamilie",
           "itemListElement": [
-            { "@type": "Product", "position": 1, "name": "indie.box", "url": "https://indie.solutions/produkte/indie-box/", "description": "Kompakter Einstieg für eigene KI-Infrastruktur.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-box/" } },
-            { "@type": "Product", "position": 2, "name": "indie.booster", "url": "https://indie.solutions/produkte/indie-booster/", "description": "Zusätzliche GPU-Leistung.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-booster_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "8000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-booster/" } },
-            { "@type": "Product", "position": 3, "name": "indie.rack", "url": "https://indie.solutions/produkte/indie-rack/", "description": "Zentrale GPU-Infrastruktur für wachsende Anforderungen.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-rack_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" } },
-            { "@type": "Product", "position": 4, "name": "indie.workstation", "url": "https://indie.solutions/produkte/indie-workstation/", "description": "Hohe Rechenleistung für anspruchsvolle Workloads.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-workstation_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "12000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/produkte/indie-workstation/" } }
+            { "@type": "Product", "position": 1, "name": "indie.box", "url": "https://indie.solutions/indie-box/", "description": "Kompakter Einstieg für eigene KI-Infrastruktur.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/indie-box/" } },
+            { "@type": "Product", "position": 2, "name": "indie.booster", "url": "https://indie.solutions/indie-booster/", "description": "Zusätzliche GPU-Leistung.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-booster_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "8000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/indie-booster/" } },
+            { "@type": "Product", "position": 3, "name": "indie.rack", "url": "https://indie.solutions/indie-rack/", "description": "Zentrale GPU-Infrastruktur für wachsende Anforderungen.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-rack_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" } },
+            { "@type": "Product", "position": 4, "name": "indie.workstation", "url": "https://indie.solutions/indie-workstation/", "description": "Hohe Rechenleistung für anspruchsvolle Workloads.", "image": "https://indie.solutions/assets/indie-solutions/products/indie-workstation_web.jpg", "brand": { "@type": "Brand", "name": "IndieSolutions" }, "offers": { "@type": "Offer", "price": "12000", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/indie-workstation/" } }
           ]
         }
       ]
@@ -62,6 +62,9 @@
                     </button>
                     <div class="nav-dropdown">
                         <a href="indiestack/">Überblick</a>
+                        <a href="models/">Modelle</a>
+                        <a href="integration/">Integration</a>
+                        <a href="infrastruktur/">Infrastruktur</a>
                         <a href="software/indie-chat/">indie.chat</a>
                         <a href="software/indie-brain/">indie.brain</a>
                         <a href="software/agent-command-center/">Agent Command Center</a>
@@ -74,10 +77,10 @@
                         <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </button>
                     <div class="nav-dropdown">
-                        <a href="produkte/indie-box/">indie.box <small>5.500 €</small></a>
-                        <a href="produkte/indie-booster/">indie.booster <small>8.000 €</small></a>
-                        <a href="produkte/indie-rack/">indie.rack <small>auf Anfrage</small></a>
-                        <a href="produkte/indie-workstation/">indie.workstation <small>12.000 €</small></a>
+                        <a href="indie-box/">indie.box <small>5.500 €</small></a>
+                        <a href="indie-booster/">indie.booster <small>8.000 €</small></a>
+                        <a href="indie-rack/">indie.rack <small>auf Anfrage</small></a>
+                        <a href="indie-workstation/">indie.workstation <small>12.000 €</small></a>
                     </div>
                 </div>
                 <a href="souveraene-ki/">Souveräne KI</a>
@@ -122,22 +125,22 @@
             </div>
 
             <div class="hero-lineup hero-lineup--tight" data-animate="fade-up" data-stagger="2">
-                <a class="hero-lineup__item" href="produkte/indie-box/">
+                <a class="hero-lineup__item" href="indie-box/">
                     <img class="hero-lineup__img hero-lineup__img--box" src="assets/indie-solutions/cutouts/indie-box_cut.webp" alt="indie.box" width="600" height="400">
                     <span class="hero-lineup__name">indie.box</span>
                     <span class="hero-lineup__tag">Kompakter Einstieg</span>
                 </a>
-                <a class="hero-lineup__item" href="produkte/indie-booster/">
+                <a class="hero-lineup__item" href="indie-booster/">
                     <img class="hero-lineup__img hero-lineup__img--booster" src="assets/indie-solutions/cutouts/indie-booster_cut.webp" alt="indie.booster" width="770" height="500">
                     <span class="hero-lineup__name">indie.booster</span>
                     <span class="hero-lineup__tag">Zusätzliche GPU-Leistung</span>
                 </a>
-                <a class="hero-lineup__item" href="produkte/indie-rack/">
+                <a class="hero-lineup__item" href="indie-rack/">
                     <img class="hero-lineup__img hero-lineup__img--rack" src="assets/indie-solutions/cutouts/indie-rack_cut.webp" alt="indie.rack" width="413" height="128">
                     <span class="hero-lineup__name">indie.rack</span>
                     <span class="hero-lineup__tag">Zentrale GPU-Infrastruktur</span>
                 </a>
-                <a class="hero-lineup__item" href="produkte/indie-workstation/">
+                <a class="hero-lineup__item" href="indie-workstation/">
                     <img class="hero-lineup__img hero-lineup__img--workstation" src="assets/indie-solutions/cutouts/indie-workstation_cut.webp" alt="indie.workstation" width="426" height="475">
                     <span class="hero-lineup__name">indie.workstation</span>
                     <span class="hero-lineup__tag">Hohe Rechenleistung</span>
@@ -397,7 +400,7 @@
             </header>
 
             <div class="family-grid">
-                <article class="family-card" data-animate="fade-up" data-pill-label="indie.box · 5.500 €" data-pill-href="produkte/indie-box/" data-pill-cta="Entdecken">
+                <article class="family-card" data-animate="fade-up" data-pill-label="indie.box · 5.500 €" data-pill-href="indie-box/" data-pill-cta="Entdecken">
                     <div class="family-card__media">
                         <img src="assets/indie-solutions/products/indie-box_web.jpg" alt="indie.box, kompakter KI-Server" loading="lazy" width="1200" height="799">
                     </div>
@@ -405,11 +408,11 @@
                     <p class="family-card__benefit">Kompakter Einstieg für eigene KI-Infrastruktur.</p>
                     <div class="family-card__meta">
                         <span class="family-card__price">5.500 €<small>einmalig</small></span>
-                        <a href="produkte/indie-box/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
+                        <a href="indie-box/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
                     </div>
                 </article>
 
-                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="indie.booster · 8.000 €" data-pill-href="produkte/indie-booster/" data-pill-cta="Entdecken">
+                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="indie.booster · 8.000 €" data-pill-href="indie-booster/" data-pill-cta="Entdecken">
                     <div class="family-card__media">
                         <img src="assets/indie-solutions/products/indie-booster_web.jpg" alt="indie.booster, externe GPU-Erweiterung" loading="lazy" width="1200" height="703">
                     </div>
@@ -417,11 +420,11 @@
                     <p class="family-card__benefit">Zusätzliche GPU-Leistung.</p>
                     <div class="family-card__meta">
                         <span class="family-card__price">8.000 €<small>einmalig</small></span>
-                        <a href="produkte/indie-booster/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
+                        <a href="indie-booster/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
                     </div>
                 </article>
 
-                <article class="family-card" data-animate="fade-up" data-pill-label="indie.rack · auf Anfrage" data-pill-href="produkte/indie-rack/" data-pill-cta="Entdecken">
+                <article class="family-card" data-animate="fade-up" data-pill-label="indie.rack · auf Anfrage" data-pill-href="indie-rack/" data-pill-cta="Entdecken">
                     <div class="family-card__media">
                         <img src="assets/indie-solutions/products/indie-rack_web.jpg" alt="indie.rack, 19-Zoll-GPU-Server" loading="lazy" width="544" height="176">
                     </div>
@@ -429,11 +432,11 @@
                     <p class="family-card__benefit">Zentrale GPU-Infrastruktur für wachsende Anforderungen.</p>
                     <div class="family-card__meta">
                         <span class="family-card__price">auf Anfrage<small>Direktkauf, Systemhaus oder Ausschreibung</small></span>
-                        <a href="produkte/indie-rack/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
+                        <a href="indie-rack/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
                     </div>
                 </article>
 
-                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="indie.workstation · 12.000 €" data-pill-href="produkte/indie-workstation/" data-pill-cta="Entdecken">
+                <article class="family-card" data-animate="fade-up" data-stagger="1" data-pill-label="indie.workstation · 12.000 €" data-pill-href="indie-workstation/" data-pill-cta="Entdecken">
                     <div class="family-card__media">
                         <img src="assets/indie-solutions/products/indie-workstation_web.jpg" alt="indie.workstation, KI-Workstation" loading="lazy" width="621" height="662">
                     </div>
@@ -441,7 +444,7 @@
                     <p class="family-card__benefit">Hohe Rechenleistung für anspruchsvolle Workloads.</p>
                     <div class="family-card__meta">
                         <span class="family-card__price">12.000 €<small>einmalig</small></span>
-                        <a href="produkte/indie-workstation/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
+                        <a href="indie-workstation/" class="button button--solid button--pill button--sm">Produkt entdecken</a>
                     </div>
                 </article>
             </div>

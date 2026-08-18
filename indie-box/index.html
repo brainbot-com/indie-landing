@@ -8,13 +8,13 @@
 
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
     <meta name="description" content="Die Indie.box bringt quantisierte Großmodelle bis zur 400B-Klasse ins eigene Haus: 128 GB RAM, AMD Ryzen AI Max 395, 2 TB NVMe. 5.500 € einmalig, Software-Suite enthalten." />
-    <link rel="canonical" href="https://indie.solutions/produkte/indie-box/" />
-    <link rel="alternate" hreflang="de" href="https://indie.solutions/produkte/indie-box/" />
-    <link rel="alternate" hreflang="x-default" href="https://indie.solutions/produkte/indie-box/" />
+    <link rel="canonical" href="https://indie.solutions/indie-box/" />
+    <link rel="alternate" hreflang="de" href="https://indie.solutions/indie-box/" />
+    <link rel="alternate" hreflang="x-default" href="https://indie.solutions/indie-box/" />
     <meta property="og:type" content="product" />
     <meta property="og:title" content="Indie.box – Großmodelle im eigenen Haus" />
     <meta property="og:description" content="128 GB RAM für quantisierte Großmodelle bis zur 400B-Klasse. 5.500 € einmalig, Software-Suite enthalten, keine Nutzergebühren." />
-    <meta property="og:url" content="https://indie.solutions/produkte/indie-box/" />
+    <meta property="og:url" content="https://indie.solutions/indie-box/" />
     <meta property="og:image" content="https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <script type="application/ld+json">
@@ -28,7 +28,7 @@
           "image": "https://indie.solutions/assets/indie-solutions/products/indie-box_web.jpg",
           "brand": { "@type": "Brand", "name": "Indie.Solutions" },
           "manufacturer": { "@type": "Organization", "name": "brainbot GmbH", "url": "https://brainbot.com" },
-          "url": "https://indie.solutions/produkte/indie-box/",
+          "url": "https://indie.solutions/indie-box/",
           "offers": { "@type": "Offer", "price": "5500", "priceCurrency": "EUR", "availability": "https://schema.org/InStock", "url": "https://indie.solutions/checkout.html" }
         },
         {
@@ -95,7 +95,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="/style.css?v=20260818">
+    <link rel="stylesheet" href="/style.css?v=20260818c">
     <script src="/matomo.js?v=20260818" defer></script>
 </head>
 
@@ -105,29 +105,33 @@
             <a class="nav-logo" href="/" aria-label="indie.solutions Startseite">indie<span class="brand-dot">.</span>solutions</a>
             <div class="nav-links" id="nav-links">
                 <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">IndieStack
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="/indiestack/">Überblick</a>
+                        <a href="/models/">Modelle</a>
+                        <a href="/integration/">Integration</a>
+                        <a href="/infrastruktur/">Infrastruktur</a>
+                        <a href="/software/indie-chat/">indie.chat</a>
+                        <a href="/software/indie-brain/">indie.brain</a>
+                        <a href="/software/agent-command-center/">Agent Command Center</a>
+                        <a href="/software/agent-studio/">Agent Studio</a>
+                        <a href="/software/indie-router/">indie.router <span class="badge-soon">Bald</span></a>
+                    </div>
+                </div>
+                <div class="nav-item" data-dropdown>
                     <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Produkte
                         <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </button>
                     <div class="nav-dropdown">
-                        <a href="/produkte/indie-box/" aria-current="page">Indie.box <small>5.500 €</small></a>
-                        <a href="/produkte/indie-booster/">Indie.booster <small>8.000 €</small></a>
-                        <a href="/produkte/indie-workstation/">Indie.workstation <small>12.000 €</small></a>
-                        <a href="/produkte/indie-rack/">Indie.rack <small>auf Anfrage</small></a>
+                        <a href="/indie-box/" aria-current="page">indie.box <small>5.500 €</small></a>
+                        <a href="/indie-booster/">indie.booster <small>8.000 €</small></a>
+                        <a href="/indie-rack/">indie.rack <small>auf Anfrage</small></a>
+                        <a href="/indie-workstation/">indie.workstation <small>12.000 €</small></a>
                     </div>
                 </div>
-                <div class="nav-item" data-dropdown>
-                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Software
-                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                    </button>
-                    <div class="nav-dropdown">
-                        <a href="/software/indie-chat/">Indie.chat</a>
-                        <a href="/software/indie-brain/">Indie.brain</a>
-                        <a href="/software/agent-command-center/">Agent Command Center</a>
-                        <a href="/software/agent-studio/">Agent Studio</a>
-                        <a href="/software/indie-router/">Indie.router <span class="badge-soon">Bald</span></a>
-                    </div>
-                </div>
-                <a href="/privacy.html">Datensicherheit</a>
+                <a href="/souveraene-ki/">Souveräne KI</a>
                 <a href="/referenzen/">Referenzen</a>
                 <a href="/care/">Care</a>
                 <a href="/docs/">Docs</a>
@@ -137,7 +141,7 @@
                     <span class="nav-lang__item" aria-current="true" lang="de">DE</span>
                     <span class="nav-lang__item nav-lang__item--disabled" lang="en" title="English version folgt">EN</span>
                 </span>
-                <a href="/#kontakt" class="button button--solid button--pill button--sm nav-buy">Beratung anfragen</a>
+                <a href="/#kontakt" class="button button--solid button--pill button--sm nav-buy">Einsatzgebiet besprechen</a>
                 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
                     <span class="sr-only">Menü</span>
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -407,9 +411,9 @@
                 </p>
             </header>
             <div class="crosslinks" data-animate="fade-up">
-                <a class="crosslink" href="/produkte/indie-booster/">Indie.booster<small>+ 8.000 €: wenn Geschwindigkeit dazukommen soll, ohne die Box zu ersetzen</small></a>
-                <a class="crosslink" href="/produkte/indie-workstation/">Indie.workstation<small>12.000 €: wenn Durchsatz zählt, weil jemand auf die Antwort wartet</small></a>
-                <a class="crosslink" href="/produkte/indie-rack/">Indie.rack<small>Auf Anfrage: wenn 100 bis über 1.000 Nutzer versorgt werden müssen</small></a>
+                <a class="crosslink" href="/indie-booster/">Indie.booster<small>+ 8.000 €: wenn Geschwindigkeit dazukommen soll, ohne die Box zu ersetzen</small></a>
+                <a class="crosslink" href="/indie-workstation/">Indie.workstation<small>12.000 €: wenn Durchsatz zählt, weil jemand auf die Antwort wartet</small></a>
+                <a class="crosslink" href="/indie-rack/">Indie.rack<small>Auf Anfrage: wenn 100 bis über 1.000 Nutzer versorgt werden müssen</small></a>
                 <a class="crosslink" href="/care/">Indie.care<small>Ab 79 €/Monat: wenn der Stack dauerhaft aktuell gehalten werden soll</small></a>
             </div>
         </div>

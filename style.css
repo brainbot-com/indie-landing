@@ -9430,3 +9430,20 @@ div[id].anchor-target {
     .growth { justify-content: center; }
     .growth__link { display: none; }
 }
+
+/* Hero-Lineup auf Mobile: Produkte auf einer gemeinsamen Standlinie, Labels in einer Reihe */
+@media (max-width: 900px) {
+    .hero-lineup--tight {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: stretch;
+        row-gap: 1.6rem;
+    }
+    .hero-lineup--tight .hero-lineup__item {
+        flex: none;
+        display: grid;
+        grid-template-rows: 160px auto 1fr;
+        justify-items: center;
+    }
+    .hero-lineup--tight .hero-lineup__img { align-self: end; }
+}

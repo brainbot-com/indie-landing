@@ -126,3 +126,5 @@ stage_web.jpg. Finale Assets liefert Heiko, siehe OFFENE-FRAGEN.md Nr. 25.
 - 2026-08-18: Vergleichs-Sektion "EU-Hosting ist nicht Souveränität." von der Startseite genommen,
   weil sie Souveränität mit Nur-lokal gleichsetzt und damit der Mischbetriebs-Positionierung des
   Briefings widerspricht (siehe OFFENE-FRAGEN.md Nr. 29).
+- 2026-08-18: Flache Produkt-URLs (/indie-box/ statt /produkte/indie-box/) und einheitliche
+  Navigation (IndieStack vor Produkte, CTA "Einsatzgebiet besprechen") auf allen 52 Seiten.

@@ -20,7 +20,7 @@
 
     <!-- Fonts -->
 
-    <link rel="stylesheet" href="style.css?v=20260818">
+    <link rel="stylesheet" href="style.css?v=20260818c">
     <script src="matomo.js?v=20260818" defer></script>
 </head>
 
@@ -29,12 +29,40 @@
         <div class="container nav-container">
             <a class="nav-logo" href="index.html" aria-label="Indie.box Home">Indie<span class="brand-dot">.</span>box</a>
             <div class="nav-links" id="nav-links">
-                <a href="index.html#spezifikation">Spezifikation</a>
-                <a href="betriebs.html">Betrieb</a>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">IndieStack
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="indiestack/">Überblick</a>
+                        <a href="models/">Modelle</a>
+                        <a href="integration/">Integration</a>
+                        <a href="infrastruktur/">Infrastruktur</a>
+                        <a href="software/indie-chat/">indie.chat</a>
+                        <a href="software/indie-brain/">indie.brain</a>
+                        <a href="software/agent-command-center/">Agent Command Center</a>
+                        <a href="software/agent-studio/">Agent Studio</a>
+                        <a href="software/indie-router/">indie.router <span class="badge-soon">Bald</span></a>
+                    </div>
+                </div>
+                <div class="nav-item" data-dropdown>
+                    <button class="nav-drop-btn" type="button" aria-expanded="false" aria-haspopup="true">Produkte
+                        <svg class="nav-drop-caret" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </button>
+                    <div class="nav-dropdown">
+                        <a href="indie-box/">indie.box <small>5.500 €</small></a>
+                        <a href="indie-booster/">indie.booster <small>8.000 €</small></a>
+                        <a href="indie-rack/">indie.rack <small>auf Anfrage</small></a>
+                        <a href="indie-workstation/">indie.workstation <small>12.000 €</small></a>
+                    </div>
+                </div>
+                <a href="souveraene-ki/">Souveräne KI</a>
+                <a href="referenzen/">Referenzen</a>
+                <a href="care/">Care</a>
                 <a href="docs/">Docs</a>
             </div>
             <div class="nav-actions">
-                <a href="checkout.html" class="button button--pill button--sm button--solid nav-buy" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_nav_chat">Kaufen</a>
+                <a href="checkout.html" class="button button--pill button--sm button--solid nav-buy" data-matomo-category="cta" data-matomo-action="click" data-matomo-label="buy_nav_chat">Einsatzgebiet besprechen</a>
                 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
                     <span class="sr-only">Menü</span>
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
