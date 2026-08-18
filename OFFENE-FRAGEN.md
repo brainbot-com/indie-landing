@@ -65,7 +65,12 @@ damit Verweise gültig bleiben.)
 
 25. **Asset-Wünsche für den neuen Hero (Heiko lässt erstellen, 2026-08-18):**
     a) **Vier Produkt-Freisteller** als PNG mit echtem Alphakanal, ohne Text, ohne eingebrannten Schatten (oder Schatten als separate Ebene). Mindestens 1500 px Kantenlänge, einheitliche Perspektive (leicht von vorn oben) und einheitliche Beleuchtung, damit die Reihe zusammen wirkt. Idealerweise gleich ohne Fremdlogos (GMKtec, Razer, ASUS), das erledigt Punkt 20 mit. Aktuell arbeiten wir mit selbst erzeugten Freistellern aus den Referenzfotos (assets/indie-solutions/cutouts/), die ersetzt werden.
-    b) **Bühnen-Hintergrund ohne Produkte und ohne Text:** dunkler Betonraum mit Wand und Boden und Lichtschacht wie im Mock, mindestens 2560 x 1440, oben links Freiraum für die Headline. Die vorhandenen Streifen (1536 x 340) reichen nur für den Boden-Saum.
+    b) **Bühnen-Hintergrund ohne Produkte und ohne Text** (Briefing präzisiert 2026-08-18, nach Heikos Werbedesigner-Kritik am kargen Betonraum; die aktuelle KI-Bühne stage_web.jpg ist Interim):
+       - Format: mindestens 2560 x 1440 (besser 3840 x 2160), Querformat, fotorealistisch gerendert oder fotografiert.
+       - Komposition: durchgehende Sichtbeton-Wand (Schalungsraster mit Ankerlöchern, präzise Fugen, keine Risse oder Flecken) über den oberen zwei Dritteln; unteres Drittel polierter, leicht spiegelnder Boden, auf dem die Freisteller stehen können (Spiegelung der Produkte entsteht real erst mit den Objekten, der Boden muss sie nur plausibel tragen).
+       - Licht: kühles, weiches Flächenlicht von oben (kein harter Spot); dazu genau EIN warmer Akzent: eine schmale, durchgehende Lichtfuge in der Wand-Boden-Kante, Farbton warmes Amber Richtung Markenorange (#FF4D00, stark entsättigt), dezent, nicht neonhaft.
+       - Stimmung: Bühne/Showroom statt Rohbau oder Keller. Ingenieurs-Präzision, stille Kraft, keine Requisiten, keine Fenster, keine Kabel, keine Menschen.
+       - Oben links ein ruhiges, dunkleres Drittel als Freiraum für die HTML-Headline.
     c) NICHT benötigt: Varianten mit gerendertem Text oder Diagrammen. Headline, Labels, Taglines und Feature-Leiste sind HTML.
 26. **Reichweite des Pivots:** Startseite ist umgestellt (Stack vor Hardware). Sollen auch die Nav-Reihenfolge (Software vor Produkte) und die Unterseiten-Texte dem Pivot folgen?
 
