@@ -9093,3 +9093,195 @@ div[id].anchor-target {
     border-radius: 4px;
     opacity: 1;
 }
+
+/* ==========================================================
+   PIVOT "One Platform. Four Scales." (Kanon-Update 2026-08-18)
+   Hero mit Produkt-Lineup und Feature-Leiste. Alle Texte sind
+   HTML, das Bildmaterial traegt keinerlei Text.
+   ========================================================== */
+
+.hero-solutions--lineup .hero-solutions__title {
+    font-size: var(--t-display-2);
+    max-width: 12em;
+}
+
+.hero-solutions--lineup .hero-solutions__sub {
+    margin: 1.2rem 0 0;
+    max-width: 36em;
+}
+
+/* Produkt-Lineup: vier Freisteller, unten ausgerichtet */
+.hero-lineup {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    margin-top: clamp(2.25rem, 6vh, 4rem);
+}
+
+.hero-lineup__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    border-radius: 12px;
+}
+
+.hero-lineup__item:hover .hero-lineup__img {
+    transform: translateY(-4px);
+}
+
+.hero-lineup__item:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 6px;
+}
+
+.hero-lineup__img {
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 22px 20px rgba(0, 0, 0, 0.55));
+    transition: transform 0.25s ease;
+    margin-bottom: 0.9rem;
+}
+
+.hero-lineup__img--box { height: clamp(60px, 8vw, 118px); }
+.hero-lineup__img--booster { height: clamp(92px, 12vw, 178px); }
+.hero-lineup__img--rack { height: clamp(66px, 9vw, 132px); }
+.hero-lineup__img--workstation { height: clamp(150px, 20vw, 300px); }
+
+.hero-lineup__name {
+    font-size: var(--t-small);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    background: var(--gradient-prism);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-lineup__tag {
+    font-size: 0.85rem;
+    color: rgba(236, 242, 248, 0.75);
+}
+
+/* Feature-Leiste unter dem Lineup */
+.hero-featurebar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-top: clamp(2.25rem, 6vh, 3.75rem);
+    background: var(--panel-fill);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+}
+
+.hero-featurebar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 1.4rem 1rem;
+    text-align: center;
+}
+
+.hero-featurebar__item + .hero-featurebar__item {
+    border-left: 1px solid var(--panel-divider);
+}
+
+.hero-featurebar__icon {
+    width: 28px;
+    height: 28px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-featurebar__title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f3f7fb;
+}
+
+.hero-featurebar__text {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(236, 242, 248, 0.65);
+    max-width: 24ch;
+}
+
+/* Aktionen im Lineup-Hero: Zeile statt Spalte */
+.hero-solutions--lineup .hero-solutions__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+    .hero-lineup {
+        flex-wrap: wrap;
+        justify-content: center;
+        row-gap: 2rem;
+    }
+
+    .hero-lineup__item {
+        flex: 0 1 44%;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-featurebar {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-featurebar__item + .hero-featurebar__item {
+        border-left: none;
+        border-top: 1px solid var(--panel-divider);
+    }
+
+    .hero-featurebar__text {
+        max-width: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-lineup__img {
+        transition: none;
+    }
+}
+
+/* Buehnen-Hintergrund: kompletter Raum statt Boden-Streifen */
+.hero-solutions__stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+    z-index: 0;
+}
+
+/* Scrim fuer Textkontrast: oben links dunkler, Lichtschacht rechts bleibt sichtbar */
+.hero-solutions--lineup::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(115deg, rgba(8, 13, 20, 0.88) 0%, rgba(8, 13, 20, 0.6) 38%, rgba(8, 13, 20, 0.15) 70%, rgba(8, 13, 20, 0.3) 100%),
+        linear-gradient(180deg, rgba(8, 13, 20, 0.35) 0%, rgba(8, 13, 20, 0) 30%);
+}
+
+.hero-solutions--lineup .container {
+    position: relative;
+    z-index: 2;
+}

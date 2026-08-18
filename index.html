@@ -47,7 +47,8 @@
     }
     </script>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260818">
+    <script src="matomo.js?v=20260818" defer></script>
 </head>
 
 <body>
@@ -100,29 +101,68 @@
     </nav>
 
     <!-- Kapitel 1: Hero (dunkel) -->
-    <section class="hero-solutions parallax-container" id="top" data-nav-sentinel data-pill-sentinel>
-        <img src="assets/indie-solutions/backgrounds/background-03_dark-cinematic_web.jpg" alt="" aria-hidden="true" class="hero-solutions__floor">
-        <div class="container hero-solutions__center">
-            <p class="kicker kicker--on-dark" data-animate="fade-up">indie<span class="brand-dot">.</span>solutions</p>
-            <h1 class="hero-solutions__title" data-animate="fade-up">
-                <span class="hero-line-main">Souveräne KI für den Arbeitsalltag.</span>
-                <span class="hero-line-accent">Komplett lokal.</span>
-            </h1>
+    <section class="hero-solutions hero-solutions--lineup parallax-container" id="top" data-nav-sentinel data-pill-sentinel>
+        <img src="assets/indie-solutions/backgrounds/stage_web.jpg?v=20260818b" alt="" aria-hidden="true" class="hero-solutions__stage">
+        <div class="container">
+            <p class="kicker kicker--accent" data-animate="fade-up">Indie Solutions Stack</p>
+            <h1 class="hero-solutions__title" data-animate="fade-up">One Platform.<br>Four Scales.</h1>
             <p class="hero-solutions__sub" data-animate="fade-up" data-stagger="1">
-                Wir machen souveräne KI einfach.<br>
-                Hardware, Software und Lösungen aus einer Hand.
+                Die gleiche souveräne KI-Plattform: für jede Anforderung die passende Hardware.
+                Komplett lokal, einmal kaufen, keine Nutzergebühren.
             </p>
 
-            <div class="hero-solutions__video" data-animate="fade-up" data-stagger="2">
-                <div class="video-ph" role="img" aria-label="Platzhalter für das Erklärvideo">
-                    <span class="video-ph__play" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" /></svg>
-                    </span>
-                    <span class="video-ph__note">Video folgt in Kürze</span>
+            <div class="hero-lineup" data-animate="fade-up" data-stagger="2">
+                <a class="hero-lineup__item" href="produkte/indie-box/">
+                    <img class="hero-lineup__img hero-lineup__img--box" src="assets/indie-solutions/cutouts/indie-box_cut.webp" alt="Indie.box" width="600" height="400">
+                    <span class="hero-lineup__name">Indie.box</span>
+                    <span class="hero-lineup__tag">Local AI. Compact.</span>
+                </a>
+                <a class="hero-lineup__item" href="produkte/indie-booster/">
+                    <img class="hero-lineup__img hero-lineup__img--booster" src="assets/indie-solutions/cutouts/indie-booster_cut.webp" alt="Indie.booster" width="770" height="500">
+                    <span class="hero-lineup__name">Indie.booster</span>
+                    <span class="hero-lineup__tag">Accelerated AI.</span>
+                </a>
+                <a class="hero-lineup__item" href="produkte/indie-rack/">
+                    <img class="hero-lineup__img hero-lineup__img--rack" src="assets/indie-solutions/cutouts/indie-rack_cut.webp" alt="Indie.rack" width="413" height="128">
+                    <span class="hero-lineup__name">Indie.rack</span>
+                    <span class="hero-lineup__tag">Enterprise AI.</span>
+                </a>
+                <a class="hero-lineup__item" href="produkte/indie-workstation/">
+                    <img class="hero-lineup__img hero-lineup__img--workstation" src="assets/indie-solutions/cutouts/indie-workstation_cut.webp" alt="Indie.workstation" width="426" height="475">
+                    <span class="hero-lineup__name">Indie.workstation</span>
+                    <span class="hero-lineup__tag">High Performance AI.</span>
+                </a>
+            </div>
+
+            <div class="hero-featurebar" data-animate="fade-up" data-stagger="3">
+                <div class="hero-featurebar__item">
+                    <svg class="hero-featurebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 3 8l9 5 9-5-9-5z" /><path d="m3 12 9 5 9-5" /><path d="m3 16 9 5 9-5" /></svg>
+                    <span class="hero-featurebar__title">Eine Plattform</span>
+                    <span class="hero-featurebar__text">Ein System, eine Sprache, eine Erfahrung.</span>
+                </div>
+                <div class="hero-featurebar__item">
+                    <svg class="hero-featurebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 20v-4" /><path d="M9 20v-8" /><path d="M14 20V8" /><path d="M19 20V4" /></svg>
+                    <span class="hero-featurebar__title">Von kompakt bis Enterprise</span>
+                    <span class="hero-featurebar__text">Skalierbare Hardware für jede Anforderung.</span>
+                </div>
+                <div class="hero-featurebar__item">
+                    <svg class="hero-featurebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+                    <span class="hero-featurebar__title">Souverän &amp; sicher</span>
+                    <span class="hero-featurebar__text">Ihre Daten. Ihre Regeln. Ihre KI.</span>
+                </div>
+                <div class="hero-featurebar__item">
+                    <svg class="hero-featurebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2" /><circle cx="19" cy="5" r="2" /><circle cx="19" cy="19" r="2" /><path d="M6.8 11 17.2 5.8" /><path d="M6.8 13 17.2 18.2" /></svg>
+                    <span class="hero-featurebar__title">Nahtlos integriert</span>
+                    <span class="hero-featurebar__text">Von Edge bis Rechenzentrum: alles aus einem Guss.</span>
+                </div>
+                <div class="hero-featurebar__item">
+                    <svg class="hero-featurebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 20c0-3 2.4-5 5.5-5s5.5 2 5.5 5" /><circle cx="17" cy="9" r="2.4" /><path d="M16.5 15.2c2.5.4 4 2.1 4 4.8" /></svg>
+                    <span class="hero-featurebar__title">Für Teams gemacht</span>
+                    <span class="hero-featurebar__text">Entwickelt für Produktivität und Zusammenarbeit.</span>
                 </div>
             </div>
 
-            <div class="hero-solutions__actions" data-animate="fade-up" data-stagger="3">
+            <div class="hero-solutions__actions" data-animate="fade-up" data-stagger="4">
                 <a href="#kontakt" class="button button--solid button--pill button--lg">Beratung anfragen</a>
                 <span class="hero-solutions__process">Auspacken, anschließen, loslegen.</span>
                 <a href="chat.html" class="text-link hero-solutions__demo-link">Oder direkt ausprobieren: Live-Demo im Browser</a>
@@ -142,7 +182,130 @@
         </div>
     </section>
 
-    <!-- Kapitel 3: Produktfamilie (hell) -->
+    <!-- Kapitel 3: Der Indie-Stack (dunkel), seit Pivot 2026-08-18 vor der Hardware -->
+    <section class="section capability-cards capability-cards--dark" id="software">
+        <div class="container">
+            <header class="cap-header" data-animate="fade-up">
+                <div class="cap-eyebrow">Der Indie-Stack · Das Produkt</div>
+                <h2 class="cap-headline">Die Plattform ist das Produkt.</h2>
+                <p class="cap-sub">
+                    Fünf Module decken den Arbeitsalltag ab: von Antworten aus den eigenen Unterlagen
+                    bis zu Agenten, die Aufgaben erledigen. Der Stack ist auf jeder Hardware-Stufe
+                    identisch, im Kaufpreis enthalten, ohne Nutzergebühren. Alle Angebote gelten für
+                    die aktuelle Produktversion zum Kaufzeitpunkt.
+                </p>
+            </header>
+
+            <div class="cap-list">
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">01 / Indie.chat</div>
+                        <h3 class="cap-card__title">Antworten aus den eigenen Unterlagen. <em>Sofort.</em></h3>
+                        <p class="cap-card__body">Verträge, Berichte und Dokumente werden befragbar: jede Antwort mit Fundstelle, und kein Byte verlässt das Haus.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Antwort mit Fundstelle</span>
+                            <span class="cap-pill">PDF, Office &amp; mehr</span>
+                            <span class="cap-pill">Wissensdatenbanken</span>
+                            <span class="cap-pill">100 % lokal</span>
+                        </div>
+                        <a class="text-link" href="chat.html">Live-Demo im Browser →</a>
+                    </div>
+                    <div class="cap-card__visual">
+                        <img src="assets/OpenWebUI.De.preview_web.jpg" alt="Indie.chat: Chat mit Dokumenten" loading="lazy">
+                    </div>
+                </article>
+
+                <article class="cap-card cap-card--flip" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">02 / Indie.brain</div>
+                        <h3 class="cap-card__title">Das gesamte Firmenwissen. <em>Gefunden</em> statt gesucht.</h3>
+                        <p class="cap-card__body">Laufwerke, Wikis, E-Mail und Fachsysteme werden über Konnektoren zu einer gemeinsamen Wissensbasis für Menschen und Agenten, immer mit Quellenangabe. Der Curator verdichtet daraus ein kuratiertes LLM-Wiki: neu geschriebenes, geprüftes Unternehmenswissen.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Konnektoren</span>
+                            <span class="cap-pill">Immer mit Quelle</span>
+                            <span class="cap-pill">Kuratiertes LLM-Wiki</span>
+                            <span class="cap-pill">Für Menschen &amp; Agenten</span>
+                        </div>
+                        <a class="text-link" href="software/indie-brain/">Mehr zu Indie.brain →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">03 / Agent Command Center</div>
+                        <h3 class="cap-card__title">Aufgaben <em>erledigen</em>. Nicht nur Fragen stellen.</h3>
+                        <p class="cap-card__body">Im Dialog mit einem Experten-Agenten entstehen fertige Ergebnisse als bedienbare Apps: persistent, interaktiv und mit den eigenen Daten verbunden, weit über einfache Text-Artefakte hinaus. Bei Bedarf entwickeln Agenten die Apps weiter.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Experten-Dialog</span>
+                            <span class="cap-pill">Bedienbare Apps</span>
+                            <span class="cap-pill">Datenverbunden</span>
+                            <span class="cap-pill">Persistent</span>
+                        </div>
+                        <a class="text-link" href="software/agent-command-center/">Mehr zum Command Center →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card cap-card--flip" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">04 / Agent Studio</div>
+                        <h3 class="cap-card__title">Jedes Team arbeitet <em>geschützt</em> in seinem Bereich.</h3>
+                        <p class="cap-card__body">Granulare Berechtigungen auf Bereiche und Wissensquellen, mit Guardrails je Bereich: HR und Produktentwicklung arbeiten auf derselben Maschine, ohne die Daten des jeweils anderen zu sehen.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">Berechtigungen</span>
+                            <span class="cap-pill">Guardrails je Bereich</span>
+                            <span class="cap-pill">Getrennte Wissensquellen</span>
+                            <span class="cap-pill">Eine Maschine, viele Teams</span>
+                        </div>
+                        <a class="text-link" href="software/agent-studio/">Mehr zum Agent Studio →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>UI-Vorschau folgt</span>
+                    </div>
+                </article>
+
+                <article class="cap-card" data-animate="fade-up">
+                    <div class="cap-card__text">
+                        <div class="cap-card__num">05 / Indie.router <span class="badge-soon badge-soon--on-dark">Bald verfügbar</span></div>
+                        <h3 class="cap-card__title">Die größten Modelle. <em>Nachweisbar</em> vertraulich.</h3>
+                        <p class="cap-card__body">Für Aufgaben, die mehr brauchen als lokale Modelle: Anfragen gehen verschlüsselt in attestierte Enklaven (Trusted Execution Environments). Die Daten verlassen das Haus, bleiben aber nachweisbar geschützt: auch der Partner kann nicht mitlesen. Die Box bleibt der einzige Endpoint.</p>
+                        <div class="cap-card__pills">
+                            <span class="cap-pill">TEE-Enklaven, attestiert</span>
+                            <span class="cap-pill">Geplanter Einführungspreis: 19 €/Monat oder 190 €/Jahr</span>
+                            <span class="cap-pill">Token-Kontingent inklusive (Höhe folgt)</span>
+                        </div>
+                        <a class="text-link" href="software/indie-router/">Vormerken →</a>
+                    </div>
+                    <div class="cap-card__visual cap-card__visual--ph">
+                        <span>Bald verfügbar</span>
+                    </div>
+                </article>
+            </div>
+
+            <div data-animate="fade-up">
+                <div class="stack">
+                    <p class="stack__title">Der Indie-Stack: eine Plattform auf jeder Stufe</p>
+                    <div class="stack__layer stack__layer--apps">Anwendungen &amp; Agents</div>
+                    <div class="stack__layer">API &amp; Integration</div>
+                    <div class="stack__layer">Orchestrierung &amp; Workflows</div>
+                    <div class="stack__row">
+                        <div class="stack__layer">Modell-Management</div>
+                        <div class="stack__layer">Daten &amp; Knowledge</div>
+                        <div class="stack__layer">Sicherheit &amp; Governance</div>
+                    </div>
+                    <div class="stack__layer">Inferenz-Engine</div>
+                    <div class="stack__layer">Hardware-Abstraktion</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kapitel 4: Produktfamilie als Auslieferungsmedium (hell) -->
     <section class="section" id="produkte">
         <div class="container">
             <header data-animate="fade-up">
@@ -262,128 +425,6 @@
                     </div>
                 </div>
                 <p class="upath-note">Jeder Weg beginnt mit einer Box. Keine Investition ist verloren.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Kapitel 4: Software-Suite (dunkel) -->
-    <section class="section capability-cards capability-cards--dark" id="software">
-        <div class="container">
-            <header class="cap-header" data-animate="fade-up">
-                <div class="cap-eyebrow">Software-Suite · Auf jeder Hardware enthalten</div>
-                <h2 class="cap-headline">Im Kaufpreis. Ohne Nutzergebühren.</h2>
-                <p class="cap-sub">
-                    Fünf Module decken den Arbeitsalltag ab: von Antworten aus den eigenen Unterlagen
-                    bis zu Agenten, die Aufgaben erledigen. Alle Angebote gelten für die aktuelle
-                    Produktversion zum Kaufzeitpunkt.
-                </p>
-            </header>
-
-            <div class="cap-list">
-                <article class="cap-card" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">01 / Indie.chat</div>
-                        <h3 class="cap-card__title">Antworten aus den eigenen Unterlagen. <em>Sofort.</em></h3>
-                        <p class="cap-card__body">Verträge, Berichte und Dokumente werden befragbar: jede Antwort mit Fundstelle, und kein Byte verlässt das Haus.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill">Antwort mit Fundstelle</span>
-                            <span class="cap-pill">PDF, Office &amp; mehr</span>
-                            <span class="cap-pill">Wissensdatenbanken</span>
-                            <span class="cap-pill">100 % lokal</span>
-                        </div>
-                        <a class="text-link" href="chat.html">Live-Demo im Browser →</a>
-                    </div>
-                    <div class="cap-card__visual">
-                        <img src="assets/OpenWebUI.De.preview_web.jpg" alt="Indie.chat: Chat mit Dokumenten" loading="lazy">
-                    </div>
-                </article>
-
-                <article class="cap-card cap-card--flip" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">02 / Indie.brain</div>
-                        <h3 class="cap-card__title">Das gesamte Firmenwissen. <em>Gefunden</em> statt gesucht.</h3>
-                        <p class="cap-card__body">Laufwerke, Wikis, E-Mail und Fachsysteme werden über Konnektoren zu einer gemeinsamen Wissensbasis für Menschen und Agenten, immer mit Quellenangabe. Der Curator verdichtet daraus ein kuratiertes LLM-Wiki: neu geschriebenes, geprüftes Unternehmenswissen.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill">Konnektoren</span>
-                            <span class="cap-pill">Immer mit Quelle</span>
-                            <span class="cap-pill">Kuratiertes LLM-Wiki</span>
-                            <span class="cap-pill">Für Menschen &amp; Agenten</span>
-                        </div>
-                        <a class="text-link" href="software/indie-brain/">Mehr zu Indie.brain →</a>
-                    </div>
-                    <div class="cap-card__visual cap-card__visual--ph">
-                        <span>UI-Vorschau folgt</span>
-                    </div>
-                </article>
-
-                <article class="cap-card" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">03 / Agent Command Center</div>
-                        <h3 class="cap-card__title">Aufgaben <em>erledigen</em>. Nicht nur Fragen stellen.</h3>
-                        <p class="cap-card__body">Im Dialog mit einem Experten-Agenten entstehen fertige Ergebnisse als bedienbare Apps: persistent, interaktiv und mit den eigenen Daten verbunden, weit über einfache Text-Artefakte hinaus. Bei Bedarf entwickeln Agenten die Apps weiter.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill">Experten-Dialog</span>
-                            <span class="cap-pill">Bedienbare Apps</span>
-                            <span class="cap-pill">Datenverbunden</span>
-                            <span class="cap-pill">Persistent</span>
-                        </div>
-                        <a class="text-link" href="software/agent-command-center/">Mehr zum Command Center →</a>
-                    </div>
-                    <div class="cap-card__visual cap-card__visual--ph">
-                        <span>UI-Vorschau folgt</span>
-                    </div>
-                </article>
-
-                <article class="cap-card cap-card--flip" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">04 / Agent Studio</div>
-                        <h3 class="cap-card__title">Jedes Team arbeitet <em>geschützt</em> in seinem Bereich.</h3>
-                        <p class="cap-card__body">Granulare Berechtigungen auf Bereiche und Wissensquellen, mit Guardrails je Bereich: HR und Produktentwicklung arbeiten auf derselben Maschine, ohne die Daten des jeweils anderen zu sehen.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill">Berechtigungen</span>
-                            <span class="cap-pill">Guardrails je Bereich</span>
-                            <span class="cap-pill">Getrennte Wissensquellen</span>
-                            <span class="cap-pill">Eine Maschine, viele Teams</span>
-                        </div>
-                        <a class="text-link" href="software/agent-studio/">Mehr zum Agent Studio →</a>
-                    </div>
-                    <div class="cap-card__visual cap-card__visual--ph">
-                        <span>UI-Vorschau folgt</span>
-                    </div>
-                </article>
-
-                <article class="cap-card" data-animate="fade-up">
-                    <div class="cap-card__text">
-                        <div class="cap-card__num">05 / Indie.router <span class="badge-soon badge-soon--on-dark">Bald verfügbar</span></div>
-                        <h3 class="cap-card__title">Die größten Modelle. <em>Nachweisbar</em> vertraulich.</h3>
-                        <p class="cap-card__body">Für Aufgaben, die mehr brauchen als lokale Modelle: Anfragen gehen verschlüsselt in attestierte Enklaven (Trusted Execution Environments). Die Daten verlassen das Haus, bleiben aber nachweisbar geschützt: auch der Partner kann nicht mitlesen. Die Box bleibt der einzige Endpoint.</p>
-                        <div class="cap-card__pills">
-                            <span class="cap-pill">TEE-Enklaven, attestiert</span>
-                            <span class="cap-pill">Geplanter Einführungspreis: 19 €/Monat oder 190 €/Jahr</span>
-                            <span class="cap-pill">Token-Kontingent inklusive (Höhe folgt)</span>
-                        </div>
-                        <a class="text-link" href="software/indie-router/">Vormerken →</a>
-                    </div>
-                    <div class="cap-card__visual cap-card__visual--ph">
-                        <span>Bald verfügbar</span>
-                    </div>
-                </article>
-            </div>
-
-            <div data-animate="fade-up">
-                <div class="stack">
-                    <p class="stack__title">Der Indie-Stack: eine Plattform auf jeder Stufe</p>
-                    <div class="stack__layer stack__layer--apps">Anwendungen &amp; Agents</div>
-                    <div class="stack__layer">API &amp; Integration</div>
-                    <div class="stack__layer">Orchestrierung &amp; Workflows</div>
-                    <div class="stack__row">
-                        <div class="stack__layer">Modell-Management</div>
-                        <div class="stack__layer">Daten &amp; Knowledge</div>
-                        <div class="stack__layer">Sicherheit &amp; Governance</div>
-                    </div>
-                    <div class="stack__layer">Inferenz-Engine</div>
-                    <div class="stack__layer">Hardware-Abstraktion</div>
-                </div>
             </div>
         </div>
     </section>
@@ -687,7 +728,7 @@
                 <div class="footer-brand">
                     <h4>indie<span class="brand-dot">.</span>solutions</h4>
                     <p>Souveräne KI für den Arbeitsalltag.</p>
-                    <p class="footer-sov">Diese Website lädt nichts von Dritten. So wie unsere Produkte.</p>
+                    <p class="footer-sov">Keine Werbenetzwerke, keine Social-Plugins, keine externen Schriften. Nur Reichweitenmessung mit Matomo, die Sie ablehnen können.</p>
                 </div>
                 <div class="footer-contact">
                     <a href="mailto:contact@brainbot.com">contact@brainbot.com</a>
@@ -712,7 +753,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260818"></script>
 </body>
 
 </html>

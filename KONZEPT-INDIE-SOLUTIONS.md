@@ -70,6 +70,31 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
   Indie.rack immer als 19-Zoll-Rack. Schreibtisch-Szenen nur auf der Indie.box-Produktseite.
   Keine Fremdmarken-Pressebilder, kein Text/Logos in Bildern, im Hero Freiraum für die Headline.
 
+
+## Kanon-Update 2026-08-18: Der Indie-Stack ist das Produkt (Pivot)
+
+Ansage Heiko: Die Seite verkauft keine Hardware. Die Hardware gehört dazu, ist aber das
+Auslieferungsmedium. Der Indie-Stack ist das Wichtige. Damit kehrt das Hero-Konzept
+"One Platform. Four Scales." (ursprüngliche Hero-Variante 1) zurück und ersetzt die
+Hardware-zuerst-Dramaturgie des Master-Prompts an folgenden Stellen:
+
+- **Hero Startseite:** Kicker "Indie Solutions Stack", H1 "One Platform. Four Scales.",
+  Subline "Die gleiche souveräne KI-Plattform: für jede Anforderung die passende Hardware."
+  Darunter das Produkt-Lineup (vier Freisteller mit Namen in Versalien und englischen
+  Taglines: Local AI. Compact. / Accelerated AI. / Enterprise AI. / High Performance AI.)
+  und eine Feature-Leiste (Eine Plattform / Von kompakt bis Enterprise / Souverän & sicher /
+  Nahtlos integriert / Für Teams gemacht).
+- **Verbindliche Bauregel:** Text und Diagramme werden NIE in Bilder gerendert. Bilder
+  liefern nur Szene und Produkte, alles Textliche ist HTML (übersetzbar, barrierefrei).
+- **Dramaturgie Startseite:** Der Indie-Stack (Software-Suite, Kapitel 3) steht jetzt VOR der
+  Produktfamilie (Kapitel 4). Die Produktfamilie ist als Auslieferungsmedium gerahmt
+  ("Die Hardware liefert den Stack aus.").
+- Der Erklärvideo-Platzhalter ist vom Hero in die Demo-Box (Kapitel 8) umgezogen.
+- Das Master-Prompt-H1 "Souveräne KI für den Arbeitsalltag." bleibt Claim in Title/Meta.
+- Interims-Assets: Freisteller wurden aus den Referenzfotos erzeugt
+  (assets/indie-solutions/cutouts/). Finale Assets liefert Heiko, siehe OFFENE-FRAGEN.md Nr. 25.
+- Noch offen: ob Nav-Reihenfolge (Software vor Produkte) und Unterseiten dem Pivot folgen.
+
 ## Offene Punkte
 
 - Fremdlogos auf Produktbildern für den Live-Gang klären.
