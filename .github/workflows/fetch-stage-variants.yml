@@ -1,0 +1,24 @@
+name: fetch-stage-variants
+on:
+  push:
+    branches: [claude/indiesolutions-design-concept-lhacvm]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download stage variants
+        run: |
+          mkdir -p assets/indie-solutions/backgrounds
+          curl -fsSL -o assets/indie-solutions/backgrounds/stage-b1.png "https://d8j0ntlcm91z4.cloudfront.net/user_35jFUjZSPM83Kuji0Bw3Z0wSYDn/hf_20260818_064934_6f98f5d9-599c-43c7-b4b3-a1f07f76eef9.png"
+          curl -fsSL -o assets/indie-solutions/backgrounds/stage-b2.png "https://d8j0ntlcm91z4.cloudfront.net/user_35jFUjZSPM83Kuji0Bw3Z0wSYDn/hf_20260818_064934_13801748-a1ec-4caa-a616-2840240329c0.png"
+          ls -la assets/indie-solutions/backgrounds/
+      - name: Commit assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/indie-solutions/backgrounds/stage-b1.png assets/indie-solutions/backgrounds/stage-b2.png
+          git commit -m "assets: Buehnen-Varianten B1/B2 (CI-Fetch)"
+          git push
