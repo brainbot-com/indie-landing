@@ -63,6 +63,12 @@ damit Verweise gültig bleiben.)
 
 24. **Cache-Control-Header auf dem Server (dringend vor dem Cutover):** Caddy setzt aktuell keine Cache-Control-Header für statische Dateien. Beim Staging-Deploy hat das dazu geführt, dass Browser die alte `style.css` aus dem Cache auf das neue HTML angewendet haben, die Seite sah dadurch komplett ungestylt aus. Als Sofortmaßnahme tragen alle HTML-Dateien jetzt einen Versions-Parameter (`style.css?v=20260818`), der bei jeder Design-Änderung hochgezählt werden muss. Sauberer wäre zusätzlich im Caddy-Snippet: kurze Cache-Zeit für HTML (z. B. `Cache-Control "no-cache"`) und lange, unveränderliche Cache-Zeit für versionierte Assets. Das Snippet liegt in `deploy/caddy/`, wird aber nicht mitdeployt und muss auf dem Server nachgezogen werden.
 
+25. **Asset-Wünsche für den neuen Hero (Heiko lässt erstellen, 2026-08-18):**
+    a) **Vier Produkt-Freisteller** als PNG mit echtem Alphakanal, ohne Text, ohne eingebrannten Schatten (oder Schatten als separate Ebene). Mindestens 1500 px Kantenlänge, einheitliche Perspektive (leicht von vorn oben) und einheitliche Beleuchtung, damit die Reihe zusammen wirkt. Idealerweise gleich ohne Fremdlogos (GMKtec, Razer, ASUS), das erledigt Punkt 20 mit. Aktuell arbeiten wir mit selbst erzeugten Freistellern aus den Referenzfotos (assets/indie-solutions/cutouts/), die ersetzt werden.
+    b) **Bühnen-Hintergrund ohne Produkte und ohne Text:** dunkler Betonraum mit Wand und Boden und Lichtschacht wie im Mock, mindestens 2560 x 1440, oben links Freiraum für die Headline. Die vorhandenen Streifen (1536 x 340) reichen nur für den Boden-Saum.
+    c) NICHT benötigt: Varianten mit gerendertem Text oder Diagrammen. Headline, Labels, Taglines und Feature-Leiste sind HTML.
+26. **Reichweite des Pivots:** Startseite ist umgestellt (Stack vor Hardware). Sollen auch die Nav-Reihenfolge (Software vor Produkte) und die Unterseiten-Texte dem Pivot folgen?
+
 ## Bekannte, gewollte Platzhalter (laut Master-Prompt Abschnitt 9)
 
 Erklärvideo (Hero), UI-Vignetten der Software-Suite, Workstation-/Vollausbau-Benchmarks,
