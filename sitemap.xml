@@ -1,97 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://indiebox.ai/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/"/>
+    <loc>https://indie.solutions/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/en/</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/"/>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <loc>https://indie.solutions/produkte/indie-box/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/betriebs.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/betriebs.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/betriebs.html"/>
+    <loc>https://indie.solutions/produkte/indie-booster/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/produkte/indie-workstation/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/produkte/indie-rack/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/software/indie-chat/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/en/betriebs.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/betriebs.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/betriebs.html"/>
+    <loc>https://indie.solutions/software/indie-brain/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/chat.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/chat.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/chat.html"/>
+    <loc>https://indie.solutions/software/agent-command-center/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/software/agent-studio/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/software/indie-router/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/en/chat.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/chat.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/chat.html"/>
+    <loc>https://indie.solutions/care/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/referenzen/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/privacy.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/betriebs.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://indiebox.ai/privacy.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/privacy.html"/>
+    <loc>https://indie.solutions/chat.html</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
-    <loc>https://indiebox.ai/en/privacy.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/privacy.html"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
-    <loc>https://indiebox.ai/datenschutz.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <url>
-    <loc>https://indiebox.ai/impressum.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <url>
-    <loc>https://indiebox.ai/terms.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/terms.html"/>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
-  <url>
-    <loc>https://indiebox.ai/en/terms.html</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://indiebox.ai/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://indiebox.ai/en/terms.html"/>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.6</priority>
   </url>
 
 </urlset>

@@ -1,4 +1,4 @@
-# indiebox.ai: Suche und KI-Suche/Live-Abruf erlaubt, Modelltraining-Crawler gesperrt.
+# indie.solutions: Suche und KI-Suche/Live-Abruf erlaubt, Modelltraining-Crawler gesperrt.
 # Stand: Juli 2026. Staging wird von push-site.sh mit einer strengeren Datei überschrieben.
 
 User-agent: GPTBot
@@ -22,4 +22,4 @@ Disallow: /en/checkout-status.html
 Disallow: /type-guide.html
 Disallow: /leasing_preview-2.html
 
-Sitemap: https://indiebox.ai/sitemap.xml
+Sitemap: https://indie.solutions/sitemap.xml
