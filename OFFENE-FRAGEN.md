@@ -71,5 +71,11 @@ damit Verweise gültig bleiben.)
 
 ## Bekannte, gewollte Platzhalter (laut Master-Prompt Abschnitt 9)
 
-Erklärvideo (Hero), UI-Vignetten der Software-Suite, Workstation-/Vollausbau-Benchmarks,
+UI-Vignetten der Software-Suite, Workstation-/Vollausbau-Benchmarks,
 Router-Token-Kontingent, Referenz-Firmennamen.
+
+## Projekt-TODO
+
+- **Erklärvideo:** Der Platzhalter wurde auf Heikos Ansage (2026-08-18) komplett von der
+  Startseite entfernt. Sobald das Video existiert: self-hosted einbinden, Play nur auf Klick
+  (Master-Prompt Kapitel 1). Vorgesehener Ort: Demo-Box in Kapitel 8.
