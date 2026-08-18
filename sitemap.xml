@@ -8,25 +8,55 @@
   </url>
 
   <url>
-    <loc>https://indie.solutions/produkte/indie-box/</loc>
+    <loc>https://indie.solutions/indiestack/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/souveraene-ki/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://indie.solutions/produkte/indie-booster/</loc>
+    <loc>https://indie.solutions/models/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://indie.solutions/produkte/indie-workstation/</loc>
+    <loc>https://indie.solutions/infrastruktur/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://indie.solutions/produkte/indie-rack/</loc>
+    <loc>https://indie.solutions/integration/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/indie-box/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/indie-booster/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/indie-workstation/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://indie.solutions/indie-rack/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

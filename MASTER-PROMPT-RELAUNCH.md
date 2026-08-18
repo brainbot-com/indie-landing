@@ -77,7 +77,7 @@ Modell-Lineup (Namen nennen, Tokens/s NUR als gekennzeichnete Platzhalter, bis a
 
 **Hauptmenü:** Produkte (Dropdown: Indie.box, Indie.booster, Indie.workstation, Indie.rack) · Software (Dropdown: Indie.chat, Indie.brain, Agent Command Center, Agent Studio, Indie.router Coming soon) · Datensicherheit (bestehend) · Referenzen · Care · Docs (bestehend) · rechts: DE/EN-Umschalter, CTA "Beratung anfragen".
 
-**Seiten:** /produkte/indie-box, /indie-booster, /indie-workstation, /indie-rack · /software/indie-chat, /indie-brain, /agent-command-center, /agent-studio, /indie-router · /care · /referenzen. Alle entstehen in diesem Schritt als v1 (Abschnitt 1, Punkt 4).
+**Seiten:** /indie-box, /indie-booster, /indie-workstation, /indie-rack · /software/indie-chat, /indie-brain, /agent-command-center, /agent-studio, /indie-router · /care · /referenzen. Alle entstehen in diesem Schritt als v1 (Abschnitt 1, Punkt 4).
 
 **Vertiefungs-Reihenfolge nach diesem Schritt:**
 

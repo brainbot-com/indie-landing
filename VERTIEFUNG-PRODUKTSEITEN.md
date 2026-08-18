@@ -65,7 +65,7 @@ Behauptung ohne Deckung.
 
 ## 3. Produktspezifische Vorgaben
 
-### Indie.box (`produkte/indie-box/index.html`)
+### Indie.box (`indie-box/index.html`)
 
 Belegte Fakten: 5.500 € netto einmalig; AMD Ryzen AI Max 395, 16 Kerne; NPU 50 TOPS; 128 GB
 High-Speed RAM; 2 TB NVMe SSD; quantisierte Großmodelle bis zur 400B-Klasse; Llama 4 Maverick
@@ -86,7 +86,7 @@ Internet? Wer kann auf die Daten zugreifen? Kann ich eigene Modelle nachladen? W
 später mehr Geschwindigkeit brauchen? Brauche ich eigene IT dafür? Wie kommen die Nutzer an das
 System?
 
-### Indie.workstation (`produkte/indie-workstation/index.html`)
+### Indie.workstation (`indie-workstation/index.html`)
 
 Belegte Fakten: 12.000 € netto einmalig; RTX 5090 fest eingebaut; 64 GB RAM; schallgedämmt;
 24/7-tauglich; ausbaufähig mit zweiter GPU oder 2 × 2 TB Speicher; für viele Nutzer im Dauerbetrieb;
@@ -104,7 +104,7 @@ FAQ-Kandidaten: Warum weniger RAM als die Box? Kann ich den Booster daran betrei
 der Box)? Wie laut ist das Gerät im Büro? Läuft sie wirklich 24/7? Was kostet der Ausbau? Für wie
 viele Nutzer reicht sie (ehrlich: hängt an gleichzeitigen Anfragen, Klärung im Gespräch)?
 
-### Indie.booster (`produkte/indie-booster/index.html`)
+### Indie.booster (`indie-booster/index.html`)
 
 Belegte Fakten: 8.000 € netto einmalig; RTX 5090 mit 32 GB im externen Gehäuse; nachrüstbar an jede
 Indie.box; läuft ausschließlich an der Box, nicht eigenständig und nicht an der Workstation;
@@ -122,7 +122,7 @@ FAQ-Kandidaten: Brauche ich zwingend eine Box? Kann ich später nachrüsten oder
 entscheiden? Warum kostet Box plus Booster mehr als die Workstation? Passt er an jede Box? Was
 ändert sich im Betrieb?
 
-### Indie.rack (`produkte/indie-rack/index.html`)
+### Indie.rack (`indie-rack/index.html`)
 
 Belegte Fakten: Preis auf Anfrage (keine Zahlen, auch keine Spanne); dedizierte 19-Zoll-Server;
 für Verwaltung, öffentliche Hand und Konzerne; ausgelegt auf 100 bis über 1.000 Nutzer;

@@ -9285,3 +9285,165 @@ div[id].anchor-target {
     position: relative;
     z-index: 2;
 }
+
+/* ============================================================
+   BRIEFING 2026-08-18: Startseite "Souveräne KI" (Diagramme als HTML/CSS)
+   ============================================================ */
+
+/* Dunkle Sektionen (generisch) */
+.section--dark { background-color: var(--bg-dark); }
+.section-heading--on-dark { color: #f3f7fb; }
+.section-lead { color: var(--text-light); max-width: 62ch; margin-bottom: 0.5rem; }
+.section-lead--on-dark { color: rgba(236, 242, 248, 0.72); }
+.section-key { font-size: var(--t-h4, 1.3rem); font-weight: 700; letter-spacing: -0.01em; margin: 2.2rem 0 0.4rem; }
+.section-key--on-dark { color: #f3f7fb; }
+.section-note { color: var(--text-light); margin-bottom: 0.4rem; }
+.section--dark .section-note { color: rgba(236, 242, 248, 0.65); }
+.text-link--on-dark { color: rgba(236, 242, 248, 0.92); }
+
+/* Hero: IndieStack-Ebene über dem Lineup */
+.hero-stackbar { max-width: 1080px; margin: 2.6rem auto 0; }
+.hero-stackbar__bar {
+    display: flex; align-items: baseline; justify-content: center; gap: 1rem; flex-wrap: wrap;
+    padding: 0.75rem 1.4rem;
+    background: var(--panel-fill); border: 1px solid var(--panel-border);
+    border-radius: var(--panel-radius);
+    backdrop-filter: blur(4px);
+}
+.hero-stackbar__name {
+    font-size: var(--t-ui, 0.95rem); font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.92);
+}
+.hero-stackbar__claim { font-size: var(--t-small, 0.85rem); color: rgba(255, 255, 255, 0.6); }
+.hero-stackbar__stems { display: grid; grid-template-columns: repeat(4, 1fr); height: 26px; }
+.hero-stackbar__stems span {
+    justify-self: center; width: 1px;
+    background: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.06));
+}
+.hero-lineup--tight { margin-top: 0; }
+
+/* Generische Flow-Diagramme */
+.flow { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.8rem; }
+.flow__node {
+    padding: 0.55rem 0.95rem;
+    background: rgba(11, 17, 24, 0.04); border: 1px solid rgba(11, 17, 24, 0.16);
+    border-radius: var(--panel-radius);
+    font-size: var(--t-small, 0.85rem); font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--text-color); white-space: nowrap;
+}
+.flow__node--core { background: var(--bg-dark); border-color: var(--bg-dark); color: #fff; letter-spacing: 0.12em; }
+.flow__arrow { color: var(--accent-color); font-weight: 700; }
+.flow__group { display: flex; flex-direction: column; gap: 0.5rem; }
+.flow--mini { margin-top: auto; padding-top: 1.2rem; gap: 0.45rem; }
+.flow--mini .flow__node { font-size: 0.72rem; padding: 0.4rem 0.7rem; white-space: normal; }
+.flow--on-dark .flow__node { background: var(--panel-fill); border-color: var(--panel-border); color: rgba(236, 242, 248, 0.88); }
+.flow--on-dark .flow__node--core { background: rgba(255, 255, 255, 0.92); border-color: rgba(255, 255, 255, 0.92); color: var(--bg-dark); }
+.flow-caption { margin-top: 0.8rem; font-size: var(--t-small, 0.85rem); color: rgba(236, 242, 248, 0.6); }
+.section:not(.section--dark) .flow-caption { color: var(--text-light); }
+
+/* Nutzen-Karten */
+.use-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2.2rem; }
+.use-card {
+    display: flex; flex-direction: column;
+    padding: 1.6rem 1.5rem; border: 1px solid rgba(11, 17, 24, 0.12);
+    border-radius: 14px; background: #fff;
+}
+.use-card__kicker {
+    font-size: var(--t-small, 0.8rem); font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent-color); margin-bottom: 0.5rem;
+}
+.use-card__title { font-size: 1.15rem; letter-spacing: -0.01em; margin-bottom: 0.6rem; }
+.use-card__body { color: var(--text-light); font-size: 0.95rem; }
+
+/* Hub-Diagramm: IndieStack als verbindende Ebene */
+.hub { max-width: 720px; margin: 2.4rem 0 0; }
+.hub__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+.hub__node {
+    padding: 0.6rem 0.4rem; text-align: center;
+    background: var(--panel-fill); border: 1px solid var(--panel-border);
+    border-radius: var(--panel-radius);
+    font-size: var(--t-small, 0.85rem); font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(236, 242, 248, 0.88);
+}
+.hub__stems { display: grid; grid-template-columns: repeat(3, 1fr); height: 24px; }
+.hub__stems span {
+    justify-self: center; width: 1px;
+    background: linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.08));
+}
+.hub__core {
+    padding: 0.85rem 1rem; text-align: center;
+    background: rgba(255, 255, 255, 0.92); border-radius: var(--panel-radius);
+    font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--bg-dark);
+}
+
+/* Souveränitäts-Dimensionen */
+.dim-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2.2rem; }
+.dim-card {
+    padding: 1.2rem 1.1rem;
+    background: var(--panel-fill); border: 1px solid var(--panel-border);
+    border-radius: var(--panel-radius);
+}
+.dim-card__title {
+    font-size: var(--t-small, 0.85rem); font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #f3f7fb; margin-bottom: 0.45rem;
+}
+.dim-card__body { font-size: 0.9rem; color: rgba(236, 242, 248, 0.68); }
+
+/* Wachstumspfad mit Freistellern */
+.growth { display: flex; align-items: flex-end; justify-content: flex-start; flex-wrap: wrap; gap: 1rem; margin-top: 2.4rem; }
+.growth__step { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.3rem; }
+.growth__img { width: auto; max-width: 150px; object-fit: contain; }
+.growth__step:nth-child(1) .growth__img { height: 56px; }
+.growth__step:nth-child(3) .growth__img { height: 78px; }
+.growth__step:nth-child(5) .growth__img { height: 108px; }
+.growth__step:nth-child(7) .growth__img { height: 54px; }
+.growth__name {
+    font-size: var(--t-small, 0.8rem); font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent-color); margin-top: 0.5rem;
+}
+.growth__desc { font-size: 0.82rem; color: rgba(236, 242, 248, 0.6); }
+.growth__link { color: var(--accent-color); font-weight: 700; align-self: center; padding-bottom: 2rem; }
+
+/* Rollen IndieSolutions / brainbot */
+.roles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; margin-top: 2rem; max-width: 760px; }
+.roles__card {
+    padding: 1.4rem 1.5rem; background: #fff;
+    border: 1px solid rgba(11, 17, 24, 0.12); border-radius: 14px;
+}
+.roles__name { font-size: 1.05rem; letter-spacing: -0.01em; margin-bottom: 0.35rem; }
+.roles__desc { color: var(--text-light); font-size: 0.95rem; }
+
+/* Responsiv */
+@media (max-width: 900px) {
+    .use-grid { grid-template-columns: 1fr; }
+    .dim-grid { grid-template-columns: repeat(2, 1fr); }
+    .hero-stackbar__stems { display: none; }
+    .hero-stackbar { margin-bottom: 1.4rem; }
+}
+@media (max-width: 640px) {
+    .dim-grid { grid-template-columns: 1fr; }
+    .roles { grid-template-columns: 1fr; }
+    .flow--chain, .flow--model { flex-direction: column; align-items: flex-start; }
+    .flow--chain .flow__arrow, .flow--model .flow__arrow { transform: rotate(90deg); margin-left: 1.2rem; }
+    .flow__node { white-space: normal; }
+    .growth { justify-content: center; }
+    .growth__link { display: none; }
+}
+
+/* Hero-Lineup auf Mobile: Produkte auf einer gemeinsamen Standlinie, Labels in einer Reihe */
+@media (max-width: 900px) {
+    .hero-lineup--tight {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: stretch;
+        row-gap: 1.6rem;
+    }
+    .hero-lineup--tight .hero-lineup__item {
+        flex: none;
+        display: grid;
+        grid-template-rows: 160px auto 1fr;
+        justify-items: center;
+    }
+    .hero-lineup--tight .hero-lineup__img { align-self: end; }
+}
