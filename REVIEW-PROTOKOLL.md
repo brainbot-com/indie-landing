@@ -121,3 +121,19 @@ wird der Service-Umfang Teil des Angebots.
 ## Nicht im Loop lösbar (Entscheidungen/Fakten von Heiko nötig)
 
 Siehe OFFENE-FRAGEN.md.
+
+## Runde 5 (2026-08-18): Briefing-Relaunch der Startseite
+
+Grundlage: BRIEFING-RELAUNCH-2026-08-18.md (hat Vorrang vor dem Master-Prompt).
+Umbau: Startseite vollständig auf "Souveräne KI / IndieStack als Plattform" umgestellt
+(Hero mit IndieStack-Ebene über dem Lineup, Sektionen Nutzen, Warum IndieStack, Modellwahl,
+Souveränität, Schnell wirksam, Wachstum, Produktfamilie, brainbot, Praxis, Abschluss).
+Fünf Vertiefungsseiten v1 (indiestack, souveraene-ki, models, infrastruktur, integration)
+per Sonnet-Agent, Inhalte aus Briefing und belegtem Bestand, Selbst-QA im Agent
+(ein h1, keine Du-Anrede, keine Em-Dashes, Linkcheck, Tag-Balance, keine erfundenen Zahlen).
+Entfernt von der Startseite (Begründung siehe KONZEPT-Changelog und OFFENE-FRAGEN 29):
+Versprechen-Kapitel, Modul-Detailkarten (nach /indiestack), Matrix/Orientierungstabelle
+(nach /infrastruktur), Vergleich "EU-Hosting ist nicht Souveränität", Care-Box.
+Verifikation: Playwright-Screenshots (Hero, Full-Page, alle fünf Unterseiten), keine
+Konsolen-/HTTP-Fehler, Startseite 991 KB, genau ein h1 je Seite, 0 Em-Dashes im Fließtext.
+Keine neuen Bilder generiert; bestehende Bühne und Freisteller weiterverwendet.

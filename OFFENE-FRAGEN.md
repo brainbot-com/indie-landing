@@ -72,7 +72,11 @@ damit Verweise gültig bleiben.)
        - Stimmung: Bühne/Showroom statt Rohbau oder Keller. Ingenieurs-Präzision, stille Kraft, keine Requisiten, keine Fenster, keine Kabel, keine Menschen.
        - Oben links ein ruhiges, dunkleres Drittel als Freiraum für die HTML-Headline.
     c) NICHT benötigt: Varianten mit gerendertem Text oder Diagrammen. Headline, Labels, Taglines und Feature-Leiste sind HTML.
-26. **Reichweite des Pivots:** Startseite ist umgestellt (Stack vor Hardware). Sollen auch die Nav-Reihenfolge (Software vor Produkte) und die Unterseiten-Texte dem Pivot folgen?
+26. ~~Reichweite des Pivots~~ **Erledigt durch das Briefing 2026-08-18:** Die Ausrichtung regelt jetzt `BRIEFING-RELAUNCH-2026-08-18.md` (Phase 1 Startseite, Phase 2 Vertiefungsseiten inkl. Produktseiten).
+27. **Informationsarchitektur-URLs (Briefing Abschnitt 18):** Das Briefing nennt flache Pfade (/indie-box, /indie-rack, ...), die bestehenden Seiten liegen unter /produkte/... und /software/... Die neuen Vertiefungsseiten (/indiestack, /souveraene-ki, /models, /infrastruktur, /integration) sind flach angelegt. Sollen die Produktseiten in Phase 2 auf flache Pfade umziehen (dann mit Redirects), oder bleiben sie unter /produkte/?
+28. **Schreibweisen:** Das Briefing schreibt IndieStack, IndieSolutions und die Produkte klein (indie.box). Der bisherige Kanon schrieb Indie.box, Indie.Solutions, Indie-Stack. Die neue Startseite und die Vertiefungsseiten folgen dem Briefing; die übrigen Seiten werden in Phase 2 angeglichen. Passt das so, oder gilt für Fließtexte eine andere Regel als für Produkt-Labels?
+29. **Verbleib der Vergleichs-Sektion "EU-Hosting ist nicht Souveränität.":** Von der Startseite entfernt, weil sie Souveränität mit Nur-lokal gleichsetzt und der Mischbetriebs-Positionierung widerspricht. Der Kern (Cloud-Act-Argument, Kostenrechnung 80 Nutzer) ist stark; Vorschlag: überarbeitet auf die Landingpage "KI ohne Cloud-Abhängigkeit" (Phase 4) oder auf /souveraene-ki. Entscheidung offen. Gleiches gilt für das Versprechen-Kapitel ("Auspacken. Anschließen. Loslegen." / "Einmal kaufen. Für immer besitzen."): als Hardware-Versprechen von der Startseite genommen, Kernaussagen stecken jetzt in Produktfamilie und Produktseiten.
+30. **brainbot.com-Zielseite:** "Integration mit brainbot →" soll laut Briefing auf eine geeignete Seite auf brainbot.com führen. Welche URL? Bis zur Antwort verlinkt die Startseite auf https://brainbot.com.
 
 ## Bekannte, gewollte Platzhalter (laut Master-Prompt Abschnitt 9)
 

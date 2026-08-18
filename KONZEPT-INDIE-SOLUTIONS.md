@@ -1,11 +1,26 @@
 # Konzept indie.solutions (Kanon für den Neuaufbau)
 
-Stand: 2026-08-17, aktualisiert nach Eingang des Master-Prompts.
-**Inhaltliche Quelle der Wahrheit ist `MASTER-PROMPT-RELAUNCH.md`** (von Heiko, 2026-08-17).
-Dieses Dokument fasst den Kanon zusammen und ergänzt Design-Details, die der Master-Prompt offen lässt.
-Frühere Stände dieses Dokuments (Claim "One Platform. Four Scales.", Versalien-Namen wie INDIE.BOX GPU)
-sind durch den Master-Prompt ersetzt.
+Stand: 2026-08-18.
+**Maßgebliche Quelle der Wahrheit ist `BRIEFING-RELAUNCH-2026-08-18.md`** (von Heiko).
+Es hat Vorrang vor `MASTER-PROMPT-RELAUNCH.md` und vor diesem Dokument, wo sie voneinander abweichen.
+Der Master-Prompt bleibt gültig für alles, was das Briefing nicht regelt
+(z. B. Faktenbasis, Preise, Qualitätsziele, Übersetzungs-Workflow).
+Dieses Dokument fasst den Kanon zusammen und ergänzt Design-Details.
 Repo-Status (main = Neuaufbau, Branch indiebox-live = alte Seite): siehe AGENTS.md.
+
+Kern der aktuellen Ausrichtung (Briefing 2026-08-18):
+
+- Zentrale Positionierung: **Souveräne KI**. Lokale KI ist eine wichtige Option, nicht die Marke.
+- IndieSolutions ist kein Hardwareanbieter. Der **IndieStack** ist die technologische Plattform,
+  Hardware ist eine mögliche physische Basis.
+- Eigene Modelle, externe Modelle und Mischbetrieb sind gleichberechtigt. Wahlfreiheit und
+  Erweiterbarkeit sind zentrale Verkaufsargumente ("Heute passend starten. Mit dem Bedarf weiterwachsen.").
+- brainbot ist der optionale professionelle Integrationspartner, wird aber erst spät in der
+  Dramaturgie eingeführt.
+- Die Startseite bleibt bewusst einfach und verweist auf Vertiefungsseiten
+  (/indiestack, /souveraene-ki, /models, /infrastruktur, /integration).
+- Schreibweisen laut Briefing: **IndieStack**, **IndieSolutions**, Produkte klein als
+  **indie.box, indie.booster, indie.rack, indie.workstation**.
 
 ## Marke & Naming (aus Master-Prompt, verbindlich)
 
@@ -71,29 +86,28 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
   Keine Fremdmarken-Pressebilder, kein Text/Logos in Bildern, im Hero Freiraum für die Headline.
 
 
-## Kanon-Update 2026-08-18: Der Indie-Stack ist das Produkt (Pivot)
+## Startseite (Dramaturgie laut Briefing, Abschnitte 6 bis 17)
 
-Ansage Heiko: Die Seite verkauft keine Hardware. Die Hardware gehört dazu, ist aber das
-Auslieferungsmedium. Der Indie-Stack ist das Wichtige. Damit kehrt das Hero-Konzept
-"One Platform. Four Scales." (ursprüngliche Hero-Variante 1) zurück und ersetzt die
-Hardware-zuerst-Dramaturgie des Master-Prompts an folgenden Stellen:
+1. Hero: H1 "Souveräne KI für Ihr Unternehmen.", Subline zum IndieStack, CTAs
+   "Einsatzgebiet besprechen" / "IndieStack entdecken". Visual in getrennten Ebenen:
+   Hintergrund, Freisteller, IndieStack-Ebene und Typografie als HTML/CSS.
+   Reihenfolge indie.box → indie.booster → indie.rack → indie.workstation.
+2. Nutzen: drei Bereiche (Wissen, Arbeit, Neue Möglichkeiten) mit einfachen abstrahierten Flows.
+3. Warum IndieStack: Hub-Diagramm (Mitarbeiter/Anwendungen/Prozesse über dem IndieStack,
+   Daten/Systeme/Modelle darunter).
+4. Modellwahl: eigene/externe Modelle → IndieStack → Anwendungen. Prominent "Bring your own model."
+5. Souveränität: vier Dimensionen (Daten, Zugriff, Systeme, Externe KI) plus Architektur-Flow.
+6. Schnell wirksam: Weg Einsatzgebiet → Integration → produktive Nutzung → Ausbau.
+7. Wachstum: "Heute passend. Morgen erweiterbar.", Hardwarefamilie als Entwicklungspfad.
+8. Hardware-Produktfamilie: vier Karten mit je einem Satz, Details auf den Produktseiten.
+9. brainbot: "Sie müssen den Weg nicht alleine gehen.", Rollen IndieSolutions/brainbot.
+10. Proof: "Souveräne KI in der Praxis.", Branchen-Cases.
+11. Abschluss: "Wo kann KI in Ihrem Unternehmen als Erstes wirksam werden?" plus CTAs.
 
-- **Hero Startseite:** Kicker "Indie Solutions Stack", H1 "One Platform. Four Scales.",
-  Subline "Die gleiche souveräne KI-Plattform: für jede Anforderung die passende Hardware."
-  Darunter das Produkt-Lineup (vier Freisteller mit Namen in Versalien und englischen
-  Taglines: Local AI. Compact. / Accelerated AI. / Enterprise AI. / High Performance AI.)
-  und eine Feature-Leiste (Eine Plattform / Von kompakt bis Enterprise / Souverän & sicher /
-  Nahtlos integriert / Für Teams gemacht).
-- **Verbindliche Bauregel:** Text und Diagramme werden NIE in Bilder gerendert. Bilder
-  liefern nur Szene und Produkte, alles Textliche ist HTML (übersetzbar, barrierefrei).
-- **Dramaturgie Startseite:** Der Indie-Stack (Software-Suite, Kapitel 3) steht jetzt VOR der
-  Produktfamilie (Kapitel 4). Die Produktfamilie ist als Auslieferungsmedium gerahmt
-  ("Die Hardware liefert den Stack aus.").
-- Der Erklärvideo-Platzhalter ist vom Hero in die Demo-Box (Kapitel 8) umgezogen.
-- Das Master-Prompt-H1 "Souveräne KI für den Arbeitsalltag." bleibt Claim in Title/Meta.
-- Interims-Assets: Freisteller wurden aus den Referenzfotos erzeugt
-  (assets/indie-solutions/cutouts/). Finale Assets liefert Heiko, siehe OFFENE-FRAGEN.md Nr. 25.
-- Noch offen: ob Nav-Reihenfolge (Software vor Produkte) und Unterseiten dem Pivot folgen.
+Verbindliche Bauregel unverändert: Text und Diagramme werden NIE in Bilder gerendert.
+Bilder liefern nur Szene und Produkte, alles Textliche ist HTML (übersetzbar, barrierefrei).
+Interims-Assets: Freisteller aus Referenzfotos (assets/indie-solutions/cutouts/), Bühne
+stage_web.jpg. Finale Assets liefert Heiko, siehe OFFENE-FRAGEN.md Nr. 25.
 
 ## Offene Punkte
 
@@ -101,3 +115,14 @@ Hardware-zuerst-Dramaturgie des Master-Prompts an folgenden Stellen:
 - Platzhalter laut Master-Prompt: Erklärvideo, Workstation-/Vollausbau-Benchmarks,
   Router-Token-Kontingent, Referenz-Firmennamen.
 - Cutover-Schritte: siehe AGENTS.md Status-Block.
+
+## Changelog
+
+- 2026-08-18: Briefing-Relaunch eingecheckt und zur maßgeblichen Quelle erklärt; Startseiten-
+  Dramaturgie auf "Souveräne KI / IndieStack als Plattform" umgestellt. Ersetzt den Pivot-Block
+  "Der Indie-Stack ist das Produkt" vom selben Tag und die Hardware-zuerst-Dramaturgie des
+  Master-Prompts (alte Fassungen: Git-Historie).
+- 2026-08-18: Hero "One Platform. Four Scales." samt Feature-Leiste durch das Briefing-Hero ersetzt.
+- 2026-08-18: Vergleichs-Sektion "EU-Hosting ist nicht Souveränität." von der Startseite genommen,
+  weil sie Souveränität mit Nur-lokal gleichsetzt und damit der Mischbetriebs-Positionierung des
+  Briefings widerspricht (siehe OFFENE-FRAGEN.md Nr. 29).
