@@ -61,6 +61,8 @@ damit Verweise gültig bleiben.)
 22. **Monitoring und Meldewege im Fehlerfall:** Gibt es Monitoring oder Alerting, und wer wird bei einem Systemausfall wie informiert? Bisher auf keiner Seite und auch nicht in `betriebs.html` belegt, deshalb nirgends behauptet.
 23. **Redundanz beim Indie.rack:** Gibt es eine Basis-Redundanzstufe im Standardangebot, oder ist jede Stufe Einzelvertrag? Die Seite sagt derzeit, dass der Umfang je Organisation festgelegt und im Angebot ausgewiesen wird.
 
+24. **Cache-Control-Header auf dem Server (dringend vor dem Cutover):** Caddy setzt aktuell keine Cache-Control-Header für statische Dateien. Beim Staging-Deploy hat das dazu geführt, dass Browser die alte `style.css` aus dem Cache auf das neue HTML angewendet haben, die Seite sah dadurch komplett ungestylt aus. Als Sofortmaßnahme tragen alle HTML-Dateien jetzt einen Versions-Parameter (`style.css?v=20260818`), der bei jeder Design-Änderung hochgezählt werden muss. Sauberer wäre zusätzlich im Caddy-Snippet: kurze Cache-Zeit für HTML (z. B. `Cache-Control "no-cache"`) und lange, unveränderliche Cache-Zeit für versionierte Assets. Das Snippet liegt in `deploy/caddy/`, wird aber nicht mitdeployt und muss auf dem Server nachgezogen werden.
+
 ## Bekannte, gewollte Platzhalter (laut Master-Prompt Abschnitt 9)
 
 Erklärvideo (Hero), UI-Vignetten der Software-Suite, Workstation-/Vollausbau-Benchmarks,
