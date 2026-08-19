@@ -104,56 +104,54 @@
         </div>
     </nav>
 
-    <!-- Sektion 1: Hero (dunkel). Ebenen: Buehnenfoto (eine Komposition, ohne Text im Bild),
-         IndieStack-Ebene und Beschriftung als HTML/CSS darueber. Quelle des Fotos:
-         assets/indie-solutions/references/indie-hardware-family.jpg -->
-    <section class="hero-solutions hero-solutions--family" id="top" data-nav-sentinel data-pill-sentinel>
-        <div class="container">
-            <h1 class="hero-solutions__title" data-animate="fade-up">Souveräne KI<br>für Ihr Unternehmen.</h1>
-            <p class="hero-solutions__sub" data-animate="fade-up" data-stagger="1">
+    <!-- Sektion 1: Hero. EIN Kinobild (Bühne aus Higgsfield, die vier Geräte als
+         Freisteller der Referenzfotos hineinkomponiert). Alle Ebenen darüber sind
+         HTML/CSS: Typografie links in der dunklen Bühnenzone, Produktnamen auf dem
+         Boden unter den Geräten. Die Prozentwerte stammen aus der Komposition
+         (Gerätemitte, Oberkante, Standlinie 76 %) — bei neuem Bild neu messen. -->
+    <section class="hero-stage" id="top" data-nav-sentinel data-pill-sentinel>
+        <picture>
+            <!-- Gestapeltes Layout (bis 1100 px): 4:3-Ausschnitt auf das Geräteband,
+                 damit seitlich kein Gerät wegfällt. -->
+            <source media="(max-width: 1100px)" sizes="100vw"
+                    srcset="assets/indie-solutions/backgrounds/hero-stage_stacked_1200.jpg 1200w, assets/indie-solutions/backgrounds/hero-stage_stacked_1800.jpg 1800w">
+            <img class="hero-stage__photo"
+                 src="assets/indie-solutions/backgrounds/hero-stage_2400.jpg"
+                 srcset="assets/indie-solutions/backgrounds/hero-stage_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-stage_2400.jpg 2400w, assets/indie-solutions/backgrounds/hero-stage_3200.jpg 3200w"
+                 sizes="100vw" width="4779" height="2688" fetchpriority="high"
+                 alt="Vier Leistungsklassen auf einer Betonbühne: indie.box, indie.booster, indie.rack und indie.workstation.">
+        </picture>
+
+        <div class="hero-stage__copy">
+            <p class="hero-stage__eyebrow" data-animate="fade-up">IndieStack<span>Eine Plattform. Unterschiedliche Leistungsklassen.</span></p>
+            <h1 class="hero-stage__title" data-animate="fade-up" data-stagger="1">Souveräne KI<br>für Ihr Unternehmen.</h1>
+            <p class="hero-stage__sub" data-animate="fade-up" data-stagger="2">
                 Der IndieStack verbindet Ihre Daten, Prozesse und Anwendungen mit der KI,
                 die zu Ihrer Aufgabe passt. Eigene Modelle, externe Modelle oder beides.
             </p>
-
-            <div class="hero-stackbar" data-animate="fade-up" data-stagger="2">
-                <div class="hero-stackbar__bar">
-                    <span class="hero-stackbar__name">IndieStack</span>
-                    <span class="hero-stackbar__claim">Eine Plattform. Unterschiedliche Leistungsklassen.</span>
-                </div>
+            <div class="hero-stage__actions" data-animate="fade-up" data-stagger="3">
+                <a href="#kontakt" class="button button--solid button--pill button--lg">Einsatzgebiet besprechen</a>
+                <a href="indiestack/" class="button button--plain-dark button--pill button--lg">IndieStack entdecken</a>
             </div>
         </div>
 
-        <!-- Hardwarefamilie als eine Komposition. Die Prozentwerte je Produkt sind aus dem
-             Foto gemessen (Gerätemitte und Standlinie), damit die Beschriftung exakt sitzt. -->
-        <div class="hero-family" data-animate="fade-up" data-stagger="3">
-            <img class="hero-family__photo"
-                 src="assets/indie-solutions/backgrounds/hero-family_1600.jpg"
-                 srcset="assets/indie-solutions/backgrounds/hero-family_1100.jpg 1100w, assets/indie-solutions/backgrounds/hero-family_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-family_2200.jpg 2200w"
-                 sizes="100vw" width="1536" height="678" fetchpriority="high"
-                 alt="Die vier Hardwareklassen nebeneinander auf einer Betonbühne: indie.box, indie.booster, indie.rack und indie.workstation.">
-            <div class="hero-family__items">
-                <a class="hero-family__item" style="--x: 2.9%; --w: 15.7%; --t: 60.5%" href="indie-box/">
-                    <span class="hero-family__name">indie.box</span>
-                    <span class="hero-family__tag">Kompakter Einstieg</span>
-                </a>
-                <a class="hero-family__item" style="--x: 18.6%; --w: 20.5%; --t: 37.6%" href="indie-booster/">
-                    <span class="hero-family__name">indie.booster</span>
-                    <span class="hero-family__tag">Zusätzliche GPU-Leistung</span>
-                </a>
-                <a class="hero-family__item" style="--x: 41.7%; --w: 29.9%; --t: 42.0%" href="indie-rack/">
-                    <span class="hero-family__name">indie.rack</span>
-                    <span class="hero-family__tag">Zentrale GPU-Infrastruktur</span>
-                </a>
-                <a class="hero-family__item" style="--x: 75.7%; --w: 17.4%; --t: 6.6%" href="indie-workstation/">
-                    <span class="hero-family__name">indie.workstation</span>
-                    <span class="hero-family__tag">Hohe Rechenleistung</span>
-                </a>
-            </div>
-        </div>
-
-        <div class="container hero-solutions__actions" data-animate="fade-up" data-stagger="4">
-            <a href="#kontakt" class="button button--solid button--pill button--lg">Einsatzgebiet besprechen</a>
-            <a href="indiestack/" class="button button--plain-dark button--pill button--lg">IndieStack entdecken</a>
+        <div class="hero-stage__items">
+            <a class="hero-stage__item" style="--x: 32.0%; --w: 7.9%; --t: 68.0%" href="indie-box/">
+                <span class="hero-stage__name">indie.box</span>
+                <span class="hero-stage__tag">Kompakter Einstieg</span>
+            </a>
+            <a class="hero-stage__item" style="--x: 42.3%; --w: 10.5%; --t: 63.9%" href="indie-booster/">
+                <span class="hero-stage__name">indie.booster</span>
+                <span class="hero-stage__tag">Zusätzliche GPU-Leistung</span>
+            </a>
+            <a class="hero-stage__item" style="--x: 55.2%; --w: 23.7%; --t: 58.3%" href="indie-rack/">
+                <span class="hero-stage__name">indie.rack</span>
+                <span class="hero-stage__tag">Zentrale GPU-Infrastruktur</span>
+            </a>
+            <a class="hero-stage__item" style="--x: 81.3%; --w: 15.7%; --t: 37.5%" href="indie-workstation/">
+                <span class="hero-stage__name">indie.workstation</span>
+                <span class="hero-stage__tag">Hohe Rechenleistung</span>
+            </a>
         </div>
     </section>
 

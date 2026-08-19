@@ -95,11 +95,38 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
   Regel von Heiko: freistellen, vergrößern, Licht und Hintergrund anpassen ist erlaubt,
   immer als Komposition — **niemals neu rendern lassen in einer Art, die die Charakteristik
   der Hardware ändert.** Wird nicht mit deployt (rsync-Ausschluss in den Workflows).
-- assets/indie-solutions/backgrounds/hero-family_{1100,1600,2200}.jpg — Hero-Bühne,
-  Crop (0,230,1536,908) aus indie-hardware-family.jpg, Seitenverhältnis 1536:678.
-  Aus dem Foto gemessen: Gerätemitten 10,7 / 28,8 / 56,6 / 84,3 %, Standlinie 76 %.
-  Diese Werte stehen als CSS-Variablen im Hero und müssen mitgeändert werden, wenn
-  der Crop sich ändert.
+### Hero-Bühne: so entsteht sie (Stand 2026-08-19)
+
+Verfahren von Heiko vorgegeben, nur Komposition, kein Neurendern der Hardware:
+
+1. Leere Bühne mit Higgsfield erzeugen (Modell `nano_banana_pro`, 21:9, 4k, Prompt auf
+   dunklen Beton, spiegelnden Boden, Licht von links oben, **linkes Drittel im Schatten**
+   für die Typografie, komplett leer). Ergebnis liegt als
+   `references/stage_higgsfield.jpg` (6336x2688).
+2. bis 5. Die vier Geräte aus den Referenzfotos freistellen (Higgsfield
+   `remove_background`; das Rack ist bereits transparent) und an Position 1 bis 4
+   einsetzen: box, booster, rack, workstation. Freisteller liegen in
+   `references/cutouts/`.
+6. Kontrolle Farbe und Licht: globaler Gain je Gerät, damit die Pressefotos nicht
+   heller sind als die Bühne. Dazu Kontaktschatten und gestauchte Bodenspiegelung.
+
+Reproduzierbar mit `scripts/hero-compose.py` (aus `references/` aufrufen). Dort stehen
+die Parameter: Standlinie 76 %, Geräteband 32 bis 97 % der Breite, Szenen-Maßstab
+S = 1.25 scheinbare px/mm. Die Skalierung nutzt die scheinbare Standflächenbreite der
+echten Gerätemaße, nicht die Bildhöhe, weil die Referenzfotos unterschiedliche
+Kamerahöhen haben.
+
+Ergebnis: `backgrounds/hero-stage_{1600,2400,3200}.jpg` (16:9) und
+`backgrounds/hero-stage_stacked_{1200,1800}.jpg` (4:3-Ausschnitt auf das Geräteband
+für Layouts unter 1100 px). Aus der Komposition gemessen und im Hero als CSS-Variablen
+gesetzt: Gerätemitten 36,0 / 47,5 / 67,0 / 89,1 %, Oberkanten 68,0 / 63,9 / 58,3 /
+37,5 %, Standlinie 76 %. **Bei jeder neuen Platte diese Werte neu messen und im
+Hero-Markup nachziehen.**
+
+Offen beim Rack: Referenz 03 ist aus deutlich höherem Winkel fotografiert als die
+anderen drei. Aktuell per vertikaler Stauchung (0,62) und dunklerem Gain (0,76)
+eingepasst; sein silberner Deckel bleibt sichtbar. Saubere Lösung wäre ein Rack-Foto
+auf Augenhöhe in hoher Auflösung.
 - assets/indie-solutions/products/ — ältere Produkt-Referenzfotos (durch references/ ersetzt).
 - assets/indie-solutions/backgrounds/ — zusätzlich stage_web.jpg (seit 2026-08-19 im Hero
   nicht mehr verwendet) und drei ältere Streifen (dark-concrete, light-industrial, dark-cinematic).
@@ -120,16 +147,15 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
 
 ## Startseite (Dramaturgie laut Briefing, Abschnitte 6 bis 17)
 
-1. Hero: H1 "Souveräne KI für Ihr Unternehmen.", Subline zum IndieStack, CTAs
-   "Einsatzgebiet besprechen" / "IndieStack entdecken". Reihenfolge
-   indie.box → indie.booster → indie.rack → indie.workstation.
-   Visual seit 2026-08-19: **ein Bühnenfoto als eine Komposition** (hero-family, aus
-   indie-hardware-family.jpg), darüber nur HTML/CSS-Ebenen — Typografie, IndieStack-Leiste
-   und die vier Produkt-Beschriftungen. Das Foto wird nie beschnitten angezeigt, damit die
-   gemessenen Prozentwerte je Produkt (--x Position, --w Breite, --t Oberkante im
-   style-Attribut) exakt auf den Geräten sitzen; ober- und unterhalb läuft es per Maske
-   weich in den Sektionshintergrund (#2e2e2e). Kein Text im Bild. Unter 900 px wandert
-   die Beschriftung unter das Foto in ein 2x2-Raster.
+1. Hero: **ein Kinobild, 16:9, randlos** (`.hero-stage`). Im Bild steht kein Text.
+   Links in der dunklen Bühnenzone liegen als HTML/CSS: Eyebrow "IndieStack / Eine
+   Plattform. Unterschiedliche Leistungsklassen.", H1 "Souveräne KI für Ihr Unternehmen.",
+   Subline zum IndieStack, CTAs "Einsatzgebiet besprechen" / "IndieStack entdecken".
+   Unter jedem Gerät steht sein Name mit einer Kurzzeile, jeweils ein Link auf die
+   Produktseite; Reihenfolge indie.box → indie.booster → indie.rack → indie.workstation.
+   Die Section übernimmt das Seitenverhältnis des Bildes, damit horizontal nichts
+   beschnitten wird und die gemessenen Prozentwerte (--x, --w, --t) exakt sitzen.
+   Unter 1100 px wird gestapelt: 4:3-Platte, darunter Text, darunter die Namen als Raster.
 2. Nutzen: drei Bereiche (Wissen, Arbeit, Neue Möglichkeiten) mit einfachen abstrahierten Flows.
 3. Warum IndieStack: Hub-Diagramm (Mitarbeiter/Anwendungen/Prozesse über dem IndieStack,
    Daten/Systeme/Modelle darunter).
