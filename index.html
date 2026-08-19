@@ -104,9 +104,10 @@
         </div>
     </nav>
 
-    <!-- Sektion 1: Hero (dunkel). Ebenen: Hintergrund, IndieStack-Ebene, Freisteller, Typografie. -->
-    <section class="hero-solutions hero-solutions--lineup parallax-container" id="top" data-nav-sentinel data-pill-sentinel>
-        <img src="assets/indie-solutions/backgrounds/stage_web.jpg?v=20260818b" alt="" aria-hidden="true" class="hero-solutions__stage">
+    <!-- Sektion 1: Hero (dunkel). Ebenen: Buehnenfoto (eine Komposition, ohne Text im Bild),
+         IndieStack-Ebene und Beschriftung als HTML/CSS darueber. Quelle des Fotos:
+         assets/indie-solutions/references/indie-hardware-family.jpg -->
+    <section class="hero-solutions hero-solutions--family" id="top" data-nav-sentinel data-pill-sentinel>
         <div class="container">
             <h1 class="hero-solutions__title" data-animate="fade-up">Souveräne KI<br>für Ihr Unternehmen.</h1>
             <p class="hero-solutions__sub" data-animate="fade-up" data-stagger="1">
@@ -119,38 +120,40 @@
                     <span class="hero-stackbar__name">IndieStack</span>
                     <span class="hero-stackbar__claim">Eine Plattform. Unterschiedliche Leistungsklassen.</span>
                 </div>
-                <div class="hero-stackbar__stems" aria-hidden="true">
-                    <span></span><span></span><span></span><span></span>
-                </div>
             </div>
+        </div>
 
-            <div class="hero-lineup hero-lineup--tight" data-animate="fade-up" data-stagger="2">
-                <a class="hero-lineup__item" href="indie-box/">
-                    <img class="hero-lineup__img hero-lineup__img--box" src="assets/indie-solutions/cutouts/indie-box_cut.webp" alt="indie.box" width="600" height="400">
-                    <span class="hero-lineup__name">indie.box</span>
-                    <span class="hero-lineup__tag">Kompakter Einstieg</span>
+        <!-- Hardwarefamilie als eine Komposition. Die Prozentwerte je Produkt sind aus dem
+             Foto gemessen (Gerätemitte und Standlinie), damit die Beschriftung exakt sitzt. -->
+        <div class="hero-family" data-animate="fade-up" data-stagger="3">
+            <img class="hero-family__photo"
+                 src="assets/indie-solutions/backgrounds/hero-family_1600.jpg"
+                 srcset="assets/indie-solutions/backgrounds/hero-family_1100.jpg 1100w, assets/indie-solutions/backgrounds/hero-family_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-family_2200.jpg 2200w"
+                 sizes="100vw" width="1536" height="678" fetchpriority="high"
+                 alt="Die vier Hardwareklassen nebeneinander auf einer Betonbühne: indie.box, indie.booster, indie.rack und indie.workstation.">
+            <div class="hero-family__items">
+                <a class="hero-family__item" style="--x: 2.9%; --w: 15.7%; --t: 60.5%" href="indie-box/">
+                    <span class="hero-family__name">indie.box</span>
+                    <span class="hero-family__tag">Kompakter Einstieg</span>
                 </a>
-                <a class="hero-lineup__item" href="indie-booster/">
-                    <img class="hero-lineup__img hero-lineup__img--booster" src="assets/indie-solutions/cutouts/indie-booster_cut.webp" alt="indie.booster" width="770" height="500">
-                    <span class="hero-lineup__name">indie.booster</span>
-                    <span class="hero-lineup__tag">Zusätzliche GPU-Leistung</span>
+                <a class="hero-family__item" style="--x: 18.6%; --w: 20.5%; --t: 37.6%" href="indie-booster/">
+                    <span class="hero-family__name">indie.booster</span>
+                    <span class="hero-family__tag">Zusätzliche GPU-Leistung</span>
                 </a>
-                <a class="hero-lineup__item" href="indie-rack/">
-                    <img class="hero-lineup__img hero-lineup__img--rack" src="assets/indie-solutions/cutouts/indie-rack_cut.webp" alt="indie.rack" width="413" height="128">
-                    <span class="hero-lineup__name">indie.rack</span>
-                    <span class="hero-lineup__tag">Zentrale GPU-Infrastruktur</span>
+                <a class="hero-family__item" style="--x: 41.7%; --w: 29.9%; --t: 42.0%" href="indie-rack/">
+                    <span class="hero-family__name">indie.rack</span>
+                    <span class="hero-family__tag">Zentrale GPU-Infrastruktur</span>
                 </a>
-                <a class="hero-lineup__item" href="indie-workstation/">
-                    <img class="hero-lineup__img hero-lineup__img--workstation" src="assets/indie-solutions/cutouts/indie-workstation_cut.webp" alt="indie.workstation" width="426" height="475">
-                    <span class="hero-lineup__name">indie.workstation</span>
-                    <span class="hero-lineup__tag">Hohe Rechenleistung</span>
+                <a class="hero-family__item" style="--x: 75.7%; --w: 17.4%; --t: 6.6%" href="indie-workstation/">
+                    <span class="hero-family__name">indie.workstation</span>
+                    <span class="hero-family__tag">Hohe Rechenleistung</span>
                 </a>
             </div>
+        </div>
 
-            <div class="hero-solutions__actions" data-animate="fade-up" data-stagger="3">
-                <a href="#kontakt" class="button button--solid button--pill button--lg">Einsatzgebiet besprechen</a>
-                <a href="indiestack/" class="button button--plain-dark button--pill button--lg">IndieStack entdecken</a>
-            </div>
+        <div class="container hero-solutions__actions" data-animate="fade-up" data-stagger="4">
+            <a href="#kontakt" class="button button--solid button--pill button--lg">Einsatzgebiet besprechen</a>
+            <a href="indiestack/" class="button button--plain-dark button--pill button--lg">IndieStack entdecken</a>
         </div>
     </section>
 

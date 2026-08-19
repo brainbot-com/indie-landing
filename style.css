@@ -9100,190 +9100,163 @@ div[id].anchor-target {
    HTML, das Bildmaterial traegt keinerlei Text.
    ========================================================== */
 
-.hero-solutions--lineup .hero-solutions__title {
-    font-size: var(--t-display-2);
-    max-width: 12em;
+/* ==========================================================
+   Hero "Hardwarefamilie": das Buehnenfoto ist EINE Komposition
+   (assets/indie-solutions/references/indie-hardware-family.jpg).
+   Es wird nie beschnitten, damit die aus dem Foto gemessenen
+   Prozentwerte je Produkt (--x Position, --w Breite, --t Oberkante)
+   exakt auf den Geraeten sitzen. Text steht nie im Bild.
+   ========================================================== */
+
+/* Basiston ist der Boden des Fotos; die dunkle Textzone darueber kommt aus ::before,
+   damit die weichen Bildkanten oben und unten auf denselben Ton treffen. */
+.hero-solutions--family {
+    background: #2e2e2e;
+    padding-top: clamp(4rem, 9vh, 6rem);
+    padding-bottom: 0;
 }
 
-.hero-solutions--lineup .hero-solutions__sub {
+.hero-solutions--family::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 62%;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, #0f1216 0%, #13161b 40%, rgba(46, 46, 46, 0) 100%);
+}
+
+.hero-solutions--family .hero-solutions__title {
+    font-size: var(--t-display-2);
+    max-width: 14em;
+}
+
+.hero-solutions--family .hero-solutions__sub {
     margin: 1.2rem 0 0;
     max-width: 36em;
 }
 
-/* Produkt-Lineup: vier Freisteller, unten ausgerichtet */
-.hero-lineup {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: clamp(1rem, 3vw, 2.5rem);
-    margin-top: clamp(2.25rem, 6vh, 4rem);
+.hero-family {
+    position: relative;
+    width: 100%;
+    margin-top: clamp(0.5rem, 2vh, 1.25rem);
+    line-height: 0;
+    /* Bodenton des Fotos, in den die weiche Unterkante uebergeht */
+    background: linear-gradient(180deg, transparent 55%, #2e2e2e 100%);
 }
 
-.hero-lineup__item {
+.hero-family__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Ober- und Unterkante weich ausblenden, damit keine Bildkante sichtbar wird */
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 14%, #000 92%, transparent 100%);
+}
+
+/* Ein Link je Produkt: die Flaeche liegt ueber dem Gerät, die Beschriftung sitzt
+   auf dem Boden darunter. Alle vier Beschriftungen teilen eine Grundlinie. */
+.hero-family__item {
+    position: absolute;
+    left: var(--x);
+    width: var(--w);
+    top: var(--t);
+    bottom: 9.5%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 0.35rem;
-    flex: 1;
-    min-width: 0;
+    gap: 0.15rem;
+    line-height: 1.35;
     text-align: center;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
-.hero-lineup__item:hover .hero-lineup__img {
-    transform: translateY(-4px);
+.hero-family__item::before {
+    content: "";
+    width: 1px;
+    height: clamp(10px, 1.6vw, 20px);
+    margin-bottom: 0.45rem;
+    background: linear-gradient(rgba(255, 77, 0, 0), var(--accent-color));
+    opacity: 0.55;
+    transition: opacity 0.25s ease, height 0.25s ease;
 }
 
-.hero-lineup__item:focus-visible {
+.hero-family__item:hover::before,
+.hero-family__item:focus-visible::before {
+    opacity: 1;
+}
+
+.hero-family__item:focus-visible {
     outline: 2px solid var(--accent-color);
-    outline-offset: 6px;
+    outline-offset: 4px;
 }
 
-.hero-lineup__img {
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 22px 20px rgba(0, 0, 0, 0.55));
-    transition: transform 0.25s ease;
-    margin-bottom: 0.9rem;
-}
-
-.hero-lineup__img--box { height: clamp(60px, 8vw, 118px); }
-.hero-lineup__img--booster { height: clamp(92px, 12vw, 178px); }
-.hero-lineup__img--rack { height: clamp(66px, 9vw, 132px); }
-.hero-lineup__img--workstation { height: clamp(150px, 20vw, 300px); }
-
-.hero-lineup__name {
-    font-size: var(--t-small);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    background: var(--gradient-prism);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.hero-lineup__tag {
-    font-size: 0.85rem;
-    color: rgba(236, 242, 248, 0.75);
-}
-
-/* Feature-Leiste unter dem Lineup */
-.hero-featurebar {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    margin-top: clamp(2.25rem, 6vh, 3.75rem);
-    background: var(--panel-fill);
-    border: 1px solid var(--panel-border);
-    border-radius: 16px;
-    overflow: hidden;
-    backdrop-filter: blur(6px);
-}
-
-.hero-featurebar__item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 1.4rem 1rem;
-    text-align: center;
-}
-
-.hero-featurebar__item + .hero-featurebar__item {
-    border-left: 1px solid var(--panel-divider);
-}
-
-.hero-featurebar__icon {
-    width: 28px;
-    height: 28px;
-    color: rgba(255, 255, 255, 0.85);
-}
-
-.hero-featurebar__title {
-    font-size: 0.76rem;
+.hero-family__name {
+    font-size: clamp(0.7rem, 1vw, var(--t-small));
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #f3f7fb;
+    white-space: nowrap;
+    transition: color 0.25s ease;
 }
 
-.hero-featurebar__text {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: rgba(236, 242, 248, 0.65);
-    max-width: 24ch;
+.hero-family__item:hover .hero-family__name,
+.hero-family__item:focus-visible .hero-family__name {
+    color: var(--accent-color);
 }
 
-/* Aktionen im Lineup-Hero: Zeile statt Spalte */
-.hero-solutions--lineup .hero-solutions__actions {
+.hero-family__tag {
+    font-size: clamp(0.68rem, 0.9vw, 0.85rem);
+    color: rgba(236, 242, 248, 0.68);
+}
+
+/* Aktionen im Familien-Hero: Zeile statt Spalte, auf dem Boden unter der Familie */
+.hero-solutions--family .hero-solutions__actions {
+    position: relative;
+    z-index: 2;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     gap: 1.25rem;
+    margin-top: 0;
+    padding: clamp(1.5rem, 3.5vh, 2.5rem) 0 clamp(2.5rem, 6vh, 4rem);
 }
 
+/* Schmale Viewports: die Geraete werden zu klein fuer Beschriftung im Bild.
+   Beschriftung wandert unter das Foto, Positionierung wird aufgehoben. */
 @media (max-width: 900px) {
-    .hero-lineup {
-        flex-wrap: wrap;
-        justify-content: center;
-        row-gap: 2rem;
+    .hero-family__items {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem 1rem;
+        padding: 1.5rem clamp(1rem, 5vw, 2rem) 0;
     }
 
-    .hero-lineup__item {
-        flex: 0 1 44%;
-    }
-}
-
-@media (max-width: 768px) {
-    .hero-featurebar {
-        grid-template-columns: 1fr;
+    .hero-family__item {
+        position: static;
+        inset: auto;
+        width: auto;
     }
 
-    .hero-featurebar__item + .hero-featurebar__item {
-        border-left: none;
-        border-top: 1px solid var(--panel-divider);
+    .hero-family__item::before {
+        display: none;
     }
 
-    .hero-featurebar__text {
-        max-width: none;
+    .hero-family__name {
+        font-size: var(--t-small);
+        white-space: normal;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .hero-lineup__img {
+    .hero-family__item::before {
         transition: none;
     }
-}
-
-/* Buehnen-Hintergrund: kompletter Raum statt Boden-Streifen */
-.hero-solutions__stage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center bottom;
-    z-index: 0;
-}
-
-/* Scrim fuer Textkontrast: oben links dunkler, Lichtschacht rechts bleibt sichtbar */
-.hero-solutions--lineup::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background:
-        linear-gradient(115deg, rgba(8, 13, 20, 0.88) 0%, rgba(8, 13, 20, 0.6) 38%, rgba(8, 13, 20, 0.15) 70%, rgba(8, 13, 20, 0.3) 100%),
-        linear-gradient(180deg, rgba(8, 13, 20, 0.35) 0%, rgba(8, 13, 20, 0) 30%);
-}
-
-.hero-solutions--lineup .container {
-    position: relative;
-    z-index: 2;
 }
 
 /* ============================================================
@@ -9302,9 +9275,9 @@ div[id].anchor-target {
 .text-link--on-dark { color: rgba(236, 242, 248, 0.92); }
 
 /* Hero: IndieStack-Ebene über dem Lineup */
-.hero-stackbar { max-width: 1080px; margin: 2.6rem auto 0; }
+.hero-stackbar { max-width: 1080px; margin: 2rem 0 0; }
 .hero-stackbar__bar {
-    display: flex; align-items: baseline; justify-content: center; gap: 1rem; flex-wrap: wrap;
+    display: flex; align-items: baseline; justify-content: flex-start; gap: 1rem; flex-wrap: wrap;
     padding: 0.75rem 1.4rem;
     background: var(--panel-fill); border: 1px solid var(--panel-border);
     border-radius: var(--panel-radius);
@@ -9315,12 +9288,6 @@ div[id].anchor-target {
     text-transform: uppercase; color: rgba(255, 255, 255, 0.92);
 }
 .hero-stackbar__claim { font-size: var(--t-small, 0.85rem); color: rgba(255, 255, 255, 0.6); }
-.hero-stackbar__stems { display: grid; grid-template-columns: repeat(4, 1fr); height: 26px; }
-.hero-stackbar__stems span {
-    justify-self: center; width: 1px;
-    background: linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.06));
-}
-.hero-lineup--tight { margin-top: 0; }
 
 /* Generische Flow-Diagramme */
 .flow { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.8rem; }

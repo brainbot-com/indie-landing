@@ -61,6 +61,7 @@ jobs:
             --exclude "i18n/" \
             --exclude "scripts/" \
             --exclude "specs/" \
+            --exclude "assets/indie-solutions/references/" \
             --exclude ".env" \
             --exclude ".DS_Store" \
             --exclude ".gitignore" \

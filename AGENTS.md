@@ -4,6 +4,18 @@
 - **main = Neuaufbau der Website als indie.solutions.** Jeder Push deployt automatisch nach https://staging.indie.solutions (identisch mit staging.indiebox.ai, gleiche Docroot, gleiches backend-staging).
 - **Die alte indiebox.ai-Live-Seite lebt auf dem Branch `indiebox-live`** (Referenz: Release-Tag v2026.08.17). Patches an der alten Seite: dort committen, neu taggen, GitHub-Release auf den Tag → deployt live. NIEMALS ein Release von main machen, solange der Umbau läuft.
 - Cutover am Ende: Live-Vhost indie.solutions anlegen, APP_BASE_URL umstellen, indiebox.ai wird Redirect.
+## Arbeitsmodus: lokal entwickeln, bewusst deployen (ab 2026-08-19)
+
+- Entwickelt und geprüft wird **lokal**: `node deploy/scripts/local-preview.mjs` (Port 3000,
+  proxyt /api auf einen lokalen Backend-Port), Layout-Kontrolle per Screenshot mit
+  headless Chrome. Nicht für jede Zwischenstufe deployen.
+- **Push nach main nur bei einem abgeschlossenen Stand oder auf Ansage** — jeder Push löst
+  automatisch den Staging-Deploy aus. Zwischenstände bleiben als lokale Commits liegen.
+- Live (indiebox.ai) nur per Release vom Branch `indiebox-live`, nie von main.
+- Die Routine-Befehle des lokalen Loops (git, lokale Vorschau, Screenshots) sind lokal in
+  `.claude/settings.json` freigegeben, damit im Entwicklungszyklus keine Rückfragen anfallen.
+  Das Verzeichnis ist nicht im Repo; in einer neuen Umgebung dort erneut freigeben.
+
 - **Kanon für den Neuaufbau: KONZEPT-INDIE-SOLUTIONS.md** (Marke, Produkte, Hero-Konzept, Farben). Sprachregel dort verbindlich: kein Du; neutral wo möglich, "Sie" wo direkte Ansprache nötig.
 
 ## Design System

@@ -87,11 +87,26 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
 
 ## Assets
 
-- assets/indie-solutions/products/ — Produkt-Referenzfotos. Achtung: ASUS- und
-  Razer-Logos sichtbar; vor dem Live-Gang klären, ersetzen oder retuschieren.
-- assets/indie-solutions/backgrounds/ — Hero-Bühne stage_web.jpg (Interim) und drei ältere
-  Streifen (dark-concrete, light-industrial, dark-cinematic).
-- assets/indie-solutions/cutouts/ — vier Freisteller als WebP (Interim, aus den Referenzfotos).
+- **assets/indie-solutions/references/ — ab 2026-08-19 die verbindliche Bildquelle.**
+  Homogenisierte Referenzen (gleiche Anmutung, gleiches Licht, schwarze Gehäuse):
+  01 indie.box, 02 indie.booster, 03 indie.rack, 04 indie.workstation,
+  05 Zielkomposition (nur Layout-Referenz, enthält Text im Bild und darf nie als
+  Web-Asset verwendet werden) sowie **indie-hardware-family.jpg** als Grundlage des Heros.
+  Regel von Heiko: freistellen, vergrößern, Licht und Hintergrund anpassen ist erlaubt,
+  immer als Komposition — **niemals neu rendern lassen in einer Art, die die Charakteristik
+  der Hardware ändert.** Wird nicht mit deployt (rsync-Ausschluss in den Workflows).
+- assets/indie-solutions/backgrounds/hero-family_{1100,1600,2200}.jpg — Hero-Bühne,
+  Crop (0,230,1536,908) aus indie-hardware-family.jpg, Seitenverhältnis 1536:678.
+  Aus dem Foto gemessen: Gerätemitten 10,7 / 28,8 / 56,6 / 84,3 %, Standlinie 76 %.
+  Diese Werte stehen als CSS-Variablen im Hero und müssen mitgeändert werden, wenn
+  der Crop sich ändert.
+- assets/indie-solutions/products/ — ältere Produkt-Referenzfotos (durch references/ ersetzt).
+- assets/indie-solutions/backgrounds/ — zusätzlich stage_web.jpg (seit 2026-08-19 im Hero
+  nicht mehr verwendet) und drei ältere Streifen (dark-concrete, light-industrial, dark-cinematic).
+- assets/indie-solutions/cutouts/ — vier alte Freisteller als WebP auf weißem Grund, teils
+  gespiegelt (indie.box zeigt das GMKtec-Logo verdreht). Nur noch in der Wachstums-Sektion
+  von index.html und infrastruktur/index.html. **Offen:** dort durch Material aus
+  references/ ersetzen.
 - Hardware-Referenzen (Briefing Abschnitt 7): indie.box GMKtec EVO-X2, indie.booster Razer eGPU
   mit ausgeschalteter Beleuchtung, indie.rack ASUS ESC8000A-E13P als 19-Zoll-Rack,
   indie.workstation Fractal Design Define 7 XL Black Solid (deutlich höher, steht rechts).
@@ -106,9 +121,15 @@ Als HTML/CSS (kein Bild), Ebenen von oben nach unten:
 ## Startseite (Dramaturgie laut Briefing, Abschnitte 6 bis 17)
 
 1. Hero: H1 "Souveräne KI für Ihr Unternehmen.", Subline zum IndieStack, CTAs
-   "Einsatzgebiet besprechen" / "IndieStack entdecken". Visual in getrennten Ebenen:
-   Hintergrund, Freisteller, IndieStack-Ebene und Typografie als HTML/CSS.
-   Reihenfolge indie.box → indie.booster → indie.rack → indie.workstation.
+   "Einsatzgebiet besprechen" / "IndieStack entdecken". Reihenfolge
+   indie.box → indie.booster → indie.rack → indie.workstation.
+   Visual seit 2026-08-19: **ein Bühnenfoto als eine Komposition** (hero-family, aus
+   indie-hardware-family.jpg), darüber nur HTML/CSS-Ebenen — Typografie, IndieStack-Leiste
+   und die vier Produkt-Beschriftungen. Das Foto wird nie beschnitten angezeigt, damit die
+   gemessenen Prozentwerte je Produkt (--x Position, --w Breite, --t Oberkante im
+   style-Attribut) exakt auf den Geräten sitzen; ober- und unterhalb läuft es per Maske
+   weich in den Sektionshintergrund (#2e2e2e). Kein Text im Bild. Unter 900 px wandert
+   die Beschriftung unter das Foto in ein 2x2-Raster.
 2. Nutzen: drei Bereiche (Wissen, Arbeit, Neue Möglichkeiten) mit einfachen abstrahierten Flows.
 3. Warum IndieStack: Hub-Diagramm (Mitarbeiter/Anwendungen/Prozesse über dem IndieStack,
    Daten/Systeme/Modelle darunter).
@@ -149,3 +170,7 @@ stage_web.jpg. Finale Assets liefert Heiko, siehe OFFENE-FRAGEN.md Nr. 25.
   Briefing-Stand gebracht (nur der geltende Regeltext steht im Dokument; frühere Fassungen
   in der Git-Historie). Betrifft: Schreibweisen klein, Plattform statt Hardware-Familie,
   Verbotsliste Buzzwords, Matomo als einzige Drittressource, Hardware-Referenzen und Bildsprache.
+- 2026-08-19: Homogenisierte Bildreferenzen von Heiko übernommen (assets/indie-solutions/references/)
+  und zur verbindlichen Bildquelle erklärt. Hero-Visual auf eine Komposition aus
+  indie-hardware-family.jpg umgestellt; die alten Freisteller auf weißem Grund (teils gespiegelt)
+  sind damit aus dem Hero raus und nur noch in der Wachstums-Sektion.
