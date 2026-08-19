@@ -6,6 +6,7 @@
 # hier entsteht der Neuaufbau als indie.solutions, bis zum Cutover auf live.
 staging.indiebox.ai, staging.indie.solutions {
   import security_headers
+  import matomo_csp
   import tls_security_headers
 
   @adminPages path /admin* /en/admin*
@@ -70,6 +71,7 @@ docs.indiebox.ai {
 
 indiebox.ai, www.indiebox.ai {
   import security_headers
+  import matomo_csp
   import tls_security_headers
 
   @adminPages path /admin* /en/admin*
