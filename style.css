@@ -9477,3 +9477,491 @@ div[id].anchor-target {
     }
     .hero-lineup--tight .hero-lineup__img { align-self: end; }
 }
+
+/* ==========================================================
+   HERO + INDIE SOLUTIONS STACK
+   Built from design_handoff_indie_hero_stack.
+
+   Two deliberate departures, both on the handoff's own terms:
+     - Fonts. The handoff asks for DM Sans / DM Mono. This site self-hosts
+       Inter and adding a second sans for two sections would read as a bug,
+       so the values (sizes, weights, letter-spacing) are kept exactly and
+       rendered in Inter.
+     - Units. The reference is authored in a canvas and uses cqw. Production
+       uses vw with the same min/max, as the handoff instructs.
+   ========================================================== */
+
+.hero-lead {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: clamp(580px, 54vw, 778px);
+    background-color: #0E2128;
+    color: #fff;
+    overflow: hidden;
+}
+
+/* Extends below the section so the machines crop against the fold. */
+.hero-lead__photo {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(100% + min(7vw, 101px));
+    object-fit: cover;
+    object-position: 50% 80%;
+    z-index: 0;
+}
+
+.hero-lead__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(14, 33, 40, 0.9) 0%, rgba(14, 33, 40, 0.66) 36%, rgba(14, 33, 40, 0.28) 58%, rgba(14, 33, 40, 0) 80%);
+}
+
+.hero-lead__copy {
+    position: relative;
+    z-index: 2;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(32px, 4vw, 64px) min(4vw, 58px) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: clamp(16px, 1.8vw, 28px);
+}
+
+.hero-lead__title {
+    margin: 0;
+    max-width: 18ch;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(32px, 4.9vw, 82px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    color: #fff;
+}
+
+/* The one accent in the headline. Never a second. */
+.hero-lead__accent { color: #FF6314; }
+
+.hero-lead__sub {
+    margin: 0;
+    max-width: 58ch;
+    font-size: clamp(14px, 1.35vw, 20px);
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.84);
+    text-wrap: pretty;
+}
+
+.hero-lead__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: clamp(10px, 1vw, 16px);
+    margin-top: clamp(4px, 0.6vw, 10px);
+}
+
+.hero-lead__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-height: 46px;
+    padding: 12px clamp(20px, 2.2vw, 32px);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: clamp(14px, 1.25vw, 18px);
+    text-decoration: none;
+    color: #fff;
+    transition: background 200ms cubic-bezier(.2, 0, 0, 1), border-color 200ms cubic-bezier(.2, 0, 0, 1);
+}
+
+.hero-lead__cta:active { transform: translateY(1px); }
+
+.hero-lead__cta--primary {
+    background: #FF6314;
+    border: 1.5px solid #FF6314;
+}
+.hero-lead__cta--primary:hover,
+.hero-lead__cta--primary:focus-visible {
+    background: #FF9142;
+    border-color: #FF9142;
+    color: #fff;
+}
+
+.hero-lead__cta--ghost {
+    background: rgba(14, 33, 40, 0.32);
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+}
+.hero-lead__cta--ghost:hover,
+.hero-lead__cta--ghost:focus-visible {
+    background: rgba(14, 33, 40, 0.5);
+    border-color: #FF6314;
+    color: #fff;
+}
+
+/* Keeps clear space under the buttons so the devices are not crowded. */
+.hero-lead__spacer {
+    flex: 1 1 auto;
+    min-height: min(18vw, 259px);
+}
+
+/* ---- Indie Solutions Stack ---- */
+
+.solstack {
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #E8ECEF;
+    padding: clamp(56px, 6vw, 96px) clamp(20px, 4vw, 56px);
+}
+
+.solstack__head {
+    max-width: 1280px;
+    margin: 0 auto clamp(28px, 3vw, 48px);
+    color: #1F2A33;
+}
+
+.solstack__title {
+    margin: 0 0 clamp(10px, 1.1vw, 16px);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--t-title);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: #1F2A33;
+}
+
+.solstack__sub {
+    margin: 0;
+    max-width: 58ch;
+    font-size: clamp(14px, 1.25vw, 19px);
+    line-height: 1.4;
+    color: #73828D;
+    text-wrap: pretty;
+}
+
+.solstack__panel {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: #0E2128;
+    border-radius: 22px;
+    overflow: hidden;
+    color: #fff;
+}
+
+/* Inner column matches the device span in the photo below it. */
+.solstack__diagram {
+    box-sizing: border-box;
+    max-width: 76%;
+    margin: 0 auto;
+    padding: clamp(20px, 2.2vw, 36px) 0 clamp(10px, 1vw, 16px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(5px, 0.55vw, 9px);
+}
+
+/* On desktop the platform and base groups are not cards, their rows sit
+   directly in the stack. Only the apps group is a card. */
+.solstack__group--platform,
+.solstack__group--base {
+    display: contents;
+}
+.solstack__group--platform .solstack__group-label,
+.solstack__group--base .solstack__group-label { display: none; }
+
+.solstack__group--apps {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: clamp(8px, 0.8vw, 14px);
+}
+
+.solstack__group--apps .solstack__group-label {
+    margin: 0 0 clamp(7px, 0.7vw, 11px);
+    text-align: center;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: clamp(9px, 0.78vw, 11px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.solstack__apps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.solstack__app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    font-size: clamp(10px, 0.9vw, 13px);
+    font-weight: 500;
+}
+.solstack__app .solstack__icon { width: 17px; height: 17px; }
+
+.solstack__bar {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: clamp(7px, 0.65vw, 11px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+}
+.solstack__bar span {
+    font-weight: 700;
+    font-size: clamp(10px, 0.9vw, 13px);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+.solstack__bar .solstack__icon { width: 15px; height: 15px; flex: none; }
+
+.solstack__trio {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(5px, 0.55vw, 9px);
+}
+
+.solstack__photo { position: relative; }
+
+.solstack__photo-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3168 / 860;
+    object-fit: cover;
+    object-position: 50% 100%;
+}
+
+/* Melts the diagram into the top of the photograph. */
+.solstack__photo-scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(14, 33, 40, 1) 0%, rgba(14, 33, 40, 0.45) 14%, rgba(14, 33, 40, 0) 32%);
+}
+
+/* Connector lines. The x-positions are tuned to this crop; re-tune if the
+   photograph is ever re-cropped. */
+.solstack__lines { position: absolute; inset: 0; pointer-events: none; }
+.solstack__stem {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 6%;
+    border-left: 1.5px solid rgba(255, 99, 20, 0.85);
+}
+.solstack__rail {
+    position: absolute;
+    left: 17.5%;
+    width: 65%;
+    top: 6%;
+    border-top: 1.5px solid rgba(255, 99, 20, 0.85);
+}
+.solstack__drop {
+    position: absolute;
+    left: var(--x);
+    top: 6%;
+    height: var(--h);
+    border-left: 1.5px solid rgba(255, 99, 20, 0.85);
+}
+.solstack__drop::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: var(--h);
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #FF6314;
+}
+
+.solstack__labels {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: clamp(54px, 5.5vw, 80px);
+    margin-bottom: min(1.8vw, 26px);
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 1px 10px rgba(14, 33, 40, 0.55);
+}
+
+.solstack__label {
+    position: absolute;
+    left: var(--x);
+    bottom: 0;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    text-decoration: none;
+    color: #fff;
+}
+.solstack__label::after {
+    content: "";
+    width: clamp(20px, 2vw, 30px);
+    height: 3px;
+    margin-top: 4px;
+    background: #FF6314;
+    transition: width 200ms cubic-bezier(.2, 0, 0, 1);
+}
+.solstack__label:hover::after,
+.solstack__label:focus-visible::after { width: clamp(34px, 3.4vw, 50px); }
+
+.solstack__label-name {
+    font-weight: 700;
+    font-size: clamp(12px, 1.3vw, 19px);
+    letter-spacing: 0.02em;
+}
+.solstack__label-tag {
+    font-size: clamp(11px, 1.05vw, 15px);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+/* ---- Hero + stack, mobile ---- */
+@media (max-width: 640px) {
+    .hero-lead { min-height: 640px; }
+
+    .hero-lead__photo {
+        height: 122%;
+        object-position: 47% 100%;
+    }
+
+    .hero-lead__scrim {
+        background: linear-gradient(180deg, rgba(14, 33, 40, 0.92) 0%, rgba(14, 33, 40, 0.7) 42%, rgba(14, 33, 40, 0.3) 66%, rgba(14, 33, 40, 0) 88%);
+    }
+
+    .hero-lead__actions {
+        flex-direction: column;
+        align-self: stretch;
+        gap: 10px;
+    }
+    .hero-lead__cta { width: 100%; }
+
+    .hero-lead__spacer { min-height: 150px; }
+
+    /* The diagram regroups into three labelled cards. The row order is
+       unchanged, so one DOM serves both layouts. */
+    .solstack__panel { border-radius: 16px; }
+
+    .solstack__diagram {
+        max-width: none;
+        padding: 14px 14px 16px;
+        gap: 10px;
+    }
+
+    .solstack__group--platform,
+    .solstack__group--base {
+        display: block;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .solstack__group--apps {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 10px;
+        background: none;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .solstack__group-label {
+        display: block;
+        margin: 0;
+        padding: 7px 14px;
+        background: rgba(255, 255, 255, 0.06);
+        font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #FF6314;
+        text-align: left;
+    }
+    .solstack__group--platform .solstack__group-label,
+    .solstack__group--base .solstack__group-label { display: block; }
+    .solstack__group--apps .solstack__group-label {
+        text-align: left;
+        color: #FF6314;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+    }
+
+    /* Rows become a plain separated list inside each card. */
+    .solstack__apps {
+        display: block;
+    }
+    .solstack__trio { display: block; }
+
+    .solstack__app,
+    .solstack__bar {
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        background: none;
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 0;
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .solstack__app:first-child,
+    .solstack__group--platform > .solstack__bar:first-of-type,
+    .solstack__group--base > .solstack__bar:first-of-type { border-top: 0; }
+
+    .solstack__bar span {
+        font-weight: 500;
+        font-size: 13px;
+        letter-spacing: 0;
+        text-transform: none;
+    }
+
+    .solstack__photo-img { aspect-ratio: 3168 / 900; }
+
+    /* Connector lines are desktop-only; the labels move below the photo. */
+    .solstack__lines { display: none; }
+
+    .solstack__labels {
+        position: static;
+        height: auto;
+        margin: 16px 0 0;
+        padding: 0 14px 18px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px 8px;
+        text-align: left;
+    }
+    .solstack__label {
+        position: static;
+        transform: none;
+        align-items: flex-start;
+        white-space: normal;
+    }
+    .solstack__label::after { width: 20px; }
+    .solstack__label-name { font-size: 12px; }
+    .solstack__label-tag { font-size: 10px; }
+}

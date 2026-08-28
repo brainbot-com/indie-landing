@@ -109,50 +109,102 @@
          HTML/CSS: Typografie links in der dunklen Bühnenzone, Produktnamen auf dem
          Boden unter den Geräten. Die Prozentwerte stammen aus der Komposition
          (Gerätemitte, Oberkante, Standlinie 76 %) — bei neuem Bild neu messen. -->
-    <section class="hero-stage" id="top" data-nav-sentinel data-pill-sentinel>
-        <picture>
-            <!-- Gestapeltes Layout (bis 1100 px): 4:3-Ausschnitt auf das Geräteband,
-                 damit seitlich kein Gerät wegfällt. -->
-            <source media="(max-width: 1100px)" sizes="100vw"
-                    srcset="assets/indie-solutions/backgrounds/hero-stage_stacked_1200.jpg 1200w, assets/indie-solutions/backgrounds/hero-stage_stacked_1800.jpg 1800w">
-            <img class="hero-stage__photo"
-                 src="assets/indie-solutions/backgrounds/hero-stage_2400.jpg"
-                 srcset="assets/indie-solutions/backgrounds/hero-stage_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-stage_2400.jpg 2400w, assets/indie-solutions/backgrounds/hero-stage_3200.jpg 3200w"
-                 sizes="100vw" width="4779" height="2688" fetchpriority="high"
-                 alt="Vier Leistungsklassen auf einer Betonbühne: indie.box, indie.booster, indie.rack und indie.workstation.">
-        </picture>
+    <section class="hero-lead" id="top" data-nav-sentinel data-pill-sentinel>
+        <img class="hero-lead__photo"
+             src="assets/indie-solutions/backgrounds/hero-devices_2400.jpg"
+             srcset="assets/indie-solutions/backgrounds/hero-devices_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-devices_2400.jpg 2400w, assets/indie-solutions/backgrounds/hero-devices_3168.jpg 3168w"
+             sizes="100vw" width="3168" height="1344" fetchpriority="high"
+             alt="Vier Leistungsklassen auf einer Betonbühne: indie.box, indie.booster, indie.workstation und indie.rack.">
+        <span class="hero-lead__scrim" aria-hidden="true"></span>
 
-        <div class="hero-stage__copy">
-            <p class="hero-stage__eyebrow" data-animate="fade-up">IndieStack<span>Eine Plattform. Unterschiedliche Leistungsklassen.</span></p>
-            <h1 class="hero-stage__title" data-animate="fade-up" data-stagger="1">Souveräne KI<br>für Ihr Unternehmen.</h1>
-            <p class="hero-stage__sub" data-animate="fade-up" data-stagger="2">
+        <div class="hero-lead__copy">
+            <h1 class="hero-lead__title" data-animate="fade-up"><span class="hero-lead__accent">Souveräne KI</span> für<br>Ihr Unternehmen.</h1>
+            <p class="hero-lead__sub" data-animate="fade-up" data-stagger="1">
                 Der IndieStack verbindet Ihre Daten, Prozesse und Anwendungen mit der KI,
                 die zu Ihrer Aufgabe passt. Eigene Modelle, externe Modelle oder beides.
             </p>
-            <div class="hero-stage__actions" data-animate="fade-up" data-stagger="3">
-                <a href="#kontakt" class="button button--solid button--pill button--lg">Einsatzgebiet besprechen</a>
-                <a href="indiestack/" class="button button--plain-dark button--pill button--lg">IndieStack entdecken</a>
+            <div class="hero-lead__actions" data-animate="fade-up" data-stagger="2">
+                <a href="#kontakt" class="hero-lead__cta hero-lead__cta--primary">Einsatzgebiet besprechen</a>
+                <a href="indiestack/" class="hero-lead__cta hero-lead__cta--ghost">IndieStack entdecken</a>
             </div>
         </div>
 
-        <div class="hero-stage__items">
-            <a class="hero-stage__item" style="--x: 32.0%; --w: 7.9%; --t: 68.0%" href="indie-box/">
-                <span class="hero-stage__name">indie.box</span>
-                <span class="hero-stage__tag">Kompakter Einstieg</span>
-            </a>
-            <a class="hero-stage__item" style="--x: 42.3%; --w: 10.5%; --t: 63.9%" href="indie-booster/">
-                <span class="hero-stage__name">indie.booster</span>
-                <span class="hero-stage__tag">Zusätzliche GPU-Leistung</span>
-            </a>
-            <a class="hero-stage__item" style="--x: 55.2%; --w: 23.7%; --t: 58.3%" href="indie-rack/">
-                <span class="hero-stage__name">indie.rack</span>
-                <span class="hero-stage__tag">Zentrale GPU-Infrastruktur</span>
-            </a>
-            <a class="hero-stage__item" style="--x: 81.3%; --w: 15.7%; --t: 37.5%" href="indie-workstation/">
-                <span class="hero-stage__name">indie.workstation</span>
-                <span class="hero-stage__tag">Hohe Rechenleistung</span>
-            </a>
+        <div class="hero-lead__spacer" aria-hidden="true"></div>
+    </section>
+
+    <!-- Sektion: Indie Solutions Stack (Design-Handoff hero_stack) -->
+    <section class="solstack" id="indie-solstack">
+      <div class="solstack__head" data-animate="fade-up">
+        <h2 class="solstack__title">Indie Solutions Stack.</h2>
+        <p class="solstack__sub">Eine Software. Vier Leistungsklassen. Ihre Anwendungen laufen unverändert auf jeder Stufe, vom kompakten Mini-Server bis zum Rack.</p>
+      </div>
+
+      <div class="solstack__panel" data-animate="fade-up" data-stagger="1">
+        <div class="solstack__diagram">
+          <div class="solstack__group solstack__group--apps">
+            <p class="solstack__group-label">Anwendungen &amp; Agents</p>
+            <div class="solstack__apps">
+          <div class="solstack__app"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg><span>Wissensarbeit</span></div>
+          <div class="solstack__app"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg><span>Prozessautomatisierung</span></div>
+          <div class="solstack__app"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 3v18h18"></path><path d="m7 14 4-4 3 3 5-6"></path></svg><span>Datenanalyse</span></div>
+          <div class="solstack__app"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path><path d="m9 15 2 2 4-4"></path></svg><span>Dokumentenverarbeitung</span></div>
+          <div class="solstack__app"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M12 4v4"></path><path d="M9 14h.01"></path><path d="M15 14h.01"></path></svg><span>Individuelle Agents</span></div>
+            </div>
+          </div>
+
+          <div class="solstack__group solstack__group--platform">
+            <p class="solstack__group-label">Plattform</p>
+        <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg><span>API &amp; Integration</span></div>
+        <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m12 2 10 6-10 6L2 8Z"></path><path d="m2 14 10 6 10-6"></path></svg><span>Modell-Orchestrierung &amp; Workflows</span></div>
+        <div class="solstack__trio">
+          <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Modell-Management</span></div>
+          <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path></svg><span>Daten &amp; Knowledge</span></div>
+          <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg><span>Sicherheit &amp; Governance</span></div>
         </div>
+          </div>
+
+          <div class="solstack__group solstack__group--base">
+            <p class="solstack__group-label">Basis</p>
+        <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="5" y="5" width="14" height="14" rx="2"></rect><rect x="10" y="10" width="4" height="4"></rect><path d="M9 2v3"></path><path d="M15 2v3"></path><path d="M9 19v3"></path><path d="M15 19v3"></path><path d="M2 9h3"></path><path d="M2 15h3"></path><path d="M19 9h3"></path><path d="M19 15h3"></path></svg><span>Lokale Inferenz-Engine</span></div>
+        <div class="solstack__bar"><svg class="solstack__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="4" width="20" height="7" rx="2"></rect><rect x="2" y="13" width="20" height="7" rx="2"></rect><path d="M6.5 7.5h.01"></path><path d="M6.5 16.5h.01"></path></svg><span>Hardware-Abstraktion</span></div>
+          </div>
+        </div>
+
+        <div class="solstack__photo">
+          <img class="solstack__photo-img"
+               src="assets/indie-solutions/backgrounds/hero-devices-spread_2400.jpg"
+               srcset="assets/indie-solutions/backgrounds/hero-devices-spread_1600.jpg 1600w, assets/indie-solutions/backgrounds/hero-devices-spread_2400.jpg 2400w, assets/indie-solutions/backgrounds/hero-devices-spread_3168.jpg 3168w"
+               sizes="(max-width: 1360px) 100vw, 1280px" width="3168" height="1344" loading="lazy"
+               alt="Die vier Leistungsklassen nebeneinander: indie.box, indie.booster, indie.workstation und indie.rack.">
+          <span class="solstack__photo-scrim" aria-hidden="true"></span>
+          <span class="solstack__lines" aria-hidden="true">
+            <span class="solstack__stem"></span>
+            <span class="solstack__rail"></span>
+          <span class="solstack__drop" style="--x: 17.5%; --h: 32%; --tip: 38%"></span>
+          <span class="solstack__drop" style="--x: 36%; --h: 21%; --tip: 27%"></span>
+          <span class="solstack__drop" style="--x: 60%; --h: 26%; --tip: 32%"></span>
+          <span class="solstack__drop" style="--x: 82.5%; --h: 5%; --tip: 11%"></span>
+          </span>
+          <div class="solstack__labels">
+          <a class="solstack__label" style="--x: 17.5%" href="indie-box/">
+            <span class="solstack__label-name">INDIE.BOX</span>
+            <span class="solstack__label-tag">Local AI. Compact.</span>
+          </a>
+          <a class="solstack__label" style="--x: 36%" href="indie-booster/">
+            <span class="solstack__label-name">INDIE.BOOSTER</span>
+            <span class="solstack__label-tag">Accelerated AI.</span>
+          </a>
+          <a class="solstack__label" style="--x: 60%" href="indie-workstation/">
+            <span class="solstack__label-name">INDIE WORKSTATION</span>
+            <span class="solstack__label-tag">High Performance AI.</span>
+          </a>
+          <a class="solstack__label" style="--x: 82.5%" href="indie-rack/">
+            <span class="solstack__label-name">INDIE RACK</span>
+            <span class="solstack__label-tag">Enterprise AI.</span>
+          </a>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Sektion 2: Nutzen (hell) -->
