@@ -2,7 +2,8 @@
 import re,json,html,os,sys,glob
 SP=os.path.dirname(os.path.abspath(__file__))
 SITE='https://indie.solutions/'
-URLS={'en/neu/':'de/neu/','en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/devices-and-software/':'de/geraete-und-software/',
+HOME_EN=os.environ.get('INDIE_HOME_EN','en/neu/'); HOME_DE=os.environ.get('INDIE_HOME_DE','de/neu/')
+URLS={HOME_EN:HOME_DE,'en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/devices-and-software/':'de/geraete-und-software/',
       'en/about/':'de/ueber-uns/','en/customers/lightforce/':'de/kunden/lightforce/','en/webinars/crm/':'de/webinare/crm/',
       'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/',
       'en/request-your-industry/':'de/branche-anfragen/','en/get-notified/':'de/benachrichtigung/','en/legal/imprint/':'de/rechtliches/impressum/',
@@ -30,8 +31,11 @@ def tr(t):
     if k in M: return t.replace(k,M[k],1)
     return num(t)
 def remap(u):
+    # Only addresses on this site: relative links and https://indie.solutions/ links.
+    if u.startswith(('http://','https://')) and not u.startswith(SITE): return u
     for a in sorted(URLS,key=len,reverse=True):
-        if a in u: return u.replace(a,URLS[a])
+        m=re.search(r'(^|/)'+re.escape(a),u)
+        if m: return u[:m.start()]+m.group(1)+URLS[a]+u[m.end():]
     return u
 TOK=re.compile(r'(<!--[\s\S]*?-->|<[^>]+>)')
 ATTR=re.compile(r'\b(alt|aria-label|title|placeholder|data-hw|data-subject|data-yt-title|content|value|data-plans|href|src|data-privacy)="([^"]*)"')

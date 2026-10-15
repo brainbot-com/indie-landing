@@ -1,5 +1,8 @@
 import re
-v1=open('en/neu-v1/index.html',encoding='utf-8').read()
+import os as _os
+# Homepage address: /en/neu/ in the repo; the staging deploy builds it at /en/ instead.
+HOME_EN=_os.environ.get('INDIE_HOME_EN','en/neu/')
+v1=open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),'nav-source.html'),encoding='utf-8').read()
 def cut(s,a,b): i=s.index(a); return s[i:s.index(b,i)+len(b)]
 NAV=cut(v1,'<nav class="nav-bar"','</nav>')
 # Header for the new pages. Until Software, Devices, Security, Pricing and Webinars have
@@ -36,8 +39,8 @@ def depthify(html, R):
     # v1 lives at /en/neu/ (R='../../'); rewrite its relative links for another depth.
     html=html.replace('href="../../','href="@@R@@').replace('src="../../','src="@@R@@')
     html=html.replace('href="../privacy.html"','href="@@R@@en/privacy.html"').replace('href="../terms.html"','href="@@R@@en/terms.html"').replace('href="../impressum.html"','href="@@R@@en/impressum.html"')
-    html=html.replace('href="./"','href="@@R@@en/neu/"')
-    html=html.replace('href="./#','href="@@R@@en/neu/#')
+    html=html.replace('href="./"','href="@@R@@'+HOME_EN+'"')
+    html=html.replace('href="./#','href="@@R@@'+HOME_EN+'#')
     return html.replace('@@R@@',R)
 
 CAM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
@@ -51,7 +54,7 @@ def ph(tone, brief, kind='Photo', fill=False, ar=None):
 
 CAL='https://calendly.com/heiko-franssen-brainbot/analysegesprach'
 def FOOTER(R):
-    H=R+'en/neu/'
+    H=R+HOME_EN
     E=R+'en/industries/engineering/'
     cols=[
      ('Industries',[('Engineering and Manufacturing',E),('Education (soon)',H+'#industries'),('Clinic and Elder Care (soon)',H+'#industries')]),
@@ -155,7 +158,7 @@ def contact(R, subject):
       </section>'''
 
 # ================= HOMEPAGE =================
-R='../../'
+R='../'*HOME_EN.count('/')
 doors=[
  ('eng','Engineering and Manufacturing',"Your company's lifetime of knowledge, one question away.",R+'en/industries/engineering/','Two engineers at a workbench, comparing a printed drawing with a prototype part.'),
  ('edu','Education',"Years of school know-how, there for every teacher.",None,'A school administrator between timetables and a stack of forms, a teacher leaning in the doorway with a question.'),
@@ -304,10 +307,10 @@ home_body=f'''
 
 {webinars(R, ['crm', 'mail'])}
 '''
-open('en/neu/index.html','w',encoding='utf-8').write(page(
+open(HOME_EN+'index.html','w',encoding='utf-8').write(page(
   "Private AI Brain for your company | indie.solutions",
   "A private AI Brain that connects your files, email and drives, answers your team's questions with sources, and runs on your own device in your office.",
-  R, home_body, pill=False, path='en/neu/', image='neu/img/social-default.jpg',
+  R, home_body, pill=False, path=HOME_EN, image='neu/img/social-default.jpg',
   extra_ld=({"@context":"https://schema.org","@graph":[ORG,{"@type":"WebSite","@id":SITE+"#website","url":SITE,"name":"indie.solutions","publisher":{"@id":SITE+"#brainbot"}}]},)))
 
 # ================= ENGINEERING =================

@@ -37,19 +37,21 @@ jobs:
       - name: Add server to known hosts
         run: ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
-      # Staging only: the start pages open the new indie.solutions site, so the old homepage is not shown.
-      # This changes the CI copy only. Production (deploy-live.yml) is not affected.
+      # Staging only: build the new indie.solutions homepage at /en/ and /de/ (no "neu" in the address),
+      # and send the old start pages there. This changes the CI copy only. Production (deploy-live.yml) is not affected.
       - name: Show the new site at the staging start pages
         run: |
+          INDIE_HOME_EN=en/ INDIE_HOME_DE=de/ bash scripts/site-builder/rebuild.sh
           redirect() {
             mkdir -p "$(dirname "$1")"
             cat > "$1" <<HTML
           <!doctype html><html lang="$3"><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><meta http-equiv="refresh" content="0; url=$2"><title>indie.solutions</title></head><body><a href="$2">indie.solutions</a></body></html>
           HTML
           }
-          redirect index.html /en/neu/ en
-          redirect en/index.html /en/neu/ en
-          redirect neu/index.html /de/neu/ de
+          redirect index.html /en/ en
+          redirect en/neu/index.html /en/ en
+          redirect de/neu/index.html /de/ de
+          redirect neu/index.html /de/ de
 
       - name: Deploy static site
         run: |

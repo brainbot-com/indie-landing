@@ -34,7 +34,7 @@ Minimum term 12 months, then cancel with 3 months notice. Support runs Monday to
 
 ## Pages
 
-- [Home](https://indie.solutions/en/neu/): what the AI Brain is and who it is for.
+- [Home](https://indie.solutions/en/): what the AI Brain is and who it is for.
 - [Engineering and manufacturing](https://indie.solutions/en/industries/engineering/): the AI Brain for engineering teams, with packages and prices.
 - [Devices and software](https://indie.solutions/en/devices-and-software/): the four devices with full specs, the software, and local AI compared with cloud AI.
 - [Customer story: Lightforce](https://indie.solutions/en/customers/lightforce/): how an aircraft and drone engineering company uses the AI Brain.
