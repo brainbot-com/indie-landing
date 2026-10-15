@@ -1,0 +1,16 @@
+# Get notified when an industry launches. Just an email address.
+import sys; sys.path.insert(0, sys.argv[1])
+from common import *
+form=('<form class="tf" data-trial-form data-type="notify" data-subject="Notify me" novalidate><label class="tf__hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>'
+  '<div class="tf__grid">'
+  '<label class="tf__field"><span class="tf__label">Industry</span><select class="tf__input" name="industry" data-prefill="industry"><option>Education</option><option>Clinic and Elder Care</option></select></label>'
+  '<label class="tf__field"><span class="tf__label">Work email <span class="tf__req" aria-hidden="true">*</span></span><input class="tf__input" type="email" name="email" required autocomplete="email"></label><label class="tf__field"><span class="tf__label">Company</span><input class="tf__input" type="text" name="company" autocomplete="organization"></label><label class="tf__field"><span class="tf__label">Country</span><input class="tf__input" type="text" name="country" autocomplete="country-name"></label>'
+  '</div>'
+  '<label class="tf__consent"><input type="checkbox" name="consent" required> <span>I agree that brainbot may email me when it launches. <a href="@@ROOT@@en/legal/privacy/">Privacy policy</a></span></label>'
+  '<p class="tf__error" role="alert" hidden>Please enter your email and tick the box.</p>'
+  '<button class="btn btn--filled btn--xl btn--hero-cta tf__submit" type="submit"><span class="btn__label">Notify me <span class="arrow">→</span></span></button>'
+  '</form>'
+  '<div class="tf__done" hidden><h3 class="tf__done-h">You are on the list.</h3><p>We will email you when it launches.</p></div>')
+body=section('notify', head('Get notified when it launches.',None,'Leave your email, and we will let you know as soon as the AI Brain for your industry is ready.')
+   +f'<div class="tf__wrap tf__wrap--single tf__wrap--narrow"><div class="tf__card">{form}</div></div>', white=True)
+open(sys.argv[2],'w',encoding='utf-8').write(body)
