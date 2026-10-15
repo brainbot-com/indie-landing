@@ -40,6 +40,11 @@ const config = {
   mailgunRegion: (process.env.MAILGUN_REGION || 'eu').toLowerCase(),
   orderNotificationTo: process.env.ORDER_NOTIFICATION_TO || '',
   orderNotificationFrom: process.env.ORDER_NOTIFICATION_FROM || '',
+  // Website forms (trial, industry, notify, webinar): who gets alerted, and where tickets go.
+  leadsNotificationTo: process.env.LEADS_NOTIFICATION_TO || '',
+  leadsNotificationFrom: process.env.LEADS_NOTIFICATION_FROM || process.env.ORDER_NOTIFICATION_FROM || '',
+  leadsGithubRepo: process.env.LEADS_GITHUB_REPO || '',
+  leadsGithubToken: process.env.LEADS_GITHUB_TOKEN || '',
   dataDir: process.env.DATA_DIR || '/app/data',
   enableAdminApi: process.env.ENABLE_ADMIN_API === 'true' || (process.env.APP_ENV || 'development') === 'development',
   port: Number.parseInt(process.env.PORT || '8080', 10),
@@ -3877,6 +3882,108 @@ app.post('/api/mollie/webhook', webhookRateLimit, async (req, res) => {
   } catch (error) {
     return res.status(error.status || 502).send(error.message);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Website lead forms. Every request is emailed to the team and filed as a
+// GitHub issue for follow-up. Either channel may be switched off by leaving its
+// env vars empty; if both are off, the endpoint returns 503 and the page falls
+// back to opening a prepared email.
+// ---------------------------------------------------------------------------
+const leadsRateLimit = createRateLimit({ bucketName: 'leads', windowMs: 10 * 60_000, maxRequests: 6 });
+
+const LEAD_TYPES = {
+  trial: { label: 'Trial request', required: ['name', 'company', 'email', 'industry', 'team'] },
+  industry: { label: 'Industry request', required: ['name', 'company', 'email', 'industry', 'team', 'message'] },
+  notify: { label: 'Notify me', required: ['email'] },
+  webinar: { label: 'Webinar registration', required: ['name', 'email', 'webinar'] }
+};
+const LEAD_FIELDS = [
+  ['webinar', 'Webinar'], ['name', 'Name'], ['company', 'Company'], ['email', 'Email'], ['phone', 'Phone'],
+  ['role', 'Role'], ['industry', 'Industry'], ['team', 'Company size'], ['device', 'Package'], ['start', 'Start'], ['source', 'Heard about us'],
+  ['country', 'Country'], ['guests', 'Colleagues'], ['question', 'Question for the speaker'], ['message', 'Message']
+];
+
+async function createLeadIssue(type, fields, page) {
+  const title = `[${LEAD_TYPES[type].label}] ${fields.company || fields.industry || fields.email}${fields.name ? ` (${fields.name})` : ''}`;
+  const rows = LEAD_FIELDS.filter(([key]) => fields[key] && key !== 'message')
+    .map(([key, label]) => `| ${label} | ${String(fields[key]).replace(/\|/g, '\\|')} |`);
+  const body = [
+    `New **${LEAD_TYPES[type].label.toLowerCase()}** from the website.`, '',
+    '| Field | Value |', '| --- | --- |', ...rows, '',
+    fields.message ? `**Message**\n\n${fields.message}\n` : '',
+    page ? `Sent from: ${page}` : ''
+  ].join('\n');
+  const response = await fetch(`https://api.github.com/repos/${config.leadsGithubRepo}/issues`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${config.leadsGithubToken}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+      'User-Agent': 'indie-solutions-leads'
+    },
+    body: JSON.stringify({ title, body, labels: ['lead', type] })
+  });
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(`GitHub issue failed: ${response.status} ${text}`.trim());
+  }
+  const json = await response.json().catch(() => ({}));
+  return json.html_url || '';
+}
+
+app.post('/api/leads', leadsRateLimit, async (req, res) => {
+  const input = req.body || {};
+  // Honeypot: real visitors never fill this field in.
+  if (sanitizeSingleLineInput(input.website, 200)) return res.status(200).json({ ok: true });
+
+  const type = normalizeEnum(input.type, new Set(Object.keys(LEAD_TYPES)));
+  if (!type) return res.status(400).json({ error: 'invalid_type' });
+
+  const fields = {};
+  for (const [key] of LEAD_FIELDS) {
+    if (key === 'message' || key === 'question') fields[key] = sanitizeMultilineInput(input[key], key === 'message' ? 4000 : 1000);
+    else if (key === 'guests') {
+      const list = Array.isArray(input.guests) ? input.guests : String(input.guests || '').split(/[,\s]+/);
+      fields.guests = list.map(normalizeEmail).filter(isValidEmail).slice(0, 5).join(', ');
+    } else fields[key] = sanitizeSingleLineInput(input[key], 200);
+  }
+  fields.email = normalizeEmail(fields.email);
+
+  const missing = LEAD_TYPES[type].required.filter((key) => !fields[key]);
+  if (missing.length || !isValidEmail(fields.email) || input.consent !== true) {
+    return res.status(400).json({ error: 'invalid_input', missing });
+  }
+
+  const emailOn = Boolean(config.mailgunApiKey && config.mailgunDomain && config.leadsNotificationTo && config.leadsNotificationFrom);
+  const issueOn = Boolean(config.leadsGithubRepo && config.leadsGithubToken);
+  if (!emailOn && !issueOn) return res.status(503).json({ error: 'leads_not_configured' });
+
+  const page = sanitizeSingleLineInput(input.page, 300);
+  const results = { email: false, issue: false };
+  let issueUrl = '';
+  if (issueOn) {
+    try { issueUrl = await createLeadIssue(type, fields, page); results.issue = true; }
+    catch (error) { console.error('[leads] github', error.message); }
+  }
+  if (emailOn) {
+    const lines = LEAD_FIELDS.filter(([key]) => fields[key] && key !== 'message').map(([key, label]) => `${label}: ${fields[key]}`);
+    if (fields.message) lines.push('', 'Message:', fields.message);
+    if (issueUrl) lines.push('', `Ticket: ${issueUrl}`);
+    if (page) lines.push(`Sent from: ${page}`);
+    try {
+      await sendViaMailgun({
+        from: config.leadsNotificationFrom,
+        to: config.leadsNotificationTo,
+        subject: `${LEAD_TYPES[type].label}: ${fields.company || fields.industry || fields.email}`,
+        text: lines.join('\n')
+      });
+      results.email = true;
+    } catch (error) { console.error('[leads] email', error.message); }
+  }
+  if (!results.email && !results.issue) return res.status(502).json({ error: 'delivery_failed' });
+  return res.status(200).json({ ok: true, ...results });
 });
 
 app.use((req, res) => {

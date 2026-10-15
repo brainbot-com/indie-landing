@@ -1,14 +1,21 @@
 (function () {
-  if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname)) return;
+  // No tracking (and no banner) on local previews or staging sites.
+  var offHost = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname) || /^staging\./.test(window.location.hostname);
+  // Add ?consent-preview to the address to see the banner on a preview or staging site. Nothing is tracked there.
+  var preview = offHost && /[?&]consent-preview\b/.test(window.location.search);
+  if (offHost && !preview) return;
 
+  var me = document.currentScript;
+  var siteId = (me && me.getAttribute('data-site-id')) || '8';
   var _paq = window._paq = window._paq || [];
+  if (preview) _paq = [];
   _paq.push(['disableCookies']);
   _paq.push(['trackPageView']);
   _paq.push(['enableLinkTracking']);
-  (function () {
+  if (!preview) (function () {
     var u = 'https://shutter.matomo.cloud/';
     _paq.push(['setTrackerUrl', u + 'matomo.php']);
-    _paq.push(['setSiteId', '8']);
+    _paq.push(['setSiteId', siteId]);
     var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
     g.async = true;
     g.src = 'https://cdn.matomo.cloud/shutter.matomo.cloud/matomo.js';
@@ -16,9 +23,9 @@
   })();
 
   var CONSENT_KEY = 'ib_analytics_consent';
-  var consent = localStorage.getItem(CONSENT_KEY);
+  var consent = preview ? null : localStorage.getItem(CONSENT_KEY);
   var isEN = document.documentElement.lang === 'en';
-  var privacyHref = isEN ? '/en/privacy.html' : '/datenschutz.html';
+  var privacyHref = (me && me.getAttribute('data-privacy')) || (isEN ? '/en/privacy.html' : '/datenschutz.html');
   var copy = isEN ? {
     text: 'This site uses Matomo Analytics. By default, no cookies are set. Accept to allow cookies that recognize you on future visits. ',
     link: 'Privacy policy',
