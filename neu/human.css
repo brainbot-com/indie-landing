@@ -2442,5 +2442,3 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 .bbx .wd-box__h { margin: 0; font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--bb-slate); }
 .bbx .wd-box__s { margin: 0.4rem 0 1rem; font-size: 16px; font-weight: 700; color: var(--bb-slate); }
 @media (max-width: 600px) { .bbx .wd-box { padding: 20px 18px 6px; } }
-/* Homepage: second line of a heading in the accent color. */
-.hm-h2__accent { color: var(--hm-accent); }

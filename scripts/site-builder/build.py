@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=301">
+    <link rel="stylesheet" href="{R}neu/human.css?v=302">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -265,7 +265,7 @@ home_body=f'''
       <!-- Meet your AI Brain: what it is, in four visual tiles. -->
       <section class="hm-section hm-section--paper" id="ai-brain">
         <div class="hm-wrap">
-          <h2 class="hm-h2 reveal">Meet your company's AI Brain.<br><span class="hm-h2__accent">Everything your company knows, connected.</span></h2>
+          <h2 class="hm-h2 reveal">Meet your company's AI Brain.</h2>
           <p class="hm-lead reveal">Years of decisions, drawings and know-how are buried across file servers, inboxes, drives and old projects. The AI Brain digs through all of it and brings back the answer.</p>
           <div class="bento">
             <div class="bento__tile bento__tile--big reveal">
