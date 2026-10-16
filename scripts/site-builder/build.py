@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=307">
+    <link rel="stylesheet" href="{R}neu/human.css?v=308">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -244,7 +244,6 @@ def webinars(R, keys, title='Upcoming webinars.', lead='See the AI Brain live an
     one=' wb-grid--one' if len(keys)==1 else ''
     return f'''      <section class="hm-section hm-section--paper wb-sec{extra}" id="webinars">
         <div class="hm-wrap">
-          <span class="todo-flag wb-flag wb-flag--top">TO DO: The email management image is a recreated Gmail-style inbox, not a real screenshot. Replace it with a real one before launch. Add the dates and times once both webinars are scheduled.</span>
           <h2 class="hm-h2 reveal">{title}</h2>
           <p class="hm-lead reveal">{lead}</p>
           <div class="wb-grid{one}">{cards}

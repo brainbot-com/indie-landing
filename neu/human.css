@@ -2445,4 +2445,3 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 /* Webinar date badge before the date is set: a calendar icon. */
 .wb__cal svg { display: block; width: 32px; height: 32px; }
 .bbx .wr__cal svg { display: block; width: 28px; height: 28px; }
-.wb-flag.wb-flag--top { display: block; width: fit-content; margin: 0 0 1.25rem; }
