@@ -810,7 +810,7 @@ a.pcard:hover .pcard__img { transform: scale(1.04); }
 .bbx .acc-page .container { max-width: none; width: min(calc(var(--container-max) - 2 * var(--spacing-sm)), calc(100% - 48px)); padding: 0; }
 @media (max-width: 760px) { .bbx .acc-page .container { width: calc(100% - 32px); } }
 /* Industry hero photo. */
-.ip-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 40% 30%; }
+.ip-hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
 /* Industry hero: same treatment as the homepage hero, a bit stronger for the bright workwear behind the text. */
 .ip-hero__shade { background:
   linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0) 75%),
@@ -2442,3 +2442,7 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 .bbx .wd-box__h { margin: 0; font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--bb-slate); }
 .bbx .wd-box__s { margin: 0.4rem 0 1rem; font-size: 16px; font-weight: 700; color: var(--bb-slate); }
 @media (max-width: 600px) { .bbx .wd-box { padding: 20px 18px 6px; } }
+/* Webinar date badge before the date is set: a calendar icon. */
+.wb__cal svg { display: block; width: 32px; height: 32px; }
+.bbx .wr__cal svg { display: block; width: 28px; height: 28px; }
+.wb-flag.wb-flag--top { display: block; width: fit-content; margin: 0 0 1.25rem; }

@@ -7,8 +7,7 @@ def rows_of(k):
     dl=re.search(r'<div class="acc-pick__spec" data-spec="'+k+r'">[\s\S]*?(<dl class="acc-pick__dl">[\s\S]*?</dl>)',ACC).group(1)
     return re.findall(r'<div><dt>([^<]*)</dt><dd>([\s\S]*?)</dd></div>',dl)
 BOOSTER=[('Best for','A faster indie.box'),('Users','Small teams that need quick answers'),('Compute','NVIDIA RTX 5090'),
-       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Large models up to the 400B class, with fast answers'),
-       ('Form and size','External enclosure, 42.1 × 19.7 × 21.6 cm'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline with the indie.box'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
+       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Large models up to the 400B class, with fast answers'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline if you need it'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
        ('Software','Runs the software on the indie.box')]
 IC={'apps':'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>',
     'team':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.3c2.2.4 3.7 2 4.2 4.2"/>',

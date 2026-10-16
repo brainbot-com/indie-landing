@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=302">
+    <link rel="stylesheet" href="{R}neu/human.css?v=307">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -213,13 +213,16 @@ for tone,name,problem,href,brief in doors:
             {close_t}"""
 
 # Upcoming webinars. Dates and times are placeholders until the webinars are scheduled.
+# A webinar without a date yet has empty month and day, and shows a calendar icon instead.
+CAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>'
+def wdate(m,d,p): return f'<span class="{p}__mo">{m}</span><span class="{p}__day">{d}</span>' if m else f'<span class="{p}__cal">{CAL}</span>'
 WEBINARS={
- 'crm':('Nov','5','Thursday, November 5, 2026 · 4:00 PM CET · Online','The AI Brain for your CRM','How sales teams get answers from their CRM, emails and quotes in seconds, with a live demo.','Webinar%3A%20The%20AI%20Brain%20for%20your%20CRM','Webinar image: the host asking the AI Brain about a customer, with the answer drawn from the CRM and emails.'),
- 'mail':('Nov','19','Thursday, November 19, 2026 · 4:00 PM CET · Online','Email management with local AI agents','How local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office. With a live demo.','Webinar%3A%20Email%20management%20with%20local%20AI%20agents','Webinar image: a local agent sorting an inbox and drafting a reply for approval.'),
+ 'crm':('','','Date coming soon · Online','The AI Brain for your CRM','How sales teams get answers from their CRM, emails and quotes in seconds, with a live demo.','Webinar%3A%20The%20AI%20Brain%20for%20your%20CRM','Webinar image: the host asking the AI Brain about a customer, with the answer drawn from the CRM and emails.'),
+ 'mail':('','','Date coming soon · Online','Email management with local AI agents','How local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office. With a live demo.','Webinar%3A%20Email%20management%20with%20local%20AI%20agents','Webinar image: a local agent sorting an inbox and drafting a reply for approval.'),
 }
 WSL={'crm':'crm','mail':'email-management'}
 WIMG={'crm':('webinar-heiko.jpg?v=3','Heiko Franssen presenting the AI Brain live'),'mail':('webinar-heiko.jpg?v=3','Heiko Franssen presenting the AI Brain live')}
-WCARD={'mail':lambda R:f'<span class="wb__blank" aria-hidden="true"></span><figure class="wb__presenter"><img src="{R}neu/img/heiko-kaw-portrait.jpg?v=1" alt="Heiko Franssen" loading="lazy"><figcaption>Heiko Franssen</figcaption></figure>',
+WCARD={'mail':lambda R:f'<img class="wb__shot" src="{R}neu/img/webinar-mail.jpg?v=3" alt="An inbox where the agent has sorted the mail and drafted replies" loading="lazy"><figure class="wb__presenter"><img src="{R}neu/img/heiko-kaw-portrait.jpg?v=1" alt="Heiko Franssen" loading="lazy"><figcaption>Heiko Franssen</figcaption></figure>',
        'crm':lambda R:f'<img class="wb__shot" src="{R}neu/img/webinar-crm.jpg?v=1" alt="The CRM demo: a sales pipeline with an AI copilot beside it" loading="lazy"><figure class="wb__presenter"><img src="{R}neu/img/luis-kaw-portrait.jpg?v=1" alt="Luis Bezzenberger" loading="lazy"><figcaption>Luis Bezzenberger</figcaption></figure>'}
 def webinars(R, keys, title='Upcoming webinars.', lead='See the AI Brain live and ask our team your questions.', extra=''):
     cards=''
@@ -229,7 +232,7 @@ def webinars(R, keys, title='Upcoming webinars.', lead='See the AI Brain live an
             <article class="wb reveal">
               <div class="wb__img">{WCARD[k](R) if k in WCARD else ph('eng', brief)}</div>
               <div class="wb__row">
-                <div class="wb__date" aria-hidden="true"><span class="wb__mo">{m}</span><span class="wb__day">{d}</span></div>
+                <div class="wb__date" aria-hidden="true">{wdate(m,d,"wb")}</div>
                 <div class="wb__body">
                   <p class="wb__meta">{meta}</p>
                   <h3 class="wb__t">{t}</h3>
@@ -241,9 +244,9 @@ def webinars(R, keys, title='Upcoming webinars.', lead='See the AI Brain live an
     one=' wb-grid--one' if len(keys)==1 else ''
     return f'''      <section class="hm-section hm-section--paper wb-sec{extra}" id="webinars">
         <div class="hm-wrap">
+          <span class="todo-flag wb-flag wb-flag--top">TO DO: The email management image is a recreated Gmail-style inbox, not a real screenshot. Replace it with a real one before launch. Add the dates and times once both webinars are scheduled.</span>
           <h2 class="hm-h2 reveal">{title}</h2>
           <p class="hm-lead reveal">{lead}</p>
-          <span class="todo-flag wb-flag">TO DO: The email management image is a blank placeholder and needs a real screenshot. Confirm the dates and times of both webinars.</span>
           <div class="wb-grid{one}">{cards}
           </div>
         </div>
@@ -634,7 +637,8 @@ def sub_page(out, name, title, desc, hero_img, hero_pos, h1, sub, buttons=True, 
         xl.append({"@context":"https://schema.org","@type":"Product","name":nm,"description":desc,"image":SITE+'assets/indie-solutions/cutouts/indie-'+k+'_cut.webp',"brand":{"@type":"Brand","name":"indie.solutions"},"manufacturer":ORG})
     if name.startswith('webinar-'):
         k=name[8:]; m,d,meta,t,wdesc,subj,brief=WEBINARS[k]; day={'crm':'2026-11-05','mail':'2026-11-19'}[k]
-        xl.append({"@context":"https://schema.org","@type":"Event","name":t,"description":wdesc,"startDate":day+"T16:00:00+01:00","endDate":day+"T17:00:00+01:00",
+        # Event data only once the webinar has a date.
+        if m: xl.append({"@context":"https://schema.org","@type":"Event","name":t,"description":wdesc,"startDate":day+"T16:00:00+01:00","endDate":day+"T17:00:00+01:00",
                    "eventAttendanceMode":"https://schema.org/OnlineEventAttendanceMode","eventStatus":"https://schema.org/EventScheduled",
                    "location":{"@type":"VirtualLocation","url":SITE+path},"organizer":ORG,"isAccessibleForFree":True,
                    "offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","url":SITE+path,"availability":"https://schema.org/InStock"}})
@@ -649,9 +653,9 @@ import os
 
 def webinar_page():
     CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>'
-    cards=''.join(f'<a class="wr" href="@@ROOT@@en/webinars/{WINFO[k]["slug"]}/" data-animate="fade-up"><div class="wr__date" aria-hidden="true"><span class="wr__mo">{m}</span><span class="wr__day">{d}</span></div><div><p class="wr__meta">{meta}</p><h3 class="wr__t">{t}</h3><p class="wr__d">{desc}</p><span class="wr__go">Details and registration →</span></div></a>' for k,(m,d,meta,t,desc,subj,brief) in WEBINARS.items())
-    cards='<span class="todo-flag">TO CHECK: Confirm the dates and times of both webinars.</span>'+cards
-    opts=''.join(f'<option value="{k}">{v[3]} · {v[0]} {v[1]}</option>' for k,v in WEBINARS.items())
+    cards=''.join(f'<a class="wr" href="@@ROOT@@en/webinars/{WINFO[k]["slug"]}/" data-animate="fade-up"><div class="wr__date" aria-hidden="true">{wdate(m,d,"wr")}</div><div><p class="wr__meta">{meta}</p><h3 class="wr__t">{t}</h3><p class="wr__d">{desc}</p><span class="wr__go">Details and registration →</span></div></a>' for k,(m,d,meta,t,desc,subj,brief) in WEBINARS.items())
+    cards='<span class="todo-flag">TO CHECK: Add the dates and times once both webinars are scheduled.</span>'+cards
+    opts=''.join(f'<option value="{k}">{v[3]}'+(f' · {v[0]} {v[1]}' if v[0] else '')+'</option>' for k,v in WEBINARS.items())
     form=('<form class="tf" data-trial-form data-subject="Webinar registration" novalidate><div class="tf__grid">'
       f'<label class="tf__field tf__field--full"><span class="tf__label">Webinar</span><select class="tf__input" name="webinar" data-prefill="webinar">{opts}</select></label>'
       '<label class="tf__field"><span class="tf__label">Your name <span class="tf__req" aria-hidden="true">*</span></span><input class="tf__input" type="text" name="name" required autocomplete="name"></label>'
@@ -689,7 +693,7 @@ WINFO={
 def webinar_detail(k):
     m,d,meta,t,desc,subj,brief=WEBINARS[k]; w=WINFO[k]
     FLAG=('<span class="todo-flag">TO CHECK: '+w['flag']+'</span>') if w.get('flag') else ''
-    FLAG+='<span class="todo-flag">TO CHECK: Confirm the date and time of this webinar.</span>'
+    FLAG+='<span class="todo-flag">TO CHECK: Add the date and time once this webinar is scheduled.</span>'
     CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>'
     BOX=''
     if w.get('box'):
@@ -697,13 +701,13 @@ def webinar_detail(k):
         BOX=('<div class="wd-box"><h3 class="wd-box__h">'+bt+'</h3><p class="wd-box__s">'+bs+'</p><ul class="pg-points">'+''.join(f'<li><span class="pg-points__check" aria-hidden="true">{CHK}</span><div><p class="pg-points__t">{x}</p><p class="pg-points__d">{y}</p></div></li>' for x,y in bl)+'</ul></div>')
     pts='<ul class="pg-points">'+''.join(f'<li><span class="pg-points__check" aria-hidden="true">{CHK}</span><div><p class="pg-points__t">{a}</p><p class="pg-points__d">{b}</p></div></li>' for a,b in w['get'])+'</ul>'
     ag='<ol class="wd-agenda">'+''.join(f'<li><span>{a}</span>{b}</li>' for a,b in w['agenda'])+'</ol>'
-    facts=(f'<div class="wd-facts"><div class="wr__date" aria-hidden="true"><span class="wr__mo">{m}</span><span class="wr__day">{d}</span></div>'
+    facts=(f'<div class="wd-facts"><div class="wr__date" aria-hidden="true">{wdate(m,d,"wr")}</div>'
            f'<div><p class="wd-facts__l">{meta}</p><p class="wd-facts__s">60 minutes · Google Meet · Free</p></div></div>')
     hn,hi,hr,hflag=w.get('host',('Heiko Franssen','heiko-franssen.jpg','Managing Director of brainbot and host of KI am Werk',False))
     host=(f'<div class="wd-host"><img src="@@ROOT@@neu/img/{hi}" alt="{hn}" loading="lazy">'
           f'<div><p class="wd-host__n">{hn}</p><p class="wd-host__r">{hr}</p>'+('<span class="todo-flag">TO CHECK: What is Luis&#39;s job title?</span>' if hflag else '')+'</div></div>')
     form=('<form class="tf" data-trial-form data-type="webinar" data-subject="Webinar registration" novalidate><label class="tf__hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>'
-      f'<input type="hidden" name="webinar" value="{t} ({m} {d})">'
+      f'<input type="hidden" name="webinar" value="{t}'+(f' ({m} {d})' if m else '')+'">'
       '<div class="tf__grid">'
       '<label class="tf__field"><span class="tf__label">Your name <span class="tf__req" aria-hidden="true">*</span></span><input class="tf__input" type="text" name="name" required autocomplete="name"></label>'
       '<label class="tf__field"><span class="tf__label">Work email <span class="tf__req" aria-hidden="true">*</span></span><input class="tf__input" type="email" name="email" required autocomplete="email"></label>'
@@ -731,8 +735,8 @@ webinar_page()
 WSLUG={k:webinar_detail(k) for k in WEBINARS}
 
 PAGES=[
- ('en/webinars/crm/index.html','webinar-crm',"Webinar: the AI Brain for your CRM | indie.solutions","A free online webinar on November 5, 2026: see how sales teams get answers from their CRM, emails and quotes in seconds, with a live demo.",None,'',"",""),
- ('en/webinars/email-management/index.html','webinar-mail',"Webinar: email management with local AI agents | indie.solutions","A free online webinar on November 19, 2026: see how local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office.",None,'',"",""),
+ ('en/webinars/crm/index.html','webinar-crm',"Webinar: the AI Brain for your CRM | indie.solutions","A free online webinar, date coming soon. See how sales teams get answers from their CRM, emails and quotes in seconds, with a live demo.",None,'',"",""),
+ ('en/webinars/email-management/index.html','webinar-mail',"Webinar: email management with local AI agents | indie.solutions","A free online webinar, date coming soon. See how local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office.",None,'',"",""),
  ('en/webinars/index.html','webinars',"Webinars: see the AI Brain live | indie.solutions","Join a free online webinar and see the AI Brain live, with time for your questions.",None,'',"",""),
  ('en/request-a-trial/index.html','request-a-trial',"Request a trial | indie.solutions","Tell us about your team, and we will set up a trial of your private AI Brain.",None,'',"",""),
  ('en/request-your-industry/index.html','request-your-industry',"An AI Brain for your industry | indie.solutions","Don't see your industry yet? Tell us about it, and we will get in touch about an AI Brain for your field.",None,'',"",""),

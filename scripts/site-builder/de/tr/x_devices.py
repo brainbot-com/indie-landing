@@ -1,0 +1,21 @@
+# English to German for the device descriptions on Devices and Software.
+X={
+"For small teams. A compact AI server for your office.":"Für kleine Teams. Ein kompakter KI-Server für Ihr Büro.",
+"For small teams that want faster answers. A second device that adds extra power to your indie.box.":"Für kleine Teams, die schneller Antworten wollen. Ein zweites Gerät, das Ihrer indie.box zusätzliche Leistung bringt.",
+"For teams that use AI all day. Built to stay fast when many people use it at once.":"Für Teams, die den ganzen Tag mit KI arbeiten. Bleibt auch dann schnell, wenn viele gleichzeitig damit arbeiten.",
+"For large organizations. Servers sized to the number of people who use them, from 100 to 1,000+.":"Für große Organisationen. Server, ausgelegt auf die Zahl der Menschen, die damit arbeiten, von 100 bis über 1.000.",
+"Runs fully offline if you need it, by separate agreement":"Läuft bei Bedarf komplett offline, nach gesonderter Vereinbarung",
+"Device dashboard":"Geräte-Dashboard",
+"One start page for your device. See at a glance that everything runs, and look after it in a few clicks.":"Eine Startseite für Ihr Gerät. Sie sehen auf einen Blick, dass alles läuft, und kümmern sich mit wenigen Klicks darum.",
+"Everything at a glance":"Alles auf einen Blick",
+"Apps, updates, services and models, each with a clear status.":"Apps, Updates, Dienste und Modelle, jeweils mit klarem Status.",
+"Apps and models":"Apps und Modelle",
+"Install apps, and add or remove AI models.":"Apps installieren und KI-Modelle hinzufügen oder entfernen.",
+"Network and secure access":"Netzwerk und sicherer Zugriff",
+"Check the connection and set up HTTPS.":"Verbindung prüfen und HTTPS einrichten.",
+"Storage and backups":"Speicher und Backups",
+"Free space, the last backup and your restore points.":"Freier Speicher, das letzte Backup und Ihre Wiederherstellungspunkte.",
+"Hardware, live":"Hardware, live",
+"Processor, memory, GPU and temperature right now.":"Prozessor, Arbeitsspeicher, GPU und Temperatur im Moment.",
+"The device dashboard, showing apps, updates, network, HTTPS and live hardware use, with storage, backups and models in the menu":"Das Geräte-Dashboard mit Apps, Updates, Netzwerk, HTTPS und aktueller Hardware-Auslastung, Speicher, Backups und Modelle im Menü",
+}
