@@ -653,7 +653,6 @@ import os
 def webinar_page():
     CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>'
     cards=''.join(f'<a class="wr" href="@@ROOT@@en/webinars/{WINFO[k]["slug"]}/" data-animate="fade-up"><div class="wr__date" aria-hidden="true">{wdate(m,d,"wr")}</div><div><p class="wr__meta">{meta}</p><h3 class="wr__t">{t}</h3><p class="wr__d">{desc}</p><span class="wr__go">Details and registration →</span></div></a>' for k,(m,d,meta,t,desc,subj,brief) in WEBINARS.items())
-    cards='<span class="todo-flag">TO CHECK: Add the dates and times once both webinars are scheduled.</span>'+cards
     opts=''.join(f'<option value="{k}">{v[3]}'+(f' · {v[0]} {v[1]}' if v[0] else '')+'</option>' for k,v in WEBINARS.items())
     form=('<form class="tf" data-trial-form data-subject="Webinar registration" novalidate><div class="tf__grid">'
       f'<label class="tf__field tf__field--full"><span class="tf__label">Webinar</span><select class="tf__input" name="webinar" data-prefill="webinar">{opts}</select></label>'
@@ -691,8 +690,7 @@ WINFO={
 }
 def webinar_detail(k):
     m,d,meta,t,desc,subj,brief=WEBINARS[k]; w=WINFO[k]
-    FLAG=('<span class="todo-flag">TO CHECK: '+w['flag']+'</span>') if w.get('flag') else ''
-    FLAG+='<span class="todo-flag">TO CHECK: Add the date and time once this webinar is scheduled.</span>'
+    FLAG=''  # no yellow notes on the webinar pages
     CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>'
     BOX=''
     if w.get('box'):
@@ -704,7 +702,7 @@ def webinar_detail(k):
            f'<div><p class="wd-facts__l">{meta}</p><p class="wd-facts__s">60 minutes · Google Meet · Free</p></div></div>')
     hn,hi,hr,hflag=w.get('host',('Heiko Franssen','heiko-franssen.jpg','Managing Director of brainbot and host of KI am Werk',False))
     host=(f'<div class="wd-host"><img src="@@ROOT@@neu/img/{hi}" alt="{hn}" loading="lazy">'
-          f'<div><p class="wd-host__n">{hn}</p><p class="wd-host__r">{hr}</p>'+('<span class="todo-flag">TO CHECK: What is Luis&#39;s job title?</span>' if hflag else '')+'</div></div>')
+          f'<div><p class="wd-host__n">{hn}</p><p class="wd-host__r">{hr}</p>'+('')+'</div></div>')
     form=('<form class="tf" data-trial-form data-type="webinar" data-subject="Webinar registration" novalidate><label class="tf__hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>'
       f'<input type="hidden" name="webinar" value="{t}'+(f' ({m} {d})' if m else '')+'">'
       '<div class="tf__grid">'
