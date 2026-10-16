@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=285">
+    <link rel="stylesheet" href="{R}neu/human.css?v=301">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -133,7 +133,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     {foot}
 {PILL if pill else ''}
     <script src="{R}script.js?v=20260818"></script>
-    <script src="{R}neu/human.js?v=32"></script>
+    <script src="{R}neu/human.js?v=47"></script>
 </body>
 </html>
 '''
@@ -265,7 +265,7 @@ home_body=f'''
       <!-- Meet your AI Brain: what it is, in four visual tiles. -->
       <section class="hm-section hm-section--paper" id="ai-brain">
         <div class="hm-wrap">
-          <h2 class="hm-h2 reveal">Meet your company's AI Brain.</h2>
+          <h2 class="hm-h2 reveal">Meet your company's AI Brain.<br><span class="hm-h2__accent">Everything your company knows, connected.</span></h2>
           <p class="hm-lead reveal">Years of decisions, drawings and know-how are buried across file servers, inboxes, drives and old projects. The AI Brain digs through all of it and brings back the answer.</p>
           <div class="bento">
             <div class="bento__tile bento__tile--big reveal">
@@ -675,10 +675,15 @@ WINFO={
    agenda=[('10 min','Why customer knowledge gets scattered, and what it costs your sales team'),('20 min','Live demo of the AI Brain with CRM data'),('15 min','An agent that prepares follow-ups and weekly summaries'),('15 min','Your questions')]),
  'mail':dict(slug='email-management',
    who='For managing directors, office managers and anyone whose working day disappears into their inbox. The agents work with your AI Brain, so every reply draws on what your company already knows.',
-   get=[('See agents sort your inbox','Watch a local agent read incoming email, sort it and flag what needs your attention.'),
-        ('See the AI Brain behind every reply','Watch an agent look up the answer in your AI Brain, from past emails, documents and quotes, and draft a reply with the source attached. It waits for your approval before anything is sent.'),
-        ('Understand how it stays private','The agents run on a device in your own office with read-only access by default, so your email is never sent to a cloud AI provider.'),
-        ('Get your questions answered','Bring your own questions. There is time for an open Q&amp;A at the end.')],
+   get_title='What your agent does for you',
+   get=[('Only read what matters','The agent sorts your inbox overnight and, in the morning, shows you only what really needs your decision.'),
+        ('Stay on top of long emails','You know right away what the sender wants and by when, even if they wrote three pages.'),
+        ('Never forget a thing','The agent keeps track of every open request and every commitment, and reminds you before anyone has to follow up.'),
+        ('Replies with the full picture','The agent knows your quotes, prices and agreements and puts the finished reply in your drafts. You review it and click send.')],
+   box=('Experience AI that belongs to you, live','No slides. A real inbox, live.',
+        [('How it works without the cloud','The AI runs on a device in your office, connected directly to your inbox. We show you what is inside, so you can explain it yourself afterward.'),
+         ('Waiting time you never notice','Local AI takes longer than the cloud. That is why the agent works in the background, and when you open your inbox, everything is ready.'),
+         ('Why no one else reads along','Your emails never leave the building. No cloud provider and no AI company ever gets to see them.')]),
    agenda=[('10 min','Why email eats up your team&#39;s day'),('15 min','Live demo of the AI Brain: one place for your emails, documents and company knowledge'),('20 min','Live demo of local agents sorting email and drafting replies from the AI Brain'),('15 min','Your questions')]),
 }
 def webinar_detail(k):
@@ -686,6 +691,10 @@ def webinar_detail(k):
     FLAG=('<span class="todo-flag">TO CHECK: '+w['flag']+'</span>') if w.get('flag') else ''
     FLAG+='<span class="todo-flag">TO CHECK: Confirm the date and time of this webinar.</span>'
     CHK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg>'
+    BOX=''
+    if w.get('box'):
+        bt,bs,bl=w['box']
+        BOX=('<div class="wd-box"><h3 class="wd-box__h">'+bt+'</h3><p class="wd-box__s">'+bs+'</p><ul class="pg-points">'+''.join(f'<li><span class="pg-points__check" aria-hidden="true">{CHK}</span><div><p class="pg-points__t">{x}</p><p class="pg-points__d">{y}</p></div></li>' for x,y in bl)+'</ul></div>')
     pts='<ul class="pg-points">'+''.join(f'<li><span class="pg-points__check" aria-hidden="true">{CHK}</span><div><p class="pg-points__t">{a}</p><p class="pg-points__d">{b}</p></div></li>' for a,b in w['get'])+'</ul>'
     ag='<ol class="wd-agenda">'+''.join(f'<li><span>{a}</span>{b}</li>' for a,b in w['agenda'])+'</ol>'
     facts=(f'<div class="wd-facts"><div class="wr__date" aria-hidden="true"><span class="wr__mo">{m}</span><span class="wr__day">{d}</span></div>'
@@ -714,7 +723,7 @@ def webinar_detail(k):
           f'<p class="wd-back"><a href="@@ROOT@@en/webinars/" data-back>← Back</a></p>'
           f'<div class="acc-chapter__text acc-chapter__text--wide" data-animate="fade-up"><h2 class="section-title">{t}.</h2></div>'
           f'<div class="tf__wrap"><div class="wd-main">{facts}<p class="wd-who">{w["who"]}</p>{FLAG}'
-          f'<h3 class="wd-h">What you will get out of it</h3>{pts}<h3 class="wd-h">Agenda</h3>{ag}<h3 class="wd-h">Hosted by</h3>{host}</div>'
+          f'<h3 class="wd-h">{w.get("get_title","What you will get out of it")}</h3>{pts}{BOX}<h3 class="wd-h">Agenda</h3>{ag}<h3 class="wd-h">Hosted by</h3>{host}</div>'
           f'<div class="wd-side"><div class="tf__card">{form}</div>{share}</div></div></div></section>')
     open(f'neu/pages/webinar-{k}.html','w',encoding='utf-8').write(body)
     return w['slug']

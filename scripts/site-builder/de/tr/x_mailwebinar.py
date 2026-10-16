@@ -1,0 +1,20 @@
+# German wording for the email webinar, as written by Heiko.
+X={
+"What your agent does for you":"Was Ihr Agent für Sie erledigt",
+"Only read what matters":"Nur noch lesen, was zählt",
+"The agent sorts your inbox overnight and, in the morning, shows you only what really needs your decision.":"Der Agent sortiert Ihr Postfach über Nacht und legt Ihnen morgens nur hin, was wirklich Ihre Entscheidung braucht.",
+"Stay on top of long emails":"Überblick auch bei langen Mails",
+"You know right away what the sender wants and by when, even if they wrote three pages.":"Sie wissen sofort, was der Absender will und bis wann, auch wenn er drei Seiten geschrieben hat.",
+"Never forget a thing":"Nichts mehr vergessen",
+"The agent keeps track of every open request and every commitment, and reminds you before anyone has to follow up.":"Der Agent behält jede offene Anfrage und jede Zusage im Blick und erinnert Sie, bevor jemand nachfragen muss.",
+"Replies with the full picture":"Antworten mit vollem Überblick",
+"The agent knows your quotes, prices and agreements and puts the finished reply in your drafts. You review it and click send.":"Der Agent kennt Ihre Angebote, Preise und Absprachen und legt die Antwort fertig in den Entwurf, Sie prüfen und klicken auf Senden.",
+"Experience AI that belongs to you, live":"Live erleben, wie sich KI anfühlt, die Ihnen gehört",
+"No slides. A real inbox, live.":"Keine Folien. Ein echtes Postfach, live.",
+"How it works without the cloud":"Wie das ohne Cloud geht",
+"The AI runs on a device in your office, connected directly to your inbox. We show you what is inside, so you can explain it yourself afterward.":"Die KI läuft auf einem Gerät in Ihrem Büro, direkt an Ihrem Postfach. Wir zeigen, was darin steckt, so dass Sie es danach selbst erklären können.",
+"Waiting time you never notice":"Wartezeit, die Sie nie bemerken",
+"Local AI takes longer than the cloud. That is why the agent works in the background, and when you open your inbox, everything is ready.":"Lokal braucht die KI länger als in der Cloud. Deshalb arbeitet der Agent im Hintergrund, und wenn Sie das Postfach öffnen, liegt alles fertig bereit.",
+"Why no one else reads along":"Warum niemand mitliest",
+"Your emails never leave the building. No cloud provider and no AI company ever gets to see them.":"Ihre Mails verlassen das Haus nicht, kein Cloud-Anbieter und kein KI-Konzern bekommt sie je zu sehen.",
+}

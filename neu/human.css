@@ -2437,3 +2437,10 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
   .bbx .sl__rows dd { text-align: left; max-width: none; }
   .bbx .sl__rows dt { font-size: 13.5px; color: var(--fg-muted); font-weight: 600; }
 }
+/* Webinar page: highlighted box (for example "Experience AI that belongs to you, live"). */
+.bbx .wd-box { margin-top: 2rem; padding: 26px 28px 10px; border-radius: var(--radius-lg); background: var(--bg-neutral); }
+.bbx .wd-box__h { margin: 0; font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--bb-slate); }
+.bbx .wd-box__s { margin: 0.4rem 0 1rem; font-size: 16px; font-weight: 700; color: var(--bb-slate); }
+@media (max-width: 600px) { .bbx .wd-box { padding: 20px 18px 6px; } }
+/* Homepage: second line of a heading in the accent color. */
+.hm-h2__accent { color: var(--hm-accent); }
