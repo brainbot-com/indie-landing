@@ -32,10 +32,10 @@ form=('<form class="tf" data-trial-form data-type="trial" novalidate><label clas
   '<button class="btn btn--filled btn--xl btn--hero-cta tf__submit" type="submit"><span class="btn__label">Request a trial <span class="arrow">→</span></span></button>'
   '</form>'
   '<div class="tf__done" hidden><h3 class="tf__done-h">Thank you.</h3><p>We have your request. The brainbot team will get in touch to plan your trial.</p></div>')
-steps=[('Tell us about your team','Fill in the form. It takes about two minutes.'),('The brainbot team gets in touch','brainbot is the company behind indie.solutions. We talk through what your team needs and which setup fits.'),('Your trial starts','You get access to a web portal and try the AI Brain with your own questions.')]
+steps=[('Tell us about your team','Fill in the form. It takes about two minutes.'),('You get your login','Our team sends you a login to a web portal where your team can try the AI Brain.'),('Try it, then decide','Ask it your own questions. When you\'re ready, we help you choose the right device and setup.')]
 side=('<div class="tf__side"><p class="tf__side-h">What happens next</p><ol class="tf__steps">'
       +''.join(f'<li><span class="tf__num">{i}</span><div><p class="tf__st">{t}</p><p class="tf__sd">{d}</p></div></li>' for i,(t,d) in enumerate(steps,1))
       +'</ol></div>')
-body=section('trial', head('Request a trial.',None,"Tell us a little about your team. We'll send you access to a web portal where your team can try the AI Brain, and talk through which setup fits.")
+body=section('trial', head('Request a trial.',None,"Tell us a little about your team, and we'll send you access to a web portal where you can try the AI Brain.")
    +f'<div class="tf__wrap"><div class="tf__card">{form}</div>{side}</div>', white=True)
 open(sys.argv[2],'w',encoding='utf-8').write(body)

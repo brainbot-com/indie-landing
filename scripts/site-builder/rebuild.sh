@@ -11,6 +11,9 @@ python3 "$P/stackx.py"       "$P" neu/pages/devices-and-software.html
 python3 "$P/about.py"        "$P" neu/pages/about.html
 python3 "$P/lightforce.py"   "$P" neu/pages/lightforce.html
 python3 "$P/trial.py"        "$P" neu/pages/request-a-trial.html
+python3 "$P/buy.py"          "$P" neu/pages/buy-starter-bundle.html
+python3 "$P/quote.py"        "$P" neu/pages/request-a-quote.html
+python3 "$P/talk.py"         "$P" neu/pages/talk-to-us.html
 python3 "$P/industry_req.py" "$P" neu/pages/request-your-industry.html
 python3 "$P/notify.py"       "$P" neu/pages/get-notified.html
 

@@ -5,7 +5,7 @@ SITE='https://indie.solutions/'
 HOME_EN=os.environ.get('INDIE_HOME_EN','en/neu/'); HOME_DE=os.environ.get('INDIE_HOME_DE','de/neu/')
 URLS={HOME_EN:HOME_DE,'en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/industries/engineering-a/':'de/branchen/engineering-und-fertigung-a/','en/devices-and-software/':'de/geraete-und-software/',
       'en/about/':'de/ueber-uns/','en/customers/lightforce/':'de/kunden/lightforce/','en/webinars/crm/':'de/webinare/crm/',
-      'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/',
+      'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/','en/buy-starter-bundle/':'de/starter-bundle-kaufen/','en/request-a-quote/':'de/angebot-anfragen/','en/talk-to-us/':'de/kontakt/',
       'en/request-your-industry/':'de/branche-anfragen/','en/get-notified/':'de/benachrichtigung/','en/legal/imprint/':'de/rechtliches/impressum/',
       'en/legal/privacy/':'de/rechtliches/datenschutz/','en/legal/terms/':'de/rechtliches/agb/'}
 LEGAL={'en/legal/imprint/':'legal-imprint-de','en/legal/privacy/':'legal-privacy-de','en/legal/terms/':'legal-terms-de'}
@@ -17,7 +17,7 @@ M={todo[i]['en']:v for i,v in T.items()}
 for f in sorted(glob.glob(SP+'/tr/x*.py')):
     ns={}; exec(open(f).read(),ns)
     for k,v in ns['X'].items(): M[k.replace("'",'&#39;')]=v.replace("'",'&#39;'); M[k]=v
-RAW=[('>No<br>updates</button>','>Keine<br>Updates</button>'),('>Updates<br>only</button>','>Nur<br>Updates</button>'),('>Standard<br>support</button>','>Standard-<br>Support</button>'),
+RAW=[('value="Germany" readonly','value="Deutschland" readonly'),('>No<br>updates</button>','>Keine<br>Updates</button>'),('>Updates<br>only</button>','>Nur<br>Updates</button>'),('>Standard<br>support</button>','>Standard-<br>Support</button>'),
      ('>Priority<br>support</button>','>Priority-<br>Support</button>'),('>Premium<br>support</button>','>Premium-<br>Support</button>')]
 def num(t):
     s=t.strip()
@@ -49,6 +49,7 @@ def do_tag(t):
                     for key in ('t','d','f'):
                         if key in p: p[key]=M.get(p[key],p[key])
                     if 'rows' in p: p['rows']=[[num(M.get(c,c)) for c in r] for r in p['rows']]
+                    if 'rows_other' in p: p['rows_other']=[[num(M.get(c,c)) for c in r] for r in p['rows_other']]
                     continue
                 for key in ('p','per','f'): p[key]=num(M.get(p[key],p[key]))
                 p['rows']=[[num(M.get(c,c)) for c in r] for r in p['rows']]

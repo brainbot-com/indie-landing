@@ -3896,7 +3896,9 @@ const LEAD_TYPES = {
   trial: { label: 'Trial request', required: ['name', 'company', 'email', 'industry', 'team'] },
   industry: { label: 'Industry request', required: ['name', 'company', 'email', 'industry', 'team', 'message'] },
   notify: { label: 'Notify me', required: ['email'] },
-  webinar: { label: 'Webinar registration', required: ['name', 'email', 'webinar'] }
+  webinar: { label: 'Webinar registration', required: ['name', 'email', 'webinar'] },
+  contact: { label: 'Question', required: ['name', 'email', 'message'] },
+  order: { label: 'Order', required: ['name', 'email'] }
 };
 const LEAD_FIELDS = [
   ['webinar', 'Webinar'], ['name', 'Name'], ['company', 'Company'], ['email', 'Email'], ['phone', 'Phone'],

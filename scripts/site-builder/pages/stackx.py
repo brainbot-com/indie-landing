@@ -62,7 +62,7 @@ def specrows(k):
     return [(x,y.replace('acc-pick__part','pg-part')) for x,y in re.findall(r'<div><dt>([^<]*)</dt><dd>([\s\S]*?)</dd></div>',dl)]
 SPECS={'box':specrows('box'),'workstation':specrows('workstation'),'rack':specrows('rack'),
   'booster':[('Best for','A faster indie.box'),('Users','Small teams that need quick answers'),('Compute','NVIDIA RTX 5090'),
-       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Large models up to the 400B class, with fast answers'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline if you need it'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
+       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Runs the same models as the indie.box, up to the 400B class, with faster answers'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline if you need it'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
        ('Software','Runs the software on the indie.box')]}
 # Full device content, shared with the device pages (device_page.py): who it's for, when to choose it,
 # specs, what's included and the FAQ.
@@ -108,12 +108,12 @@ devices=section('devices', head('Four devices,','one software.','When the AI wor
    +f'<div class="pg-devs">{cards}</div><p class="pg-note">Every device comes set up, and is usually delivered within 14 days.</p>')
 FQ=[('Which device should we start with?','Most teams start with the Essential package and the indie.box. If people often wait for answers while they work, for example when coding, the indie.workstation is the better fit. For 100 users or more, the indie.rack is the right choice.'),
     ('Is the software the same on every device?','Yes. Every device runs the same software, so your apps and agents keep working when you add or change devices.'),
-    ('Is the software included in the price?','Yes. The AI Brain, AI Agent Command Center and Agent Studio come preinstalled on every device, and each package includes 12 months of the AI Brain and of updates, support and device protection. After that, you choose monthly plans, priced per device for any number of users.'),
+    ('Is the software included in the price?','Yes. The AI Brain, AI Agent Command Center and Agent Studio come preinstalled on every device, and each package includes 12 months of the AI Brain and of updates, support and device replacement. After that, you choose monthly plans, priced per device for any number of users.'),
     ('Does it work without an internet connection?','Yes. The devices can run fully offline.'),
     ('Who can access our data?','Only the people you give access to. Your data stays on your device and is never used to train AI models.'),
     ('Can we use our own AI models?','Yes. Your administrators can add open models next to the preinstalled ones, or connect any OpenAI-compatible endpoint.'),
     ('Does it connect to the systems we already use?','Yes. The AI Brain connects to shared drives, email and code repositories such as GitLab and GitHub, without moving your data. File servers, network drives and other systems, such as SharePoint, Confluence or Salesforce, can be connected on request.'),
-    ('How do updates work?','Updates, security patches and tested model updates are part of every plan for updates, support and device protection, and the first 12 months are included in your package. Your administrators start each update from the admin dashboard, so nothing changes without their approval.'),
+    ('How do updates work?','Updates, security patches and tested model updates are part of every plan for updates, support and device replacement, and the first 12 months are included in your package. Your administrators start each update from the admin dashboard, so nothing changes without their approval.'),
     ('Can we add more devices later?','Yes. Add an indie.booster to an indie.box, add workstations, or move to a rack. What you have stays part of the system.')]
 CMP=[('Where your data is processed','Data processed','On a device in your own office','In your office','In the provider&#39;s data centers','Provider&#39;s data center'),
      ('Who can see your data','Who sees it','Only your own team','Only your team','The provider processes it in readable form','The provider too'),

@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=340">
+    <link rel="stylesheet" href="{R}neu/human.css?v=404">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -133,7 +133,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     {foot}
 {PILL if pill else ''}
     <script src="{R}script.js?v=20260818"></script>
-    <script src="{R}neu/human.js?v=75"></script>
+    <script src="{R}neu/human.js?v=125"></script>
 </body>
 </html>
 '''
@@ -574,7 +574,7 @@ eng_body=f"""
         <div class="hm-wrap ip-hero__body">
           <h1 class="hm-h1 ip-hero__quote">Your company's lifetime of knowledge, one question away.</h1>
           <p class="hm-lead ip-hero__sub">The private AI Brain for engineering and manufacturing companies.</p>
-          <div class="bbx ip-hero__cta"><div class="acc-cta-pair"><a href="{R}en/request-a-trial/" class="btn btn--filled btn--xl btn--hero-cta"> <span class="btn__label">Request a trial <span class="arrow">→</span></span> </a> <a href="{R}en/webinars/" class="btn btn--lg acc-demo-btn">Join a webinar <span class="arrow" aria-hidden="true">→</span></a></div></div>
+          <div class="bbx ip-hero__cta"><div class="acc-cta-pair"><a href="#pricing" class="btn btn--filled btn--xl btn--hero-cta"> <span class="btn__label">Get your AI Brain <span class="arrow">→</span></span> </a> <a href="{R}en/request-a-trial/" class="btn btn--lg acc-demo-btn">Request a trial <span class="arrow" aria-hidden="true">→</span></a></div></div>
         </div>
       </section>
 
@@ -590,8 +590,6 @@ eng_body=f"""
       </div></div>
 
 {NEWSECTIONS}
-
-{webinars(R, ['crm', 'mail'], extra=' wb-sec--eng')}
 
 {{contact(R, 'What is slowing our engineering team down (indie.solutions)')}}
 """
@@ -750,6 +748,9 @@ PAGES=[
  ('en/webinars/crm/index.html','webinar-crm',"Webinar: the AI Brain for your CRM | indie.solutions","A free online webinar, date coming soon. See how sales teams get answers from their CRM, emails and quotes in seconds, with a live demo.",None,'',"",""),
  ('en/webinars/email-management/index.html','webinar-mail',"Webinar: email management with local AI agents | indie.solutions","A free online webinar, date coming soon. See how local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office.",None,'',"",""),
  ('en/webinars/index.html','webinars',"Webinars: see the AI Brain live | indie.solutions","Join a free online webinar and see the AI Brain live, with time for your questions.",None,'',"",""),
+ ('en/buy-starter-bundle/index.html','buy-starter-bundle',"Buy the starter bundle | indie.solutions","Order the indie.box starter bundle: the AI server, a two-day setup workshop and two custom apps, for EUR 7,999 net.",None,'',"",""),
+ ('en/talk-to-us/index.html','talk-to-us',"Talk to us | indie.solutions","Questions about the AI Brain, the devices or pricing? Send us a message and the brainbot team gets back to you.",None,'',"",""),
+ ('en/request-a-quote/index.html','request-a-quote',"Request a custom quote | indie.solutions","Request a custom quote for the indie.rack: servers sized to the number of people who use them.",None,'',"",""),
  ('en/request-a-trial/index.html','request-a-trial',"Request a trial | indie.solutions","Tell us about your team, and we will set up a trial of your private AI Brain.",None,'',"",""),
  ('en/request-your-industry/index.html','request-your-industry',"An AI Brain for your industry | indie.solutions","Don't see your industry yet? Tell us about it, and we will get in touch about an AI Brain for your field.",None,'',"",""),
  ('en/get-notified/index.html','get-notified',"Get notified | indie.solutions","Leave your email, and we will let you know when the AI Brain for your industry is ready.",None,'',"",""),
@@ -761,7 +762,7 @@ PAGES=[
  ('en/devices-and-software/index.html','devices-and-software',"Devices and software for your AI Brain | indie.solutions","Four devices for your private AI Brain, each with the AI Brain, AI Agent Command Center and Agent Studio preinstalled. Specs and details.",'hero-devices.jpg','50% 70%',"Your AI Brain, on the device that fits your team.",""),
 ]
 for out,name,title,desc,img,pos,h1,sub in PAGES:
-    if os.path.exists(f'neu/pages/{name}.html'): sub_page(out,name,title,desc,img,pos,h1,sub,buttons=(name not in ('software','product','devices-and-software','about') and not name.startswith('device-')),webinars_on=(name not in ('devices-and-software','about','request-a-trial','request-your-industry','get-notified','webinars','webinar-crm','webinar-mail','lightforce') and not name.startswith('legal-') and not name.startswith('device-')))
+    if os.path.exists(f'neu/pages/{name}.html'): sub_page(out,name,title,desc,img,pos,h1,sub,buttons=(name not in ('software','product','devices-and-software','about') and not name.startswith('device-')),webinars_on=(name not in ('devices-and-software','about','request-a-trial','buy-starter-bundle','request-a-quote','talk-to-us','request-your-industry','get-notified','webinars','webinar-crm','webinar-mail','lightforce') and not name.startswith('legal-') and not name.startswith('device-')))
 print('ok')
 
 # German site, built from the English pages.

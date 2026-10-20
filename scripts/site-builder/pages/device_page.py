@@ -7,7 +7,7 @@ def rows_of(k):
     dl=re.search(r'<div class="acc-pick__spec" data-spec="'+k+r'">[\s\S]*?(<dl class="acc-pick__dl">[\s\S]*?</dl>)',ACC).group(1)
     return re.findall(r'<div><dt>([^<]*)</dt><dd>([\s\S]*?)</dd></div>',dl)
 BOOSTER=[('Best for','A faster indie.box'),('Users','Small teams that need quick answers'),('Compute','NVIDIA RTX 5090'),
-       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Large models up to the 400B class, with fast answers'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline if you need it'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
+       ('Memory','32 GB dedicated GPU memory. The indie.box keeps its 128 GB'),('Storage','Uses the storage on the indie.box'),('AI models','Runs the same models as the indie.box, up to the 400B class, with faster answers'),('Connection','Connects to the indie.box'),('User login','Uses the accounts on the indie.box'),('Offline use','Runs fully offline if you need it'),('Upgrades','Fits any indie.box, also ones already in use. Not for the indie.workstation'),
        ('Software','Runs the software on the indie.box')]
 IC={'apps':'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v7M14 17.5h7"/>',
     'team':'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.2 14.3c2.2.4 3.7 2 4.2 4.2"/>',
@@ -21,7 +21,7 @@ FEES=('team','One-time purchase','The software comes preinstalled and is part of
 LOCAL=('shield','Private by default','Everything runs locally. No telemetry, and outside services stay off unless you turn them on.')
 D={
 'box':dict(name='indie.box',img='indie-box_cut.webp',
-  who=('Large AI models,','in a compact box.','The indie.box runs large AI models up to the 400B class entirely in your office. It is built for small teams that ask questions about documents and search company knowledge, and for agents that work in the background, like overnight runs.'),
+  who=('Large AI models,','in a compact box.','The indie.box runs large open AI models entirely in your office. It is built for small teams that ask questions about documents and search company knowledge, and for agents that work in the background, like overnight runs.'),
   choose=[('Choose it when','Model size matters more than speed, because the work runs in the background.'),('Choose something else when','People wait for answers while they work, like when coding. Add an indie.booster, or choose the indie.workstation.')],
   inc=[SOFT,FEES,('cal','Set up by us','We deliver it, set it up and connect your first systems.'),LOCAL,('cycle','Works offline','It can run without an internet connection if you need it.'),('server','Grows with you','Add an indie.booster any time for faster answers.')],
   faq=[('Need more speed later?','Add an indie.booster to the box at any time. For interactive work all day, the indie.workstation is the better fit.'),
@@ -40,7 +40,7 @@ D={
        ('What changes in daily use?','Very little. Access, users and updates stay the same. The booster takes over the requests that need speed.')]),
 'workstation':dict(name='indie.workstation',img='indie-workstation_cut.webp',
   who=('The workhorse','for busy teams.','The indie.workstation is built for speed. With a built-in NVIDIA RTX 5090, it gives quick answers even when several people and agents work at the same time, around the clock.'),
-  choose=[('Choose it when','People wait for the answer while they work, like when coding, and many requests come in at once.'),('Choose something else when','You need the largest AI models. The indie.box, with or without a booster, runs models up to the 400B class.')],
+  choose=[('Choose it when','People wait for the answer while they work, like when coding, and many requests come in at once.'),('Choose something else when','You need the biggest AI models. The indie.box, with or without a booster, runs them.')],
   inc=[SOFT,FEES,('cal','Set up by us','We deliver it, set it up and connect your first systems.'),('server','Room to grow','Add a second GPU or 2 × 2 TB of storage later, at extra cost.'),LOCAL,('cycle','Built for 24/7','Sound-dampened for the office, and built to run around the clock.')],
   faq=[('Why does it have less memory than the indie.box?','The two are tuned for different goals. The workstation is tuned for speed, the indie.box for the largest models.'),
        ('Can we add an indie.booster?','No. The booster only works with the indie.box.'),('How loud is it?','The case is sound-dampened for the office.'),

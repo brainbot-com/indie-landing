@@ -316,13 +316,14 @@ const DE = document.documentElement.lang === 'de';
       // If that fails, fall back to a prepared email so no request is lost.
       const data = { type: form.dataset.type || 'trial', page: location.pathname, consent: true, guests: [] };
       form.querySelectorAll('input[name], select[name], textarea[name]').forEach((f) => {
-        if (f.type === 'checkbox') return;
+        if (f.type === 'checkbox' || (f.type === 'radio' && !f.checked) || f.closest('[hidden]')) return;
         if (/^guest\d+$/.test(f.name)) { if (f.value.trim()) data.guests.push(f.value.trim()); return; }
         data[f.name] = f.value.trim();
       });
+      if (!data.name && data.first) data.name = (data.first + ' ' + (data.last || '')).trim();
       const lines = [];
       form.querySelectorAll('input[name], select[name], textarea[name]').forEach((f) => {
-        if (f.type === 'checkbox' || f.type === 'hidden' || f.name === 'website') return;
+        if (f.type === 'checkbox' || f.type === 'hidden' || f.name === 'website' || (f.type === 'radio' && !f.checked) || f.closest('[hidden]')) return;
         const lab = f.closest('label') && f.closest('label').querySelector('.tf__label');
         const name = lab ? lab.textContent.replace('*', '').trim() : f.name;
         const val = (f.value || '').trim() || '-';
@@ -330,6 +331,9 @@ const DE = document.documentElement.lang === 'de';
       });
       if (data.webinar) lines.unshift('Webinar: ' + data.webinar);
       if (data.device) lines.unshift((DE ? 'Angesehen: ' : 'Looked at: ') + data.device);
+      /* Order forms send every field (address, VAT ID, payment) in the message, since the lead form has no
+         columns for them yet. */
+      if ('pack' in form.dataset) data.message = lines.join('\n');
       const subject = (form.dataset.subject || 'Trial request') + ': ' + (data.company || data.industry || data.email || '');
       const mailto = 'mailto:contact@brainbot.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       const btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
@@ -534,11 +538,12 @@ const DE = document.documentElement.lang === 'de';
    is added if chosen. The AI Brain and support are sliders, billed monthly or annually (2 months free). The summary
    adds it up, and the request button carries the choices to the trial form. */
 (function () {
-  const SETUP = 3000;
+  const STD = DE ? 'Standard-Support' : 'Standard support';
+  const SETUP = 6000; /* two-day workshop €3,000 plus two custom apps €3,000 */
   const fmt = (n) => DE ? n.toLocaleString('de-DE') + ' €' : '€' + n.toLocaleString('en-US');
   const T = DE
-    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Interesse an einer eigenen Ausstattung:', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', wsT: 'Workshop und zwei eigene Apps', noWs: 'ohne Workshop', brain: 'AI Brain', care: 'Support' }
-    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Interested in my own setup:', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', wsT: 'Workshop and two custom apps', noWs: 'no workshop', brain: 'AI Brain', care: 'Support' };
+    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Ihre Ausstattung:', bundleL: 'Starter-Bundle', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', incl12: '12 Monate kostenlos', ship: 'Versand', shipT: 'An Ihr Büro', incl: 'Inklusive', trialWs: 'Kostenloser Versand an Ihr Büro. Die Termine für den Workshop legen wir nach Ihrer Bestellung gemeinsam fest.', trialNo: 'Kostenloser Versand an Ihr Büro.', starter: 'Starter-Bundle', ownSetup: 'Ihre Ausstattung', sel: '✓ Ausgewählt', same: 'Gleicher Preis', aYear: 'pro Jahr', aMonth: 'pro Monat', first12: 'in den ersten 12 Monaten', wsT: 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps', wsS: 'Zweitägiger Workshop mit zwei eigenen Apps', pickDev: 'Wählen Sie ein Gerät, um Ihren Preis zu sehen.', careFor: 'Updates und Support für ', need: ['ein Gerät', 'eine Workshop-Option', 'einen AI-Brain-Tarif', 'einen Support-Tarif'], needPre: 'Wählen Sie noch ', and: ' und ', noWs: 'ohne Einrichtungsworkshop', brain: 'AI Brain', care: 'Support' }
+    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Your setup:', bundleL: 'starter bundle', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', incl12: 'Free for 12 months', ship: 'Shipping', shipT: 'To your office', incl: 'Included', trialWs: 'Free shipping to your office. We set the workshop dates with you after you order.', trialNo: 'Free shipping to your office.', starter: 'Starter bundle', ownSetup: 'Your setup', sel: '✓ Selected', same: 'Same price', aYear: 'a year', aMonth: 'a month', first12: 'for the first 12 months', wsT: 'Two-day setup and getting-started workshop with two custom apps', wsS: 'Two-day workshop with two custom apps', pickDev: 'Choose a device to see your price.', careFor: 'Updates and support for ', need: ['a device', 'a workshop option', 'an AI Brain plan', 'a support plan'], needPre: 'To continue, choose ', and: ' and ', noWs: 'no setup workshop', brain: 'AI Brain', care: 'Support' };
   document.querySelectorAll('[data-cfg]').forEach((box) => {
     const sec = box.closest('section');
     const pick = (g) => box.querySelector('input[name="' + g + '"]:checked');
@@ -546,18 +551,53 @@ const DE = document.documentElement.lang === 'de';
     const img = $('[data-cfg-img]'), lines = $('[data-cfg-lines]'), cta = $('[data-cfg-cta]');
     const bar = sec.querySelector('[data-cfg-bar]'), open = sec.querySelector('[data-cfg-open]');
     const base = cta.getAttribute('href');
+    const starterNote = (sec.querySelector('[data-cfg-bundle]') || {}).innerHTML;
+    /* The indie.rack is priced per organization: its button asks for a quote instead of buying. */
+    const buyLabel = cta.innerHTML, quoteBase = base.replace(DE ? 'starter-bundle-kaufen' : 'buy-starter-bundle', DE ? 'angebot-anfragen' : 'request-a-quote');
+    const quoteLabel = (DE ? 'Individuelles Angebot anfragen' : 'Request a custom quote') + ' <span aria-hidden="true">→</span>';
     /* Sliders: the current plan of each, by key. */
-    const sl = {};
+    const sl = {}, touched = {};
     box.querySelectorAll('[data-cfs]').forEach((el) => {
       const plans = JSON.parse(el.dataset.plans), range = el.querySelector('.sl__range'), ticks = el.querySelectorAll('.sl__tick');
       sl[el.dataset.cfs] = { el, plans, range, ticks, get: () => plans[+range.value] };
-      range.addEventListener('input', () => update());
-      ticks.forEach((tk) => tk.addEventListener('click', () => { range.value = tk.dataset.i; update(); }));
+      /* A plan shows up in the price overview only once the visitor has set it. */
+      range.addEventListener('input', () => { touched[el.dataset.cfs] = true; update(); });
+      ticks.forEach((tk) => tk.addEventListener('click', () => { range.value = tk.dataset.i; touched[el.dataset.cfs] = true; update(); }));
     });
     const price = (m, yr) => (m ? fmt(yr ? m * 10 : m) + (yr ? T.yr : T.mo) : T.free);
+    /* The chosen device's product shot in the price overview. */
+    const ROOT = img ? img.getAttribute('src').split('assets/')[0] : '';
+    const SHOT = { box: 'indie-box', booster: 'indie-box-booster', workstation: 'indie-workstation', rack: 'indie-rack' };
+    let shownDev = null;
+    const showDevice = (dEl) => {
+      if (!img || shownDev === dEl.value) return;
+      shownDev = dEl.value;
+      img.classList.remove('is-in');
+      img.alt = dEl.dataset.title;
+      img.src = ROOT + 'assets/indie-solutions/cutouts/' + SHOT[dEl.value] + '_cut.webp?v=5';
+      requestAnimationFrame(() => img.classList.add('is-in'));
+    };
+    /* Package: the starter bundle sets the steps to its contents; any change away from it switches to Customize. */
+    let mode = 'starter';
+    const toStarter = () => {
+      box.querySelector('input[name="device"][value="box"]').checked = true;
+      box.querySelector('input[name="setup"][value="workshop"]').checked = true;
+      if (sl.brain) sl.brain.range.value = 0;
+      if (sl.care) sl.care.range.value = sl.care.plans.findIndex((p) => p.t === STD);
+    };
+    box.addEventListener('change', (ev) => {
+      if (ev.target.name !== 'pkg') return;
+      mode = ev.target.value;
+      if (mode === 'starter') toStarter();
+      else { const dv = box.querySelector('#cfg-device'); if (dv) dv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    }, true);
     const update = () => {
+      /* Customize starts empty: nothing is chosen until the visitor picks it. */
       const d = pick('device'), yr = pick('billing').value === 'year';
-      const ws = pick('setup').value === 'workshop';
+      const sEl = pick('setup'), ws = !!sEl && sEl.value === 'workshop';
+      /* indie.box with the setup workshop is exactly the starter bundle: point to its lower price. */
+      const bundleNote = sec.querySelector('[data-cfg-bundle]');
+      const inBundle = !!d && d.value === 'box' && ws;
       Object.values(sl).forEach((x) => {
         const i = +x.range.value, pl = x.get();
         x.range.style.setProperty('--p', (i / (x.plans.length - 1)) * 100 + '%');
@@ -569,33 +609,132 @@ const DE = document.documentElement.lang === 'de';
         q('[data-cfs-per]').textContent = pl.m || care ? (yr ? T.yr : T.mo) : '';
         q('[data-cfs-was]').textContent = yr && pl.m ? fmt(pl.m * 12) : '';
         q('[data-cfs-f]').innerHTML = pl.f;
-        q('[data-cfs-rows]').innerHTML = pl.rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>').join('');
+        /* Only the indie.box is replaced; the other devices are repaired. */
+        const rows = pl.rows_other && d && d.value !== 'box' ? pl.rows_other : pl.rows;
+        q('[data-cfs-rows]').innerHTML = rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>').join('');
+        /* The support heading names the chosen device, with a small photo of it. */
+        if (care) {
+          const h = q('.sl__h'), dimg = d && d.closest('label').querySelector('img');
+          if (!h.dataset.h) h.dataset.h = h.textContent;
+          h.innerHTML = d ? (dimg ? '<img class="sl__hdev" src="' + dimg.getAttribute('src') + '" alt="">' : '') + T.careFor + d.dataset.title : h.dataset.h;
+        }
       });
       const b = sl.brain.get(), c = sl.care.get();
+      const STDM = 149, WS_B = 3000, HW_OFF = 1000;
+      /* What the chosen AI Brain plan holds, in terms of the documents a team would connect first. */
+      const fit = sec.querySelector('[data-cfg-fit]');
+      if (fit) {
+        const FIT = DE
+          ? ['Genug, um es mit einigen Unterlagen auszuprobieren, bevor Sie mehr anbinden.', 'Die wichtigsten Unterlagen eines Teams.', 'Die wichtigsten Unterlagen einer Abteilung und ein gemeinsames Postfach.', 'Die wichtigsten Unterlagen mehrerer Abteilungen, dazu Postfächer und Wiki.']
+          : ['Enough to try it out on a small set of documents, before you connect more.', "One team's most important documents.", "A department's key documents and a shared mailbox.", "Several departments' key documents, mailboxes and wiki."];
+        fit.innerHTML = (DE ? '<b>Was passt in diesen Tarif?</b> ' : '<b>What fits in this plan?</b> ') + FIT[+sl.brain.range.value];
+      }
+      /* Buy now waits until every step has a choice, so nothing is left out by accident. */
+      const steps = [[d, '#cfg-device'], [sEl, 'setup'], [touched.brain, '[data-cfs="brain"]'], [touched.care, '[data-cfs="care"]']];
+      missing = steps.map((s, k) => (s[0] ? null : k)).filter((k) => k !== null);
+      const needEl = sec.querySelector('[data-cfg-need]');
+      if (needEl) {
+        const names = missing.map((k) => T.need[k]);
+        needEl.hidden = !missing.length;
+        needEl.textContent = names.length ? T.needPre + (names.length > 1 ? names.slice(0, -1).join(', ') + T.and + names[names.length - 1] : names[0]) + '.' : '';
+      }
+      cta.classList.toggle('is-off', !!missing.length);
+      if (missing.length) cta.setAttribute('aria-disabled', 'true'); else cta.removeAttribute('aria-disabled');
+      if (!d) {
+        /* No device yet: list prices on the options, and no total. */
+        box.querySelectorAll('input[name="device"]').forEach((i) => { const h = +i.dataset.price, p = i.closest('label').querySelector('.cfg__p'); if (p) p.innerHTML = h < 0 ? T.quote : ws ? '<s>' + fmt(h) + '</s> ' + fmt(h - HW_OFF) : fmt(h); });
+        box.querySelectorAll('input[name="setup"]').forEach((i) => { const p = i.closest('label').querySelector('.cfg__p'); if (p) p.innerHTML = (i.value === 'workshop' ? '<s>' + fmt(SETUP) + '</s> ' + fmt(WS_B) : fmt(0)) + (i.checked ? '<small>' + T.sel + '</small>' : ''); });
+        if (bundleNote) bundleNote.hidden = true;
+        lines.innerHTML = '<li class="cfg__hint">' + T.pickDev + '</li>';
+        sec.querySelectorAll('[data-cfg-once], [data-cfg-month]').forEach((e) => { e.textContent = fmt(0); });
+        box.classList.add('is-empty');
+        sec.querySelectorAll('[data-cfg-per]').forEach((e) => { e.textContent = T.per[yr ? 'year' : 'month']; });
+        cta.href = '#cfg-device'; cta.innerHTML = buyLabel;
+        return;
+      }
+      box.classList.remove('is-empty');
+      const isStarter = d.value === 'box' && ws && !b.m && c.t === STD;
+      if (!isStarter) mode = 'custom';
+      const pr = box.querySelector('input[name="pkg"][value="' + (isStarter && mode === 'starter' ? 'starter' : 'custom') + '"]'); if (pr) pr.checked = true;
+      const pn = sec.querySelector('[data-cfg-pkgname]'); if (pn) pn.textContent = isStarter ? T.starter : T.ownSetup;
+      showDevice(d);
+      sec.querySelectorAll('[data-cfg-perl]').forEach((e) => { e.textContent = yr ? T.aYear : T.aMonth; });
       const hw = +d.dataset.price, quote = hw < 0;
-      const once = hw + (ws ? SETUP : 0), plans = (b.m + c.m) * (yr ? 10 : 1);
-      const row = (k, v, p) => '<li><span>' + k + '</span><b>' + v + '</b><em>' + p + '</em></li>';
-      lines.innerHTML = row(T.dev, d.dataset.title, quote ? T.quote : fmt(hw))
-        + (ws ? row(T.ws, T.wsT, fmt(SETUP)) : '')
-        + row(T.brain, b.t, price(b.m, yr))
-        + row(T.care, c.t, c.m ? price(c.m, yr) : fmt(0) + (yr ? T.yr : T.mo));
-      sec.querySelectorAll('[data-cfg-once]').forEach((e) => { e.textContent = quote ? T.quote : fmt(once); });
+      /* Bundle benefits stay as long as the setup workshop is kept: workshop and apps at €3,000 instead of €6,000,
+         and 12 months of Standard support (€149 a month) credited, and €1,000 off any device. */
+      const dev = ws && !quote ? hw - HW_OFF : hw, credit = ws ? Math.min(c.m, STDM) : 0;
+      const once = quote ? 0 : dev + (ws ? WS_B : 0), plans = (b.m + c.m - credit) * (yr ? 10 : 1);
+      const regular = hw + (ws ? SETUP : 0);
+      /* Option cards show what each choice adds or takes away from the current total, like Apple's configurator. */
+      const calc = (dEl, w) => {
+        const h = +dEl.dataset.price; if (h < 0) return null;
+        const credit = w ? Math.min(c.m, STDM) : 0;
+        return { once: (w ? h - HW_OFF : h) + (w ? WS_B : 0), plans: (b.m + c.m - credit) * (yr ? 10 : 1) };
+      };
+      const cur = calc(d, ws);
+      const sign = (n) => (n > 0 ? '+ ' : '− ') + fmt(Math.abs(n));
+      const tag = (r) => {
+        if (!r) return T.quote;
+        if (!cur) return fmt(r.once);
+        const o = r.once - cur.once, m = r.plans - cur.plans, out = [];
+        if (o) out.push(sign(o));
+        if (m) out.push('<small>' + sign(m) + (yr ? T.yr : T.mo) + '</small>');
+        return out.join('') || T.same;
+      };
+      box.querySelectorAll('input[name="device"]').forEach((i) => { const p = i.closest('label').querySelector('.cfg__p'); if (p) p.innerHTML = i.checked ? T.sel : tag(calc(i, ws)); });
+      /* The workshop always shows its own price, not the change in the total. */
+      const wsTag = (i) => (i.value === 'workshop' ? '<s>' + fmt(SETUP) + '</s> ' + fmt(WS_B) : fmt(0)) + (i.checked ? '<small>' + T.sel + '</small>' : '');
+      box.querySelectorAll('input[name="setup"]').forEach((i) => { const p = i.closest('label').querySelector('.cfg__p'); if (p) p.innerHTML = wsTag(i); });
+      if (bundleNote) {
+        bundleNote.hidden = !ws || quote;
+        /* The exact starter bundle says so; any other setup with the workshop gets the bundle discounts, and a nudge
+           towards Standard support while it is free. */
+        const more = once - 7999;
+        if (isStarter) bundleNote.innerHTML = starterNote;
+        else if (ws && !quote) bundleNote.innerHTML = (DE ? '<b>Bundle-Rabatte aktiv.</b> ' : '<b>Bundle discounts applied.</b> ')
+          + (c.m < STDM ? (DE ? 'Standard-Support ist zwölf Monate kostenlos.' : 'Standard support is free for 12 months.') : more > 0 ? fmt(more) + (DE ? ' mehr als das Starter-Bundle.' : ' more than the starter bundle.') : '');
+      }
+      /* Savings in orange, as on the starter bundle card: the new price, Included and Free. */
+      const sv = (x) => '<i class="cfg__save">' + x + '</i>';
+      const was = (a, n) => '<s>' + fmt(a) + '</s> ' + sv(fmt(n));
+      /* One line per choice: what it is, then what it costs. */
+      const row = (k, v, p) => '<li><b>' + v + '</b><em>' + p + '</em></li>';
+      const low = (t) => t.charAt(0).toLowerCase() + t.slice(1);
+      lines.innerHTML = row(T.dev, d.dataset.title, quote ? T.quote : ws ? was(hw, hw - HW_OFF) : fmt(hw))
+        + (ws ? row(T.ws, T.wsS, was(SETUP, WS_B)) : '')
+        + (touched.brain ? row(T.brain, T.brain + ', ' + low(b.t), b.m ? price(b.m, yr) : sv(T.free)) : '')
+        + (touched.care ? row(T.care, c.t, ws && c.m && c.m <= STDM ? sv(T.incl12) : ws && c.m > STDM ? price(c.m - STDM, yr) + ' ' + T.first12 : c.m ? price(c.m, yr) : fmt(0) + (yr ? T.yr : T.mo)) : '');
+      sec.querySelectorAll('[data-cfg-once]').forEach((e) => { e.innerHTML = quote ? T.quote : once < regular ? '<s class="cfg__was">' + fmt(regular) + '</s> ' + fmt(once) : fmt(once); });
       sec.querySelectorAll('[data-cfg-month]').forEach((e) => { e.textContent = fmt(plans); });
       sec.querySelectorAll('[data-cfg-per]').forEach((e) => { e.textContent = T.per[yr ? 'year' : 'month']; });
-      const src = d.closest('label').querySelector('img');
-      if (src && img.getAttribute('src') !== src.getAttribute('src')) { img.classList.remove('is-in'); img.src = src.getAttribute('src'); requestAnimationFrame(() => img.classList.add('is-in')); }
       /* The trial form gets the setup as a short list (items only, no prices), so sales sees what someone looked at. */
       const note = [T.preOwn,
         '- ' + T.dev + ': ' + d.dataset.title,
         '- ' + T.ws + ': ' + (ws ? T.wsT : T.noWs),
         '- ' + T.brain + ': ' + b.t,
         '- ' + T.care + ': ' + c.t,
-        '- ' + T.billL + ': ' + T.bill[yr ? 'year' : 'month']].join('\n');
-      cta.href = base + '?bundle=' + encodeURIComponent(note);
+        '- ' + T.billL + ': ' + T.bill[yr ? 'year' : 'month'],
+        T.once + ': ' + (quote ? T.quote : fmt(once)) + (inBundle ? ' (' + T.bundleL + ')' : ''),
+        T.per[yr ? 'year' : 'month'] + ': ' + fmt(plans)].join('\n');
+      cta.innerHTML = quote ? quoteLabel : buyLabel;
+      /* Stock and delivery time do not apply to a rack, which is built to order. */
+      sec.querySelectorAll('.cfg__sum [data-trust-stock]').forEach((e) => { e.hidden = quote; });
+      cta.href = quote ? quoteBase + '?order=' + encodeURIComponent(note) : isStarter && !yr ? base : base + '?order=' + encodeURIComponent(note);
     };
+    let missing = [];
+    const STEP = ['#cfg-device', null, '[data-cfs="brain"]', '[data-cfs="care"]'];
+    /* An early click on Buy now goes to the first step that still needs a choice. */
+    cta.addEventListener('click', (ev) => {
+      if (!missing.length) return;
+      ev.preventDefault();
+      const k = missing[0], el = k === 1 ? box.querySelector('input[name="setup"]').closest('fieldset') : box.querySelector(STEP[k]);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('is-flag'); void el.offsetWidth; el.classList.add('is-flag');
+    });
     box.addEventListener('change', update);
     update();
-    img.classList.add('is-in');
+    if (img) img.classList.add('is-in');
     if (open) open.addEventListener('click', () => {
       box.hidden = false;
       open.setAttribute('aria-expanded', 'true');
@@ -612,6 +751,30 @@ const DE = document.documentElement.lang === 'de';
       bar.querySelector('[data-cfg-jump]').addEventListener('click', (ev) => { ev.preventDefault(); sum.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
     }
   });
+  /* Order form: "Order as a company" and "Deliver to a different address" reveal their fields. */
+  document.querySelectorAll('[data-reveal]').forEach((cb) => {
+    const box = document.getElementById(cb.dataset.reveal); if (!box) return;
+    const req = box.querySelectorAll('[required]');
+    const set = () => { box.hidden = !cb.checked; req.forEach((f) => { f.required = cb.checked; if (!cb.checked) f.classList.remove('is-invalid'); }); };
+    cb.addEventListener('change', set); set();
+  });
+  /* Order page: a setup put together in Customize replaces the starter bundle summary and is sent with the order. */
+  const order = new URLSearchParams(location.search).get('order');
+  const ob = order && document.querySelector('[data-ob]');
+  if (ob) {
+    const lines = order.split('\n').filter(Boolean), esc = (x) => x.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const items = lines.filter((l) => l.startsWith('- ')).map((l) => '<li><span>' + esc(l.slice(2)) + '</span></li>').join('');
+    const tot = lines.filter((l) => !l.startsWith('- ')).slice(1).map((l) => '<p class="ob__tot">' + esc(l) + '</p>').join('');
+    /* VAT on the one-time total, so the summary reads like a formal order. */
+    const onceL = lines.find((l) => /^(One-time|Einmalig):/.test(l)), net = onceL ? +onceL.replace(/[^0-9]/g, '') : 0;
+    const eur = (n) => (DE ? n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €' : '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+    const vat = net ? '<dl class="ob__sum"><div><dt>' + (DE ? 'MwSt. (19 %)' : 'VAT (19%)') + '</dt><dd>' + eur(net * 0.19) + '</dd></div><div class="is-gross"><dt>' + (DE ? 'Gesamt inkl. MwSt.' : 'Total with VAT') + '</dt><dd>' + eur(net * 1.19) + '</dd></div></dl>' : '';
+    ob.innerHTML = '<div class="ob__head"><p class="ob__t">' + esc(lines[0].replace(/:$/, '')) + '</p></div><ul class="ob__list ob__list--plain">' + items + '</ul>' + tot + vat;
+    const h = document.querySelector('#buy .section-title'); if (h) h.textContent = DE ? 'Ihre Ausstattung kaufen.' : 'Buy your setup.';
+    const dev = document.querySelector('[data-trial-form] input[name="device"]');
+    /* Keep the form's own marker (ORDER or QUOTE) in front of the setup. */
+    if (dev) dev.value = (dev.value.split(':')[0] + ': ' + lines.slice(1).map((l) => l.replace(/^- /, '')).join(', ')).slice(0, 200);
+  }
   /* Starter bundle button: the bundle as a short list. */
   document.querySelectorAll('[data-starter-cta]').forEach((a) => {
     const note = DE
