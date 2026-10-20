@@ -129,6 +129,10 @@ X={
 "Your price overview":"Ihre Preisübersicht",
 "Explore prices for your own setup, from €5,999.":"Preise für Ihre eigene Ausstattung ansehen, ab 5.999 €.",
 "This is a price overview, not an order. We'll send you access to a web portal where your team can try the AI Brain, and talk through your setup together.":"Das ist eine Preisübersicht, keine Bestellung. Sie bekommen von uns Zugang zu einem Webportal, in dem Ihr Team das AI Brain ausprobieren kann, und wir besprechen Ihre Ausstattung gemeinsam.",
-"The indie.box, a compact AI server for your office, delivered. <s>€5,999</s> <b>€4,999</b>":"Die indie.box, ein kompakter KI-Server für Ihr Büro, geliefert. <s>5.999 €</s> <b>4.999 €</b>",
+"The indie.box, a compact AI server for your office, delivered. <span class=\"pk2__pp\"><s>€5,999</s> <b>€4,999</b></span>":"Die indie.box, ein kompakter KI-Server für Ihr Büro, geliefert. <span class=\"pk2__pp\"><s>5.999 €</s> <b>4.999 €</b></span>",
 "Introductory offer: €1,000 off the AI server":"Einführungsangebot: 1.000 € Rabatt auf den KI-Server",
+"<span class=\"pk2__pp\"><s>€5,999</s> <b>€4,999</b></span>The indie.box, a compact AI server for your office, delivered":"<span class=\"pk2__pp\"><s>5.999 €</s> <b>4.999 €</b></span>Die indie.box, ein kompakter KI-Server für Ihr Büro, geliefert",
+"The indie.box, a compact AI server for your office, delivered":"Die indie.box, ein kompakter KI-Server für Ihr Büro, geliefert",
+"See what it costs. Pick the starter bundle or put together your own setup, then request a trial.":"Sehen Sie, was es kostet. Wählen Sie das Starter-Bundle oder stellen Sie Ihre eigene Ausstattung zusammen und fragen Sie dann einen Test an.",
+"This is a price overview, not an order. We'll send you access to a web portal where your team can try the AI Brain. Then we'll help you pick the right setup.":"Das ist eine Preisübersicht, keine Bestellung. Sie bekommen von uns Zugang zu einem Webportal, in dem Ihr Team das AI Brain ausprobieren kann. Danach helfen wir Ihnen, die passende Ausstattung zu wählen.",
 }

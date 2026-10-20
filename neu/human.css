@@ -2693,3 +2693,6 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 .bbx .tf__sel-list li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 6px; height: 6px; border-radius: 50%; background: #FF6314; }
 .bbx .tf__sel-list li.is-head { padding-left: 0 !important; font-weight: 700; }
 .bbx .tf__sel-list li.is-head::before { display: none; }
+.bbx .pk2__inc li > span { flex: 1; min-width: 0; }
+.bbx .pk2__pp { float: right; margin-left: 1rem; white-space: nowrap; }
+.bbx .pk2__pp s { margin: 0 0.3rem 0 0 !important; }
