@@ -39,3 +39,5 @@ X.update({"Your AI Brain runs on a device in your own office. Every device comes
 X.update({"Questions?":"Fragen?"})
 X.update({"About 500 words of text.":"Etwa 500 Wörter Text."})
 X.update({"Enough to try it out on a small set of documents, before you connect more.":"Genug, um es mit einigen Unterlagen auszuprobieren, bevor Sie mehr anbinden."})
+X.update({"One page is about 500 words of text. An email or a short document counts as one page.":"Eine Seite sind etwa 500 Wörter Text. Eine E-Mail oder ein kurzes Dokument zählt als eine Seite."})
+X.update({'One page is about 500 words of text, about the same as an email, one page of a PDF or Word file, one presentation slide, or a small Excel sheet.':"Eine Seite sind etwa 500 Wörter Text, ungefähr so viel wie eine E-Mail, eine Seite eines PDF- oder Word-Dokuments, eine Folie einer Präsentation oder eine kleine Excel-Tabelle."})
