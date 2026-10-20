@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=308">
+    <link rel="stylesheet" href="{R}neu/human.css?v=338">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -133,7 +133,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     {foot}
 {PILL if pill else ''}
     <script src="{R}script.js?v=20260818"></script>
-    <script src="{R}neu/human.js?v=47"></script>
+    <script src="{R}neu/human.js?v=75"></script>
 </body>
 </html>
 '''
@@ -222,7 +222,7 @@ WEBINARS={
 }
 WSL={'crm':'crm','mail':'email-management'}
 WIMG={'crm':('webinar-heiko.jpg?v=3','Heiko Franssen presenting the AI Brain live'),'mail':('webinar-heiko.jpg?v=3','Heiko Franssen presenting the AI Brain live')}
-WCARD={'mail':lambda R:f'<img class="wb__shot" src="{R}neu/img/webinar-mail.jpg?v=3" alt="An inbox where the agent has sorted the mail and drafted replies" loading="lazy"><figure class="wb__presenter"><img src="{R}neu/img/heiko-kaw-portrait.jpg?v=1" alt="Heiko Franssen" loading="lazy"><figcaption>Heiko Franssen</figcaption></figure>',
+WCARD={'mail':lambda R:f'<img class="wb__shot" src="{R}neu/img/webinar-mail.jpg?v=9" alt="An inbox where the agent has sorted the mail and drafted replies" loading="lazy"><figure class="wb__presenter"><img src="{R}neu/img/heiko-kaw-portrait.jpg?v=1" alt="Heiko Franssen" loading="lazy"><figcaption>Heiko Franssen</figcaption></figure>',
        'crm':lambda R:f'<img class="wb__shot" src="{R}neu/img/webinar-crm.jpg?v=1" alt="The CRM demo: a sales pipeline with an AI copilot beside it" loading="lazy"><figure class="wb__presenter"><img src="{R}neu/img/luis-kaw-portrait.jpg?v=1" alt="Luis Bezzenberger" loading="lazy"><figcaption>Luis Bezzenberger</figcaption></figure>'}
 def webinars(R, keys, title='Upcoming webinars.', lead='See the AI Brain live and ask our team your questions.', extra=''):
     cards=''
@@ -541,17 +541,25 @@ NEWSECTIONS=f"""      <!-- 5. Meet the AI Brain -->
       </section>"""
 
 # Agent Command Center sections, verbatim from brainbot.com (copy and design), scoped in .bbx.
-ACC=open('neu/bbx/acc-sections.html',encoding='utf-8').read().replace('@@IMG@@', R+'neu/bbx/img/').replace('@@VID@@', R+'neu/video/').replace('@@ROOT@@', R).replace('@@PH_AGENTS@@', ph('eng', 'An app with its AI agent beside it, doing a task the user asked for, like updating a deal or filling in a report.')).replace('@@PH_CONTROL@@', ph('eng', 'The agent showing each step it is taking, with an approve button before it acts.')).replace('@@PH_TOGETHER@@', ph('eng', 'Colleagues sharing an app and its knowledge: the same plan or document, updated for the whole team.')).replace('@@PH_STUDIO@@', ph('eng', 'Agent Studio showing two team areas side by side, each with its own knowledge sources and rules.')).replace('@@PH_CHAT@@', ph('eng', 'indie.chat answering a question about a contract, with the source passage highlighted next to the answer.')).replace('@@PH_ROUTINES@@', ph('eng', 'An agent running a morning routine: checking a shared mailbox and filing what it found.'))
+_ACC_SRC=open('neu/bbx/acc-sections.html',encoding='utf-8').read()
+def _with_pricing(src, opt):
+    # The same sections with another package section (neu/bbx/options/pricing-option-<opt>.html) in place.
+    i=src.index('id="pricing"'); st=src.rfind('<section',0,i); en=src.index('</section>',i)+10
+    return src[:st]+open(f'neu/bbx/options/pricing-option-{opt}.html',encoding='utf-8').read()+src[en:]
+def _acc(src): return src.replace('@@IMG@@', R+'neu/bbx/img/').replace('@@VID@@', R+'neu/video/').replace('@@ROOT@@', R).replace('@@PH_AGENTS@@', ph('eng', 'An app with its AI agent beside it, doing a task the user asked for, like updating a deal or filling in a report.')).replace('@@PH_CONTROL@@', ph('eng', 'The agent showing each step it is taking, with an approve button before it acts.')).replace('@@PH_TOGETHER@@', ph('eng', 'Colleagues sharing an app and its knowledge: the same plan or document, updated for the whole team.')).replace('@@PH_STUDIO@@', ph('eng', 'Agent Studio showing two team areas side by side, each with its own knowledge sources and rules.')).replace('@@PH_CHAT@@', ph('eng', 'indie.chat answering a question about a contract, with the source passage highlighted next to the answer.')).replace('@@PH_ROUTINES@@', ph('eng', 'An agent running a morning routine: checking a shared mailbox and filing what it found.'))
+ACC=_acc(_ACC_SRC)
+ACC_A=_acc(_with_pricing(_ACC_SRC,'a'))
 NEWSECTIONS='      <!-- From here: sections adapted from the brainbot.com Agent Command Center page. -->\n      <div class="bbx"><div class="acc-page">\n'+ACC+'\n      </div></div>'
+NEWSECTIONS_A=NEWSECTIONS.replace(ACC,ACC_A)
 
 
 # Structured product data for the packages on the Engineering page (prices net, plus VAT).
-_PK=[('Essential','indie.box','indie-box_cut.webp','For small teams. Comes with the indie.box, a compact AI server for your office.','20900'),
-     ('Plus','indie.box + indie.booster','indie-box-booster_cut.webp','For small teams that want faster answers. Comes with the indie.box plus the indie.booster.','26400'),
-     ('Performance','indie.workstation','indie-workstation_cut.webp','For teams that use AI all day. Comes with the indie.workstation.','27400'),
+_PK=[('Essential','indie.box','indie-box_cut.webp','For small teams. Comes with the indie.box, a compact AI server for your office.','7999'),
+     ('Plus','indie.box + indie.booster','indie-box-booster_cut.webp','For small teams that want faster answers. Comes with the indie.box plus the indie.booster.','15998'),
+     ('Performance','indie.workstation','indie-workstation_cut.webp','For teams that use AI all day. Comes with the indie.workstation.','13999'),
      ('Enterprise','indie.rack','indie-rack_cut.webp','For large organizations. Comes with indie.rack servers, sized to the number of people who use them.',None)]
 def _pkg(n,dev,img,d,price):
-    x={"@type":"Product","name":f"AI Brain package {n}","description":d+" Includes delivery, a two-day setup workshop, two custom apps, 12 months of the AI Brain and 12 months of Priority support.",
+    x={"@type":"Product","name":f"AI Brain package {n}","description":d+" Includes delivery, a two-day setup workshop, two custom apps, 12 months of the AI Brain and 12 months of Standard support.",
        "image":SITE+'assets/indie-solutions/cutouts/'+img,"brand":{"@type":"Brand","name":"indie.solutions"},"isRelatedTo":{"@type":"Product","name":dev}}
     if price: x["offers"]={"@type":"Offer","price":price,"priceCurrency":"EUR","availability":"https://schema.org/InStock","url":SITE+'en/industries/engineering/#pricing',
                            "priceSpecification":{"@type":"UnitPriceSpecification","price":price,"priceCurrency":"EUR","valueAddedTaxIncluded":False},"seller":{"@type":"Organization","name":"brainbot GmbH"}}
@@ -591,7 +599,14 @@ eng_body=eng_body.replace("{contact(R, 'What is slowing our engineering team dow
 open('en/industries/engineering/index.html','w',encoding='utf-8').write(page(
   "AI Brain for engineering and manufacturing | indie.solutions",
   "Your company's lifetime of knowledge, one question away. A private AI Brain with custom apps and AI agents for engineering and manufacturing teams.",
-  R, eng_body, extra_head=f'<link rel="stylesheet" href="{R}neu/bbx/bbx.css?v=1">\n    <script src="{R}neu/bbx/bbx.js?v=1" defer></script>\n    ', pill=False, path='en/industries/engineering/', image='neu/img/social-engineering.jpg', extra_ld=PKG_LD))
+  R, eng_body, extra_head=f'<link rel="stylesheet" href="{R}neu/bbx/bbx.css?v=1">\n    <script src="{R}neu/bbx/bbx.js?v=1" defer></script>\n    ', pill=False, path='en/industries/engineering/', image='neu/img/social-engineering.jpg'))
+# Version A of the Engineering page: the same page with the fixed packages (Essential, Plus, Performance, Enterprise).
+# Not linked from the navigation; for comparing with version B above.
+_os.makedirs('en/industries/engineering-a',exist_ok=True)
+open('en/industries/engineering-a/index.html','w',encoding='utf-8').write(page(
+  "AI Brain for engineering and manufacturing | indie.solutions",
+  "Your company's lifetime of knowledge, one question away. A private AI Brain with custom apps and AI agents for engineering and manufacturing teams.",
+  R, eng_body.replace(NEWSECTIONS,NEWSECTIONS_A), extra_head=f'<link rel="stylesheet" href="{R}neu/bbx/bbx.css?v=1">\n    <script src="{R}neu/bbx/bbx.js?v=1" defer></script>\n    ', pill=False, path='en/industries/engineering-a/', image='neu/img/social-engineering.jpg', extra_ld=PKG_LD))
 
 # ================= PRODUCT PAGES (Devices, Software, Security) =================
 # Same frame as the Engineering page: photo hero with two calls to action, then

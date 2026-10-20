@@ -329,6 +329,7 @@ const DE = document.documentElement.lang === 'de';
         lines.push(f.tagName === 'TEXTAREA' ? '\n' + name + '\n' + val : name + ': ' + val);
       });
       if (data.webinar) lines.unshift('Webinar: ' + data.webinar);
+      if (data.device) lines.unshift((DE ? 'Angesehen: ' : 'Looked at: ') + data.device);
       const subject = (form.dataset.subject || 'Trial request') + ': ' + (data.company || data.industry || data.email || '');
       const mailto = 'mailto:contact@brainbot.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
       const btn = form.querySelector('[type=submit]'); if (btn) btn.disabled = true;
@@ -472,8 +473,13 @@ const DE = document.documentElement.lang === 'de';
     const range = root.querySelector('.sl__range');
     const card = root.querySelector('.sl__card');
     const ticks = root.querySelectorAll('.sl__tick');
+    /* Optional Monthly | Annual switch in the same section: annual is 10 times the monthly price (2 months free). */
+    const bill = root.closest('section') && root.closest('section').querySelectorAll('input[name="billing-a"]');
+    const fmtE = (n) => DE ? n.toLocaleString('de-DE') + ' €' : '€' + n.toLocaleString('en-US');
     const set = (i) => {
-      const pl = plans[i];
+      const yr = bill && bill.length && root.closest('section').querySelector('input[name="billing-a"]:checked').value === 'year';
+      const pl = Object.assign({}, plans[i]);
+      if (yr && pl.m) { pl.p = fmtE(pl.m * 10); pl.per = (DE ? '/Jahr' : '/year') + ' <s class="cfs__was">' + fmtE(pl.m * 12) + '</s>'; }
       range.value = i;
       range.style.setProperty('--p', (i / (plans.length - 1)) * 100 + '%');
       range.setAttribute('aria-valuetext', pl.p + (pl.per ? (DE ? ' im Monat' : ' a month') : ''));
@@ -486,6 +492,7 @@ const DE = document.documentElement.lang === 'de';
     };
     range.addEventListener('input', () => set(+range.value));
     ticks.forEach((t) => t.addEventListener('click', () => set(+t.dataset.i)));
+    if (bill) bill.forEach((b) => b.addEventListener('change', () => set(+range.value)));
     set(+range.value);
   });
 })();
@@ -520,4 +527,107 @@ const DE = document.documentElement.lang === 'de';
       if (same && history.length > 1) { e.preventDefault(); history.back(); }
     });
   });
+})();
+
+/* Package option B: the starter bundle, or a setup you customize at regular prices. "Customize" opens the steps.
+   Each device radio carries its regular price in data-price (-1 = custom quote); the workshop with two custom apps
+   is added if chosen. The AI Brain and support are sliders, billed monthly or annually (2 months free). The summary
+   adds it up, and the request button carries the choices to the trial form. */
+(function () {
+  const SETUP = 3000;
+  const fmt = (n) => DE ? n.toLocaleString('de-DE') + ' €' : '€' + n.toLocaleString('en-US');
+  const T = DE
+    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Interesse an einer eigenen Ausstattung:', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', wsT: 'Workshop und zwei eigene Apps', noWs: 'ohne Workshop', brain: 'AI Brain', care: 'Support' }
+    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Interested in my own setup:', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', wsT: 'Workshop and two custom apps', noWs: 'no workshop', brain: 'AI Brain', care: 'Support' };
+  document.querySelectorAll('[data-cfg]').forEach((box) => {
+    const sec = box.closest('section');
+    const pick = (g) => box.querySelector('input[name="' + g + '"]:checked');
+    const $ = (s) => box.querySelector(s);
+    const img = $('[data-cfg-img]'), lines = $('[data-cfg-lines]'), cta = $('[data-cfg-cta]');
+    const bar = sec.querySelector('[data-cfg-bar]'), open = sec.querySelector('[data-cfg-open]');
+    const base = cta.getAttribute('href');
+    /* Sliders: the current plan of each, by key. */
+    const sl = {};
+    box.querySelectorAll('[data-cfs]').forEach((el) => {
+      const plans = JSON.parse(el.dataset.plans), range = el.querySelector('.sl__range'), ticks = el.querySelectorAll('.sl__tick');
+      sl[el.dataset.cfs] = { el, plans, range, ticks, get: () => plans[+range.value] };
+      range.addEventListener('input', () => update());
+      ticks.forEach((tk) => tk.addEventListener('click', () => { range.value = tk.dataset.i; update(); }));
+    });
+    const price = (m, yr) => (m ? fmt(yr ? m * 10 : m) + (yr ? T.yr : T.mo) : T.free);
+    const update = () => {
+      const d = pick('device'), yr = pick('billing').value === 'year';
+      const ws = pick('setup').value === 'workshop';
+      Object.values(sl).forEach((x) => {
+        const i = +x.range.value, pl = x.get();
+        x.range.style.setProperty('--p', (i / (x.plans.length - 1)) * 100 + '%');
+        x.range.setAttribute('aria-valuetext', pl.t);
+        x.ticks.forEach((tk, k) => tk.classList.toggle('is-on', k === i));
+        const q = (s) => x.el.querySelector(s);
+        const care = x.el.dataset.cfs === 'care';
+        q('[data-cfs-p]').textContent = pl.m || care ? fmt(yr ? pl.m * 10 : pl.m) : T.free;
+        q('[data-cfs-per]').textContent = pl.m || care ? (yr ? T.yr : T.mo) : '';
+        q('[data-cfs-was]').textContent = yr && pl.m ? fmt(pl.m * 12) : '';
+        q('[data-cfs-f]').innerHTML = pl.f;
+        q('[data-cfs-rows]').innerHTML = pl.rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>').join('');
+      });
+      const b = sl.brain.get(), c = sl.care.get();
+      const hw = +d.dataset.price, quote = hw < 0;
+      const once = hw + (ws ? SETUP : 0), plans = (b.m + c.m) * (yr ? 10 : 1);
+      const row = (k, v, p) => '<li><span>' + k + '</span><b>' + v + '</b><em>' + p + '</em></li>';
+      lines.innerHTML = row(T.dev, d.dataset.title, quote ? T.quote : fmt(hw))
+        + (ws ? row(T.ws, T.wsT, fmt(SETUP)) : '')
+        + row(T.brain, b.t, price(b.m, yr))
+        + row(T.care, c.t, c.m ? price(c.m, yr) : fmt(0) + (yr ? T.yr : T.mo));
+      sec.querySelectorAll('[data-cfg-once]').forEach((e) => { e.textContent = quote ? T.quote : fmt(once); });
+      sec.querySelectorAll('[data-cfg-month]').forEach((e) => { e.textContent = fmt(plans); });
+      sec.querySelectorAll('[data-cfg-per]').forEach((e) => { e.textContent = T.per[yr ? 'year' : 'month']; });
+      const src = d.closest('label').querySelector('img');
+      if (src && img.getAttribute('src') !== src.getAttribute('src')) { img.classList.remove('is-in'); img.src = src.getAttribute('src'); requestAnimationFrame(() => img.classList.add('is-in')); }
+      /* The trial form gets the setup as a short list (items only, no prices), so sales sees what someone looked at. */
+      const note = [T.preOwn,
+        '- ' + T.dev + ': ' + d.dataset.title,
+        '- ' + T.ws + ': ' + (ws ? T.wsT : T.noWs),
+        '- ' + T.brain + ': ' + b.t,
+        '- ' + T.care + ': ' + c.t,
+        '- ' + T.billL + ': ' + T.bill[yr ? 'year' : 'month']].join('\n');
+      cta.href = base + '?bundle=' + encodeURIComponent(note);
+    };
+    box.addEventListener('change', update);
+    update();
+    img.classList.add('is-in');
+    if (open) open.addEventListener('click', () => {
+      box.hidden = false;
+      open.setAttribute('aria-expanded', 'true');
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    /* Phones: a small bar with the totals while the options are on screen and the summary is not. */
+    if (bar) {
+      const sum = $('.cfg__sum');
+      let inSteps = false, inSum = false;
+      const set = () => { bar.hidden = box.hidden || !(inSteps && !inSum && window.innerWidth < 900); };
+      new IntersectionObserver((es) => { inSteps = es[0].isIntersecting; set(); }).observe($('.cfg__steps'));
+      new IntersectionObserver((es) => { inSum = es[0].isIntersecting; set(); }).observe(sum);
+      window.addEventListener('resize', set);
+      bar.querySelector('[data-cfg-jump]').addEventListener('click', (ev) => { ev.preventDefault(); sum.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+    }
+  });
+  /* Starter bundle button: the bundle as a short list. */
+  document.querySelectorAll('[data-starter-cta]').forEach((a) => {
+    const note = DE
+      ? ['Interesse am Starter-Bundle:', '- indie.box', '- Zweitägiger Workshop mit zwei eigenen Apps', '- AI Brain im kostenlosen Tarif'].join('\n')
+      : ['Interested in the starter bundle:', '- indie.box', '- Two-day workshop with two custom apps', '- AI Brain, free plan'].join('\n');
+    a.href = a.getAttribute('href').split('?')[0] + '?bundle=' + encodeURIComponent(note);
+  });
+  /* Trial form: what someone looked at in the package section. */
+  const want = new URLSearchParams(location.search).get('bundle');
+  /* Show what someone looked at as its own list above the question, and send it along in the "device" field. */
+  const sel = want && document.querySelector('[data-trial-form] [data-sel]');
+  if (sel) {
+    const items = want.split('\n').map((l) => l.replace(/^-\s*/, '').trim()).filter(Boolean);
+    const head = items[0].replace(/:$/, '');
+    sel.querySelector('.tf__sel-list').innerHTML = [head].concat(items.slice(1)).map((x, i) => '<li' + (i ? '' : ' class="is-head"') + '>' + x.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) + '</li>').join('');
+    sel.querySelector('input[name="device"]').value = (head + ': ' + items.slice(1).join(', ')).slice(0, 200);
+    sel.hidden = false;
+  }
 })();

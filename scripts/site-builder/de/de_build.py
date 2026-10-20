@@ -3,7 +3,7 @@ import re,json,html,os,sys,glob
 SP=os.path.dirname(os.path.abspath(__file__))
 SITE='https://indie.solutions/'
 HOME_EN=os.environ.get('INDIE_HOME_EN','en/neu/'); HOME_DE=os.environ.get('INDIE_HOME_DE','de/neu/')
-URLS={HOME_EN:HOME_DE,'en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/devices-and-software/':'de/geraete-und-software/',
+URLS={HOME_EN:HOME_DE,'en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/industries/engineering-a/':'de/branchen/engineering-und-fertigung-a/','en/devices-and-software/':'de/geraete-und-software/',
       'en/about/':'de/ueber-uns/','en/customers/lightforce/':'de/kunden/lightforce/','en/webinars/crm/':'de/webinare/crm/',
       'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/',
       'en/request-your-industry/':'de/branche-anfragen/','en/get-notified/':'de/benachrichtigung/','en/legal/imprint/':'de/rechtliches/impressum/',
@@ -17,7 +17,7 @@ M={todo[i]['en']:v for i,v in T.items()}
 for f in sorted(glob.glob(SP+'/tr/x*.py')):
     ns={}; exec(open(f).read(),ns)
     for k,v in ns['X'].items(): M[k.replace("'",'&#39;')]=v.replace("'",'&#39;'); M[k]=v
-RAW=[('>Updates<br>only</button>','>Nur<br>Updates</button>'),('>Standard<br>support</button>','>Standard-<br>Support</button>'),
+RAW=[('>No<br>updates</button>','>Keine<br>Updates</button>'),('>Updates<br>only</button>','>Nur<br>Updates</button>'),('>Standard<br>support</button>','>Standard-<br>Support</button>'),
      ('>Priority<br>support</button>','>Priority-<br>Support</button>'),('>Premium<br>support</button>','>Premium-<br>Support</button>')]
 def num(t):
     s=t.strip()
@@ -38,13 +38,18 @@ def remap(u):
         if m: return u[:m.start()]+m.group(1)+URLS[a]+u[m.end():]
     return u
 TOK=re.compile(r'(<!--[\s\S]*?-->|<[^>]+>)')
-ATTR=re.compile(r'\b(alt|aria-label|title|placeholder|data-hw|data-subject|data-yt-title|content|value|data-plans|href|src|data-privacy)="([^"]*)"')
+ATTR=re.compile(r'\b(alt|aria-label|title|placeholder|data-hw|data-subject|data-yt-title|content|value|data-plans|data-title|href|src|data-privacy)="([^"]*)"')
 def do_tag(t):
     def rep(m):
         a,v=m.group(1),m.group(2)
         if a=='data-plans':
             pl=json.loads(html.unescape(v))
             for p in pl:
+                if 't' in p:  # configurator slider plans
+                    for key in ('t','d','f'):
+                        if key in p: p[key]=M.get(p[key],p[key])
+                    if 'rows' in p: p['rows']=[[num(M.get(c,c)) for c in r] for r in p['rows']]
+                    continue
                 for key in ('p','per','f'): p[key]=num(M.get(p[key],p[key]))
                 p['rows']=[[num(M.get(c,c)) for c in r] for r in p['rows']]
             return f'{a}="{html.escape(json.dumps(pl,ensure_ascii=False),quote=True)}"'
