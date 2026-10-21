@@ -49,6 +49,6 @@ form=('<form class="tf co-form" data-trial-form data-type="order" data-pack data
   '<p class="co-fine">We confirm your order and send the invoice, then ship your device and plan the workshop with you. * Required fields</p>'
   '</form>'
   '<div class="tf__done" hidden><h3 class="tf__done-h">Thank you.</h3><p>We have your order. The brainbot team will confirm it, send the invoice and plan your two-day workshop with you.</p></div>')
-body=section('buy', head('Buy the starter bundle.',None,"Fill in your details, and we'll confirm your order and send the invoice.")
+body=section('buy', head('Get your AI Brain.',None,"Fill in your details, and we'll confirm your order and send the invoice.")
    +f'<div class="co-wrap"><div class="tf__card">{form}</div><div class="co-side">{summary}{proof}</div></div>', white=True)
 open(sys.argv[2],'w',encoding='utf-8').write(body)

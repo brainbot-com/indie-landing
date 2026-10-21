@@ -35,3 +35,5 @@ X.update({"Your AI Brain for your company":"Ihr AI Brain für Ihr Unternehmen","
 "Ready from day one":"Vom ersten Tag an bereit","The AI Brain, AI Agent Command Center and Agent Studio come preinstalled.":"AI Brain, AI Agent Command Center und Agent Studio sind vorinstalliert.",
 "Backed by brainbot":"Mit brainbot an Ihrer Seite","The team behind indie.solutions, based in Mainz, Germany.":"Das Team hinter indie.solutions, mit Sitz in Mainz."})
 X.update({"−€5,788":"−5.788 €"})
+X.update({"Get your AI Brain.":"Holen Sie sich Ihr AI Brain."})
+X.update({"Get your AI Brain | indie.solutions":"Holen Sie sich Ihr AI Brain | indie.solutions","Order your AI Brain: the starter bundle or the setup you put together, delivered within Germany.":"Bestellen Sie Ihr AI Brain: das Starter-Bundle oder Ihre eigene Zusammenstellung, geliefert innerhalb Deutschlands."})

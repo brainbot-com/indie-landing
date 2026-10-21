@@ -542,8 +542,8 @@ const DE = document.documentElement.lang === 'de';
   const SETUP = 6000; /* two-day workshop €3,000 plus two custom apps €3,000 */
   const fmt = (n) => DE ? n.toLocaleString('de-DE') + ' €' : '€' + n.toLocaleString('en-US');
   const T = DE
-    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Ihre Ausstattung:', bundleL: 'Starter-Bundle', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', incl12: '12 Monate kostenlos', ship: 'Versand', shipT: 'An Ihr Büro', incl: 'Inklusive', trialWs: 'Kostenloser Versand an Ihr Büro. Die Termine für den Workshop legen wir nach Ihrer Bestellung gemeinsam fest.', trialNo: 'Kostenloser Versand an Ihr Büro.', starter: 'Starter-Bundle', ownSetup: 'Ihre Ausstattung', sel: '✓ Ausgewählt', same: 'Gleicher Preis', aYear: 'pro Jahr', aMonth: 'pro Monat', first12: 'in den ersten 12 Monaten', wsT: 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps', wsS: 'Zweitägiger Workshop mit zwei eigenen Apps', pickDev: 'Wählen Sie ein Gerät, um Ihren Preis zu sehen.', careFor: 'Updates und Support für ', need: ['ein Gerät', 'eine Workshop-Option', 'einen AI-Brain-Tarif', 'einen Support-Tarif'], needPre: 'Wählen Sie noch ', and: ' und ', noWs: 'ohne Einrichtungsworkshop', brain: 'AI Brain', care: 'Support' }
-    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Your setup:', bundleL: 'starter bundle', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', incl12: 'Free for 12 months', ship: 'Shipping', shipT: 'To your office', incl: 'Included', trialWs: 'Free shipping to your office. We set the workshop dates with you after you order.', trialNo: 'Free shipping to your office.', starter: 'Starter bundle', ownSetup: 'Your setup', sel: '✓ Selected', same: 'Same price', aYear: 'a year', aMonth: 'a month', first12: 'for the first 12 months', wsT: 'Two-day setup and getting-started workshop with two custom apps', wsS: 'Two-day workshop with two custom apps', pickDev: 'Choose a device to see your price.', careFor: 'Updates and support for ', need: ['a device', 'a workshop option', 'an AI Brain plan', 'a support plan'], needPre: 'To continue, choose ', and: ' and ', noWs: 'no setup workshop', brain: 'AI Brain', care: 'Support' };
+    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Ihre Ausstattung:', bundleL: 'Starter-Bundle', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', incl12: '12 Monate kostenlos', ship: 'Versand', shipT: 'An Ihr Büro', incl: 'Inklusive', trialWs: 'Kostenloser Versand an Ihr Büro. Die Termine für den Workshop legen wir nach Ihrer Bestellung gemeinsam fest.', trialNo: 'Kostenloser Versand an Ihr Büro.', starter: 'Starter-Bundle', ownSetup: 'Ihre Ausstattung', sel: '✓ Ausgewählt', same: 'Gleicher Preis', aYear: 'pro Jahr', aMonth: 'pro Monat', first12: 'in den ersten 12 Monaten', wsT: 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps', wsS: 'Zweitägiger Workshop mit zwei eigenen Apps', pickDev: 'Wählen Sie ein Gerät, um Ihren Preis zu sehen.', aiSrv: ['Der KI-Server ', ''], brainL: 'Das AI Brain: ', qMo: ' Fragen im Monat', andL: ' und ', sw: 'AI Brain, AI Agent Command Center und Agent Studio, vorinstalliert', inclL: 'Inklusive', forCo: 'Ihr AI Brain für Ihr Unternehmen', valL: 'Wert', saveL: 'Bundle-Rabatt', netL: 'Gesamt, netto', vatL: 'MwSt. (19 %)', grossL: 'Gesamt inkl. MwSt.', moL: 'Monatlich', yrL: 'Jährlich', plusVat: 'zzgl. MwSt.', careFor: 'Updates und Support für ', need: ['ein Gerät', 'eine Workshop-Option', 'einen AI-Brain-Tarif', 'einen Support-Tarif'], needPre: 'Wählen Sie noch ', and: ' und ', noWs: 'ohne Einrichtungsworkshop', brain: 'AI Brain', care: 'Support' }
+    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Your setup:', bundleL: 'starter bundle', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', incl12: 'Free for 12 months', ship: 'Shipping', shipT: 'To your office', incl: 'Included', trialWs: 'Free shipping to your office. We set the workshop dates with you after you order.', trialNo: 'Free shipping to your office.', starter: 'Starter bundle', ownSetup: 'Your setup', sel: '✓ Selected', same: 'Same price', aYear: 'a year', aMonth: 'a month', first12: 'for the first 12 months', wsT: 'Two-day setup and getting-started workshop with two custom apps', wsS: 'Two-day workshop with two custom apps', pickDev: 'Choose a device to see your price.', aiSrv: ['The ', ' AI server'], brainL: 'The AI Brain: ', qMo: ' questions a month', andL: ' and ', sw: 'The AI Brain, AI Agent Command Center and Agent Studio, preinstalled', inclL: 'Included', forCo: 'Your AI Brain for your company', valL: 'Value', saveL: 'Bundle discount', netL: 'Total, net', vatL: 'VAT (19%)', grossL: 'Total with VAT', moL: 'Each month', yrL: 'Each year', plusVat: 'plus VAT', careFor: 'Updates and support for ', need: ['a device', 'a workshop option', 'an AI Brain plan', 'a support plan'], needPre: 'To continue, choose ', and: ' and ', noWs: 'no setup workshop', brain: 'AI Brain', care: 'Support' };
   document.querySelectorAll('[data-cfg]').forEach((box) => {
     const sec = box.closest('section');
     const pick = (g) => box.querySelector('input[name="' + g + '"]:checked');
@@ -553,7 +553,7 @@ const DE = document.documentElement.lang === 'de';
     const base = cta.getAttribute('href');
     const starterNote = (sec.querySelector('[data-cfg-bundle]') || {}).innerHTML;
     /* The indie.rack is priced per organization: its button asks for a quote instead of buying. */
-    const buyLabel = cta.innerHTML, quoteBase = base.replace(DE ? 'starter-bundle-kaufen' : 'buy-starter-bundle', DE ? 'angebot-anfragen' : 'request-a-quote');
+    const buyLabel = cta.innerHTML, quoteBase = base.replace(DE ? '/kaufen/' : '/buy/', DE ? '/angebot-anfragen/' : '/request-a-quote/');
     const quoteLabel = (DE ? 'Individuelles Angebot anfragen' : 'Request a custom quote') + ' <span aria-hidden="true">→</span>';
     /* Sliders: the current plan of each, by key. */
     const sl = {}, touched = {};
@@ -565,6 +565,7 @@ const DE = document.documentElement.lang === 'de';
       ticks.forEach((tk) => tk.addEventListener('click', () => { range.value = tk.dataset.i; touched[el.dataset.cfs] = true; update(); }));
     });
     const price = (m, yr) => (m ? fmt(yr ? m * 10 : m) + (yr ? T.yr : T.mo) : T.free);
+    const low = (t) => t.charAt(0).toLowerCase() + t.slice(1);
     /* The chosen device's product shot in the price overview. */
     const ROOT = img ? img.getAttribute('src').split('assets/')[0] : '';
     const SHOT = { box: 'indie-box', booster: 'indie-box-booster', workstation: 'indie-workstation', rack: 'indie-rack' };
@@ -699,7 +700,6 @@ const DE = document.documentElement.lang === 'de';
       const was = (a, n) => '<s>' + fmt(a) + '</s> ' + sv(fmt(n));
       /* One line per choice: what it is, then what it costs. */
       const row = (k, v, p) => '<li><b>' + v + '</b><em>' + p + '</em></li>';
-      const low = (t) => t.charAt(0).toLowerCase() + t.slice(1);
       lines.innerHTML = row(T.dev, d.dataset.title, quote ? T.quote : ws ? was(hw, hw - HW_OFF) : fmt(hw))
         + (ws ? row(T.ws, T.wsS, was(SETUP, WS_B)) : '')
         + (touched.brain ? row(T.brain, T.brain + ', ' + low(b.t), b.m ? price(b.m, yr) : sv(T.free)) : '')
@@ -719,7 +719,15 @@ const DE = document.documentElement.lang === 'de';
       cta.innerHTML = quote ? quoteLabel : buyLabel;
       /* Stock and delivery time do not apply to a rack, which is built to order. */
       sec.querySelectorAll('.cfg__sum [data-trust-stock]').forEach((e) => { e.hidden = quote; });
-      cta.href = quote ? quoteBase + '?order=' + encodeURIComponent(note) : isStarter && !yr ? base : base + '?order=' + encodeURIComponent(note);
+      /* The order page gets the setup item by item, with prices, so it can show exactly what is being bought. */
+      const q = (pl) => ((pl.rows || []).find((r) => /question|Frage/i.test(r[0])) || [])[1];
+      const cfg = { dev: d.value, title: d.dataset.title, once, regular, plans, yr, items: [
+        [T.aiSrv[0] + d.dataset.title + T.aiSrv[1], ws ? hw : 0, ws ? hw - HW_OFF : hw],
+        ws ? [T.wsT, SETUP, WS_B] : null,
+        [T.brainL + low(b.t) + (q(b) ? T.andL + q(b) + T.qMo : ''), 0, b.m ? price(b.m, yr) : T.free],
+        [c.t, 0, ws && c.m && c.m <= STDM ? T.incl12 : ws && c.m > STDM ? price(c.m - STDM, yr) + ' ' + T.first12 : c.m ? price(c.m, yr) : fmt(0) + (yr ? T.yr : T.mo)],
+        [T.sw, 0, T.inclL]].filter(Boolean) };
+      cta.href = quote ? quoteBase + '?order=' + encodeURIComponent(note) : isStarter && !yr ? base : base + '?order=' + encodeURIComponent(note) + '&cfg=' + encodeURIComponent(JSON.stringify(cfg));
     };
     let missing = [];
     const STEP = ['#cfg-device', null, '[data-cfs="brain"]', '[data-cfs="care"]'];
@@ -769,8 +777,27 @@ const DE = document.documentElement.lang === 'de';
     const onceL = lines.find((l) => /^(One-time|Einmalig):/.test(l)), net = onceL ? +onceL.replace(/[^0-9]/g, '') : 0;
     const eur = (n) => (DE ? n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €' : '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     const vat = net ? '<dl class="ob__sum"><div><dt>' + (DE ? 'MwSt. (19 %)' : 'VAT (19%)') + '</dt><dd>' + eur(net * 0.19) + '</dd></div><div class="is-gross"><dt>' + (DE ? 'Gesamt inkl. MwSt.' : 'Total with VAT') + '</dt><dd>' + eur(net * 1.19) + '</dd></div></dl>' : '';
-    ob.innerHTML = '<div class="ob__head"><p class="ob__t">' + esc(lines[0].replace(/:$/, '')) + '</p></div><ul class="ob__list ob__list--plain">' + items + '</ul>' + tot + vat;
-    const h = document.querySelector('#buy .section-title'); if (h) h.textContent = DE ? 'Ihre Ausstattung kaufen.' : 'Buy your setup.';
+    let cfg = null; try { cfg = JSON.parse(new URLSearchParams(location.search).get('cfg') || 'null'); } catch (e) { cfg = null; }
+    if (cfg && cfg.items) {
+      /* The same layout as the starter bundle: device photo, each item with its price, then the totals. */
+      const SHOTS = { box: 'indie-box', booster: 'indie-box-booster', workstation: 'indie-workstation', rack: 'indie-rack' };
+      const root = (document.querySelector('link[href*="human.css"]') || { getAttribute: () => '' }).getAttribute('href').split('neu/human.css')[0];
+      const chk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>';
+      const cell = (it) => (it[1] && typeof it[2] === 'number' ? '<s>' + fmt(it[1]) + '</s> ' : '') + (typeof it[2] === 'number' ? fmt(it[2]) : esc(String(it[2])));
+      const row = (k, v, c) => '<div' + (c ? ' class="' + c + '"' : '') + '><dt>' + k + '</dt><dd>' + v + '</dd></div>';
+      const net = cfg.once, save = cfg.regular - cfg.once;
+      ob.innerHTML = '<div class="ob__head ob__head--img"><img src="' + root + 'assets/indie-solutions/cutouts/' + (SHOTS[cfg.dev] || 'indie-box') + '_cut.webp?v=5" alt=""><div><p class="ob__t">' + esc(cfg.title) + '</p><p class="ob__sub">' + T.forCo + '</p></div></div>'
+        + '<ul class="ob__list">' + cfg.items.map((it) => {
+          /* Orange only for savings: a struck-out price, Free or Included. Paid amounts stay dark. */
+          const deal = it[1] || it[2] === T.free || it[2] === T.inclL || it[2] === T.incl12;
+          return '<li>' + chk + '<span>' + esc(it[0]) + '</span><em' + (deal ? '' : ' class="is-paid"') + '>' + cell(it) + '</em></li>';
+        }).join('') + '</ul>'
+        + '<dl class="ob__sum">' + (save > 0 ? row(T.valL, fmt(cfg.regular)) + row(T.saveL, '−' + fmt(save), 'is-save') : '')
+        + row(T.netL, fmt(net), 'is-total') + row(T.vatL, eur(net * 0.19)) + row(T.grossL, eur(net * 1.19), 'is-gross')
+        + (cfg.plans ? row(cfg.yr ? T.yrL : T.moL, fmt(cfg.plans) + ' ' + T.plusVat) : '') + '</dl>';
+    } else {
+      ob.innerHTML = '<div class="ob__head"><p class="ob__t">' + esc(lines[0].replace(/:$/, '')) + '</p></div><ul class="ob__list ob__list--plain">' + items + '</ul>' + tot + vat;
+    }
     const dev = document.querySelector('[data-trial-form] input[name="device"]');
     /* Keep the form's own marker (ORDER or QUOTE) in front of the setup. */
     if (dev) dev.value = (dev.value.split(':')[0] + ': ' + lines.slice(1).map((l) => l.replace(/^- /, '')).join(', ')).slice(0, 200);

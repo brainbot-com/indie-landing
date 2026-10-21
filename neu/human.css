@@ -2949,3 +2949,11 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 .bbx .co-ask { margin: 1rem 0 0; font-size: 14px; color: var(--fg-muted); text-align: center; }
 .bbx .co-ask a { font-weight: 700; color: var(--bb-orange); text-decoration: none; }
 .bbx .ob__head--img { justify-content: flex-start; text-align: left; }
+/* Order summary: long price notes wrap inside the card instead of running past its edge. */
+.bbx .ob__list li > span { flex: 1; min-width: 0; }
+.bbx .ob__list em { max-width: 46%; white-space: normal; text-align: right; }
+.bbx .ob__list em s { white-space: nowrap; }
+.bbx .ob__list em.is-paid { color: var(--bb-slate); }
+/* Order summary: every price in one dark color; a saving shows only as the gray struck-out price. */
+.bbx .ob__list em, .bbx .ob__sum .is-save dd { color: var(--bb-slate); }
+.bbx .dvc__todo { margin-top: 1.25rem; }

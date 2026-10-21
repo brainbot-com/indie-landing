@@ -19,7 +19,7 @@ dev=''.join([
  opt('device','rack','indie.rack','For large organizations. Servers sized to the number of people who use them.',-1,'Custom quote',img=IMG+'indie-rack_cut.webp?v=5'),
 ])
 # The workshop card lists what happens, so the title does not have to.
-_WS=''.join(f'<span class="cfg__li">{x}</span>' for x in ['Your AI Brain connected to the systems you choose, so your team can ask about your documents','Two custom apps made for what your team needs now, like a project planner or a dashboard','Hands-on training for your team'])
+_WS=''.join(f'<span class="cfg__li">{x}</span>' for x in ['Your AI Brain connected to the systems you choose, so your team can ask about your documents','Two custom apps made for what your team needs now, like a project planner or a simple CRM','Hands-on training for your team'])
 setup=''.join([
  opt('setup','none','No workshop','You set up the device and connect your systems yourselves.',0,'€0'),
  opt('setup','workshop','Two-day setup and getting-started workshop',_WS,3000,'<s>€6,000</s> €3,000'),
@@ -61,7 +61,7 @@ B=f'''<section class="acc-chapter acc-pricing" id="pricing"> <div class="contain
   <div class="pk2__head"><h3 class="pk2__title">Starter bundle</h3><p class="pk2__price"><s>€13,787</s> €7,999 <span>Net, plus VAT</span></p></div>
   <p class="pk2__badge">Introductory offer: you save €5,788</p>
   <ul class="pk2__inc">{inc}</ul>
-  <a href="@@ROOT@@en/buy-starter-bundle/" class="pk2__cta">Buy now <span aria-hidden="true">→</span></a>
+  <a href="@@ROOT@@en/buy/" class="pk2__cta">Buy now <span aria-hidden="true">→</span></a>
   <ul class="trust"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Free shipping within Germany</li><li data-trust-stock><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>In stock, delivery in 3 to 5 working days</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>14-day money-back guarantee</li></ul>
  </div>
  <div class="pk2__row">
@@ -85,7 +85,7 @@ B=f'''<section class="acc-chapter acc-pricing" id="pricing"> <div class="contain
   <div class="cfg__tot"><div><span>One-time</span><strong data-cfg-once>€7,999</strong></div><div><span data-cfg-per>Monthly</span><strong data-cfg-month>€0</strong></div></div>
   <p class="cfg__fine">Net, plus VAT.</p>
   <p class="cfg__need" data-cfg-need hidden></p>
-  <a href="@@ROOT@@en/buy-starter-bundle/" class="cfg__cta" data-cfg-cta>Buy now <span aria-hidden="true">→</span></a>
+  <a href="@@ROOT@@en/buy/" class="cfg__cta" data-cfg-cta>Buy now <span aria-hidden="true">→</span></a>
   <ul class="trust"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>Free shipping within Germany</li><li data-trust-stock><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>In stock, delivery in 3 to 5 working days</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>14-day money-back guarantee</li></ul>
  </aside>
 </div>
