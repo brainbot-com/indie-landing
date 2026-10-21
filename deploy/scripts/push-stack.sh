@@ -6,6 +6,9 @@ DEPLOY_HOST="${INDIEBOX_DEPLOY_HOST:-87.106.111.141}"
 DEPLOY_USER="${INDIEBOX_DEPLOY_USER:-deploy}"
 SSH_KEY="${INDIEBOX_DEPLOY_KEY:-$HOME/.ssh/indiebox_ionos}"
 APP_PATH="${INDIEBOX_APP_PATH:-/srv/indiebox/app/}"
+# backend-staging builds from its own source dir (see docker-compose.yml), so a
+# staging deploy never changes the code backend-live is built from.
+STAGING_APP_PATH="${INDIEBOX_STAGING_APP_PATH:-/srv/staging.indiebox/app/}"
 CONFIG_PATH="${INDIEBOX_CONFIG_PATH:-/srv/edge/config/}"
 
 # Deploy target. Default deploys the whole stack (staging + live). Pass
@@ -73,11 +76,21 @@ if [[ -n "${MISSING_HOSTS}${MISSING_MOUNTS}" && "${ALLOW_VHOST_REMOVAL:-0}" != "
   exit 1
 fi
 
+ssh -i "$SSH_KEY" "${DEPLOY_USER}@${DEPLOY_HOST}" "install -d -m 755 ${STAGING_APP_PATH}backend"
 rsync -av --delete --delete-excluded -e "ssh -i $SSH_KEY" \
   --exclude ".DS_Store" \
   --exclude "node_modules/" \
   "$ROOT_DIR/backend/" \
-  "${DEPLOY_USER}@${DEPLOY_HOST}:${APP_PATH}backend/"
+  "${DEPLOY_USER}@${DEPLOY_HOST}:${STAGING_APP_PATH}backend/"
+
+# The live source dir is only updated on a full deploy.
+if [[ "$TARGET" == "all" ]]; then
+  rsync -av --delete --delete-excluded -e "ssh -i $SSH_KEY" \
+    --exclude ".DS_Store" \
+    --exclude "node_modules/" \
+    "$ROOT_DIR/backend/" \
+    "${DEPLOY_USER}@${DEPLOY_HOST}:${APP_PATH}backend/"
+fi
 
 rsync -av -e "ssh -i $SSH_KEY" \
   "$ROOT_DIR/docker-compose.yml" \

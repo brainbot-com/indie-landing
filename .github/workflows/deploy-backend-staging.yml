@@ -1,0 +1,87 @@
+name: Deploy Backend to Staging
+
+# Every push to main that changes backend/ rebuilds the backend-staging
+# container (serves /api on staging.indiebox.ai and staging.indie.solutions).
+# Live backend, Caddy, env files and other projects on the host are untouched.
+#
+# Required repo secrets (shared with deploy-staging.yml):
+#   SSH_PRIVATE_KEY  passphrase-less deploy key (public half in deploy@host authorized_keys)
+#   DEPLOY_HOST      e.g. 87.106.111.141
+#   DEPLOY_USER      e.g. deploy
+#
+# Runtime secrets (Mollie, Mailgun, ...) stay on the server in
+# /srv/staging.indiebox/config/runtime.staging.env. This workflow never writes them.
+# Compose or Caddy changes still go through deploy/scripts/push-stack.sh.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-backend-staging
+  cancel-in-progress: false
+
+env:
+  STAGING_BACKEND_PATH: /srv/staging.indiebox/app/backend/
+  COMPOSE_FILE_PATH: /srv/indiebox/app/docker-compose.yml
+
+jobs:
+  deploy:
+    name: backend-staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install SSH key
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      # Guard: the server compose file must already build backend-staging from
+      # its own source dir. Otherwise the rsync below would have no effect.
+      - name: Check server compose layout
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "grep -q 'context: ${STAGING_BACKEND_PATH%/}' ${COMPOSE_FILE_PATH}" || {
+              echo "Server docker-compose.yml does not build backend-staging from ${STAGING_BACKEND_PATH}."
+              echo "Run 'bash deploy/scripts/push-stack.sh --staging' once to roll out the new layout."
+              exit 1
+            }
+
+      - name: Back up staging database
+        env:
+          INDIEBOX_DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          INDIEBOX_DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: INDIEBOX_DEPLOY_KEY="$HOME/.ssh/deploy_key" bash deploy/scripts/backup-remote-sqlite.sh staging
+
+      - name: Upload backend source
+        run: |
+          rsync -av --delete --delete-excluded -e "ssh -i $HOME/.ssh/deploy_key" \
+            --exclude ".DS_Store" \
+            --exclude "node_modules/" \
+            backend/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${STAGING_BACKEND_PATH}"
+
+      - name: Rebuild backend-staging
+        run: |
+          ssh -i ~/.ssh/deploy_key "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "docker compose -f ${COMPOSE_FILE_PATH} up -d --build backend-staging"
+
+      - name: Health check
+        run: |
+          for i in $(seq 1 20); do
+            if curl -fsS https://staging.indie.solutions/api/health; then
+              echo
+              echo "✓ backend-staging is up"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "backend-staging did not answer /api/health within 60s"
+          exit 1

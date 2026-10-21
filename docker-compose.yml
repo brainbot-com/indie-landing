@@ -25,7 +25,9 @@ services:
 
   backend-staging:
     build:
-      context: ./backend
+      # own source dir, so a staging deploy (push-stack.sh --staging or the
+      # deploy-backend-staging.yml workflow) never touches the live build context
+      context: /srv/staging.indiebox/app/backend
     container_name: indiebox-backend-staging
     restart: unless-stopped
     env_file:

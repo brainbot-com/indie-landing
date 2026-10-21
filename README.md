@@ -74,7 +74,8 @@ node scripts/generate-lang.js
 
 | Trigger | Workflow | Target |
 |---|---|---|
-| Push to `main` | `.github/workflows/deploy-staging.yml` | staging.indiebox.ai |
+| Push to `main` | `.github/workflows/deploy-staging.yml` | staging.indiebox.ai (static site) |
+| Push to `main` touching `backend/**` | `.github/workflows/deploy-backend-staging.yml` | `backend-staging` container (env files, Caddy and live untouched) |
 | Publish a GitHub **Release** (or run the workflow manually) | `.github/workflows/deploy-live.yml` | indiebox.ai (live) |
 
 So **a push to `main` updates staging; a Release publishes live** — a plain push does *not* touch live.
@@ -123,7 +124,7 @@ This script:
 3. Rsyncs the Caddyfile and env files for both environments
 4. Runs `docker compose up -d --build` on the server
 
-Use this whenever `backend/src/`, `docker-compose.yml`, `deploy/caddy/Caddyfile`, or env files change.
+Use this whenever `backend/src/` (for live), `docker-compose.yml`, `deploy/caddy/Caddyfile`, or env files change. `--staging` rebuilds only `backend-staging`. Staging builds from its own source dir `/srv/staging.indiebox/app/backend/`, live from `/srv/indiebox/app/backend/`, so a staging deploy never changes the live code.
 
 ### Server layout
 
