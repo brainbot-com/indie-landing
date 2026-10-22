@@ -542,8 +542,8 @@ const DE = document.documentElement.lang === 'de';
   const SETUP = 6000; /* two-day workshop €3,000 plus two custom apps €3,000 */
   const fmt = (n) => DE ? n.toLocaleString('de-DE') + ' €' : '€' + n.toLocaleString('en-US');
   const T = DE
-    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Ihre Ausstattung:', bundleL: 'Starter-Bundle', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', incl12: '12 Monate kostenlos', ship: 'Versand', shipT: 'An Ihr Büro', incl: 'Inklusive', trialWs: 'Kostenloser Versand an Ihr Büro. Die Termine für den Workshop legen wir nach Ihrer Bestellung gemeinsam fest.', trialNo: 'Kostenloser Versand an Ihr Büro.', starter: 'Starter-Bundle', ownSetup: 'Ihre Ausstattung', sel: '✓ Ausgewählt', same: 'Gleicher Preis', aYear: 'pro Jahr', aMonth: 'pro Monat', first12: 'in den ersten 12 Monaten', wsT: 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps', wsS: 'Zweitägiger Workshop mit zwei eigenen Apps', pickDev: 'Wählen Sie ein Gerät, um Ihren Preis zu sehen.', aiSrv: ['Der KI-Server ', ''], brainL: 'Das AI Brain: ', qMo: ' Fragen im Monat', andL: ' und ', sw: 'AI Brain, AI Agent Command Center und Agent Studio, vorinstalliert', inclL: 'Inklusive', forCo: 'Ihr AI Brain für Ihr Unternehmen', valL: 'Wert', saveL: 'Bundle-Rabatt', netL: 'Gesamt, netto', vatL: 'MwSt. (19 %)', grossL: 'Gesamt inkl. MwSt.', moL: 'Monatlich', yrL: 'Jährlich', plusVat: 'zzgl. MwSt.', careFor: 'Updates und Support für ', need: ['ein Gerät', 'eine Workshop-Option', 'einen AI-Brain-Tarif', 'einen Support-Tarif'], needPre: 'Wählen Sie noch ', and: ' und ', noWs: 'ohne Einrichtungsworkshop', brain: 'AI Brain', care: 'Support' }
-    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Your setup:', bundleL: 'starter bundle', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', incl12: 'Free for 12 months', ship: 'Shipping', shipT: 'To your office', incl: 'Included', trialWs: 'Free shipping to your office. We set the workshop dates with you after you order.', trialNo: 'Free shipping to your office.', starter: 'Starter bundle', ownSetup: 'Your setup', sel: '✓ Selected', same: 'Same price', aYear: 'a year', aMonth: 'a month', first12: 'for the first 12 months', wsT: 'Two-day setup and getting-started workshop with two custom apps', wsS: 'Two-day workshop with two custom apps', pickDev: 'Choose a device to see your price.', aiSrv: ['The ', ' AI server'], brainL: 'The AI Brain: ', qMo: ' questions a month', andL: ' and ', sw: 'The AI Brain, AI Agent Command Center and Agent Studio, preinstalled', inclL: 'Included', forCo: 'Your AI Brain for your company', valL: 'Value', saveL: 'Bundle discount', netL: 'Total, net', vatL: 'VAT (19%)', grossL: 'Total with VAT', moL: 'Each month', yrL: 'Each year', plusVat: 'plus VAT', careFor: 'Updates and support for ', need: ['a device', 'a workshop option', 'an AI Brain plan', 'a support plan'], needPre: 'To continue, choose ', and: ' and ', noWs: 'no setup workshop', brain: 'AI Brain', care: 'Support' };
+    ? { quote: 'Individuelles Angebot', free: 'Kostenlos', mo: '/Monat', yr: '/Jahr', per: { month: 'Monatlich', year: 'Jährlich' }, bill: { month: 'monatliche Abrechnung', year: 'jährliche Abrechnung' }, own: 'Eigene Zusammenstellung', pre: 'Interesse an', preOwn: 'Ihre Ausstattung:', bundleL: 'Starter-Bundle', billL: 'Abrechnung', once: 'Einmalig', dev: 'Gerät', ws: 'Einstieg', incl12: '12 Monate kostenlos', ship: 'Versand', shipT: 'An Ihr Büro', incl: 'Inklusive', trialWs: 'Kostenloser Versand an Ihr Büro. Die Termine für den Workshop legen wir nach Ihrer Bestellung gemeinsam fest.', trialNo: 'Kostenloser Versand an Ihr Büro.', starter: 'Starter-Bundle', ownSetup: 'Ihre Ausstattung', sel: '✓ Ausgewählt', same: 'Gleicher Preis', aYear: 'pro Jahr', aMonth: 'pro Monat', first12: 'in den ersten 12 Monaten', wsT: 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps', wsS: 'Zweitägiger Workshop mit zwei eigenen Apps', pickDev: 'Wählen Sie ein Gerät, um Ihren Preis zu sehen.', aiSrv: ['Der KI-Server ', ''], brainL: 'Das AI Brain: ', qMo: ' Fragen im Monat', andL: ' und ', sw: 'AI Brain, AI Agent Command Center und Agent Studio, vorinstalliert', inclL: 'Inklusive', forCo: 'Ihr AI Brain für Ihr Unternehmen', valL: 'Wert', saveL: 'Bundle-Rabatt', netL: 'Gesamt, netto', vatL: 'MwSt. (19 %)', grossL: 'Gesamt inkl. MwSt.', moL: 'Monatlich', moL12: 'Monatlich, erste 12 Monate', moLater: 'Monatlich, danach', yrL: 'Danach jährlich', firstYr: 'Erstes Jahr AI Brain und Support', plusVat: 'zzgl. MwSt.', careFor: 'Updates und Support für ', need: ['ein Gerät', 'eine Workshop-Option', 'einen AI-Brain-Tarif', 'einen Support-Tarif'], needPre: 'Wählen Sie noch ', and: ' und ', noWs: 'ohne Einrichtungsworkshop', brain: 'AI Brain', care: 'Support' }
+    : { quote: 'Custom quote', free: 'Free', mo: '/month', yr: '/year', per: { month: 'Monthly', year: 'Annual' }, bill: { month: 'billed monthly', year: 'billed annually' }, own: 'Own setup', pre: 'Interested in', preOwn: 'Your setup:', bundleL: 'starter bundle', billL: 'Billing', once: 'One-time', dev: 'Device', ws: 'Getting started', incl12: 'Free for 12 months', ship: 'Shipping', shipT: 'To your office', incl: 'Included', trialWs: 'Free shipping to your office. We set the workshop dates with you after you order.', trialNo: 'Free shipping to your office.', starter: 'Starter bundle', ownSetup: 'Your setup', sel: '✓ Selected', same: 'Same price', aYear: 'a year', aMonth: 'a month', first12: 'for the first 12 months', wsT: 'Two-day setup and getting-started workshop with two custom apps', wsS: 'Two-day workshop with two custom apps', pickDev: 'Choose a device to see your price.', aiSrv: ['The ', ' AI server'], brainL: 'The AI Brain: ', qMo: ' questions a month', andL: ' and ', sw: 'The AI Brain, AI Agent Command Center and Agent Studio, preinstalled', inclL: 'Included', forCo: 'Your AI Brain for your company', valL: 'Value', saveL: 'Bundle discount', netL: 'Total, net', vatL: 'VAT (19%)', grossL: 'Total with VAT', moL: 'Each month', moL12: 'Each month, first 12 months', moLater: 'Each month after that', yrL: 'Each year after that', firstYr: 'First year of AI Brain and support', plusVat: 'plus VAT', careFor: 'Updates and support for ', need: ['a device', 'a workshop option', 'an AI Brain plan', 'a support plan'], needPre: 'To continue, choose ', and: ' and ', noWs: 'no setup workshop', brain: 'AI Brain', care: 'Support' };
   document.querySelectorAll('[data-cfg]').forEach((box) => {
     const sec = box.closest('section');
     const pick = (g) => box.querySelector('input[name="' + g + '"]:checked');
@@ -721,7 +721,8 @@ const DE = document.documentElement.lang === 'de';
       sec.querySelectorAll('.cfg__sum [data-trust-stock]').forEach((e) => { e.hidden = quote; });
       /* The order page gets the setup item by item, with prices, so it can show exactly what is being bought. */
       const q = (pl) => ((pl.rows || []).find((r) => /question|Frage/i.test(r[0])) || [])[1];
-      const cfg = { dev: d.value, title: d.dataset.title, once, regular, plans, yr, items: [
+      const cfg = { dev: d.value, title: d.dataset.title, once, regular, plans, plansFull: (b.m + c.m) * (yr ? 10 : 1), yr,
+        cart: { kind: 'custom', device: d.value, workshop: ws, brain: +sl.brain.range.value, care: +sl.care.range.value, billing: yr ? 'year' : 'month' }, items: [
         [T.aiSrv[0] + d.dataset.title + T.aiSrv[1], ws ? hw : 0, ws ? hw - HW_OFF : hw],
         ws ? [T.wsT, SETUP, WS_B] : null,
         [T.brainL + low(b.t) + (q(b) ? T.andL + q(b) + T.qMo : ''), 0, b.m ? price(b.m, yr) : T.free],
@@ -759,6 +760,63 @@ const DE = document.documentElement.lang === 'de';
       bar.querySelector('[data-cfg-jump]').addEventListener('click', (ev) => { ev.preventDefault(); sum.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
     }
   });
+  /* Order page: the order goes to the checkout backend, which prices the chosen setup and returns Mollie's
+     payment page. Field names match POST /api/orders/checkout. */
+  document.querySelectorAll('[data-checkout-form]').forEach((form) => {
+    const err = form.querySelector('.tf__error:not([data-checkout-fail])'), fail = form.querySelector('[data-checkout-fail]');
+    const btn = form.querySelector('[type=submit]');
+    let cart = { kind: 'starter' };
+    try { const c = JSON.parse(new URLSearchParams(location.search).get('cfg') || 'null'); if (c && c.cart) cart = c.cart; } catch (e) { /* starter bundle */ }
+    /* Only offer the payment methods Mollie has enabled. If the list cannot be loaded, all three stay. */
+    fetch('/api/payment-methods?locale=' + (DE ? 'de' : 'en')).then((r) => (r.ok ? r.json() : null)).then((j) => {
+      if (!j || !Array.isArray(j.methods) || !j.methods.length) return;
+      const on = new Set(j.methods.map((m) => m.id));
+      form.querySelectorAll('[data-pay]').forEach((l) => { l.hidden = !on.has(l.dataset.pay); });
+      const first = form.querySelector('[data-pay]:not([hidden]) input'); if (first && !form.querySelector('[data-pay]:not([hidden]) input:checked')) first.checked = true;
+    }).catch(() => {});
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const shown = (f) => !f.closest('[hidden]');
+      const bad = Array.from(form.querySelectorAll('[required], [pattern]')).filter(shown).filter((f) => (f.type === 'checkbox' ? !f.checked : !f.value.trim() && f.required) || (f.pattern && f.value && !new RegExp('^' + f.pattern + '$').test(f.value.trim())) || (f.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.value)));
+      form.querySelectorAll('.is-invalid').forEach((f) => f.classList.remove('is-invalid'));
+      bad.forEach((f) => f.classList.add('is-invalid'));
+      fail.hidden = true;
+      if (bad.length) { err.hidden = false; bad[0].focus(); return; }
+      err.hidden = true;
+      const data = { locale: DE ? 'de' : 'en', cart };
+      form.querySelectorAll('input[name], textarea[name]').forEach((f) => {
+        if (/^countryShown/.test(f.name) || (f.type !== 'hidden' && !shown(f))) return;
+        if (f.type === 'checkbox') { if (f.checked) data[f.name] = 'on'; return; }
+        if (f.type === 'radio') { if (f.checked) data[f.name] = f.value; return; }
+        data[f.name] = f.value.trim();
+      });
+      btn.disabled = true;
+      fetch('/api/orders/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) })
+        .then((r) => r.json().then((j) => ({ ok: r.ok, j })))
+        .then(({ ok, j }) => { if (!ok || !j.checkoutUrl) throw new Error((j && j.error) || 'checkout failed'); location.assign(j.checkoutUrl); })
+        .catch(() => { fail.hidden = false; btn.disabled = false; });
+    });
+  });
+  /* Order status: after Mollie, ask the backend until the payment is settled, then show the matching state.
+     A bank transfer stays open until the money arrives, so it counts as placed. */
+  document.querySelectorAll('[data-order-status]').forEach((box) => {
+    const p = new URLSearchParams(location.search), id = p.get('order_id'), token = p.get('status_token');
+    const show = (k) => box.querySelectorAll('[data-os]').forEach((s) => { s.hidden = s.dataset.os !== k; });
+    if (!id || !token) { show('missing'); return; }
+    let tries = 0;
+    const check = () => fetch('/api/orders/status?order_id=' + encodeURIComponent(id) + '&status_token=' + encodeURIComponent(token))
+      .then((r) => { if (r.status === 404 || r.status === 400) { show('missing'); return null; } return r.json(); })
+      .then((j) => {
+        if (!j) return;
+        const s = j.paymentStatus || j.status;
+        if (j.status === 'paid' || s === 'paid') return show('paid');
+        if (['failed', 'cancelled', 'canceled', 'expired'].includes(j.status) || ['failed', 'canceled', 'expired'].includes(s)) return show('failed');
+        if (j.paymentMethod === 'banktransfer' && ['open', 'pending'].includes(s)) return show('transfer');
+        if (++tries < 40) setTimeout(check, 3000);
+      })
+      .catch(() => { if (++tries < 40) setTimeout(check, 3000); });
+    check();
+  });
   /* Order form: "Order as a company" and "Deliver to a different address" reveal their fields. */
   document.querySelectorAll('[data-reveal]').forEach((cb) => {
     const box = document.getElementById(cb.dataset.reveal); if (!box) return;
@@ -785,7 +843,10 @@ const DE = document.documentElement.lang === 'de';
       const chk = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"/></svg>';
       const cell = (it) => (it[1] && typeof it[2] === 'number' ? '<s>' + fmt(it[1]) + '</s> ' : '') + (typeof it[2] === 'number' ? fmt(it[2]) : esc(String(it[2])));
       const row = (k, v, c) => '<div' + (c ? ' class="' + c + '"' : '') + '><dt>' + k + '</dt><dd>' + v + '</dd></div>';
-      const net = cfg.once, save = cfg.regular - cfg.once;
+      /* Annual billing: the first year is paid today, with the order. */
+      const firstYear = cfg.yr ? cfg.plans : 0;
+      if (firstYear) cfg.items = cfg.items.concat([[T.firstYr, 0, firstYear]]);
+      const net = cfg.once + firstYear, save = cfg.regular - cfg.once;
       ob.innerHTML = '<div class="ob__head ob__head--img"><img src="' + root + 'assets/indie-solutions/cutouts/' + (SHOTS[cfg.dev] || 'indie-box') + '_cut.webp?v=5" alt=""><div><p class="ob__t">' + esc(cfg.title) + '</p><p class="ob__sub">' + T.forCo + '</p></div></div>'
         + '<ul class="ob__list">' + cfg.items.map((it) => {
           /* Orange only for savings: a struck-out price, Free or Included. Paid amounts stay dark. */
@@ -794,7 +855,10 @@ const DE = document.documentElement.lang === 'de';
         }).join('') + '</ul>'
         + '<dl class="ob__sum">' + (save > 0 ? row(T.valL, fmt(cfg.regular)) + row(T.saveL, '−' + fmt(save), 'is-save') : '')
         + row(T.netL, fmt(net), 'is-total') + row(T.vatL, eur(net * 0.19)) + row(T.grossL, eur(net * 1.19), 'is-gross')
-        + (cfg.plans ? row(cfg.yr ? T.yrL : T.moL, fmt(cfg.plans) + ' ' + T.plusVat) : '') + '</dl>';
+        /* Later periods at the full plan price: the workshop's support discount only covers the first 12 months. */
+        + (cfg.yr ? (cfg.plansFull ? row(T.yrL, fmt(cfg.plansFull) + ' ' + T.plusVat) : '')
+          : cfg.plansFull !== cfg.plans ? (cfg.plans ? row(T.moL12, fmt(cfg.plans) + ' ' + T.plusVat) : '') + row(T.moLater, fmt(cfg.plansFull) + ' ' + T.plusVat)
+          : cfg.plans ? row(T.moL, fmt(cfg.plans) + ' ' + T.plusVat) : '') + '</dl>';
     } else {
       ob.innerHTML = '<div class="ob__head"><p class="ob__t">' + esc(lines[0].replace(/:$/, '')) + '</p></div><ul class="ob__list ob__list--plain">' + items + '</ul>' + tot + vat;
     }

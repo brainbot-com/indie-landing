@@ -2957,3 +2957,7 @@ html[lang="de"] p, html[lang="de"] li, html[lang="de"] dd, html[lang="de"] .vs s
 /* Order summary: every price in one dark color; a saving shows only as the gray struck-out price. */
 .bbx .ob__list em, .bbx .ob__sum .is-save dd { color: var(--bb-slate); }
 .bbx .dvc__todo { margin-top: 1.25rem; }
+.bbx .co-pay[hidden] { display: none; }
+.bbx .os { max-width: 760px; }
+.bbx .os__state[hidden] { display: none; }
+.bbx .os__ctas { margin-top: 1.75rem; }

@@ -5,7 +5,7 @@ SITE='https://indie.solutions/'
 HOME_EN=os.environ.get('INDIE_HOME_EN','en/neu/'); HOME_DE=os.environ.get('INDIE_HOME_DE','de/neu/')
 URLS={HOME_EN:HOME_DE,'en/industries/engineering/':'de/branchen/engineering-und-fertigung/','en/industries/engineering-a/':'de/branchen/engineering-und-fertigung-a/','en/devices-and-software/':'de/geraete-und-software/',
       'en/about/':'de/ueber-uns/','en/customers/lightforce/':'de/kunden/lightforce/','en/webinars/crm/':'de/webinare/crm/',
-      'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/','en/buy/':'de/kaufen/','en/request-a-quote/':'de/angebot-anfragen/','en/talk-to-us/':'de/kontakt/',
+      'en/webinars/email-management/':'de/webinare/e-mail-management/','en/webinars/':'de/webinare/','en/request-a-trial/':'de/test-anfragen/','en/buy/':'de/kaufen/','en/request-a-quote/':'de/angebot-anfragen/','en/talk-to-us/':'de/kontakt/','en/order-status/':'de/bestellstatus/',
       'en/request-your-industry/':'de/branche-anfragen/','en/get-notified/':'de/benachrichtigung/','en/legal/imprint/':'de/rechtliches/impressum/',
       'en/legal/privacy/':'de/rechtliches/datenschutz/','en/legal/terms/':'de/rechtliches/agb/'}
 LEGAL={'en/legal/imprint/':'legal-imprint-de','en/legal/privacy/':'legal-privacy-de','en/legal/terms/':'legal-terms-de'}

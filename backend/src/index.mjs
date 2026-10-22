@@ -898,9 +898,11 @@ function buildNotificationContext(order) {
   const paymentMethod = order.paymentMethod || order.paymentMethodRequested || '';
   const paidAt = order.paidAt || order.updatedAt || order.createdAt || '';
   const adminUrl = `${config.appBaseUrl}/admin/orders.html?order=${encodeURIComponent(order.id)}`;
-  const statusUrl = order.statusToken
-    ? `${config.appBaseUrl}/checkout-status.html?order=${encodeURIComponent(order.id)}&token=${encodeURIComponent(order.statusToken)}`
-    : `${config.appBaseUrl}/checkout-status.html`;
+  const statusUrl = !order.statusToken
+    ? `${config.appBaseUrl}/checkout-status.html`
+    : order.metadata?.indie
+      ? indieOrderStatusUrl(order)
+      : `${config.appBaseUrl}${localePrefix(order.locale)}checkout-status.html?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}`;
   const notesText = order.notes || '';
   const notesHtml = notesText ? htmlEscape(notesText).replace(/\n/g, '<br>') : '';
 
@@ -940,7 +942,44 @@ function buildNotificationContext(order) {
       companyLine: company ? `Firma: ${company}` : ''
     },
     billingAddress: buildAddressContext(order.billingAddress),
-    shippingAddress: buildAddressContext(order.shippingAddress, { includeCareOf: true })
+    shippingAddress: buildAddressContext(order.shippingAddress, { includeCareOf: true }),
+    indie: buildIndieOrderContext(order)
+  };
+}
+
+// The indie.solutions order in words, as on the order page: items with prices, VAT, and the plans.
+function buildIndieOrderContext(order) {
+  const priced = order.metadata?.indie;
+  if (!priced) return {};
+  const en = order.locale === 'en';
+  const eur = (value) => {
+    const n = Number(value) || 0;
+    const opts = Number.isInteger(n) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+    return en ? `€${n.toLocaleString('en-US', opts)}` : `${n.toLocaleString('de-DE', opts)} €`;
+  };
+  const items = priced.lines.map((line) => `${line.label}: ${eur(line.net)}${line.regular > line.net ? (en ? ` (instead of ${eur(line.regular)})` : ` (statt ${eur(line.regular)})`) : ''}`);
+  const plans = priced.plans;
+  if (plans.firstYearNet) items.push(`${en ? 'First year of AI Brain and support' : 'Erstes Jahr AI Brain und Support'}: ${eur(plans.firstYearNet)}`);
+  const period = plans.billing === 'year'
+    ? (en ? `First year: ${eur(plans.periodNet)} net, included in this payment. Billed yearly after that.` : `Erstes Jahr: ${eur(plans.periodNet)} netto, in dieser Zahlung enthalten. Danach jährliche Abrechnung.`)
+    : plans.periodNet
+      ? (en ? `${eur(plans.periodNet)} net a month, billed monthly.` : `${eur(plans.periodNet)} netto pro Monat, monatliche Abrechnung.`)
+      : (en ? 'No monthly cost for now.' : 'Derzeit keine monatlichen Kosten.');
+  // The workshop makes Standard support free for 12 months; on a bigger support plan, that value comes off the price.
+  const credit = !plans.supportCreditMonths ? ''
+    : plans.supportMonth > plans.supportCredit
+      ? (en ? ` Includes ${eur(plans.supportCredit)} a month off your support for the first 12 months.` : ` Enthält ${eur(plans.supportCredit)} pro Monat Rabatt auf Ihren Support in den ersten 12 Monaten.`)
+      : (en ? ' Standard support is free for the first 12 months.' : ' Standard-Support ist in den ersten 12 Monaten kostenlos.');
+  const plansText = `${plans.brain}, ${plans.support}. ${period}${credit}`;
+  return {
+    itemsText: items.map((line) => `- ${line}`).join('\n'),
+    itemsHtml: items.map((line) => htmlEscape(line)).join('<br>'),
+    plansText,
+    plansHtml: htmlEscape(plansText),
+    netToday: eur(priced.netToday || priced.netOnce),
+    vat: eur(priced.vat),
+    total: eur(priced.grossOnce),
+    siteUrl: order.siteBaseUrl || 'https://indie.solutions'
   };
 }
 
@@ -981,6 +1020,12 @@ function resolveTemplateRecipient(template, order) {
     return template.recipientOverride || '';
   }
   return '';
+}
+
+// indie.solutions orders get the templates whose key starts with "indie_"; all other
+// orders (indiebox.ai) keep the original templates.
+function templateMatchesOrderSite(template, order) {
+  return String(template.key || '').startsWith('indie_') === Boolean(order.metadata?.indie);
 }
 
 function templateMatchesOrderLocale(template, order) {
@@ -1034,6 +1079,7 @@ async function triggerNotificationEvent(event, order, source) {
   let delivered = 0;
 
   for (const template of templates) {
+    if (!templateMatchesOrderSite(template, order)) continue;
     if (!templateMatchesOrderLocale(template, order)) continue;
 
     const idempotencyKey = `notification_sent:${template.key}:${order.id}`;
@@ -1370,6 +1416,123 @@ function defaultNotificationTemplates() {
       subjectTemplate: 'Thank you for your order · Indiebox #{{order.orderNumber}}',
       textTemplate: customerTextEn,
       htmlTemplate: customerHtmlEn
+    },
+    ...indieNotificationTemplates()
+  ];
+}
+
+// Emails for indie.solutions orders, worded like the website. They are seeded once and can then be
+// edited in /admin/notifications.html like the others.
+function indieNotificationTemplates() {
+  const copy = {
+    en: {
+      subject: 'Thank you for your order · indie.solutions #{{order.orderNumber}}',
+      hello: 'Hi {{customer.firstName}},',
+      intro: 'Thank you for your order. Your payment went through, and your AI Brain is on its way.',
+      order: 'Your order',
+      number: 'Order number',
+      net: 'Total, net',
+      vat: 'VAT (19%)',
+      paid: 'Paid today',
+      plans: 'AI Brain and support',
+      next: 'What happens next',
+      steps: ['We confirm your order and send you the invoice for your records.', 'Your device ships within Germany, usually within 3 to 5 working days.', 'If you chose the setup workshop, we get in touch to plan the two days with your team.'],
+      status: 'View order status',
+      statusText: 'You can check your order any time here:',
+      questions: 'Questions? Just reply to this email, or write to us at contact@brainbot.com.',
+      bye: 'The brainbot team'
+    },
+    de: {
+      subject: 'Vielen Dank für Ihre Bestellung · indie.solutions #{{order.orderNumber}}',
+      hello: 'Guten Tag {{customer.fullName}},',
+      intro: 'vielen Dank für Ihre Bestellung. Ihre Zahlung ist eingegangen, und Ihr AI Brain ist auf dem Weg.',
+      order: 'Ihre Bestellung',
+      number: 'Bestellnummer',
+      net: 'Gesamt, netto',
+      vat: 'MwSt. (19 %)',
+      paid: 'Heute bezahlt',
+      plans: 'AI Brain und Support',
+      next: 'So geht es weiter',
+      steps: ['Wir bestätigen Ihre Bestellung und schicken Ihnen die Rechnung für Ihre Unterlagen.', 'Ihr Gerät wird innerhalb Deutschlands versendet, in der Regel in 3 bis 5 Werktagen.', 'Wenn Sie den Einrichtungsworkshop gewählt haben, melden wir uns, um die zwei Tage mit Ihrem Team zu planen.'],
+      status: 'Bestellstatus ansehen',
+      statusText: 'Den Status Ihrer Bestellung sehen Sie jederzeit hier:',
+      questions: 'Fragen? Antworten Sie einfach auf diese E-Mail, oder schreiben Sie uns an contact@brainbot.com.',
+      bye: 'Ihr brainbot-Team'
+    }
+  };
+  const text = (c) => [
+    c.hello, '', c.intro, '',
+    c.order, '{{order.product}}', `${c.number}: #{{order.orderNumber}}`, '{{indie.itemsText}}',
+    `${c.net}: {{indie.netToday}}`, `${c.vat}: {{indie.vat}}`, `${c.paid}: {{indie.total}}`, '',
+    c.plans, '{{indie.plansText}}', '',
+    c.next, ...c.steps.map((step) => `- ${step}`), '',
+    c.statusText, '{{order.statusUrl}}', '',
+    c.questions, '', c.bye, 'indie.solutions'
+  ].join('\n');
+  const row = (k, v, strong) => `<tr><td style="padding:4px 12px 4px 0;color:#5b6b7e;">${k}</td><td style="padding:4px 0;text-align:right;${strong ? 'font-weight:700;' : ''}">${v}</td></tr>`;
+  const html = (c) => `
+<div style="font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0A2540;line-height:1.55;max-width:600px;margin:0 auto;padding:24px;">
+  <p style="margin:0 0 18px;font-size:20px;font-weight:800;">indie.solutions</p>
+  <p style="margin:0 0 6px;">${c.hello}</p>
+  <p style="margin:0 0 20px;">${c.intro}</p>
+  <div style="border:1.5px solid #FF4D00;border-radius:14px;padding:18px 20px;margin:0 0 22px;">
+    <p style="margin:0 0 2px;font-weight:800;font-size:16px;">{{order.product}}</p>
+    <p style="margin:0 0 12px;color:#5b6b7e;font-size:13px;">${c.number}: #{{order.orderNumber}}</p>
+    <p style="margin:0 0 12px;font-size:14px;">{{indie.itemsHtml}}</p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1px solid #edf0f3;">
+      ${row(c.net, '{{indie.netToday}}')}${row(c.vat, '{{indie.vat}}')}${row(c.paid, '{{indie.total}}', true)}
+    </table>
+  </div>
+  <p style="margin:0 0 4px;font-weight:700;">${c.plans}</p>
+  <p style="margin:0 0 20px;font-size:14px;">{{indie.plansHtml}}</p>
+  <p style="margin:0 0 6px;font-weight:700;">${c.next}</p>
+  <ul style="margin:0 0 22px;padding-left:20px;font-size:14px;">${c.steps.map((step) => `<li style="margin:0 0 4px;">${step}</li>`).join('')}</ul>
+  <p style="margin:0 0 24px;"><a href="{{order.statusUrl}}" style="display:inline-block;background:#FF4D00;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:999px;font-weight:600;font-size:15px;">${c.status}</a></p>
+  <p style="margin:0 0 18px;font-size:14px;color:#5b6b7e;">${c.questions}</p>
+  <p style="margin:0;">${c.bye}<br><a href="{{indie.siteUrl}}" style="color:#FF4D00;text-decoration:none;">indie.solutions</a></p>
+</div>`.trim();
+  const adminText = [
+    'Eine neue Bestellung über indie.solutions wurde bezahlt.', '',
+    'Bestellnummer: #{{order.orderNumber}}', 'Bestell-ID: {{order.id}}', 'Produkt: {{order.product}}',
+    '{{indie.itemsText}}', 'Netto: {{indie.netToday}}', 'MwSt.: {{indie.vat}}', 'Bezahlt: {{indie.total}} ({{order.paymentMethod}}, {{order.paidAt}})', '',
+    'Tarife', '{{indie.plansText}}', '',
+    'Kunde', '{{customer.fullName}}', '{{customer.email}}', '{{customer.phoneLine}}', '{{customer.companyLine}}', '',
+    'Rechnungsadresse', '{{billingAddress.block}}', '', 'Lieferadresse', '{{shippingAddress.block}}', '',
+    'Notizen', '{{order.notes}}', '', 'Bestellung öffnen: {{order.adminUrl}}'
+  ].join('\n');
+  return [
+    {
+      key: 'indie_order_paid_admin',
+      name: 'indie.solutions Admin: New paid order',
+      description: 'Internal notification for paid indie.solutions orders, with the setup, plans and customer data.',
+      triggerEvent: 'order.paid',
+      recipientType: 'admin',
+      locale: null,
+      subjectTemplate: 'Neue Bestellung indie.solutions · #{{order.orderNumber}} · {{order.product}}',
+      textTemplate: adminText,
+      htmlTemplate: `<pre style="font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;white-space:pre-wrap;color:#0A2540;">${adminText}</pre>`
+    },
+    {
+      key: 'indie_order_paid_customer_de',
+      name: 'indie.solutions Customer: Order confirmation (DE)',
+      description: 'Order confirmation for indie.solutions orders, German, worded like the website.',
+      triggerEvent: 'order.paid',
+      recipientType: 'customer',
+      locale: 'de',
+      subjectTemplate: copy.de.subject,
+      textTemplate: text(copy.de),
+      htmlTemplate: html(copy.de)
+    },
+    {
+      key: 'indie_order_paid_customer_en',
+      name: 'indie.solutions Customer: Order confirmation (EN)',
+      description: 'Order confirmation for indie.solutions orders, English, worded like the website.',
+      triggerEvent: 'order.paid',
+      recipientType: 'customer',
+      locale: 'en',
+      subjectTemplate: copy.en.subject,
+      textTemplate: text(copy.en),
+      htmlTemplate: html(copy.en)
     }
   ];
 }
@@ -1616,6 +1779,101 @@ function buildOrderFromRequest(body) {
     updatedAt: now,
     paidAt: null
   };
+}
+
+// ---------------------------------------------------------------------------
+// indie.solutions orders (/buy/). The browser sends the chosen setup ("cart"),
+// never a price: the price is worked out here, from the same rules as the
+// pricing section on the site. Mollie charges today's amount with 19% VAT:
+// device and workshop, plus the first year of the plans when billed yearly.
+// Monthly plans are billed each month.
+// ---------------------------------------------------------------------------
+const INDIE_PRICES = {
+  devices: {
+    box: { en: 'indie.box', de: 'indie.box', price: 5999 },
+    booster: { en: 'indie.box + indie.booster', de: 'indie.box + indie.booster', price: 13999 },
+    workstation: { en: 'indie.workstation', de: 'indie.workstation', price: 11999 }
+  },
+  workshop: { regular: 6000, bundle: 3000, deviceDiscount: 1000 },
+  brain: [
+    { en: 'AI Brain, free plan', de: 'AI Brain, kostenloser Tarif', month: 0 },
+    { en: 'AI Brain, up to 3,500 pages', de: 'AI Brain, bis zu 3.500 Seiten', month: 300 },
+    { en: 'AI Brain, up to 18,000 pages', de: 'AI Brain, bis zu 18.000 Seiten', month: 1200 },
+    { en: 'AI Brain, up to 70,000 pages', de: 'AI Brain, bis zu 70.000 Seiten', month: 3500 }
+  ],
+  care: [
+    { en: 'No updates', de: 'Keine Updates', month: 0 },
+    { en: 'Updates only', de: 'Nur Updates', month: 25 },
+    { en: 'Standard support', de: 'Standard-Support', month: 149 },
+    { en: 'Priority support', de: 'Priority-Support', month: 349 },
+    { en: 'Premium support', de: 'Premium-Support', month: 790 }
+  ],
+  // With the workshop, Standard support (or its value) is free for the first 12 months.
+  supportCredit: 149,
+  vatRate: 0.19
+};
+
+// Returns the priced order for a cart, or null if the cart is not valid.
+// Racks are never priced here: they are a custom quote.
+function priceIndieCart(cart, locale = 'de') {
+  if (!cart || typeof cart !== 'object') return null;
+  const lang = locale === 'en' ? 'en' : 'de';
+  const starter = cart.kind === 'starter';
+  const deviceKey = starter ? 'box' : String(cart.device || '');
+  const device = INDIE_PRICES.devices[deviceKey];
+  const workshop = starter ? true : cart.workshop === true;
+  const brainIndex = starter ? 0 : Number.parseInt(cart.brain, 10);
+  const careIndex = starter ? 2 : Number.parseInt(cart.care, 10);
+  const billing = !starter && cart.billing === 'year' ? 'year' : 'month';
+  const brain = INDIE_PRICES.brain[brainIndex];
+  const care = INDIE_PRICES.care[careIndex];
+  if (!device || !brain || !care) return null;
+
+  const devicePrice = workshop ? device.price - INDIE_PRICES.workshop.deviceDiscount : device.price;
+  const workshopPrice = workshop ? INDIE_PRICES.workshop.bundle : 0;
+  const netOnce = devicePrice + workshopPrice;
+  const credit = workshop ? Math.min(care.month, INDIE_PRICES.supportCredit) : 0;
+  const monthlyNet = brain.month + care.month - credit;
+  const periodNet = billing === 'year' ? monthlyNet * 10 : monthlyNet;
+  // Annual plans: the first year is paid today, with the order. Monthly plans are billed each month.
+  const firstYearNet = billing === 'year' ? periodNet : 0;
+  const netToday = netOnce + firstYearNet;
+  const vat = Math.round(netToday * INDIE_PRICES.vatRate * 100) / 100;
+  const workshopLabel = lang === 'en' ? 'Two-day setup and getting-started workshop with two custom apps' : 'Zweitägiger Einrichtungs- und Einstiegsworkshop mit zwei eigenen Apps';
+  const product = starter
+    ? (lang === 'en' ? 'Starter bundle' : 'Starter-Bundle')
+    : `${device[lang]}${workshop ? (lang === 'en' ? ' with setup workshop' : ' mit Einrichtungsworkshop') : ''}`;
+
+  return {
+    cart: { kind: starter ? 'starter' : 'custom', device: deviceKey, workshop, brain: brainIndex, care: careIndex, billing },
+    product,
+    lines: [
+      { label: device[lang], regular: device.price, net: devicePrice },
+      ...(workshop ? [{ label: workshopLabel, regular: INDIE_PRICES.workshop.regular, net: workshopPrice }] : [])
+    ],
+    plans: { brain: brain[lang], support: care[lang], billing, periodNet, firstYearNet, supportMonth: care.month, supportCredit: credit, supportCreditMonths: credit ? 12 : 0 },
+    netOnce: netOnce.toFixed(2),
+    netToday: netToday.toFixed(2),
+    vat: vat.toFixed(2),
+    grossOnce: (netToday + vat).toFixed(2)
+  };
+}
+
+// The site the customer ordered from, so Mollie and the emails send them back
+// there. Only our own sites count; anything else falls back to APP_BASE_URL.
+const ORDER_SITE_HOSTS = new Set(['indie.solutions', 'www.indie.solutions', 'staging.indie.solutions', 'indiebox.ai', 'www.indiebox.ai', 'staging.indiebox.ai', 'localhost', '127.0.0.1']);
+function orderSiteBase(req) {
+  try {
+    const origin = new URL(req.get('origin') || req.get('referer') || '');
+    if (ORDER_SITE_HOSTS.has(origin.hostname)) return origin.origin;
+  } catch {}
+  return config.appBaseUrl;
+}
+
+function indieOrderStatusUrl(order) {
+  const base = order.siteBaseUrl || config.appBaseUrl;
+  const path = order.locale === 'en' ? '/en/order-status/' : '/de/bestellstatus/';
+  return `${base}${path}?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}`;
 }
 
 // Builds an order that an admin enters manually for a project box paid by
@@ -3765,6 +4023,23 @@ app.post('/api/orders/checkout', checkoutRateLimit, async (req, res) => {
     return sendCheckoutError(req, res, 400, 'Required checkout fields are missing.', 'checkout_fields_missing');
   }
 
+  // indie.solutions: the cart decides product and amount, never a price from the browser.
+  if (req.body.cart !== undefined) {
+    const priced = priceIndieCart(req.body.cart, order.locale);
+    if (!priced) {
+      return sendCheckoutError(req, res, 400, 'The chosen setup is not valid.', 'invalid_cart');
+    }
+    order.product = priced.product;
+    order.amount = priced.grossOnce;
+    order.siteBaseUrl = orderSiteBase(req);
+    order.metadata.indie = priced;
+    const yearly = priced.plans.billing === 'year';
+    const planLine = order.locale === 'en'
+      ? `Plans: ${priced.plans.brain}; ${priced.plans.support}; EUR ${priced.plans.periodNet} net per ${yearly ? 'year, first year included in this payment' : 'month, billed monthly'}`
+      : `Tarife: ${priced.plans.brain}; ${priced.plans.support}; ${priced.plans.periodNet} EUR netto pro ${yearly ? 'Jahr, erstes Jahr in dieser Zahlung enthalten' : 'Monat, monatliche Abrechnung'}`;
+    order.notes = [planLine, order.notes].filter(Boolean).join('\n\n').slice(0, 2400);
+  }
+
   if (inventory) {
     order.metadata.inventorySnapshot = {
       availableUnits: inventory.availableUnits,
@@ -3790,11 +4065,13 @@ app.post('/api/orders/checkout', checkoutRateLimit, async (req, res) => {
       body: JSON.stringify({
         amount: {
           currency: 'EUR',
-          value: config.checkoutPriceEur
+          value: order.amount || config.checkoutPriceEur
         },
-        description: `${config.checkoutProductName} ${order.id}`,
+        description: `${order.product || config.checkoutProductName} ${order.id}`,
         method: order.paymentMethod,
-        redirectUrl: `${config.appBaseUrl}${localePrefix(order.locale)}checkout-status.html?order_id=${order.id}&status_token=${encodeURIComponent(order.statusToken)}`,
+        redirectUrl: order.metadata?.indie
+          ? indieOrderStatusUrl(order)
+          : `${config.appBaseUrl}${localePrefix(order.locale)}checkout-status.html?order_id=${order.id}&status_token=${encodeURIComponent(order.statusToken)}`,
         webhookUrl: `${config.appBaseUrl}/api/mollie/webhook`,
         metadata: {
           orderId: order.id,

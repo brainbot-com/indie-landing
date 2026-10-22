@@ -14,6 +14,7 @@ python3 "$P/trial.py"        "$P" neu/pages/request-a-trial.html
 python3 "$P/buy.py"          "$P" neu/pages/buy.html
 python3 "$P/quote.py"        "$P" neu/pages/request-a-quote.html
 python3 "$P/talk.py"         "$P" neu/pages/talk-to-us.html
+python3 "$P/status.py"       "$P" neu/pages/order-status.html
 python3 "$P/industry_req.py" "$P" neu/pages/request-your-industry.html
 python3 "$P/notify.py"       "$P" neu/pages/get-notified.html
 

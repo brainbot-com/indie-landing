@@ -122,7 +122,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     <link rel="icon" href="{R}assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="{R}style.css?v=20260818c">
     <link rel="stylesheet" href="{R}neu/brain-home.css?v=6">
-    <link rel="stylesheet" href="{R}neu/human.css?v=408">
+    <link rel="stylesheet" href="{R}neu/human.css?v=409">
     {extra_head}<script src="{R}matomo.js?v=20261015d" data-site-id="{MATOMO_SITE_ID}" data-privacy="/en/legal/privacy/" defer></script>
 </head>
 <body>
@@ -133,7 +133,7 @@ def page(title, desc, R, body, extra_head='', pill=True, path='', image='neu/img
     {foot}
 {PILL if pill else ''}
     <script src="{R}script.js?v=20260818"></script>
-    <script src="{R}neu/human.js?v=129"></script>
+    <script src="{R}neu/human.js?v=132"></script>
 </body>
 </html>
 '''
@@ -749,6 +749,7 @@ PAGES=[
  ('en/webinars/email-management/index.html','webinar-mail',"Webinar: email management with local AI agents | indie.solutions","A free online webinar, date coming soon. See how local AI agents, powered by your AI Brain, sort your inbox and draft replies without your email leaving your office.",None,'',"",""),
  ('en/webinars/index.html','webinars',"Webinars: see the AI Brain live | indie.solutions","Join a free online webinar and see the AI Brain live, with time for your questions.",None,'',"",""),
  ('en/buy/index.html','buy',"Get your AI Brain | indie.solutions","Order your AI Brain: the starter bundle or the setup you put together, delivered within Germany.",None,'',"",""),
+ ('en/order-status/index.html','order-status',"Order status | indie.solutions","The status of your indie.solutions order.",None,'',"",""),
  ('en/talk-to-us/index.html','talk-to-us',"Talk to us | indie.solutions","Questions about the AI Brain, the devices or pricing? Send us a message and the brainbot team gets back to you.",None,'',"",""),
  ('en/request-a-quote/index.html','request-a-quote',"Request a custom quote | indie.solutions","Request a custom quote for the indie.rack: servers sized to the number of people who use them.",None,'',"",""),
  ('en/request-a-trial/index.html','request-a-trial',"Request a trial | indie.solutions","Tell us about your team, and we will set up a trial of your private AI Brain.",None,'',"",""),
@@ -762,7 +763,7 @@ PAGES=[
  ('en/devices-and-software/index.html','devices-and-software',"Devices and software for your AI Brain | indie.solutions","Four devices for your private AI Brain, each with the AI Brain, AI Agent Command Center and Agent Studio preinstalled. Specs and details.",'hero-devices.jpg','50% 70%',"Your AI Brain, on the device that fits your team.",""),
 ]
 for out,name,title,desc,img,pos,h1,sub in PAGES:
-    if os.path.exists(f'neu/pages/{name}.html'): sub_page(out,name,title,desc,img,pos,h1,sub,buttons=(name not in ('software','product','devices-and-software','about') and not name.startswith('device-')),webinars_on=(name not in ('devices-and-software','about','request-a-trial','buy','request-a-quote','talk-to-us','request-your-industry','get-notified','webinars','webinar-crm','webinar-mail','lightforce') and not name.startswith('legal-') and not name.startswith('device-')))
+    if os.path.exists(f'neu/pages/{name}.html'): sub_page(out,name,title,desc,img,pos,h1,sub,buttons=(name not in ('software','product','devices-and-software','about') and not name.startswith('device-')),webinars_on=(name not in ('devices-and-software','about','request-a-trial','buy','request-a-quote','talk-to-us','order-status','request-your-industry','get-notified','webinars','webinar-crm','webinar-mail','lightforce') and not name.startswith('legal-') and not name.startswith('device-')))
 print('ok')
 
 # German site, built from the English pages.
