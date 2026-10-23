@@ -979,7 +979,7 @@ function buildIndieOrderContext(order) {
     netToday: eur(priced.netToday || priced.netOnce),
     vat: eur(priced.vat),
     total: eur(priced.grossOnce),
-    siteUrl: order.siteBaseUrl || 'https://indie.solutions'
+    siteUrl: order.metadata?.siteBaseUrl || 'https://indie.solutions'
   };
 }
 
@@ -1871,7 +1871,7 @@ function orderSiteBase(req) {
 }
 
 function indieOrderStatusUrl(order) {
-  const base = order.siteBaseUrl || config.appBaseUrl;
+  const base = order.metadata?.siteBaseUrl || config.appBaseUrl;
   const path = order.locale === 'en' ? '/en/order-status/' : '/de/bestellstatus/';
   return `${base}${path}?order_id=${encodeURIComponent(order.id)}&status_token=${encodeURIComponent(order.statusToken)}`;
 }
@@ -4031,7 +4031,9 @@ app.post('/api/orders/checkout', checkoutRateLimit, async (req, res) => {
     }
     order.product = priced.product;
     order.amount = priced.grossOnce;
-    order.siteBaseUrl = orderSiteBase(req);
+    // In metadata, because the orders table has no column for it: the webhook
+    // reloads the order from the DB before the emails go out.
+    order.metadata.siteBaseUrl = orderSiteBase(req);
     order.metadata.indie = priced;
     const yearly = priced.plans.billing === 'year';
     const planLine = order.locale === 'en'
